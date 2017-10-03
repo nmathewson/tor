@@ -377,6 +377,21 @@ tor_gettimeofday_cache_clear(void)
   cached_time_hires.tv_sec = 0;
 }
 
+/**
+ * Run the event loop for the provided event_base, handling events until
+ * something stops it.  If <b>once</b> is set, then just poll-and-run
+ * once, then exit.  Return 0 on success, -1 if an error occurred, or 1
+ * if we exited because no events were pending or active.
+ *
+ * This isn't reentrant or multithreaded.
+ */
+int
+tor_libevent_run_event_loop(struct event_base *base, int once)
+{
+  const int flags = once ? EVLOOP_ONCE : 0;
+  return event_base_loop(base, flags);
+}
+
 /** Tell the event loop to exit after <b>delay</b>.  If <b>delay</b> is NULL,
  * instead exit after we're done running the currently active events. */
 void
