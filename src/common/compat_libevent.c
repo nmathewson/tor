@@ -221,6 +221,99 @@ periodic_timer_free_(periodic_timer_t *timer)
   tor_free(timer);
 }
 
+/**
+ * Type used to represent events that run directly from the main loop,
+ * either because they are activated from elsewhere in the code, or
+ * because they have a simple timeout.
+ *
+ * We use this type to avoid exposing Libevent's API throughout the rest
+ * of the codebase.
+ */
+struct mainloop_event_t {
+  struct event *ev;
+  void (*cb)(mainloop_event_t *, void *);
+  void *userdata;
+};
+
+/**
+ * Internal: Implements mainloop event using a libevent event.
+ */
+static void
+mainloop_event_cb(evutil_socket_t fd, short what, void *arg)
+{
+  (void)fd;
+  (void)what;
+  mainloop_event_t *mev = arg;
+  mev->cb(mev, mev->userdata);
+}
+
+/**
+ * Create and return a new mainloop_event_t to run the function <b>cb</b>.
+ *
+ * When run, the callback function will be passed the mainloop_event_t
+ * and <b>userdata</b> as its arguments.
+ *
+ * The event is not scheduled by default: Use mainloop_event_activate()
+ * or mainloop_event_schedule() to make it run.
+ */
+mainloop_event_t *
+mainloop_event_new(void (*cb)(mainloop_event_t *, void *),
+                   void *userdata)
+{
+  struct event_base *base = tor_libevent_get_base();
+  mainloop_event_t *mev = tor_malloc_zero(sizeof(mainloop_event_t));
+  mev->ev = tor_event_new(base, -1, 0, mainloop_event_cb, mev);
+  tor_assert(mev->ev);
+  mev->cb = cb;
+  mev->userdata = userdata;
+  return mev;
+}
+
+/**
+ * Schedule <b>event</b> to run in the main loop, immediately.  If it is
+ * already scheduled to run later, it will run now instead.  This
+ * function will have no effect if the event is already scheduled to run.
+ *
+ * This function may only be called from the main thread.
+ */
+void
+mainloop_event_activate(mainloop_event_t *event)
+{
+  event_active(event->ev, EV_READ, 1);
+}
+
+/** Schedule <b>event</b> to run in the main loop, after a delay of <b>tv</b>.
+ *
+ * If the event is scheduled for a different time, cancel it and run
+ * after this delay instead.  If the event is currently pending to run
+ * <em>now</b>, has no effect.
+ *
+ * This function may only be called from the main thread.
+ */
+int
+mainloop_event_schedule(mainloop_event_t *event, const struct timeval *tv)
+{
+  return event_add(event->ev, tv);
+}
+
+/** Cancel <b>event</b> if it is currently active or pending. */
+void
+mainloop_event_cancel(mainloop_event_t *event)
+{
+  event_del(event->ev);
+}
+
+/** Cancel <b>event</b> and release all storage associated with it. */
+void
+mainloop_event_free(mainloop_event_t *event)
+{
+  if (!event)
+    return;
+  tor_event_free(event->ev);
+  memset(event, 0xb8, sizeof(*event));
+  tor_free(event);
+}
+
 int
 tor_init_libevent_rng(void)
 {
