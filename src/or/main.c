@@ -719,7 +719,7 @@ tell_event_loop_to_run_external_code(void)
 {
   if (!called_loop_once) {
     struct timeval tv = { 0, 0 };
-    tor_event_base_loopexit(tor_libevent_get_base(), &tv);
+    tor_libevent_exit_loop_after_delay(tor_libevent_get_base(), &tv);
     called_loop_once = 1; /* hack to avoid adding more exit events */
   }
 }

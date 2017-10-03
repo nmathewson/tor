@@ -377,6 +377,23 @@ tor_gettimeofday_cache_clear(void)
   cached_time_hires.tv_sec = 0;
 }
 
+/** Tell the event loop to exit after <b>delay</b>.  If <b>delay</b> is NULL,
+ * instead exit after we're done running the currently active events. */
+void
+tor_libevent_exit_loop_after_delay(struct event_base *base,
+                                   const struct timeval *delay)
+{
+  event_base_loopexit(base, delay);
+}
+
+/** Tell the event loop to exit after running whichever callback is currently
+ * active. */
+void
+tor_libevent_exit_loop_after_callback(struct event_base *base)
+{
+  event_base_loopbreak(base);
+}
+
 #ifdef TOR_UNIT_TESTS
 /** For testing: force-update the cached time to a given value. */
 void
