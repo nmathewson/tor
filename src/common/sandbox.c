@@ -247,8 +247,12 @@ static int filter_nopar_gen[] = {
     SCMP_SYS(recvmsg),
     SCMP_SYS(recvfrom),
     SCMP_SYS(sendto),
+
     SCMP_SYS(unlink),
-    SCMP_SYS(poll)
+    SCMP_SYS(unlinkat),
+    SCMP_SYS(poll),
+    SCMP_SYS(ppoll),
+    SCMP_SYS(newfstatat),
 };
 
 /* These macros help avoid the error where the number of filters we add on a
