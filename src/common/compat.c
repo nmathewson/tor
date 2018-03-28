@@ -200,8 +200,16 @@ int
 tor_rename(const char *path_old, const char *path_new)
 {
   log_debug(LD_FS, "Renaming %s to %s", path_old, path_new);
-  return rename(sandbox_intern_string(path_old),
-                sandbox_intern_string(path_new));
+  const char *path_old_i = sandbox_intern_string(path_old);
+  const char *path_new_i = sandbox_intern_string(path_new);
+
+#if defined(USE_LIBSECCOMP)
+  /* We need to call the rename() syscall directly, since if we call
+   * the wrapper in glibc, we might get renameat() instead. */
+  return syscall(__NR_rename, path_old_i, path_new_i);
+#else
+  return rename(path_old_i, path_new_i);
+#endif
 }
 
 #if defined(HAVE_SYS_MMAN_H) || defined(RUNNING_DOXYGEN)

@@ -1,0 +1,5 @@
+  o Minor features (sandbox):
+    - When built to use the seccomp2 sandbox on Linux, call the rename
+      systemcall directly rather than using glibc's wrapper, which in
+      newer versions of glibc will sometimes call renameat() instead.
+      Fixes another part of 24454.
