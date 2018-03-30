@@ -440,7 +440,7 @@ if test "x$enable_rust" = "xyes"; then
     AC_MSG_CHECKING([rust crate dependencies])
     AC_ARG_VAR([TOR_RUST_DEPENDENCIES], [path to directory with local crate mirror])
     if test "x$TOR_RUST_DEPENDENCIES" = "x"; then
-      TOR_RUST_DEPENDENCIES="$srcdir/src/ext/rust/"
+      TOR_RUST_DEPENDENCIES="$srcdir/src/ext/rust/crates"
       NEED_MOD=1
     fi
     if test ! -d "$TOR_RUST_DEPENDENCIES"; then
