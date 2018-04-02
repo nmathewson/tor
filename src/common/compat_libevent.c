@@ -324,7 +324,7 @@ mainloop_event_cancel(mainloop_event_t *event)
 
 /** Cancel <b>event</b> and release all storage associated with it. */
 void
-mainloop_event_free(mainloop_event_t *event)
+mainloop_event_free_(mainloop_event_t *event)
 {
   if (!event)
     return;

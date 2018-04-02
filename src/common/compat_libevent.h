@@ -41,7 +41,9 @@ void mainloop_event_activate(mainloop_event_t *event);
 int mainloop_event_schedule(mainloop_event_t *event,
                             const struct timeval *delay);
 void mainloop_event_cancel(mainloop_event_t *event);
-void mainloop_event_free(mainloop_event_t *event);
+void mainloop_event_free_(mainloop_event_t *event);
+#define mainloop_event_free(event) \
+  FREE_AND_NULL(mainloop_event_t, mainloop_event_free_, (event))
 
 /** Defines a configuration for using libevent with Tor: passed as an argument
  * to tor_libevent_initialize() to describe how we want to set up. */
