@@ -3524,6 +3524,7 @@ tor_free_all(int postfork)
   periodic_timer_free(refill_timer);
   tor_event_free(shutdown_did_not_work_event);
   tor_event_free(initialize_periodic_events_event);
+  mainloop_event_free(directory_all_unreachable_cb_event);
 
 #ifdef HAVE_SYSTEMD_209
   periodic_timer_free(systemd_watchdog_timer);
