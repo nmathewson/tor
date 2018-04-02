@@ -228,6 +228,9 @@ periodic_timer_free_(periodic_timer_t *timer)
  *
  * We use this type to avoid exposing Libevent's API throughout the rest
  * of the codebase.
+ *
+ * This type can't be used for all events: it doesn't handle events that
+ * are triggered by signals or by sockets.
  */
 struct mainloop_event_t {
   struct event *ev;
