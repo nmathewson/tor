@@ -251,7 +251,9 @@ mainloop_event_cb(evutil_socket_t fd, short what, void *arg)
  * Create and return a new mainloop_event_t to run the function <b>cb</b>.
  *
  * When run, the callback function will be passed the mainloop_event_t
- * and <b>userdata</b> as its arguments.
+ * and <b>userdata</b> as its arguments.  The <b>userdata</b> pointer
+ * must remain valid for as long as the mainloop_event_t event exists:
+ * it is your responsibility to free it.
  *
  * The event is not scheduled by default: Use mainloop_event_activate()
  * or mainloop_event_schedule() to make it run.
@@ -260,6 +262,8 @@ mainloop_event_t *
 mainloop_event_new(void (*cb)(mainloop_event_t *, void *),
                    void *userdata)
 {
+  tor_assert(cb);
+
   struct event_base *base = tor_libevent_get_base();
   mainloop_event_t *mev = tor_malloc_zero(sizeof(mainloop_event_t));
   mev->ev = tor_event_new(base, -1, 0, mainloop_event_cb, mev);
@@ -271,14 +275,16 @@ mainloop_event_new(void (*cb)(mainloop_event_t *, void *),
 
 /**
  * Schedule <b>event</b> to run in the main loop, immediately.  If it is
- * already scheduled to run later, it will run now instead.  This
- * function will have no effect if the event is already scheduled to run.
+ * not scheduled, it will run anyway. If it is already scheduled to run
+ * later, it will run now instead.  This function will have no effect if
+ * the event is already scheduled to run.
  *
  * This function may only be called from the main thread.
  */
 void
 mainloop_event_activate(mainloop_event_t *event)
 {
+  tor_assert(event);
   event_active(event->ev, EV_READ, 1);
 }
 
@@ -288,18 +294,31 @@ mainloop_event_activate(mainloop_event_t *event)
  * after this delay instead.  If the event is currently pending to run
  * <em>now</b>, has no effect.
  *
+ * Do not call this function with <b>tv</b> == NULL -- use
+ * mainloop_event_activate() instead.
+ *
  * This function may only be called from the main thread.
  */
 int
 mainloop_event_schedule(mainloop_event_t *event, const struct timeval *tv)
 {
+  tor_assert(event);
+  if (BUG(tv == NULL)) {
+    // LCOV_EXCL_START
+    mainloop_event_activate(event);
+    return 0;
+    // LCOV_EXCL_STOP
+  }
   return event_add(event->ev, tv);
 }
 
-/** Cancel <b>event</b> if it is currently active or pending. */
+/** Cancel <b>event</b> if it is currently active or pending. (Do nothing if
+ * the event is not currently active or pending.) */
 void
 mainloop_event_cancel(mainloop_event_t *event)
 {
+  if (!event)
+    return;
   event_del(event->ev);
 }
 
