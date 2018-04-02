@@ -406,7 +406,6 @@ main(int argc, char **argv)
 
   {
     int r = threadpool_register_reply_event(tp,
-                                            tor_libevent_get_base(),
                                             replysock_readable_cb);
     tor_assert(r == 0);
   }

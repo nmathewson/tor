@@ -1,3 +1,4 @@
+
 /* copyright (c) 2013-2015, The Tor Project, Inc. */
 /* See LICENSE for licensing information */
 
@@ -623,9 +624,10 @@ reply_event_cb(evutil_socket_t sock, short events, void *arg)
  */
 int
 threadpool_register_reply_event(threadpool_t *tp,
-                                struct event_base *base,
                                 void (*cb)(threadpool_t *tp))
 {
+  struct event_base *base = tor_libevent_get_base();
+
   if (tp->reply_event) {
     tor_event_free(tp->reply_event);
   }

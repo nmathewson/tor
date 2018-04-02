@@ -96,9 +96,8 @@ cpu_init(void)
                                 worker_state_free_void,
                                 NULL);
 
-    int r = threadpool_register_reply_event(threadpool,
-                                            tor_libevent_get_base(),
-                                            NULL);
+    int r = threadpool_register_reply_event(threadpool, NULL);
+
     tor_assert(r == 0);
   }
 
