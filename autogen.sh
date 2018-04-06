@@ -17,7 +17,8 @@ fi
 set -e
 
 # Run this to generate all the initial makefiles, etc.
-aclocal -I m4 && \
+libtoolize && \
+	aclocal -I m4 && \
 	autoheader && \
 	autoconf && \
 	automake --add-missing --copy
