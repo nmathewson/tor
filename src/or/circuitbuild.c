@@ -2862,12 +2862,25 @@ extend_info_from_node(const node_t *node, int for_direct_connect)
 
   if ((is_bridge && for_direct_connect) || !we_use_mds) {
     /* We need an ri in this case. */
-    if (!node->ri)
+    if (!node->ri) {
+      log_warn(LD_GENERAL, "(1) Returning NULL. is_bridge==%d, direct==%d, "
+               "we_use_mds==%d, node->ri == %p; node->rs == %p, "
+               "node->md == %p",
+               is_bridge, for_direct_connect, we_use_mds, node->ri,
+               node->rs, node->md);
       return NULL;
+    }
   } else {
     /* Otherwise we need an md. */
-    if (node->rs == NULL || node->md == NULL)
+    if (node->rs == NULL || node->md == NULL) {
+      log_warn(LD_GENERAL, "(2) Returning NULL. is_bridge==%d, direct==%d, "
+               "we_use_mds==%d, node->ri == %p; node->rs == %p, "
+               "node->md == %p. Node purpose == %d ",
+               is_bridge, for_direct_connect, we_use_mds, node->ri,
+               node->rs, node->md,
+               node->ri?node->ri->purpose:-1);
       return NULL;
+    }
   }
 
   /* Choose a preferred address first, but fall back to an allowed address.
@@ -2889,8 +2902,8 @@ extend_info_from_node(const node_t *node, int for_direct_connect)
 
   /* Every node we connect or extend to must support ntor */
   if (!node_has_curve25519_onion_key(node)) {
-    log_fn(LOG_PROTOCOL_WARN, LD_CIRC,
-           "Attempted to create extend_info for a node that does not support "
+    log_fn(LOG_WARN, LD_CIRC,
+           "(3) Attempted to create extend_info for a node that does not support "
            "ntor: %s", node_describe(node));
     return NULL;
   }
@@ -2928,8 +2941,14 @@ extend_info_from_node(const node_t *node, int for_direct_connect)
                            curve_pubkey,
                            &ap.addr,
                            ap.port);
-  else
+  else {
+    log_warn(LD_GENERAL, "(4) Returning NULL. is_bridge==%d, direct==%d, "
+             "we_use_mds==%d, node->ri == %p; node->rs == %p, "
+             "node->md == %p, valid_addr==%d",
+             is_bridge, for_direct_connect, we_use_mds, node->ri,
+             node->rs, node->md, valid_addr);
     return NULL;
+  }
 }
 
 /** Release storage held by an extend_info_t struct. */
