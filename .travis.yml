@@ -146,4 +146,4 @@ after_failure:
 
 after_success:
   ## If this build was one that produced coverage, upload it.
-  - if [[ "$COVERAGE_OPTIONS" != "" ]]; then coveralls -b . --dryrun --exclude src/test --gcov-options '\-p'; fi
+  - if [[ "$COVERAGE_OPTIONS" != "" ]]; then coveralls -b . --exclude src/test --gcov-options '\-p'; fi
