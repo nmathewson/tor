@@ -1383,7 +1383,6 @@ STATIC periodic_event_item_t periodic_events[] = {
   CALLBACK(check_onion_keys_expiry_time, PERIODIC_EVENT_ROLE_ROUTER),
   CALLBACK(clean_consdiffmgr, PERIODIC_EVENT_ROLE_ROUTER),
   CALLBACK(expire_old_ciruits_serverside, PERIODIC_EVENT_ROLE_ROUTER),
-  CALLBACK(retry_dns, PERIODIC_EVENT_ROLE_ROUTER),
   CALLBACK(rotate_onion_key, PERIODIC_EVENT_ROLE_ROUTER),
 
   /* Authorities (bridge and directory) only. */
@@ -1396,7 +1395,10 @@ STATIC periodic_event_item_t periodic_events[] = {
 
   /* Relay only. */
   CALLBACK(check_canonical_channels, PERIODIC_EVENT_ROLE_RELAY),
-  CALLBACK(check_dns_honesty, PERIODIC_EVENT_ROLE_RELAY),
+
+  /* Exit only */
+  CALLBACK(check_dns_honesty, PERIODIC_EVENT_ROLE_EXIT),
+  CALLBACK(retry_dns, PERIODIC_EVENT_ROLE_EXIT),
 
   /* Hidden Service service only. */
   CALLBACK(hs_service, PERIODIC_EVENT_ROLE_HS_SERVICE),
@@ -1465,6 +1467,8 @@ get_my_roles(const or_options_t *options)
   int is_bridgeauth = authdir_mode_bridge(options);
   int is_hidden_service = !!hs_service_get_num_services() ||
                           !!rend_num_services();
+  int is_exit = public_server_mode(options) &&
+    !router_my_exit_policy_is_reject_star();
 
   if (is_bridge) roles |= PERIODIC_EVENT_ROLE_BRIDGE;
   if (is_client) roles |= PERIODIC_EVENT_ROLE_CLIENT;
@@ -1472,7 +1476,7 @@ get_my_roles(const or_options_t *options)
   if (is_dirauth) roles |= PERIODIC_EVENT_ROLE_DIRAUTH;
   if (is_bridgeauth) roles |= PERIODIC_EVENT_ROLE_BRIDGEAUTH;
   if (is_hidden_service) roles |= PERIODIC_EVENT_ROLE_HS_SERVICE;
-
+  if (is_exit) roles |= PERIODIC_EVENT_ROLE_EXIT;
   return roles;
 }
 
@@ -2101,7 +2105,8 @@ rend_cache_failure_clean_callback(time_t now, const or_options_t *options)
 }
 
 /**
- * Periodic callback: If we're a server and initializing dns failed, retry.
+ * Periodic callback: If we're an exit server and initializing dns failed,
+ * retry.
  */
 static int
 retry_dns_callback(time_t now, const or_options_t *options)
