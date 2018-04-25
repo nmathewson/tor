@@ -198,6 +198,12 @@ monotime_coarse_set_mock_time_nsec(int64_t nsec)
 static int64_t last_pctr = 0;
 /** Protected by lock: offset we must add to monotonic time values. */
 static int64_t pctr_offset = 0;
+
+/* Protected by lock: as above, but for GetTickCount64. */
+static int64_t last_gtc64 = 0;
+/** Protected by lock: offset we must add to monotonic time values. */
+static int64_t gtc64_offset = 0;
+
 /* If we are using GetTickCount(), how many times has it rolled over? */
 static uint32_t rollover_count = 0;
 /* If we are using GetTickCount(), what's the last value it returned? */
@@ -205,27 +211,45 @@ static int64_t last_tick_count = 0;
 
 /** Helper for windows: Called with a sequence of times that are supposed
  * to be monotonic; increments them as appropriate so that they actually
- * _are_ monotonic.
+ * _are_ monotonic.  Use <b>offset_ptr</b> for the current offset to add
+ * to the time, and <b>last_pctr_ptr</b> for the last (monotonic) time
+ * in sequence.
  *
  * Caller must hold lock. */
-STATIC int64_t
-ratchet_performance_counter(int64_t count_raw)
+static inline int64_t
+ratchet_performance_counter_impl(int64_t count_raw,
+                                 int64_t *offset_ptr,
+                                 int64_t *last_pctr_ptr)
 {
   /* must hold lock */
-  const int64_t count_adjusted = count_raw + pctr_offset;
+  const int64_t count_adjusted = count_raw + *offset_ptr;
 
-  if (PREDICT_UNLIKELY(count_adjusted < last_pctr)) {
+  if (PREDICT_UNLIKELY(count_adjusted < *last_pctr_ptr)) {
     /* Monotonicity failed! Pretend no time elapsed. */
-    pctr_offset = last_pctr - count_raw;
-    return last_pctr;
+    *offset_ptr = *last_pctr_ptr - count_raw;
+    return *last_pctr_ptr;
   } else {
-    last_pctr = count_adjusted;
+    *last_pctr_ptr = count_adjusted;
     return count_adjusted;
   }
 }
 
 STATIC int64_t
-ratchet_coarse_performance_counter(const int64_t count_raw)
+ratchet_performance_counter(int64_t count_raw)
+{
+  return ratchet_performance_counter_impl(count_raw, &pctr_offset, &last_pctr);
+}
+
+
+STATIC int64_t
+ratchet_coarse_performance_counter_64(int64_t count_raw)
+{
+  return ratchet_performance_counter_impl(count_raw,
+                                          &gtc64_offset, &last_gtc64);
+}
+
+STATIC int64_t
+ratchet_coarse_performance_counter_32(const int64_t count_raw)
 {
   int64_t count = count_raw + (((int64_t)rollover_count) << 32);
   while (PREDICT_UNLIKELY(count < last_tick_count)) {
@@ -266,7 +290,7 @@ ratchet_timeval(const struct timeval *timeval_raw, struct timeval *out)
 void
 monotime_reset_ratchets_for_testing(void)
 {
-  last_pctr = pctr_offset = last_tick_count = 0;
+  last_pctr = pctr_offset = last_tick_count = last_gtc64 = gtc64_offset = 0;
   rollover_count = 0;
   memset(&last_timeofday, 0, sizeof(struct timeval));
   memset(&timeofday_offset, 0, sizeof(struct timeval));
@@ -488,14 +512,15 @@ monotime_coarse_get(monotime_coarse_t *out)
   }
 #endif
 
+  EnterCriticalSection(&monotime_coarse_lock);
   if (GetTickCount64_fn) {
-    out->tick_count_ = (int64_t)GetTickCount64_fn();
+    int64_t tick = (int64_t)GetTickCount64_fn();
+    out->tick_count_ = ratchet_coarse_performance_counter_64(tick);
   } else {
-    EnterCriticalSection(&monotime_coarse_lock);
     DWORD tick = GetTickCount();
-    out->tick_count_ = ratchet_coarse_performance_counter(tick);
-    LeaveCriticalSection(&monotime_coarse_lock);
+    out->tick_count_ = ratchet_coarse_performance_counter_32(tick);
   }
+  LeaveCriticalSection(&monotime_coarse_lock);
 }
 
 int64_t

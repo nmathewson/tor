@@ -147,7 +147,8 @@ void monotime_coarse_set_mock_time_nsec(int64_t);
 #ifdef COMPAT_TIME_PRIVATE
 #if defined(_WIN32) || defined(TOR_UNIT_TESTS)
 STATIC int64_t ratchet_performance_counter(int64_t count_raw);
-STATIC int64_t ratchet_coarse_performance_counter(int64_t count_raw);
+STATIC int64_t ratchet_coarse_performance_counter_32(int64_t count_raw);
+STATIC int64_t ratchet_coarse_performance_counter_64(int64_t count_raw);
 #endif
 #if defined(MONOTIME_USING_GETTIMEOFDAY) || defined(TOR_UNIT_TESTS)
 STATIC void ratchet_timeval(const struct timeval *timeval_raw,

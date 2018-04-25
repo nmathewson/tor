@@ -5569,11 +5569,11 @@ test_util_monotonic_time_ratchet(void *arg)
 
   /* win32, GetTickCounts32 ratchet-and-rollover-detector. */
   const int64_t R = ((int64_t)1) << 32;
-  tt_i64_op(5, OP_EQ, ratchet_coarse_performance_counter(5));
-  tt_i64_op(1000, OP_EQ, ratchet_coarse_performance_counter(1000));
-  tt_i64_op(5+R, OP_EQ, ratchet_coarse_performance_counter(5));
-  tt_i64_op(10+R, OP_EQ, ratchet_coarse_performance_counter(10));
-  tt_i64_op(4+R*2, OP_EQ, ratchet_coarse_performance_counter(4));
+  tt_i64_op(5, OP_EQ, ratchet_coarse_performance_counter_32(5));
+  tt_i64_op(1000, OP_EQ, ratchet_coarse_performance_counter_32(1000));
+  tt_i64_op(5+R, OP_EQ, ratchet_coarse_performance_counter_32(5));
+  tt_i64_op(10+R, OP_EQ, ratchet_coarse_performance_counter_32(10));
+  tt_i64_op(4+R*2, OP_EQ, ratchet_coarse_performance_counter_32(4));
 
   /* gettimeofday regular ratchet. */
   struct timeval tv_in = {0,0}, tv_out;
