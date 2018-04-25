@@ -204,8 +204,9 @@ static int64_t last_gtc64 = 0;
 /** Protected by lock: offset we must add to monotonic time values. */
 static int64_t gtc64_offset = 0;
 
-/* If we are using GetTickCount(), how many times has it rolled over? */
-static uint32_t rollover_count = 0;
+/* If we are using GetTickCount(), what do we add to it to account
+ * for rollovers and step-backs? */
+static int64_t tick_count_offset = 0;
 /* If we are using GetTickCount(), what's the last value it returned? */
 static int64_t last_tick_count = 0;
 
@@ -251,10 +252,19 @@ ratchet_coarse_performance_counter_64(int64_t count_raw)
 STATIC int64_t
 ratchet_coarse_performance_counter_32(const int64_t count_raw)
 {
-  int64_t count = count_raw + (((int64_t)rollover_count) << 32);
+  const int64_t SMALL_VALUE = 3600 * 1000; /* One hour. */
+  int64_t count = count_raw + tick_count_offset;
   while (PREDICT_UNLIKELY(count < last_tick_count)) {
-    ++rollover_count;
-    count = count_raw + (((int64_t)rollover_count) << 32);
+    if ((last_tick_count - count) < SMALL_VALUE) {
+      /* If it hopped back just a little, that's probably just a
+       * monotonicity failure. Enforce monotonicity.*/
+      tick_count_offset = last_tick_count - count_raw;
+    } else {
+      /* If it hopped back a lot, that's probably a roll-over in the
+       * 32-bit counter. */
+      tick_count_offset += ((int64_t)1)<<32;
+    }
+    count = count_raw + tick_count_offset;
   }
   last_tick_count = count;
   return count;
@@ -291,7 +301,7 @@ void
 monotime_reset_ratchets_for_testing(void)
 {
   last_pctr = pctr_offset = last_tick_count = last_gtc64 = gtc64_offset = 0;
-  rollover_count = 0;
+  tick_count_offset = 0;
   memset(&last_timeofday, 0, sizeof(struct timeval));
   memset(&timeofday_offset, 0, sizeof(struct timeval));
 }
