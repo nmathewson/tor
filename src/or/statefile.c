@@ -37,6 +37,7 @@
 #include "control.h"
 #include "entrynodes.h"
 #include "hibernate.h"
+#include "main.h"
 #include "rephist.h"
 #include "router.h"
 #include "sandbox.h"
@@ -686,8 +687,10 @@ save_transport_to_state(const char *transport,
 void
 or_state_mark_dirty(or_state_t *state, time_t when)
 {
-  if (state->next_write > when)
+  if (state->next_write > when) {
     state->next_write = when;
+    reschedule_or_state_save();
+  }
 }
 
 STATIC void
