@@ -473,7 +473,7 @@ or_state_save(time_t now)
 
   tor_assert(global_state);
 
-  if (global_state->next_write >= now)
+  if (global_state->next_write > now)
     return 0;
 
   /* Call everything else that might dirty the state even more, in order
