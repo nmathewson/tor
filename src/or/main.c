@@ -1995,7 +1995,10 @@ save_state_callback(time_t now, const or_options_t *options)
   if (next_write == TIME_MAX) {
     return 86400;
   } else if (BUG(next_write <= now)) {
-    return -1;
+    /* This can't happen due to clock jumps, since the value of next_write
+     * is based on the same "now" that we passed to or_state_save().
+     */
+    return PERIODIC_EVENT_NO_UPDATE;
   } else {
     return next_write - now;
   }
