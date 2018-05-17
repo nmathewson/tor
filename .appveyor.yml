@@ -8,10 +8,10 @@ environment:
   matrix:
   - target: i686-w64-mingw32
     compiler_path: mingw32
-    openssl_path: /OpenSSL-Win32
+    openssl_path: /c/OpenSSL-Win32
   - target: x86_64-w64-mingw32
     compiler_path: mingw64
-    openssl_path: /OpenSSL-Win64
+    openssl_path: /c/OpenSSL-Win64
 
 install:
 - ps: >-
