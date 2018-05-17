@@ -81,5 +81,5 @@ on_finish:
 # Cache our libevent build so that we don't have to rebuild it every time.
 # Re-builds will happen whenever the powershell portion of the "install"
 # section of this file changes.
-cache:
-- /c/projects/libevent -> "${env:APPVEYOR_BUILD_FOLDER}"/.appveyor-libevent-version
+#cache:
+#- /c/projects/libevent -> "${env:APPVEYOR_BUILD_FOLDER}"/.appveyor-libevent-version
