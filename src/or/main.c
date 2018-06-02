@@ -212,6 +212,12 @@ static int main_loop_should_exit = 0;
  */
 static int main_loop_exit_value = 0;
 
+/**
+ * Event to call when the system clock has jumped and we may need to
+ * recalculate voting timings.
+ */
+static mainloop_event_t *recalculate_consensus_data_ev = NULL;
+
 /** The system clock jumped forward and we might have gone from a non-live
  *  consensus to a live one. In this case we want to recalculate some consensus
  *  data to make sure that various consensus-related metadata were computed
@@ -1364,7 +1370,6 @@ CALLBACK(downrate_stability);
 CALLBACK(expire_old_ciruits_serverside);
 CALLBACK(fetch_networkstatus);
 CALLBACK(heartbeat);
-CALLBACK(recalculate_consensus_data);
 CALLBACK(hs_service);
 CALLBACK(launch_descriptor_fetches);
 CALLBACK(launch_reachability_tests);
@@ -1402,7 +1407,6 @@ STATIC periodic_event_item_t periodic_events[] = {
   CALLBACK(save_state, PERIODIC_EVENT_ROLE_ALL, 0),
   CALLBACK(rotate_x509_certificate, PERIODIC_EVENT_ROLE_ALL, 0),
   CALLBACK(write_stats_file, PERIODIC_EVENT_ROLE_ALL, 0),
-  CALLBACK(recalculate_consensus_data, PERIODIC_EVENT_ROLE_ALL, 0),
 
   /* Routers (bridge and relay) only. */
   CALLBACK(check_descriptor, PERIODIC_EVENT_ROLE_ROUTER,
@@ -2125,7 +2129,7 @@ write_stats_file_callback(time_t now, const or_options_t *options)
 }
 
 /*
- * Periodic callback: The system clock jumped forward and we might have gone
+ * Mainloop callback: The system clock jumped forward and we might have gone
  * from a non-live consensus to a live one. In this case we want to recalculate
  * some consensus data to make sure that various consensus-related metadata
  * were computed with a live consensus.
@@ -2138,18 +2142,23 @@ write_stats_file_callback(time_t now, const or_options_t *options)
  * This callback must be called before the hs_service callback, since the HS
  * service functions depend on this recalculation.
  */
-static int
-recalculate_consensus_data_callback(time_t now, const or_options_t *options)
+static void
+recalculate_consensus_data_callback(mainloop_event_t *event, void *arg)
 {
-  /* If there was no clock jump, then this function is a NOP */
-  if (!need_to_recalculate_consensus_data) {
-    return 1;
+  (void) event;
+  (void) arg;
+
+  if (! need_to_recalculate_consensus_data) {
+    return;
   }
+
+  time_t now = approx_time();
+  const or_options_t *options = get_options();
 
   /* If we don't have a live consensus, this function is a NOP */
   networkstatus_t *consensus = networkstatus_get_live_consensus(now);
   if (!consensus) {
-    return 1;
+    return;
   }
 
   log_info(LD_GENERAL, "Recalculating consensus data.");
@@ -2158,8 +2167,6 @@ recalculate_consensus_data_callback(time_t now, const or_options_t *options)
 
   /* Reset the flag */
   need_to_recalculate_consensus_data = false;
-
-  return 1;
 }
 
 #define CHANNEL_CHECK_INTERVAL (60*60)
@@ -2527,6 +2534,9 @@ hs_service_callback(time_t now, const or_options_t *options)
 {
   (void) options;
 
+  if (need_to_recalculate_consensus_data)
+    recalculate_consensus_data_callback(NULL, NULL);
+
   /* We need to at least be able to build circuits and that we actually have
    * a working network. */
   if (!have_completed_a_circuit() || net_is_disabled() ||
@@ -2637,6 +2647,11 @@ update_current_time(time_t now)
     if (clock_jumped) {
       log_info(LD_GENERAL, "Clock jump forward: Recalculate consensus data.");
       need_to_recalculate_consensus_data = true;
+      if (recalculate_consensus_data_ev == NULL) {
+        recalculate_consensus_data_ev = mainloop_event_postloop_new(
+                               recalculate_consensus_data_callback, NULL);
+      }
+      mainloop_event_activate(recalculate_consensus_data_ev);
     }
   } else if (seconds_elapsed > 0) {
     stats_n_seconds_working += seconds_elapsed;
@@ -3754,6 +3769,7 @@ tor_free_all(int postfork)
   mainloop_event_free(schedule_active_linked_connections_event);
   mainloop_event_free(postloop_cleanup_ev);
   mainloop_event_free(handle_deferred_signewnym_ev);
+  mainloop_event_free(recalculate_consensus_data_ev);
 
 #ifdef HAVE_SYSTEMD_209
   periodic_timer_free(systemd_watchdog_timer);
