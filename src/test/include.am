@@ -10,7 +10,9 @@ TESTS_ENVIRONMENT = \
 	export TESTING_TOR_BINARY="$(TESTING_TOR_BINARY)"; \
 	export CARGO="$(CARGO)"; \
 	export EXTRA_CARGO_OPTIONS="$(EXTRA_CARGO_OPTIONS)"; \
-	export CARGO_ONLINE="$(CARGO_ONLINE)";
+	export CARGO_ONLINE="$(CARGO_ONLINE)"; \
+        export RUST_TEST_LDFLAGS="@TOR_LDFLAGS_zlib@ @TOR_LDFLAGS_openssl@ @TOR_LDFLAGS_libevent@"; \
+        export RUST_TEST_LIBS="@TOR_ZLIB_LIBS@ @TOR_LIB_MATH@ @TOR_LIBEVENT_LIBS@ @TOR_OPENSSL_LIBS@ @TOR_LIB_WS32@ @TOR_LIB_GDI@ @TOR_LIB_USERENV@ @CURVE25519_LIBS@ @TOR_SYSTEMD_LIBS@ @TOR_LZMA_LIBS@ @TOR_ZSTD_LIBS@";
 
 TESTSCRIPTS = \
 	src/test/fuzz_static_testcases.sh \
@@ -375,5 +377,5 @@ EXTRA_DIST += \
 	src/test/test_workqueue_pipe2.sh \
 	src/test/test_workqueue_socketpair.sh
 
-test-rust: src/rust/build.rs
+test-rust:
 	$(TESTS_ENVIRONMENT) "$(abs_top_srcdir)/src/test/test_rust.sh"

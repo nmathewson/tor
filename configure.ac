@@ -2266,6 +2266,7 @@ CPPFLAGS="$CPPFLAGS $TOR_CPPFLAGS_libevent $TOR_CPPFLAGS_openssl $TOR_CPPFLAGS_z
 AC_CONFIG_FILES([
         Doxyfile
         Makefile
+        config.cargo
         contrib/dist/suse/tor.sh
         contrib/operator-tools/tor.logrotate
         contrib/dist/tor.sh
@@ -2274,7 +2275,6 @@ AC_CONFIG_FILES([
         src/config/torrc.sample
         src/config/torrc.minimal
         src/rust/.cargo/config
-        src/rust/build.rs
         scripts/maint/checkOptionDocs.pl
         scripts/maint/updateVersions.pl
 ])

@@ -45,6 +45,7 @@ uptime-*.json
 /autom4te.cache
 /build-stamp
 /compile
+/config.cargo
 /configure
 /Doxyfile
 /orconfig.h
@@ -178,7 +179,6 @@ uptime-*.json
 # /src/rust
 /src/rust/.cargo/config
 /src/rust/.cargo/registry
-/src/rust/build.rs
 /src/rust/target
 /src/rust/registry
 
