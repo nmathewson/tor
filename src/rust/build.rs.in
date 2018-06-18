@@ -1,0 +1,76 @@
+
+fn component(s : &str) {
+        println!("cargo:rustc-link-lib=static={}", s);
+}
+
+fn dependency(s : &str) {
+        println!("cargo:rustc-link-lib={}", s);
+}
+
+fn link_path(s : &str) {
+    println!("cargo:rustc-link-search=native={}/{}",  "@BUILDDIR@", s);
+}
+
+fn from_c(s : &str) {
+    let mut next_is_lib = false;
+    let mut next_is_path = false;
+    for ent in s.split_whitespace() {
+        if next_is_lib {
+            dependency(ent);
+            next_is_lib = false;
+        } else if next_is_path {
+            link_path(ent);
+            next_is_path = false;
+        } else if ent == "-l" {
+            next_is_lib = true;
+        } else if ent == "-L" {
+            next_is_path = true;
+        } else if ent.starts_with("-L") {
+            link_path(&ent[2..]);
+        } else if ent.starts_with("-l") {
+            dependency(&ent[2..]);
+        }
+    }
+}
+
+pub fn main() {
+    from_c("@TOR_LDFLAGS_zlib@");
+    from_c("@TOR_LDFLAGS_openssl@");
+    from_c("@TOR_LDFLAGS_libevent@");
+
+    link_path("src/common");
+    link_path("src/or");
+    link_path("src/ext/keccak-tiny");
+    link_path("src/ext/keccak-tiny");
+    link_path("src/ext/ed25519/ref10");
+    link_path("src/ext/ed25519/donna");
+    link_path("src/trunnel");
+    link_path("src/trace");
+
+    component("tor-testing");
+    component("or-crypto-testing");
+    component("or-ctime-testing");
+    component("or-testing");
+    component("or-ctime-testing");
+    component("or-event-testing");
+    component("or-trunnel-testing");
+    component("or-trace");
+    component("curve25519_donna");
+    component("keccak-tiny");
+    component("ed25519_ref10");
+    component("ed25519_donna");
+
+    from_c("@TOR_ZLIB_LIBS@");
+    from_c("@TOR_LIB_MATH@");
+    from_c("@TOR_LIBEVENT_LIBS@");
+    from_c("@TOR_OPENSSL_LIBS@");
+    from_c("@TOR_LIB_WS32@");
+    from_c("@TOR_LIB_GDI@");
+    from_c("@TOR_LIB_USERENV@");
+    from_c("@CURVE25519_LIBS@");
+    from_c("@TOR_SYSTEMD_LIBS@");
+    from_c("@TOR_LZMA_LIBS@");
+    from_c("@TOR_ZSTD_LIBS@");
+    from_c("@LIBS@")
+
+}
