@@ -5970,6 +5970,40 @@ test_dir_networkstatus_consensus_has_ipv6(void *arg)
   UNMOCK(networkstatus_get_latest_consensus_by_flavor);
 }
 
+
+static void
+test_dir_version_sort(void *arg)
+{
+  (void)arg;
+  smartlist_t *vals = smartlist_new();
+  const char *str = "0.2.9.14,0.2.9.15,0.3.1.9,0.3.1.10,0.3.2.8-rc 0.3.2.7-rc 0.3.3.1-alpha 0.3.2.6-alpha 0.3.2.9,0.3.2.10,0.3.3.2-alpha,0.3.3.3-alpha,0.3.3.4-alpha,0.3.3.5-rc,0.3.3.6,0.3.3.7,0.3.3.8,0.3.4.1-alpha,0.3.4.2-alpha,0.3.4.3-alpha,"
+    "0.2.9.14,0.2.9.15,0.3.1.9,0.3.1.10,0.3.2.6-alpha,0.3.2.7-rc,0.3.2.8-rc,0.3.2.9,0.3.2.10,0.3.3.1-alpha,0.3.3.2-alpha,0.3.3.3-alpha,0.3.3.4-alpha,0.3.3.5-rc,0.3.3.6,0.3.3.7,0.3.3.8,0.3.4.1-alpha,0.3.4.2-alpha,0.3.4.3-alpha,"
+    "0.2.5.16,0.2.5.17,0.2.9.14,0.2.9.15,0.3.1.9,0.3.1.10,0.3.2.6-alpha,0.3.2.7-rc,0.3.2.8-rc,0.3.2.9,0.3.2.10,0.3.3.1-alpha,0.3.3.2-alpha,0.3.3.3-alpha,0.3.3.4-alpha,0.3.3.5-rc,0.3.3.6,0.3.3.7,0.3.3.8,0.3.4.1-alpha,0.3.4.2-alpha,0.3.4.3-alpha";
+  smartlist_split_string(vals, str, ",",
+                         SPLIT_SKIP_SPACE|SPLIT_IGNORE_BLANK, 0);
+  sort_version_list(vals, 0);
+  char *j, *k;
+  j = smartlist_join_strings(vals, " ", 0, NULL);
+  const int N_ITERS=10000;
+  int n_same = 0;
+  int i;
+  for (i=0; i<N_ITERS; ++i) {
+    smartlist_shuffle(vals);
+    sort_version_list(vals, 0);
+    k = smartlist_join_strings(vals, " ", 0, NULL);
+    if (!strcmp(j,k))
+      ++n_same;
+    tor_free(k);
+  }
+  tt_int_op(n_same, OP_EQ, N_ITERS);
+ done:
+  SMARTLIST_FOREACH(vals, char *, v, tor_free(v));
+  smartlist_free(vals);
+
+  tor_free(j);
+  tor_free(k);
+}
+
 #define DIR_LEGACY(name)                             \
   { #name, test_dir_ ## name , TT_FORK, NULL, NULL }
 
@@ -6040,6 +6074,6 @@ struct testcase_t dir_tests[] = {
   DIR(networkstatus_compute_bw_weights_v10, 0),
   DIR(platform_str, 0),
   DIR(networkstatus_consensus_has_ipv6, TT_FORK),
+  DIR(version_sort, 0),
   END_OF_TESTCASES
 };
-
