@@ -444,10 +444,12 @@ test_protover_supported_protocols(void *arg)
     }
   }
 
+#ifdef HAVE_WORKING_TOR_TLS_GET_TLSSECRETS
   /* Legacy LinkAuth does not appear anywhere in the code. */
   tt_assert(protocol_list_supports_protocol(supported_protocols,
                                             PRT_LINKAUTH,
                                             PROTOVER_LINKAUTH_V1));
+#endif
   /* Latest LinkAuth is not exposed in the headers. */
   tt_assert(protocol_list_supports_protocol(supported_protocols,
                                             PRT_LINKAUTH,
@@ -625,4 +627,3 @@ struct testcase_t protover_tests[] = {
   PV_TEST(vote_roundtrip, 0),
   END_OF_TESTCASES
 };
-
