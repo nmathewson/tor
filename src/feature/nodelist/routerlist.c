@@ -1502,7 +1502,7 @@ router_rebuild_store(int flags, desc_store_t *store)
   }
 
   errno = 0;
-  store->mmap = tor_mmap_file(fname);
+  store->mmap = tor_mmap_file(fname, 0);
   if (! store->mmap) {
     if (errno == ERANGE) {
       /* empty store.*/
@@ -1578,7 +1578,7 @@ router_reload_router_list_impl(desc_store_t *store)
     }
   }
 
-  store->mmap = tor_mmap_file(fname);
+  store->mmap = tor_mmap_file(fname, 0);
   if (store->mmap) {
     store->store_len = store->mmap->size;
     if (extrainfo)

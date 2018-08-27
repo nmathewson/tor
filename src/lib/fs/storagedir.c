@@ -216,7 +216,7 @@ storage_dir_map(storage_dir_t *d, const char *fname)
 {
   char *path = NULL;
   tor_asprintf(&path, "%s/%s", d->directory, fname);
-  tor_mmap_t *result = tor_mmap_file(path);
+  tor_mmap_t *result = tor_mmap_file(path, 0);
   int errval = errno;
   tor_free(path);
   if (result == NULL)

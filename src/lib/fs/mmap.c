@@ -43,8 +43,9 @@
  * "empty file". Must only be called on trusted Tor-owned files, as changing
  * the underlying file's size causes unspecified behavior. */
 tor_mmap_t *
-tor_mmap_file(const char *filename)
+tor_mmap_file(const char *filename, unsigned flags)
 {
+  (void) flags;
   int fd; /* router file */
   char *string;
   int result;
@@ -105,7 +106,7 @@ tor_mmap_file(const char *filename)
   res = tor_malloc_zero(sizeof(tor_mmap_t));
   res->data = string;
   res->size = filesize;
-  res->mapping_size = size;
+  res->map_private.mapping_size = size;
 
   return res;
 }
@@ -119,7 +120,7 @@ tor_munmap_file(tor_mmap_t *handle)
   if (handle == NULL)
     return 0;
 
-  res = munmap((char*)handle->data, handle->mapping_size);
+  res = munmap((char*)handle->data, handle->map_private.mapping_size);
   if (res == 0) {
     /* munmap() succeeded */
     tor_free(handle);
@@ -133,15 +134,16 @@ tor_munmap_file(tor_mmap_t *handle)
 }
 #elif defined(_WIN32)
 tor_mmap_t *
-tor_mmap_file(const char *filename)
+tor_mmap_file(const char *filename, unsigned flags)
 {
+  (void)flags;
   TCHAR tfilename[MAX_PATH]= {0};
   tor_mmap_t *res = tor_malloc_zero(sizeof(tor_mmap_t));
   int empty = 0;
   HANDLE file_handle = INVALID_HANDLE_VALUE;
   DWORD size_low, size_high;
   uint64_t real_size;
-  res->mmap_handle = NULL;
+  res->map_private.mmap_handle = NULL;
 #ifdef UNICODE
   mbstowcs(tfilename,filename,MAX_PATH);
 #else
@@ -175,15 +177,15 @@ tor_mmap_file(const char *filename)
   }
   res->size = real_size;
 
-  res->mmap_handle = CreateFileMapping(file_handle,
+  res->map_private.mmap_handle = CreateFileMapping(file_handle,
                                        NULL,
                                        PAGE_READONLY,
                                        size_high,
                                        size_low,
                                        NULL);
-  if (res->mmap_handle == NULL)
+  if (res->map_private.mmap_handle == NULL)
     goto win_err;
-  res->data = (char*) MapViewOfFile(res->mmap_handle,
+  res->data = (char*) MapViewOfFile(res->map_private.mmap_handle,
                                     FILE_MAP_READ,
                                     0, 0, 0);
   if (!res->data)
@@ -229,8 +231,8 @@ tor_munmap_file(tor_mmap_t *handle)
     }
   }
 
-  if (handle->mmap_handle != NULL)
-    CloseHandle(handle->mmap_handle);
+  if (handle->map_private.mmap_handle != NULL)
+    CloseHandle(handle->map_private.mmap_handle);
   tor_free(handle);
 
   return 0;

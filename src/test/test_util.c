@@ -2768,12 +2768,12 @@ test_util_mmap(void *arg)
   (void)arg;
   crypto_rand(buf, buflen);
 
-  mapping = tor_mmap_file(fname1);
+  mapping = tor_mmap_file(fname1, 0);
   tt_ptr_op(mapping, OP_EQ, NULL);
 
   write_str_to_file(fname1, "Short file.", 1);
 
-  mapping = tor_mmap_file(fname1);
+  mapping = tor_mmap_file(fname1, 0);
   tt_assert(mapping);
   tt_int_op(mapping->size,OP_EQ, strlen("Short file."));
   tt_str_op(mapping->data,OP_EQ, "Short file.");
@@ -2791,18 +2791,18 @@ test_util_mmap(void *arg)
 
   /* Now a zero-length file. */
   write_str_to_file(fname1, "", 1);
-  mapping = tor_mmap_file(fname1);
+  mapping = tor_mmap_file(fname1, 0);
   tt_ptr_op(mapping,OP_EQ, NULL);
   tt_int_op(ERANGE,OP_EQ, errno);
   unlink(fname1);
 
   /* Make sure that we fail to map a no-longer-existent file. */
-  mapping = tor_mmap_file(fname1);
+  mapping = tor_mmap_file(fname1, 0);
   tt_ptr_op(mapping, OP_EQ, NULL);
 
   /* Now try a big file that stretches across a few pages and isn't aligned */
   write_bytes_to_file(fname2, buf, buflen, 1);
-  mapping = tor_mmap_file(fname2);
+  mapping = tor_mmap_file(fname2, 0);
   tt_assert(mapping);
   tt_int_op(mapping->size,OP_EQ, buflen);
   tt_mem_op(mapping->data,OP_EQ, buf, buflen);
@@ -2811,7 +2811,7 @@ test_util_mmap(void *arg)
 
   /* Now try a big aligned file. */
   write_bytes_to_file(fname3, buf, 16384, 1);
-  mapping = tor_mmap_file(fname3);
+  mapping = tor_mmap_file(fname3, 0);
   tt_assert(mapping);
   tt_int_op(mapping->size,OP_EQ, 16384);
   tt_mem_op(mapping->data,OP_EQ, buf, 16384);

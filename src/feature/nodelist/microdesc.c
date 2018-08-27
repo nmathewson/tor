@@ -491,7 +491,7 @@ microdesc_cache_reload(microdesc_cache_t *cache)
 
   cache->is_loaded = 1;
 
-  mm = cache->cache_content = tor_mmap_file(cache->cache_fname);
+  mm = cache->cache_content = tor_mmap_file(cache->cache_fname, 0);
   if (mm) {
     added = microdescs_add_to_cache(cache, mm->data, mm->data+mm->size,
                                     SAVED_IN_CACHE, 0, -1, NULL);
@@ -760,7 +760,7 @@ microdesc_cache_rebuild(microdesc_cache_t *cache, int force)
     return -1;
   }
 
-  cache->cache_content = tor_mmap_file(cache->cache_fname);
+  cache->cache_content = tor_mmap_file(cache->cache_fname, 0);
 
   if (!cache->cache_content && smartlist_len(wrote)) {
     log_err(LD_DIR, "Couldn't map file that we just wrote to %s!",

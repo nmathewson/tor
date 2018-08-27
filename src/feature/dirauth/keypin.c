@@ -451,7 +451,7 @@ keypin_load_journal_impl(const char *data, size_t size)
 int
 keypin_load_journal(const char *fname)
 {
-  tor_mmap_t *map = tor_mmap_file(fname);
+  tor_mmap_t *map = tor_mmap_file(fname, 0);
   if (!map) {
     if (errno == ENOENT)
       return 0;

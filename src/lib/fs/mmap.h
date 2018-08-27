@@ -25,17 +25,19 @@ typedef struct tor_mmap_t {
   const char *data; /**< Mapping of the file's contents. */
   size_t size; /**< Size of the file. */
 
-  /* None of the fields below should be accessed from outside compat.c */
+  struct {
+  /* None of the fields below should be accessed from outside mmap.c */
 #ifdef HAVE_MMAP
-  size_t mapping_size; /**< Size of the actual mapping. (This is this file
-                        * size, rounded up to the nearest page.) */
+    size_t mapping_size; /**< Size of the actual mapping. (This is this file
+                          * size, rounded up to the nearest page.) */
 #elif defined _WIN32
-  HANDLE mmap_handle;
+    HANDLE mmap_handle;
 #endif /* defined(HAVE_MMAP) || ... */
+  } map_private;
 
 } tor_mmap_t;
 
-tor_mmap_t *tor_mmap_file(const char *filename);
+tor_mmap_t *tor_mmap_file(const char *filename, unsigned flags);
 int tor_munmap_file(tor_mmap_t *handle);
 
 #endif
