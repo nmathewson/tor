@@ -11,6 +11,7 @@
 
 #include "lib/fs/mmap.h"
 #include "lib/fs/files.h"
+#include "lib/fdio/fdio.h"
 #include "lib/log/log.h"
 #include "lib/log/util_bug.h"
 #include "lib/log/win32err.h"
@@ -36,8 +37,46 @@
 
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 #if defined(HAVE_MMAP) || defined(RUNNING_DOXYGEN)
+static char *
+mmap_fd(int fd, size_t *size_out)
+{
+  struct stat st;
+
+  /* Get the size of the file */
+  int result = fstat(fd, &st);
+  if (result != 0) {
+    int save_errno = errno;
+    log_warn(LD_FS,
+             "Couldn't fstat opened descriptor during mmap: %s",
+              strerror(errno));
+    close(fd);
+    errno = save_errno;
+    return NULL;
+  }
+  size_t size = (size_t)(st.st_size);
+
+  if (st.st_size > SSIZE_T_CEILING || (off_t)size < st.st_size) {
+    log_warn(LD_FS, "File is too large to mmap. Ignoring.");
+    errno = EFBIG;
+    close(fd);
+    return NULL;
+  }
+  if (!size) {
+    /* Zero-length file. If we call mmap on it, it will succeed but
+     * return NULL, and bad things will happen. So just fail. */
+    log_info(LD_FS,"File is empty. Ignoring.");
+    errno = ERANGE;
+    close(fd);
+    return NULL;
+  }
+
+  *size_out = size;
+  return mmap(0, size, PROT_READ, MAP_SHARED, fd, 0);
+}
+
 /** Try to create a memory mapping for <b>filename</b> and return it.  On
  * failure, return NULL. Sets errno properly, using ERANGE to mean
  * "empty file". Must only be called on trusted Tor-owned files, as changing
@@ -48,14 +87,21 @@ tor_mmap_file(const char *filename, unsigned flags)
   (void) flags;
   int fd; /* router file */
   char *string;
-  int result;
   tor_mmap_t *res;
   size_t size, filesize;
-  struct stat st;
+  const bool append_ok = !! (flags & TOR_MMAP_APPEND_OK);
 
   tor_assert(filename);
 
-  fd = tor_open_cloexec(filename, O_RDONLY, 0);
+  {
+    unsigned open_flags;
+    if (append_ok) {
+      open_flags = O_RDWR|O_CREAT|O_APPEND;
+    } else {
+      open_flags = O_RDONLY;
+    }
+    fd = tor_open_cloexec(filename, open_flags, 0600);
+  }
   if (fd<0) {
     int save_errno = errno;
     int severity = (errno == ENOENT) ? LOG_INFO : LOG_WARN;
@@ -65,51 +111,91 @@ tor_mmap_file(const char *filename, unsigned flags)
     return NULL;
   }
 
-  /* Get the size of the file */
-  result = fstat(fd, &st);
-  if (result != 0) {
-    int save_errno = errno;
-    log_warn(LD_FS,
-             "Couldn't fstat opened descriptor for \"%s\" during mmap: %s",
-             filename, strerror(errno));
-    close(fd);
-    errno = save_errno;
-    return NULL;
-  }
-  size = filesize = (size_t)(st.st_size);
+  string = mmap_fd(fd, &size);
+  filesize = size;
 
-  if (st.st_size > SSIZE_T_CEILING || (off_t)size < st.st_size) {
-    log_warn(LD_FS, "File \"%s\" is too large. Ignoring.",filename);
-    errno = EFBIG;
+  if (!append_ok) {
     close(fd);
-    return NULL;
+    fd = -1;
   }
-  if (!size) {
-    /* Zero-length file. If we call mmap on it, it will succeed but
-     * return NULL, and bad things will happen. So just fail. */
-    log_info(LD_FS,"File \"%s\" is empty. Ignoring.",filename);
-    errno = ERANGE;
-    close(fd);
-    return NULL;
-  }
-
-  string = mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
-  close(fd);
   if (string == MAP_FAILED) {
     int save_errno = errno;
     log_warn(LD_FS,"Could not mmap file \"%s\": %s", filename,
              strerror(errno));
     errno = save_errno;
+    if (fd >= 0)
+      close(fd);
     return NULL;
   }
+  if (fd)
+    tor_fd_seekend(fd);
 
   res = tor_malloc_zero(sizeof(tor_mmap_t));
   res->data = string;
   res->size = filesize;
+  res->map_private.fd = fd;
   res->map_private.mapping_size = size;
+  res->map_private.is_dirty = 0;
 
   return res;
 }
+
+/**DOCDOC*/
+int
+tor_mmap_append(tor_mmap_t *mapping,
+                const char *data,
+                size_t len,
+                off_t *offset_out)
+{
+  tor_assert(offset_out);
+  const int fd = mapping->map_private.fd;
+
+  if (BUG(fd == -1))
+    return -1; // We can't append to a no-appending file.
+
+  mapping->map_private.is_dirty = 1;
+
+  off_t pos = tor_fd_getpos(fd);
+  if (write_all_to_fd(fd, data, len) != (ssize_t)len) {
+    log_warn(LD_GENERAL, "Error while appending to mapped file: %s",
+             strerror(errno));
+    tor_fd_setpos(fd, pos);
+    if (ftruncate(fd, pos) < 0) {
+      log_warn(LD_GENERAL, "Error while truncating to mapped file: %s",
+               strerror(errno));
+    }
+    *offset_out = 0;
+    return -1;
+  }
+
+  *offset_out = pos;
+  return 0;
+}
+
+/**DOCDOC*/
+int
+tor_mremap(tor_mmap_t *handle)
+{
+  if (! handle->map_private.is_dirty)
+    return 0;
+
+  char *newmap;
+  size_t newsize=0;
+
+  newmap = mmap_fd(handle->map_private.fd, &newsize);
+  if (newmap == MAP_FAILED)
+    return -1;
+
+  munmap((char*)handle->data, handle->map_private.mapping_size);
+
+  handle->data = newmap;
+  handle->size = newsize;
+  handle->map_private.mapping_size = newsize;
+  handle->map_private.is_dirty = 0;
+
+  return 0;
+}
+
 /** Release storage held for a memory mapping; returns 0 on success,
  * or -1 on failure (and logs a warning). */
 int
@@ -143,16 +229,23 @@ tor_mmap_file(const char *filename, unsigned flags)
   HANDLE file_handle = INVALID_HANDLE_VALUE;
   DWORD size_low, size_high;
   uint64_t real_size;
+  const bool append_ok = !! (flags & TOR_MMAP_APPEND_OK);
+  res->map_private.file_handle = NULL;
   res->map_private.mmap_handle = NULL;
+  res->map_private.is_dirty = 0;
 #ifdef UNICODE
   mbstowcs(tfilename,filename,MAX_PATH);
 #else
   strlcpy(tfilename,filename,MAX_PATH);
 #endif
+  const DWORD desired_access =
+    append_ok ? GENERIC_READ|GENERIC_WRITE : GENERIC_READ;
+  const DWORD creation_disposition =
+    append_ok ? CREATE_NEW : OPEN_EXISTING;
   file_handle = CreateFile(tfilename,
-                           GENERIC_READ, FILE_SHARE_READ,
+                           desired_accdess, FILE_SHARE_READ,
                            NULL,
-                           OPEN_EXISTING,
+                           creation_disposition,
                            FILE_ATTRIBUTE_NORMAL,
                            0);
 
@@ -190,8 +283,15 @@ tor_mmap_file(const char *filename, unsigned flags)
                                     0, 0, 0);
   if (!res->data)
     goto win_err;
+  if (append_ok) {
+    DWORD hi = 0;
+    SetFilePointer(file_handle, 0, &hi, FILE_END);
+    res->map_private.file_handle = file_handle;
+    file_handle = INVALID_HANDLE_VALUE;
+  }
 
-  CloseHandle(file_handle);
+  if (file_handle != INVALID_HANDLE_VALUE)
+    CloseHandle(file_handle);
   return res;
  win_err: {
     DWORD e = GetLastError();
@@ -212,6 +312,49 @@ tor_mmap_file(const char *filename, unsigned flags)
     CloseHandle(file_handle);
   tor_munmap_file(res);
   return NULL;
+}
+
+/**DOCDOC*/
+int
+tor_mmap_append(tor_mmap_t *mapping,
+                const char *data,
+                size_t len,
+                off_t *offset_out)
+{
+  tor_assert(offset_out);
+  const HANDLE handle = mapping->map_private.file_handle
+
+  if (BUG(handle == INVALID_HANDLE_VALUE))
+    return -1; // We can't append to a no-appending file.
+
+  mapping->map_private.is_dirty = 1;
+
+  DWORD lo,hi=0;
+  lo = SetFilePointer(handle, 0, &hi, FILE_CURRENT); // Query current pos.
+  const off_t pos = lo | (hi << 32);
+
+  DWORD writen = 0;
+  if (! WriteFile(handle, data, len, &written, NULL) || written != len) {
+    log_warn(LD_GENERAL, "Error while appending to mapped file: %s",
+             strerror(errno));
+    SetFilePointer(handle, lo, &hi, FILE_BEGIN);
+    SetEndOfFile(handle);
+    *offset_out = 0;
+    return -1;
+  }
+
+  *offset_out = pos;
+  return 0;
+}
+
+/**DOCDOC*/
+int
+tor_mremap(tor_mmap_t *mapping)
+{
+  if (! mapping->map_private.is_dirty)
+    return 0;
+
+  return 0;
 }
 
 /* Unmap the file, and return 0 for success or -1 for failure */
