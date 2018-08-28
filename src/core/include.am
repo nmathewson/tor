@@ -82,6 +82,7 @@ LIBTOR_APP_A_SOURCES = 				\
 	src/feature/hs_common/shared_random_client.c	\
 	src/feature/nodelist/microdesc.c	\
 	src/feature/nodelist/networkstatus.c	\
+	src/feature/nodelist/nodefamily.c	\
 	src/feature/nodelist/nodelist.c		\
 	src/feature/nodelist/parsecommon.c	\
 	src/feature/nodelist/routerlist.c	\
@@ -266,6 +267,8 @@ noinst_HEADERS +=					\
 	src/feature/nodelist/networkstatus_st.h		\
 	src/feature/nodelist/networkstatus_voter_info_st.h	\
 	src/feature/nodelist/node_st.h			\
+	src/feature/nodelist/nodefamily.h	        \
+	src/feature/nodelist/nodefamily_st.h    	\
 	src/feature/nodelist/nodelist.h			\
 	src/feature/nodelist/parsecommon.h		\
 	src/feature/nodelist/routerinfo_st.h		\
