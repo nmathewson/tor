@@ -108,7 +108,7 @@ nodefamily_from_members(const smartlist_t *members,
       char digest_buf[DIGEST_LEN];
       char nn_buf[MAX_NICKNAME_LEN+1];
       char nn_char=0;
-      if (hex_digest_nickname_decode(cp, digest_buf, nn_buf, &nn_char)<0)
+      if (hex_digest_nickname_decode(cp, digest_buf, &nn_char, nn_buf)<0)
         goto err;
       ptr[0] = NODEFAMILY_BY_RSA_ID;
       memcpy(ptr+1, digest_buf, DIGEST_LEN);
