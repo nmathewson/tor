@@ -26,7 +26,7 @@ for fn in src/core/*/*.c src/feature/*/*.c src/app/*/*.c src/lib/*/*.c; do
           # No need to test for gcda, since gcov assumes no execution
           # if it's absent
           rm -f $GC
-          llvm-cov-3.9 gcov -o $on $fn
+          gcov -o $on $fn
           if [ -e $GC ]
           then
             if [ -d "$dst" ]
