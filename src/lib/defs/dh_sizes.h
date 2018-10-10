@@ -19,4 +19,7 @@
 /** Length of our legacy DH keys. */
 #define DH1024_KEY_LEN (1024/8)
 
+/** Length of our 2048-bit DH keys. */
+#define DH2048_KEY_LEN (2048/8)
+
 #endif

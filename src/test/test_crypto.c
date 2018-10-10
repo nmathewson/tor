@@ -41,10 +41,10 @@ test_crypto_dh(void *arg)
   crypto_dh_t *dh1 = crypto_dh_new(DH_TYPE_CIRCUIT);
   crypto_dh_t *dh1_dup = NULL;
   crypto_dh_t *dh2 = crypto_dh_new(DH_TYPE_CIRCUIT);
-  char p1[DH1024_KEY_LEN];
-  char p2[DH1024_KEY_LEN];
-  char s1[DH1024_KEY_LEN];
-  char s2[DH1024_KEY_LEN];
+  char p1[DH2048_KEY_LEN];
+  char p2[DH2048_KEY_LEN];
+  char s1[DH2048_KEY_LEN];
+  char s2[DH2048_KEY_LEN];
   ssize_t s1len, s2len;
 #ifdef ENABLE_OPENSSL
   crypto_dh_t *dh3 = NULL;
@@ -179,8 +179,9 @@ test_crypto_dh(void *arg)
 #if defined(ENABLE_OPENSSL)
   {
     /* Make sure that our crypto library can handshake with openssl. */
+    puts("AAAAA");
     dh3 = crypto_dh_new(DH_TYPE_TLS);
-    tt_assert(!crypto_dh_get_public(dh3, p1, DH1024_KEY_LEN));
+    tt_assert(!crypto_dh_get_public(dh3, p1, DH2048_KEY_LEN));
 
     dh4 = crypto_dh_new_openssl_tls();
     tt_assert(DH_generate_key(dh4));
