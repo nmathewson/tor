@@ -179,7 +179,6 @@ test_crypto_dh(void *arg)
 #if defined(ENABLE_OPENSSL)
   {
     /* Make sure that our crypto library can handshake with openssl. */
-    puts("AAAAA");
     dh3 = crypto_dh_new(DH_TYPE_TLS);
     tt_assert(!crypto_dh_get_public(dh3, p1, DH2048_KEY_LEN));
 
@@ -193,15 +192,15 @@ test_crypto_dh(void *arg)
     pk = dh4->pub_key;
 #endif
     tt_assert(pk);
-    tt_int_op(BN_num_bytes(pk), OP_LE, DH1024_KEY_LEN);
+    tt_int_op(BN_num_bytes(pk), OP_LE, DH2048_KEY_LEN);
     tt_int_op(BN_num_bytes(pk), OP_GT, 0);
     memset(p2, 0, sizeof(p2));
     /* right-pad. */
-    BN_bn2bin(pk, (unsigned char *)(p2+DH1024_KEY_LEN-BN_num_bytes(pk)));
+    BN_bn2bin(pk, (unsigned char *)(p2+DH2048_KEY_LEN-BN_num_bytes(pk)));
 
-    s1len = crypto_dh_handshake(LOG_WARN, dh3, p2, DH1024_KEY_LEN,
+    s1len = crypto_dh_handshake(LOG_WARN, dh3, p2, DH2048_KEY_LEN,
                                 (unsigned char *)s1, sizeof(s1));
-    pubkey_tmp = BN_bin2bn((unsigned char *)p1, DH1024_KEY_LEN, NULL);
+    pubkey_tmp = BN_bin2bn((unsigned char *)p1, DH2048_KEY_LEN, NULL);
     s2len = DH_compute_key((unsigned char *)s2, pubkey_tmp, dh4);
 
     tt_int_op(s1len, OP_EQ, s2len);
