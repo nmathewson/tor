@@ -78,7 +78,7 @@ struct crypto_dh_t {
   DH *dh; /**< The openssl DH object */
 };
 
-static int tor_check_dh_key(int severity, const BIGNUM *bn);
+static int tor_check_dh_key(int severity, const BIGNUM *bn, const BIGNUM *p);
 
 /** Boolean: has OpenSSL's crypto been initialized? */
 static int crypto_early_initialized_ = 0;
@@ -670,6 +670,18 @@ init_dh_param(void)
   }
 }
 
+static const BIGNUM *
+crypto_dh_get_prime(DH *dh)
+{
+#ifdef OPENSSL_1_1_API
+  const BIGNUM *dh_p = NULL;
+  DH_get0_pqg(dh, &dh_p, NULL, NULL);
+  return dh_p;
+#else
+  return dh->p;
+#endif
+}
+
 /** Number of bits to use when choosing the x or y value in a Diffie-Hellman
  * handshake.  Since we exponentiate by this value, choosing a smaller one
  * lets our handhake go faster.
@@ -780,6 +792,7 @@ crypto_dh_generate_public(crypto_dh_t *dh)
     return -1;
     /* LCOV_EXCL_STOP */
   }
+  const BIGNUM *prime = crypto_dh_get_prime(dh->dh);
 #ifdef OPENSSL_1_1_API
   /* OpenSSL 1.1.x doesn't appear to let you regenerate a DH key, without
    * recreating the DH object.  I have no idea what sort of aliasing madness
@@ -787,13 +800,13 @@ crypto_dh_generate_public(crypto_dh_t *dh)
    */
   const BIGNUM *pub_key, *priv_key;
   DH_get0_key(dh->dh, &pub_key, &priv_key);
-  if (tor_check_dh_key(LOG_WARN, pub_key)<0) {
+  if (tor_check_dh_key(LOG_WARN, pub_key, prime)<0) {
     log_warn(LD_CRYPTO, "Weird! Our own DH key was invalid.  I guess once-in-"
              "the-universe chances really do happen.  Treating as a failure.");
     return -1;
   }
 #else /* !(defined(OPENSSL_1_1_API)) */
-  if (tor_check_dh_key(LOG_WARN, dh->dh->pub_key)<0) {
+  if (tor_check_dh_key(LOG_WARN, dh->dh->pub_key, prime)<0) {
     /* LCOV_EXCL_START
      * If this happens, then openssl's DH implementation is busted. */
     log_warn(LD_CRYPTO, "Weird! Our own DH key was invalid.  I guess once-in-"
@@ -861,21 +874,21 @@ crypto_dh_get_public(crypto_dh_t *dh, char *pubkey, size_t pubkey_len)
  * See http://www.cl.cam.ac.uk/ftp/users/rja14/psandqs.ps.gz for some tips.
  */
 static int
-tor_check_dh_key(int severity, const BIGNUM *bn)
+tor_check_dh_key(int severity, const BIGNUM *bn, const BIGNUM *param_p)
 {
   BIGNUM *x;
   char *s;
   tor_assert(bn);
   x = BN_new();
   tor_assert(x);
-  if (BUG(!dh_param_p))
-    init_dh_param(); //LCOV_EXCL_LINE we already checked whether we did this.
+  if (BUG(!param_p))
+    return -1;
   BN_set_word(x, 1);
   if (BN_cmp(bn,x)<=0) {
     log_fn(severity, LD_CRYPTO, "DH key must be at least 2.");
     goto err;
   }
-  BN_copy(x,dh_param_p);
+  BN_copy(x,param_p);
   BN_sub_word(x, 1);
   if (BN_cmp(bn,x)>=0) {
     log_fn(severity, LD_CRYPTO, "DH key must be at most p-2.");
@@ -917,7 +930,9 @@ crypto_dh_compute_secret(int severity, crypto_dh_t *dh,
   if (!(pubkey_bn = BN_bin2bn((const unsigned char*)pubkey,
                               (int)pubkey_len, NULL)))
     goto error;
-  if (tor_check_dh_key(severity, pubkey_bn)<0) {
+
+  const BIGNUM *prime = crypto_dh_get_prime(dh->dh);
+  if (tor_check_dh_key(severity, pubkey_bn, prime)<0) {
     /* Check for invalid public keys. */
     log_fn(severity, LD_CRYPTO,"Rejected invalid g^x");
     goto error;
