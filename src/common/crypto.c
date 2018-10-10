@@ -610,16 +610,22 @@ crypto_set_tls_dh_prime(void)
   tls_prime = BN_new();
   tor_assert(tls_prime);
 
-  /* This is the 1024-bit safe prime that Apache uses for its DH stuff; see
-   * modules/ssl/ssl_engine_dh.c; Apache also uses a generator of 2 with this
-   * prime.
+  /**
+   * This is the 2048-bit safe prime from RFC 7919 A1.1.  It also uses a
+   * generator of 2.
    */
   r = BN_hex2bn(&tls_prime,
-               "D67DE440CBBBDC1936D693D34AFD0AD50C84D239A45F520BB88174CB98"
-               "BCE951849F912E639C72FB13B4B4D7177E16D55AC179BA420B2A29FE324A"
-               "467A635E81FF5901377BEDDCFD33168A461AAD3B72DAE8860078045B07A7"
-               "DBCA7874087D1510EA9FCC9DDD330507DD62DB88AEAA747DE0F4D6E2BD68"
-               "B0E7393E0F24218EB3");
+                "FFFFFFFFFFFFFFFFADF85458A2BB4A9AAFDC5620273D3CF1"
+                "D8B9C583CE2D3695A9E13641146433FBCC939DCE249B3EF9"
+                "7D2FE363630C75D8F681B202AEC4617AD3DF1ED5D5FD6561"
+                "2433F51F5F066ED0856365553DED1AF3B557135E7F57C935"
+                "984F0C70E0E68B77E2A689DAF3EFE8721DF158A136ADE735"
+                "30ACCA4F483A797ABC0AB182B324FB61D108A94BB2C8E3FB"
+                "B96ADAB760D7F4681D4F42A3DE394DF4AE56EDE76372BB19"
+                "0B07A7C8EE0A6D709E02FCE1CDF7E2ECC03404CD28342F61"
+                "9172FE9CE98583FF8E4F1232EEF28183C3FE3B1B4C6FAD73"
+                "3BB5FCBC2EC22005C58EF1837D1683B2C6F34A26C1B2EFFA"
+                "886B423861285C97FFFFFFFFFFFFFFFF");
   tor_assert(r);
 
   tor_assert(tls_prime);
@@ -1115,4 +1121,3 @@ crypto_use_tor_alloc_functions(void)
   return r ? 0 : -1;
 }
 #endif /* defined(USE_DMALLOC) */
-
