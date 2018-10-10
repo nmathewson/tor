@@ -1,0 +1,4 @@
+  o Minor features (cryptographic strength):
+    - Increase the size of our default Diffie-Hellman group for TLS to 2048
+      bits. This change should be irrelevant for most users, given the fact
+      that ECDHE is required. Closes ticket 27971.
