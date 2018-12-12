@@ -2866,6 +2866,8 @@ static int
 run_main_loop_until_done(void)
 {
   int loop_result = 1;
+  if (get_options()->ExitImmediately)
+    exit(0);
   do {
     loop_result = run_main_loop_once();
   } while (loop_result == 1);

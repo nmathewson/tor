@@ -426,6 +426,8 @@ static config_var_t option_vars_[] = {
   V(ExtendByEd25519ID,           AUTOBOOL, "auto"),
   V(FallbackDir,                 LINELIST, NULL),
 
+  V(ExitImmediately,             BOOL,     "0"),
+
   V(UseDefaultFallbackDirs,      BOOL,     "1"),
 
   OBSOLETE("FallbackNetworkstatusFile"),
