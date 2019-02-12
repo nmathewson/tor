@@ -210,7 +210,7 @@ script:
   - ./configure $CONFIGURE_FLAGS
   ## We run `make check` because that's what https://jenkins.torproject.org does.
   - if [[ "$DISTCHECK" == "" && "$TEST_STEM" == "" ]]; then make check; fi
-  - if [[ "$CHUTNEY" != "" ]]; then make test-network-all fi
+  - if [[ "$CHUTNEY" != "" ]]; then make test-network-all; fi
   - if [[ "$TEST_STEM" != "" ]]; then make src/app/tor test-stem; fi
   - if [[ "$DISTCHECK" != "" && "$TEST_STEM" == "" ]]; then make distcheck DISTCHECK_CONFIGURE_FLAGS="$CONFIGURE_FLAGS"; fi
 
