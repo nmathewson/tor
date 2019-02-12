@@ -40,7 +40,7 @@ matrix:
   ## include creates builds with gcc, linux, sudo: false
   include:
     ## We include a single coverage build with the best options for coverage
-    - env: COVERAGE_OPTIONS="--enable-coverage" HARDENING_OPTIONS=""
+    - env: COVERAGE_OPTIONS="--enable-coverage" HARDENING_OPTIONS="" CHUTNEY="yes"
     ## We only want to check these build option combinations once
     ## (they shouldn't vary by compiler or OS)
     ## We run rust and coverage with hardening off, which seems like enough
@@ -55,9 +55,8 @@ matrix:
     - env: MODULES_OPTIONS="--disable-module-dirauth" RUST_OPTIONS="--enable-rust" TOR_RUST_DEPENDENCIES=true
     - env: MODULES_OPTIONS="--disable-module-dirauth"
     ## Check NSS
-    - env: NSS_OPTIONS="--enable-nss"
+    - env: NSS_OPTIONS="--enable-nss" CHUTNEY="yes"
     ## Try with chutney
-    - env: CHUTNEY="yes"
 
   ## Uncomment to allow the build to report success (with non-required
   ## sub-builds continuing to run) if all required sub-builds have
