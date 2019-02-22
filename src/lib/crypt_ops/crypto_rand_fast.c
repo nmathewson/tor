@@ -270,6 +270,8 @@ crypto_fast_rng_get_bytes_used_per_stream(void)
  **/
 static tor_threadlocal_t thread_rng;
 
+static bool thread_rng_init = false;
+
 /**
  * Return a per-thread fast RNG, initializing it if necessary.
  *
@@ -280,6 +282,8 @@ static tor_threadlocal_t thread_rng;
 crypto_fast_rng_t *
 get_thread_fast_rng(void)
 {
+  tor_assert(thread_rng_init);
+
   crypto_fast_rng_t *rng = tor_threadlocal_get(&thread_rng);
 
   if (PREDICT_UNLIKELY(rng == NULL)) {
@@ -312,7 +316,9 @@ destroy_thread_fast_rng(void)
 void
 crypto_rand_fast_init(void)
 {
+  tor_assert(! thread_rng_init);
   tor_threadlocal_init(&thread_rng);
+  thread_rng_init = true;
 }
 
 /**
@@ -324,5 +330,7 @@ void
 crypto_rand_fast_shutdown(void)
 {
   destroy_thread_fast_rng();
+  tor_assert(thread_rng_init);
   tor_threadlocal_destroy(&thread_rng);
+  thread_rng_init = false;
 }
