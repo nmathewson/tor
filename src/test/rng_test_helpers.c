@@ -24,6 +24,12 @@
 #error "No. Never link this code into Tor proper."
 #endif
 
+/**
+ * Mutex to protect deterministic prng.
+ *
+ * Note that if you actually _use_ the prng from two threads at the same time,
+ * the results will probably be nondeterministic anyway.
+ */
 static tor_mutex_t *rng_mutex = NULL;
 
 /* This is the seed of the deterministic randomness. */
