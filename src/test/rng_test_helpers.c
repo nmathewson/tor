@@ -24,6 +24,8 @@
 #error "No. Never link this code into Tor proper."
 #endif
 
+static tor_mutex_t *rng_mutex = NULL;
+
 /* This is the seed of the deterministic randomness. */
 static uint8_t rng_seed[16];
 static crypto_xof_t *rng_xof = NULL;
@@ -49,7 +51,9 @@ static void
 crypto_rand_deterministic(char *out, size_t n)
 {
   tor_assert(rng_xof);
+  tor_mutex_acquire(rng_mutex);
   crypto_xof_squeeze_bytes(rng_xof, (uint8_t*)out, n);
+  tor_mutex_release(rng_mutex);
 }
 
 /**
@@ -62,6 +66,8 @@ enable_deterministic_rng_impl(const uint8_t *seed, size_t seed_len)
 {
   memset(rng_seed, 0, sizeof(rng_seed));
   memcpy(rng_seed, seed, MIN(seed_len, sizeof(rng_seed)));
+
+  rng_mutex = tor_mutex_new();
 
   crypto_xof_free(rng_xof);
   rng_xof = crypto_xof_new();
@@ -105,4 +111,5 @@ testing_disable_rng_override(void)
 {
   crypto_xof_free(rng_xof);
   UNMOCK(crypto_rand);
+  tor_mutex_free(rng_mutex);
 }
