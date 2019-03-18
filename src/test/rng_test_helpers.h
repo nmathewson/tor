@@ -18,6 +18,8 @@ void testing_disable_rng_override(void);
   testing_disable_rng_override()
 #define testing_disable_deterministic_rng() \
   testing_disable_rng_override()
+#define testing_disable_prefilled_rng() \
+  testing_disable_rng_override()
 
 void testing_dump_reproducible_rng_seed(void);
 
