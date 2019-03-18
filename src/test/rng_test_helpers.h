@@ -8,6 +8,9 @@
 
 void testing_enable_deterministic_rng(void);
 void testing_enable_reproducible_rng(void);
+void testing_enable_prefilled_rng(const void *buffer, size_t buflen);
+
+void testing_prefilled_rng_reset(void);
 
 void testing_disable_rng_override(void);
 
