@@ -75,6 +75,19 @@ for dir in "${EXAMPLEDIR}"/*; do
                         || die "Failure: Tor exited."
 
         if cmp "${dir}/expected" "${DATA_DIR}/output.${testname}" ; then
+            # Check round-trip.
+            "${TOR_BINARY}" -f "${DATA_DIR}/output.${testname}" \
+                            --defaults-torrc "${DATA_DIR}/empty" \
+                            --dump-config short \
+                            > "${DATA_DIR}/output_2.${testname}" \
+                        || die "Failure: Tor exited on round-trip."
+
+            if ! cmp "${DATA_DIR}/output.${testname}" \
+                 "${DATA_DIR}/output_2.${testname}"; then
+                echo "Failure: did not match on round-trip."
+                exit 1
+            fi
+
             echo "OK"
         else
             echo "FAIL"
