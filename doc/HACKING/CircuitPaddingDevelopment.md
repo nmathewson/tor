@@ -255,7 +255,26 @@ The `length_dist` field is basically a probability distribution similar to the p
 
 ### 3.5. Specifying overhead limits
 
-XXX: Describe global and per-machine overhead rate limiting
+Separately from the length counts, it is possible to rate limit the overhead
+percentage of padding at both the global level across all machines, and on a
+per-machine basis.
+
+At the global level, the overhead percentage of all circuit padding machines
+as compared to total traffic can be limited through the Tor consensus
+parameter `circpad_global_max_padding_pct`. This overhead is defined as the
+percentage of padding cells *sent* out of the sum of non padding and padding
+cells *sent*, and is applied *only after* at least
+`circpad_global_allowed_cells` padding cells are sent by that relay or client
+(to allow for small bursts of pure padding on otherwise idle or freshly
+restarted relays). When both of these limits are hit by a relay or client, no
+further padding cells will be sent, until sufficient non-padding traffic is
+sent to cause the percentage of padding traffic to fall back beflow the
+threshhold.
+
+Additionally, each individual padding machine can rate limit itself by filling
+in the fields `circpad_machine_spec_t.max_padding_percent` and
+`circpad_machine_spec_t.allowed_padding_count`, which behave identically to
+the consensus parameters, but only apply to that specific machine.
 
 ## 4. Evaluating new machines
 
