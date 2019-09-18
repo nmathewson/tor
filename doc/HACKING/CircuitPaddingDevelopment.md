@@ -381,13 +381,27 @@ XXX: machine_info can be missing but spec can remain (active vs inactive machine
 
 While implementing the circuit padding framework, our goal was to deploy a system that obscured client-side onion service circuit setup and supported deployment of WTF-PAD and/or APE. Along the way, we noticed several features that might prove useful to others, but were not essential to implement immediately. We do not have immediate plans to implement these ideas, but we would gladly accept patches that do so.
 
+The following list is meant to give an overview of these improvements, but as
+this document ages, it may become stale. The canonical list of improvements
+that researchers may find useful is tagged in our bugtracker with
+[circpad-researchers](https://trac.torproject.org/projects/tor/query?keywords=~circpad-researchers),
+and the list of improvements that are known to be necessary for some research
+areas are tagged with
+[circpad-researchers-want](https://trac.torproject.org/projects/tor/query?keywords=~circpad-researchers-want).
+
+Please consult those lists for the latest status of these issues. Note that not
+all fixes will be backported to all Tor versions, so be mindful of which
+Tor releases recieve which fixes as you conduct your experiments.
+
 ### 7.1. Load Balancing and Flow Control
 
 Fortunately, non-Exit bandwidth is already plentiful and exceeds the Exit capacity, and we anticipate that if we inform our relay operator community of the need for non-Exit bandwidth to satisfy padding overhead requirements, they will be able to provide that with relative ease.
 
-Unfortunately, padding machines that have large quantities of overhead will require changes to our load balancing system to account for this overhead. The necessary changes are documented in [Proposal 265](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt). 
+Unfortunately, padding machines that have large quantities of overhead will require changes to our load balancing system to account for this overhead. The necessary changes are documented in [Proposal 265](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt).
 
-Additionally, padding cells are not currently subjected to flow control. For high amounts of padding, we may want to change this. See ticket XXX for details.
+Additionally, padding cells are not currently subjected to flow control. For
+high amounts of padding, we may want to change this. See [ticket
+31782](https://trac.torproject.org/projects/tor/ticket/31782) for details.
 
 ### 7.2. Circuitmux Optimizations
 
@@ -401,33 +415,39 @@ Additionally, with that change, it will be possible to provide further overhead 
 
 ### 7.3. Machine Negotiation
 
-  - More machine conditions
-     - Exit Policy-based Stream Conditions
-       - https://trac.torproject.org/projects/tor/ticket/29083
-     - Probability to apply machine/Cointoss condition
-       - https://trac.torproject.org/projects/tor/ticket/30092
-     - Probabilities/delay distributions for launching new padding circuit(s)
-       - XXX: File ticket (or is this #30092 also?)
+Circuit padding is applied to circuits through machine conditions (see [Section
+2.2](#2.2.Per-CircuitMachineActivationandShutdown).
 
-   - Better Negotiation
-     - Always send negotiation cell on all circuits
-       - https://trac.torproject.org/projects/tor/ticket/30172
-     - Better shutdown handling
-       - https://trac.torproject.org/projects/tor/ticket/30992
-     - Preference-ordered menu
-       - https://trac.torproject.org/projects/tor/ticket/30348
+The following machine conditions may be useful for some use cases, but have
+not been implemented yet:
+  * [Exit Policy-based Stream Conditions](https://trac.torproject.org/projects/tor/ticket/29083)
+  * [Probability to apply machine/Cointoss condition](https://trac.torproject.org/projects/tor/ticket/30092)
+  * [Probability distributions for launching new padding circuit(s)](https://trac.torproject.org/projects/tor/ticket/31783)
+
+Additionally, the following features may help to obscure that padding is being
+negotiated, and/or streamline that negotiation process:
+  * [Always send negotiation cell on all circuits](https://trac.torproject.org/projects/tor/ticket/30172)
+  * [Better shutdown handling](https://trac.torproject.org/projects/tor/ticket/30992)
+  * [Preference-ordered negotiation menu](https://trac.torproject.org/projects/tor/ticket/30348)
 
 ### 7.4. Probabalstic State Transitions
 
 Right now, the state machine transitions are fully deterministic. However, one could imagine a state machine that uses probabalistic transitions between states to simulate a random walk or Hidden Markov Model traversal across several pages.
 
-For this, the next_state array would have to become two dimensional, so that an array of next state and probability pairs could be provided. If you need this feature, please see ticket XXX.
+For this, the `circpad_state_t.next_state` array would have to become two
+dimensional, so that an array of next state and probability pairs could be
+provided. If you need this feature, please see
+[ticket 31787](https://trac.torproject.org/projects/tor/ticket/31787).
 
 ### 7.5. Improved simulation mechanisms
 
-  - XXX: Ticket for event tracing log messages (and padanalys logs)
-  - XXX: Ticket for refactoring circuitpadding.c into easy-to-stub helpers
-    - Reuse the stupid "split file becuase too many lines" ticket..
-      - Our pedantic style instincts where...useful? gasp. Maybe just make new ticket ;)
+As mentioned in [Section 4](4.Evaluatingnewmachines), for large-scale deep-learning
+based experiments, it may be more efficient to tune your machines in a
+simplified packet-trace simulator.
 
+The circuit padding system is loosely coupled to Tor, but this coupling could
+be made more abstract, to facilitate trace simulation.
 
+The parent ticket for the pieces of work involved in making this
+easier/possible is
+[ticket 31788](https://trac.torproject.org/projects/tor/ticket/31788).
