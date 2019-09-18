@@ -35,13 +35,56 @@ There are certain circuit-level conditions (e.g. the circuit is of a certain typ
 
 The following sections cover the details of the engineering steps that need to be performed to write, test, and deploy a padding machine, as well as how to extend the framework to support new machine features.
 
-### 1.2. Design Philosophy
+### 1.2. Design Philosophy and Design Constraints
 
-XXX: Should this be here, or part of background?
+The circuit padding framework is designed to allow arbitrary forms of cover
+traffic to be added to Tor circuits, for a wide range of purposes and
+scenarios. Through [proper load
+balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+and [circuit multiplexing
+strategies](https://trac.torproject.org/projects/tor/ticket/29494), we believe
+it is possible to add significant bandwidth overhead in the form of cover
+traffic, without significantly impacting end-user performance.
 
-XXX: We should have info about acceptable overhead rates for different kinds of application/problem domains, why we think that delay is a non-starter for general purpose/web circuits even though delay gives better results for less overhead, and how to build a "slow lane" Tor modification such that it that does not impact general circuit performance, to support high latency non-web applications. Not sure if this should be its own "Philosophy" section, or should be part of the intro, or part of the Future Work section, or ??
+Notably absent from the framework, though, is the ability to add delay to
+circuit traffic. We are keenly aware that if we were to support additional
+delay, [defenses would be able to have more success with less bandwidth
+overhead][https://freedom.cs.purdue.edu/anonymity/trilemma/index.html].
 
-XXX: anonymity trilemma
+Even so, arbitrary delay is not supported by this framework for two major
+reasons:
+
+First: Arbitrary delay inherently adds queueing memory overhead to all relays.
+Tor's static flow control is not sufficiently tuned to rapidly react to
+injected delays, and it is unlikely that even a properly tuned dynamic flow
+control mechanism would be able to keep arbitrary delay queuing overhead
+bounded to a constant amount of memory overhead, as the network scales with more
+relays and more users.
+
+Second: Additional latency is unappealing to the wider Internet community, for
+the simple reason that bandwidth
+[https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html](continues
+to increase exponentially), where as the speed of light is fixed. Significant
+engineering effort has been devoted to optimizations that reduce the effect of
+latency on Internet protocols. To go against this trend would ensure our
+irellevance to the wider conversation about traffic analysis of low latency
+protocols.
+
+However, these two factors only mean that delay is unacceptable *to add to the
+general-purpose Tor network*. It does not mean that delay is unacceptable in
+every case. It is acceptable for specific websites to add delay to themselves
+and even to signal delay strategies to their own clients, such as in the
+[https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf](Alpaca
+defense), since this does not affect the Tor network, nor does it apply to
+other websites which may prefer responsiveness. It is also acceptable
+for high-latency protocols to utilize a fixed-size batch mixing stragegy
+inside the Tor network, as fixed-size batch mixing strategies keep memory
+overhead constant, and priority mechanisms could be used to ensure batch mixed
+traffic has no imact on low latency traffic.
+
+Unfortunately, this still means that client-side web browser defenses that add
+delay to all web clients (such as LLaMa and Walkie-Talkie), are also
+unacceptable, *unless their use can be negotiated only by specific websites*.
 
 
 ## 2. Creating a New Padding Machine
