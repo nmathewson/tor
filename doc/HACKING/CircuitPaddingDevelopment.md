@@ -86,6 +86,16 @@ Unfortunately, this still means that client-side web browser defenses that add
 delay to all web clients (such as LLaMa and Walkie-Talkie), are also
 unacceptable, *unless their use can be negotiated only by specific websites*.
 
+In terms of acceptable overhead, because Tor onion services
+[https://metrics.torproject.org/hidserv-rend-relayed-cells.html](currently
+use) less than 1% of the
+[https://metrics.torproject.org/bandwidth-flags.html](total consumed
+bandwidth) of the Tor network, and because onion services are meant to provide
+higher security as compared to Tor Exit traffic, they are an attractive target
+for higher-overhead defenses. We encourage researchers to target this use case
+for defeneses that require more overhead, and/or for the deployment of
+optional negotiated application-layer delays on either the server or the
+client side.
 
 ## 2. Creating a New Padding Machine
 
