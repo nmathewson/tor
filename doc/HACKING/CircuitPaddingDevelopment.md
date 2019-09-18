@@ -173,7 +173,12 @@ Because padding from malicious Exit nodes can be used to construct active timing
 
 As an optimization, a client is allowed to replace a machine with another, by sending a RELAY_COMMAND_PADDING_NEGOTIATE cell to shut down a machine, and immediately sending a RELAY_COMMAND_PADDING_NEGOTIATE to start a new machine in the same index, without waiting for the response from the first negotiate cell.
 
-Unfortunately, there is a known bug as a consequence of this optimization. If your machine depends on repeated, rapid shutdown and startup (either for itself or between multiple different machines), please see [Bug 30922](https://trac.torproject.org/projects/tor/ticket/30992). Depending on your use case, we may need to fix that bug or help you find a workaround.
+Unfortunately, there is a known bug as a consequence of this optimization. If
+your machine depends on repeated shutdown and restart of the same
+machine number on the same circuit, please see [Bug
+30922](https://trac.torproject.org/projects/tor/ticket/30992). Depending on
+your use case, we may need to fix that bug or help you find a workaround. See
+also Section 6.XXX for some more technical details on this mechanism.
 
 
 ## 3. Padding Machine Definition Details
@@ -394,7 +399,32 @@ by this same `circpad_machine_setup_tokens()` function.
 
 #### 6.1.3. Deallocation and Shutdown
 
-XXX: machine_info can be missing but spec can remain (active vs inactive machines)
+Recall from Section XXX that padding machines can be swapped in and out by the
+client without waiting a full round trip for the relay machine to shut down.
+
+Internally, this is accomplished by immediately freeing the heap-allocated
+`circuit_t.padding_info` field corresponding to that machine, but still preserving the
+`circuit_t.padding_machine` pointer to the global padding machine
+specification until the response comes back from the relay. Once the response
+comes back, that `circuit_t.padding_machine` pointer is set to NULL, if the
+response machine number matches the current machine present.
+
+If the machine is replaced instead of just shut down, then the client frees
+the `circuit_t.padding_info`, and then sets the `circuit_t.padding_machine`
+and `circuit_t.padding_info` fields for this next machine immediately. This is
+done in `circpad_add_matching_machines()`. In this case, since the new machine
+should have a different machine number, the shut down response from the relay
+is silently discarded, since it will not match the new machine number.
+
+If this sequence of machine teardown and spin-up happens rapidly enough for
+the same machine number (as opposed to different machines), then a race
+condition can happen. This is
+[known bug #30992](https://trac.torproject.org/projects/tor/ticket/30992).
+
+Additionally, if Tor decides to close a circuit forcibly due to error before
+the padding machine is shut down, then `circuit_t.padding_info` is still
+properly freed by the call to `circpad_circuit_free_all_machineinfos()`
+in `circuit_free_()`.
 
 ## 7. Future Features and Optimizations
 
