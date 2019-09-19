@@ -49,7 +49,7 @@ traffic, without significantly impacting end-user performance.
 Notably absent from the framework, though, is the ability to add delay to
 circuit traffic. We are keenly aware that if we were to support additional
 delay, [defenses would be able to have more success with less bandwidth
-overhead][https://freedom.cs.purdue.edu/anonymity/trilemma/index.html].
+overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
 
 Even so, arbitrary delay is not supported by this framework for two major
 reasons:
@@ -63,19 +63,19 @@ relays and more users.
 
 Second: Additional latency is unappealing to the wider Internet community, for
 the simple reason that bandwidth
-[https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html](continues
-to increase exponentially), where as the speed of light is fixed. Significant
+[https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html](continues to increase exponentially),
+where as the speed of light is fixed. Significant
 engineering effort has been devoted to optimizations that reduce the effect of
 latency on Internet protocols. To go against this trend would ensure our
 irellevance to the wider conversation about traffic analysis of low latency
 protocols.
 
-However, these two factors only mean that delay is unacceptable *to add to the
-general-purpose Tor network*. It does not mean that delay is unacceptable in
+However, these two factors only mean that delay is unacceptable to add to the
+general-purpose Tor network. It does not mean that delay is unacceptable in
 every case. It is acceptable for specific websites to add delay to themselves
 and even to signal delay strategies to their own clients, such as in the
-[https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf](Alpaca
-defense), since this does not affect the Tor network, nor does it apply to
+[https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf](Alpaca defense),
+since this does not affect the Tor network, nor does it apply to
 other websites which may prefer responsiveness. It is also acceptable
 for high-latency protocols to utilize a fixed-size batch mixing stragegy
 inside the Tor network, as fixed-size batch mixing strategies keep memory
@@ -87,10 +87,10 @@ delay to all web clients (such as LLaMa and Walkie-Talkie), are also
 unacceptable, *unless their use can be negotiated only by specific websites*.
 
 In terms of acceptable overhead, because Tor onion services
-[https://metrics.torproject.org/hidserv-rend-relayed-cells.html](currently
-use) less than 1% of the
-[https://metrics.torproject.org/bandwidth-flags.html](total consumed
-bandwidth) of the Tor network, and because onion services are meant to provide
+[https://metrics.torproject.org/hidserv-rend-relayed-cells.html](currently use)
+less than 1% of the
+[https://metrics.torproject.org/bandwidth-flags.html](total consumed bandwidth)
+of the Tor network, and because onion services are meant to provide
 higher security as compared to Tor Exit traffic, they are an attractive target
 for higher-overhead defenses. We encourage researchers to target this use case
 for defeneses that require more overhead, and/or for the deployment of
@@ -464,8 +464,8 @@ Additionally, with that change, it will be possible to provide further overhead 
 
 ### 7.3. Machine Negotiation
 
-Circuit padding is applied to circuits through machine conditions (see [Section
-2.2](#2.2.Per-CircuitMachineActivationandShutdown).
+Circuit padding is applied to circuits through machine conditions (see
+[Section 2.2](#2.2.Per-CircuitMachineActivationandShutdown)).
 
 The following machine conditions may be useful for some use cases, but have
 not been implemented yet:
