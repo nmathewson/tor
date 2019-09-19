@@ -8,140 +8,254 @@ Written by Mike Perry and George Kadianakis.
 
 ## 0. Background
 
-Tor has deployed both connection-level and circuit-level padding, and both systems are live on the network today. The connection-level padding behavior is described in section 2 of [padding-spec.txt](https://github.com/mikeperry-tor/torspec/blob/hs-padding-spec/padding-spec.txt). The circuit-level padding behavior is described in section 3 of padding-spec.txt.
+Tor supports both connection-level and circuit-level padding, and both
+systems are live on the network today. The connection-level padding behavior
+is described in section 2 of
+[padding-spec.txt](https://github.com/mikeperry-tor/torspec/blob/hs-padding-spec/padding-spec.txt). The
+circuit-level padding behavior is described in section 3 of padding-spec.txt.
 
-These two systems are orthogonal and should not be confused. The connection-level padding system regards circuit-level padding as normal data traffic, and hence the connection-level padding system will not add any additional overhead while the circuit-level padding system is actively padding.
+These two systems are orthogonal and should not be confused. The
+connection-level padding system regards circuit-level padding as normal data
+traffic, and hence the connection-level padding system will not add any
+additional overhead while the circuit-level padding system is actively
+padding.
 
-While the currently deployed circuit-level padding behavior is quite simplistic, it is implemented using only a few of the features of a comprehensive event-driven state machine framework. The framework is designed to support all of the features needed to deploy any delay-free statistically shaped cover traffic on individual circuits, with cover traffic flowing to and from a node of the implementor's choice (Guard, Middle, Exit, Rendezvous, etc).
+While the currently deployed circuit-level padding behavior is quite simple,
+it is built on a more flexible framework.  This framework is an event-driven
+state machine, and is designed to support all of the features needed to
+deploy any delay-free statistically shaped cover traffic on individual
+circuits, with cover traffic flowing to and from a node of the implementor's
+choice (Guard, Middle, Exit, Rendezvous, etc).
 
-This class of system was first proposed in [Timing analysis in low-latency mix networks:
-attacks and defenses](https://www.freehaven.net/anonbib/cache/ShWa-Timing06.pdf) by Shmatikov and Wang, and extended for the website traffic fingerprinting domain by Juarez et al in [Toward an Efficient Website Fingerprinting Defense](http://arxiv.org/pdf/1512.00524). The framework also has support for fixed parameterized probability distributions, as used in [APE](https://www.cs.kau.se/pulls/hot/thebasketcase-ape/) by Tobias Pulls, as well as other additional features.
+This class of system was first proposed in
+[Timing analysis in low-latency mix networks: attacks and defenses](https://www.freehaven.net/anonbib/cache/ShWa-Timing06.pdf)
+by Shmatikov and Wang, and extended for the website traffic fingerprinting
+domain by Juarez et al. in
+[Toward an Efficient Website Fingerprinting Defense](http://arxiv.org/pdf/1512.00524). The
+framework also supports fixed parameterized probability distributions, as
+used in [APE](https://www.cs.kau.se/pulls/hot/thebasketcase-ape/) by Tobias
+Pulls, and many other features.
 
-This document describes how to use Tor's circuit padding framework to implement and deploy novel delay-free cover traffic defenses.
+This document describes how to use Tor's circuit padding framework to
+implement and deploy novel delay-free cover traffic defenses.
 
 ## 1. Circuit Padding Framework Introduction
 
-The circuit padding framework is the official way to implement padding defenses in Tor. It may be used in combination with application-layer defenses, or on its own.
+The circuit padding framework is the official way to implement padding
+defenses in Tor. It may be used in combination with application-layer
+defenses, or on its own.
 
-It is meant to be comprehensive enough to deploy most defenses without modification, but it may be extended to provide new features as well. Section 2XXX of this document describes how to use the framework as-is to add a new padding machine, and Section 3 covers internal topics that will help you if you wish to add new framework features to support your machine.
+Its current design should be enough to deploy most defenses without
+modification, but you can extend it to provide new features as well. Section
+2XXX of this document describes how to use the framework as-is to add a new
+padding machine, and Section 3 covers internal topics that will help you to
+add new framework features to support your machine.
 
 ### 1.1. Global System Overview
 
-To start off, circuit-level padding occurs between Tor clients and target relays at any hop of the circuit. Both parties need to support the same padding mechanisms for the system to work, but only the client can enable it: there is a padding negotiation mechanism in the Tor protocol that clients use to ask a relay to start doing padding. Padding mechanisms are currently hardcoded in the Tor source code, but in the future we will be able to serialize them in the Tor consensus or in Tor configuration files.
+Circuit-level padding can occur between any Tor client and target relays at
+any hop of one of the client's circuits. Both parties need to support the
+same padding mechanisms for the system to work, and the client must enable
+it: there is a padding negotiation mechanism in the Tor protocol that clients
+use to ask a relay to start padding. The list of padding mechanisms is
+currently hardcoded in the Tor source code, but in the future we will be able
+to serialize them in the Tor consensus or in Tor configuration files.
 
-Circuit-level padding is specified using 'padding machines'. Padding machines are in principle ''finite state machines''' whose every state specifies a different form of padding style, or stage of padding, in terms of latency and throughput. The padding designer specifies under which circumstances the padding machine should transition between padding states, either based on external events (e.g. incoming Tor cells) or on internal events (e.g. the state of machine, packet counts, etc).
+Circuit-level padding is specified using 'padding machines'. A padding
+machine is in principle a ''finite state machine''' in which every state
+specifies a different form of padding style, or stage of padding, in terms of
+latency and throughput. The padding designer specifies when the padding
+machine should transition between padding states, either based on external
+events (like incoming Tor cells) or on internal events (like the state of
+machine, packet counts, etc).
 
-There are certain circuit-level conditions (e.g. the circuit is of a certain type) that can be specified by the padding designer under which the padding machine will get activated. When a padding machine gets activated, it gets attached to the corresponding circuit both on the client-side and the relay-side. The machine will continue to run so long as its circuit-level conditions hold, or until it reaches a terminal end state.
+Padding machines can be configured to operate on all circuits, or on
+constrained to run only under certain conditions (like the circuit's type).
+When a padding machine is activated, it is attached to the corresponding
+circuit, both on the client-side and the relay-side. The machine will
+continue to run so long as its circuit-level conditions hold, or until it
+reaches a terminal end state.
 
-The following sections cover the details of the engineering steps that need to be performed to write, test, and deploy a padding machine, as well as how to extend the framework to support new machine features.
+The following sections cover the details of the engineering steps to write,
+test, and deploy a padding machine, as well as how to extend the framework to
+support new machine features.
 
-### 1.2. Design Philosophy and Design Constraints
+### 1.2. Design Philosophy, Design Constraints, and thoughts on delay
 
-The circuit padding framework is designed to allow arbitrary forms of cover
+The circuit padding framework is designed to allow many forms of cover
 traffic to be added to Tor circuits, for a wide range of purposes and
-scenarios. Through [proper load
-balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
-and [circuit multiplexing
-strategies](https://bugs.torproject.org/29494), we believe
-it is possible to add significant bandwidth overhead in the form of cover
-traffic, without significantly impacting end-user performance.
+scenarios. Through
+[proper load balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
+believe it is possible to add significant bandwidth overhead in the form of
+cover traffic, without significantly impacting end-user performance.
 
 Notably absent from the framework, though, is the ability to add delay to
 circuit traffic. We are keenly aware that if we were to support additional
 delay, [defenses would be able to have more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
 
-Even so, arbitrary delay is not supported by this framework for two major
+Even so, this framework does not support arbitrary delay, for two major
 reasons:
 
-First: Arbitrary delay inherently adds queueing memory overhead to all relays.
-Tor's static flow control is not sufficiently tuned to rapidly react to
-injected delays, and it is unlikely that even a properly tuned dynamic flow
-control mechanism would be able to keep arbitrary delay queuing overhead
-bounded to a constant amount of memory overhead, as the network scales with more
-relays and more users.
+First: Arbitrary delay inherently adds queueing memory overhead to all
+relays.  Tor's static flow control is not well tuned to react rapidly to
+injected delays, and it seems unlikely that even a properly tuned dynamic
+flow control mechanism would be able to keep arbitrary delay queuing overhead
+bounded to a constant amount of memory overhead, as the network scales with
+more relays and more users.
 
-Second: Additional latency is unappealing to the wider Internet community, for
-the simple reason that bandwidth
+Second: Additional latency is unappealing to the wider Internet community,
+for the simple reason that bandwidth
 [continues to increase exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
-where as the speed of light is fixed. Significant
-engineering effort has been devoted to optimizations that reduce the effect of
-latency on Internet protocols. To go against this trend would ensure our
-irellevance to the wider conversation about traffic analysis of low latency
-protocols.
+where as the speed of light is fixed. Significant engineering effort has been
+devoted to optimizations that reduce the effect of latency on Internet
+protocols. To go against this trend would ensure our irrelevance to the wider
+conversation about traffic analysis of low latency protocols.
 
 However, these two factors only mean that delay is unacceptable to add to the
 general-purpose Tor network. It does not mean that delay is unacceptable in
-every case. It is acceptable for specific websites to add delay to themselves
+every case. It is acceptable for specific services to add delay themselves,
 and even to signal delay strategies to their own clients, such as in the
 [Alpaca defense](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf),
-since this does not affect the Tor network, nor does it apply to
-other websites which may prefer responsiveness. It is also acceptable
-for high-latency protocols to utilize a fixed-size batch mixing stragegy
-inside the Tor network, as fixed-size batch mixing strategies keep memory
-overhead constant, and priority mechanisms could be used to ensure batch mixed
-traffic has no imact on low latency traffic.
+since this would not affect the Tor network as a whole, nor would it apply to
+other services which may prefer responsiveness. It is also acceptable for
+high-latency protocols to utilize a fixed-size batch mixing strategy inside
+the Tor network, as fixed-size batch mixing strategies keep memory overhead
+constant, and priority mechanisms could be used to ensure batch mixed traffic
+has no imact on low latency traffic.
 
-Unfortunately, this still means that client-side web browser defenses that add
-delay to all web clients (such as LLaMa and Walkie-Talkie), are also
+Unfortunately, this still means that client-side web browser defenses that
+add delay to all web clients (such as LLaMa and Walkie-Talkie), are also
 unacceptable, *unless their use can be negotiated only by specific websites*.
 
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
 less than 1% of the
 [total consumed bandwidth](https://metrics.torproject.org/bandwidth-flags.html)
-of the Tor network, and because onion services are meant to provide
-higher security as compared to Tor Exit traffic, they are an attractive target
-for higher-overhead defenses. We encourage researchers to target this use case
-for defeneses that require more overhead, and/or for the deployment of
+of the Tor network, and because onion services are meant to provide higher
+security as compared to Tor Exit traffic, they are an attractive target for
+higher-overhead defenses. We encourage researchers to target this use case
+for defenses that require more overhead, and/or for the deployment of
 optional negotiated application-layer delays on either the server or the
 client side.
 
+<!-- Is this above section worded too strongly?  Do we mean to say that we
+would never consider a delay mechanism, or do we mean to say that we don't
+know how to make one acceptable right now? -nm -->
+
 ## 2. Creating a New Padding Machine
 
-You must perform three pieces of work to create and enable a new padding machine:
-  1. Define your machine using the fields of a heap-allocated `circpad_machine_spec_t` structure instance.
-  2. Register your instance in the global lists of available padding machines using `circpad_register_padding_machine()`.
-  3. Ensure that your machine is properly negotiated under your desired circuit conditions.
+This section explains how to use the existing mechanisms in Tor to define a
+new circuit padding machine.  We assume here that you know C, and are at
+least somewhat familiar with Tor development.  For more information on Tor
+development in general, see the other files in doc/HACKING/ in a recent Tor
+distribution.
+
+To create a new padding machine, you must:
+
+  1. Define your machine using the fields of a heap-allocated
+     `circpad_machine_spec_t` object.
+
+  2. Register this object in the global list of available padding machines,
+     using `circpad_register_padding_machine()`.
+
+  3. Ensure that your machine is properly negotiated under your desired
+     circuit conditions.
 
 ### 2.1. Creating and Registering a New Padding Machine
 
-Your machine definitions should go into their own functions in [circuitpadding_machines.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding_machines.c). For details on all of the fields involved in specifying a padding machine, see Section XXX.
+Your machine definitions should go into their own functions in a new file
+similar to
+[circuitpadding_machines.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding_machines.c). For
+details on all of the fields involved in specifying a padding machine, see
+Section XXX.
 
-You must register your machine in `circpad_machines_init()` in [circuitpadding.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.c). When adding a new padding machine specification, you must allocate a `circpad_machine_spec_t` on the heap with `tor_malloc_zero()`, give it a human readable name string, and a machine number equivalent to the number of machines in the list, and register the structure using `circpad_register_padding_machine()`.
+You must register your machine in `circpad_machines_init()` in
+[circuitpadding.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.c). To
+add a new padding machine specification, you must allocate a
+`circpad_machine_spec_t` on the heap with `tor_malloc_zero()`, give it a
+human readable name string, and a machine number equivalent to the number of
+machines in the list, and register the structure using
+`circpad_register_padding_machine()`.
 
-XXX: Right now, our machine registration actually happens in our specification definition functions. This is confusing. We should move the registration calls into `circpad_machines_init()` instead of the specification definition functions..
+XXX: Right now, our machine registration actually happens in our
+specification definition functions. This is confusing. We should move the
+registration calls into `circpad_machines_init()` instead of the
+specification definition functions.
 
-Each machine must have a client instance, and a relay instance. Register your client-side machine instance in the `origin_padding_machines` list, and your relay side machine instance in the `relay_padding_machines` list. You do not need to worry about deallocation; this is handled for you automatically.
+Each machine must have a client instance and a relay instance. Register your
+client-side machine instance in the `origin_padding_machines` list, and your
+relay side machine instance in the `relay_padding_machines` list. Once you
+have reagisted your instance, you do not need to worry about deallocation;
+this is handled for you automatically.
 
-Both machine lists use registration order to signal machine precidence for a given `machine_idx` slot on a circuit. This means that machines that are registered last are checked for activation *before* machines that were registered first. (This reverse precidence ordering allows us to easily deprecate older machines simply by adding new ones after them.)
+Both machine lists use registration order to signal machine precedence for a
+given `machine_idx` slot on a circuit. This means that machines that are
+registered last are checked for activation *before* machines that are
+registered first. (This reverse precedence ordering allows us to
+deprecate older machines simply by adding new ones after them.)
 
 ### 2.2. Per-Circuit Machine Activation and Shutdown
 
-After a machine has been successfully registered with the framework, it will be instantiated on any client-side circuits that support it. Only client-side circuits may initiate padding machines, but either clients or relays may shut down padding machines.
+After a machine has been successfully registered with the framework, it will
+be instantiated on any client-side circuits that support it. Only client-side
+circuits may initiate padding machines, but either clients or relays may shut
+down padding machines.
 
 #### 2.2.1. Machine Application Events
 
-The framework checks client-side origin circuits to see if padding machines should be activated or terminated during specific event callbacks in circuitpadding.c. We list these event callbacks here only for reference. You should not modify any of these callbacks to get your machine to run; instead, you should use the `circpad_machine_spec_t.conditions` field, which is described in the next section. However, you may add new event callbacks if you need other activation events. Any new event callbacks should behave exactly like the existing callbacks.
+The framework checks client-side origin circuits to see if padding machines
+should be activated or terminated during specific event callbacks in
+`circuitpadding.c`. We list these event callbacks here only for
+reference. You should not modify any of these callbacks to get your machine
+to run; instead, you should use the `circpad_machine_spec_t.conditions`
+field, as is described in the next section. However, you may add new event
+callbacks if you need other activation events. Any new event callbacks should
+behave exactly like the existing callbacks.
 
-During each of these event callbacks, the framework checks to see if any current running padding machines have conditions that no longer apply as a result of the event, and shuts those machines down. Then, it checks to see if any new padding machines should be activated as a result of the event, based on their circuit application conditions. **Remember: Machines are checked in reverse order in the machine list. This means that later, more recently added machines take precidence over older, earlier entries in each list.**
+<!-- The above paragraph implies that this subsubsection belongs in section -->
+<!-- 3, which is about enhancing the API, right? -nickm -->
 
-Both of these checks are performed using the machine application conditions that you specify in your machine's `circpad_machine_spec_t.conditions` field.
+During each of these event callbacks, the framework checks to see if any
+current running padding machines have conditions that no longer apply as a
+result of the event, and shuts those machines down. Then, it checks to see if
+any new padding machines should be activated as a result of the event, based
+on their circuit application conditions. **Remember: Machines are checked in
+reverse order in the machine list. This means that later, more recently added
+machines take precedence over older, earlier entries in each list.**
+
+Both of these checks are performed using the machine application conditions
+that you specify in your machine's `circpad_machine_spec_t.conditions` field.
 
 The machine application event callbacks are prefixed by `circpad_machine_event_` by convention in circuitpadding.c. As of this writing, these callbacks are:
 
-  - `circpad_machine_event_circ_added_hop()`: Called whenever a new hop is added to a circuit.
-  - `circpad_machine_event_circ_built()`: Called when a circuit has completed consturction and is opened.
-  - `circpad_machine_event_circ_purpose_changed()`: Called when a circuit changes purpose.
-  - `circpad_machine_event_circ_has_no_relay_early()`: Called when a circuit runs out of RELAY_EARLY cells.
-  - `circpad_machine_event_circ_has_streams()`: Called when a circuit gets a stream attached.
-  - `circpad_machine_event_circ_has_no_streams()`: Called when the last stream is detached from a circuit.
+  - `circpad_machine_event_circ_added_hop()`: Called whenever a new hop is
+    added to a circuit.
+  - `circpad_machine_event_circ_built()`: Called when a circuit has completed
+    construction and is
+    opened. <!-- open != ready for traffic. Which do we mean? -nickm -->
+  - `circpad_machine_event_circ_purpose_changed()`: Called when a circuit
+    changes purpose.
+  - `circpad_machine_event_circ_has_no_relay_early()`: Called when a circuit
+    runs out of RELAY_EARLY cells.
+  - `circpad_machine_event_circ_has_streams()`: Called when a circuit gets a
+    stream attached.
+  - `circpad_machine_event_circ_has_no_streams()`: Called when the last
+    stream is detached from a circuit.
 
-XXX perhaps instead of the callbacks we need to specify the conditions? In theory the padding designer should not care about the callbacks since that's part of the internals of the framework. The conditions are talked about in the section below.
+XXX perhaps instead of the callbacks we need to specify the conditions? In
+theory the padding designer should not care about the callbacks since that's
+part of the internals of the framework. The conditions are talked about in
+the section below.
 
 #### 2.2.2. Machine Application Conditions
 
-The [circpad_machine_conditions_t conditions field](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L641) of your `circpad_machine_spec_t` machine definition instance controls the conditions under which your machine gets attached and enabled on a Tor circuit, and when it gets shut down.
+The
+[circpad_machine_conditions_t conditions field](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L641)
+of your `circpad_machine_spec_t` machine definition instance controls the
+conditions under which your machine will be attached and enabled on a Tor
+circuit, and when it gets shut down.
 
 *All* of your explicitly specified conditions in `circpad_machine_spec_t.conditions` *must* be met for the machine to be applied to a circuit. If *any* condition that you specified ceases to be met upon the arrival of one of the machine activation events, then the machine is shut down (even if the event is unrelated to that condition; all conditions are checked on each event). Another way to look at this is that all specified conditions must evaluate to true for the entire duration that your machine is running. If any are false, your machine does not run (or stops running and shuts down).
 
