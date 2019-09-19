@@ -74,7 +74,7 @@ However, these two factors only mean that delay is unacceptable to add to the
 general-purpose Tor network. It does not mean that delay is unacceptable in
 every case. It is acceptable for specific websites to add delay to themselves
 and even to signal delay strategies to their own clients, such as in the
-[Alpaca defense](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf)
+[Alpaca defense](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf),
 since this does not affect the Tor network, nor does it apply to
 other websites which may prefer responsiveness. It is also acceptable
 for high-latency protocols to utilize a fixed-size batch mixing stragegy
