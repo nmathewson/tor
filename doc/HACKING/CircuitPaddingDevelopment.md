@@ -409,6 +409,13 @@ specification until the response comes back from the relay. Once the response
 comes back, that `circuit_t.padding_machine` pointer is set to NULL, if the
 response machine number matches the current machine present.
 
+Because of this partial shutdown condition, we have two macros for iterating
+over machines. `FOR_EACH_ACTIVE_CIRCUIT_MACHINE_BEGIN()` is used to iterate
+over machines that have both a `circuit_t.padding_info` slot and a
+`circuit_t.padding_machine` slot occupied. `FOR_EACH_CIRCUIT_MACHINE_BEGIN()`
+is used when we need to iterate over all machines that are either active or
+are simply waiting for a response to a shutdown request.
+
 If the machine is replaced instead of just shut down, then the client frees
 the `circuit_t.padding_info`, and then sets the `circuit_t.padding_machine`
 and `circuit_t.padding_info` fields for this next machine immediately. This is
@@ -420,6 +427,12 @@ If this sequence of machine teardown and spin-up happens rapidly enough for
 the same machine number (as opposed to different machines), then a race
 condition can happen. This is
 [known bug #30992](https://bugs.torproject.org/30992).
+
+When the relay side decides to shut down a machine, it sends a
+RELAY_COMMAND_PADDING_NEGOTIATED towards the client. If this cell matches the
+current machine number on the client, that machine is torn down, by freeing
+the `circuit_t.padding_info` slot and immediately setting
+`circuit_t.padding_machine` slot to NULL.
 
 Additionally, if Tor decides to close a circuit forcibly due to error before
 the padding machine is shut down, then `circuit_t.padding_info` is still
