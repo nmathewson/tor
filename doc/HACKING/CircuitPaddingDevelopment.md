@@ -42,7 +42,7 @@ traffic to be added to Tor circuits, for a wide range of purposes and
 scenarios. Through [proper load
 balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
 and [circuit multiplexing
-strategies](https://trac.torproject.org/projects/tor/ticket/29494), we believe
+strategies](https://bugs.torproject.org/29494), we believe
 it is possible to add significant bandwidth overhead in the form of cover
 traffic, without significantly impacting end-user performance.
 
@@ -159,7 +159,7 @@ When a new machine specification is added to Tor (or removed from Tor), you shou
 Note that this protocol version update is not necessary if your experiments will *only* be using your own relays that support your own padding machines. This can be accomplished by using the `MiddleNodes` directive; see Section XXX for more information.
 
 If the protocol support check passes for the circuit, then the client sends a RELAY_COMMAND_PADDING_NEGOTIATE cell towards the `circpad_machine_spec_t.target_hop` relay, and immediately enables the padding machine, and may begin sending padding. (The framework does not wait for RELAY_COMMAND_PADDING_NEGOTIATED response to begin padding so that we can switch between machines rapidly.)
- 
+
 #### 2.2.4. Machine Shutdown Mechanisms
 
 Padding machines can be shut down on a circuit in three main ways:
@@ -176,7 +176,7 @@ As an optimization, a client is allowed to replace a machine with another, by se
 Unfortunately, there is a known bug as a consequence of this optimization. If
 your machine depends on repeated shutdown and restart of the same
 machine number on the same circuit, please see [Bug
-30922](https://trac.torproject.org/projects/tor/ticket/30992). Depending on
+30922](https://bugs.torproject.org/30992). Depending on
 your use case, we may need to fix that bug or help you find a workaround. See
 also Section 6.XXX for some more technical details on this mechanism.
 
@@ -195,7 +195,7 @@ A padding machine is basically a finite state machine where each state specifies
 
 As an example of a simple padding machine, you could have a state machine with the following states: `[START] -> [SETUP] -> [HTTP] -> [END]` where the `[SETUP]` state pads in a way that obfuscates the ''circuit setup'' of Tor, and the `[HTTP]` state pads in a way that emulates a simple HTTP session. Of course, padding machines can be more complicated than that, with dozens of states and non-trivial transitions.
 
-Padding developers encode the machine states in the [circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L655). Each machine state is described by a [circpad_state_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L273) and each such structure specifies the style and amount of padding to be sent, as well as the possible state transitions. 
+Padding developers encode the machine states in the [circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L655). Each machine state is described by a [circpad_state_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L273) and each such structure specifies the style and amount of padding to be sent, as well as the possible state transitions.
 
 The function `circpad_machine_states_init()` must be used for allocation and initialization `circpad_machine_spec_t.states` array field before states and state transitions can get defined, as some of the state object has non-zero initial values.
 
@@ -326,7 +326,7 @@ When doing initial tuning of padding machines, especially in adversarial setting
 
 However, because the circuit padding system is event-driven and is otherwise only loosly coupled with Tor, it should be possible to extract circuitpadding.[ch], circuitpadding_machines.[ch], and a handful of headers from Tor, and use packet and event traces from Tor to call in to the circuitpadding.c event callbacks, based only on recorded traces.
 
-In this way, a live crawl of the Alexa top sites could be performed once, to produce a standard "undefended" corpus. Padding machines can be then quickly evaluated on these simulated traces in a standardized way. As of this writing, this has not yet been done. 
+In this way, a live crawl of the Alexa top sites could be performed once, to produce a standard "undefended" corpus. Padding machines can be then quickly evaluated on these simulated traces in a standardized way. As of this writing, this has not yet been done.
 
 See Section XXX for specific tor implementation details and pointers on how to do this successfully.
 
@@ -419,7 +419,7 @@ is silently discarded, since it will not match the new machine number.
 If this sequence of machine teardown and spin-up happens rapidly enough for
 the same machine number (as opposed to different machines), then a race
 condition can happen. This is
-[known bug #30992](https://trac.torproject.org/projects/tor/ticket/30992).
+[known bug #30992](https://bugs.torproject.org/30992).
 
 Additionally, if Tor decides to close a circuit forcibly due to error before
 the padding machine is shut down, then `circuit_t.padding_info` is still
@@ -450,13 +450,13 @@ Unfortunately, padding machines that have large quantities of overhead will requ
 
 Additionally, padding cells are not currently subjected to flow control. For
 high amounts of padding, we may want to change this. See [ticket
-31782](https://trac.torproject.org/projects/tor/ticket/31782) for details.
+31782](https://bugs.torproject.org/31782) for details.
 
 ### 7.2. Circuitmux Optimizations
 
 As of this writing (and Tor 0.4.1-stable), the cell event callbacks come from post-decryption points in the cell processing codepath, and from the pre-queue points in the cell send codepath. This means that our cell events will not reflect the actual time when packets are read or sent on the wire. This is much worse in the send direction, as the circuitmux queue, channel outbuf, and kernel TCP buffer will impose significant additional delay between when we currently report that a packet was sent, and when it actually hits the wire.
 
-[Ticket 29494](https://trac.torproject.org/projects/tor/ticket/29494) has a more detailed description of this problem, and an experimental branch that changes the cell event callback locations to be from circuitmux post-queue, which with KIST, should be an accurate reflection of when they are actually sent on the wire.
+[Ticket 29494](https://bugs.torproject.org/29494) has a more detailed description of this problem, and an experimental branch that changes the cell event callback locations to be from circuitmux post-queue, which with KIST, should be an accurate reflection of when they are actually sent on the wire.
 
 If your padding machine and problem space depends on very accurate notions of relay-side packet timing, please try that branch and let us know on the ticket if you need any further assistance fixing it up.
 
@@ -469,15 +469,15 @@ Circuit padding is applied to circuits through machine conditions (see
 
 The following machine conditions may be useful for some use cases, but have
 not been implemented yet:
-  * [Exit Policy-based Stream Conditions](https://trac.torproject.org/projects/tor/ticket/29083)
-  * [Probability to apply machine/Cointoss condition](https://trac.torproject.org/projects/tor/ticket/30092)
-  * [Probability distributions for launching new padding circuit(s)](https://trac.torproject.org/projects/tor/ticket/31783)
+  * [Exit Policy-based Stream Conditions](https://bugs.torproject.org/29083)
+  * [Probability to apply machine/Cointoss condition](https://bugs.torproject.org/30092)
+  * [Probability distributions for launching new padding circuit(s)](https://bugs.torproject.org/31783)
 
 Additionally, the following features may help to obscure that padding is being
 negotiated, and/or streamline that negotiation process:
-  * [Always send negotiation cell on all circuits](https://trac.torproject.org/projects/tor/ticket/30172)
-  * [Better shutdown handling](https://trac.torproject.org/projects/tor/ticket/30992)
-  * [Preference-ordered negotiation menu](https://trac.torproject.org/projects/tor/ticket/30348)
+  * [Always send negotiation cell on all circuits](https://bugs.torproject.org/30172)
+  * [Better shutdown handling](https://bugs.torproject.org/30992)
+  * [Preference-ordered negotiation menu](https://bugs.torproject.org/30348)
 
 ### 7.4. Probabalstic State Transitions
 
@@ -486,7 +486,7 @@ Right now, the state machine transitions are fully deterministic. However, one c
 For this, the `circpad_state_t.next_state` array would have to become two
 dimensional, so that an array of next state and probability pairs could be
 provided. If you need this feature, please see
-[ticket 31787](https://trac.torproject.org/projects/tor/ticket/31787).
+[ticket 31787](https://bugs.torproject.org/31787).
 
 ### 7.5. Improved simulation mechanisms
 
@@ -499,4 +499,4 @@ be made more abstract, to facilitate trace simulation.
 
 The parent ticket for the pieces of work involved in making this
 easier/possible is
-[ticket 31788](https://trac.torproject.org/projects/tor/ticket/31788).
+[ticket 31788](https://bugs.torproject.org/31788).
