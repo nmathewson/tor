@@ -259,10 +259,10 @@ circuit, and when it gets shut down.
 
 *All* of your explicitly specified conditions in
  `circpad_machine_spec_t.conditions` *must* be met for the machine to be
- applied to a circuit. If *any* condition that you specified ceases to be met
- upon the arrival of one of the machine activation events, then the machine
- is shut down (even if the event is unrelated to that condition; all
- conditions are checked on each event). Another way to look at this is that
+ applied to a circuit. If *any* condition ceases to be met, then the machine
+ is shut down.  (This is checked on every event that arrives, even if the
+ condition is unrelated to the event.)
+ Another way to look at this is that
  all specified conditions must evaluate to true for the entire duration that
  your machine is running. If any are false, your machine does not run (or
  stops running and shuts down).
@@ -272,11 +272,11 @@ In particular, as part of the
 the circuit padding subsystem gives the developer the option to enable a
 machine based on:
   - The
-    [number of hops](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L157)
+    [length](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L157)
     on the circuit (via the `min_hops` field).
   - The
     [current state](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L174)
-    of the circuit, such as streams, relay_early, etc (via the
+    of the circuit, such as streams, relay_early, etc. (via the
     `circpad_circuit_state_t state_mask` field).
   - The
     [purpose](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L178)
@@ -292,11 +292,11 @@ additional conditions that are needed for your use case.
 #### 2.2.3. Detecting and Negotiating Machine Support
 
 When a new machine specification is added to Tor (or removed from Tor), you
-should bump the Padding subprotocol version in ./src/core/or/protover.c and
-./src/rust/protover/protover.rs, add a field to `protover_summary_flags_t` in
-or.h, and set this field in `memoize_protover_summary()` in versions.c. This
+should bump the Padding subprotocol version in `src/core/or/protover.c` and
+`src/rust/protover/protover.rs`, add a field to `protover_summary_flags_t` in
+`or.h`, and set this field in `memoize_protover_summary()` in versions.c. This
 new field must then be checked in `circpad_node_supports_padding()` in
-circuitpadding.c. XXX-link all of these.
+`circuitpadding.c`. XXX-link all of these.
 
 Note that this protocol version update is not necessary if your experiments
 will *only* be using your own relays that support your own padding
@@ -328,8 +328,8 @@ the other side, indicating that shutown has occurred. The client side sends
 
 Because padding from malicious Exit nodes can be used to construct active
 timing-based side channels to malicious Guard nodes, the client checks that
-padding-relatd cells only come from relays with active padding machines on
-them. For this reason, when a client decides to shut down a padding machine,
+padding-related cells only come from relays with active padding machines.
+For this reason, when a client decides to shut down a padding machine,
 the framework frees the mutable `circuit_t.padding_info`, but leaves the
 `circuit_t.padding_machine` pointer set until the
 `RELAY_COMMAND_PADDING_NEGOTIATED` response comes back, to ensure that any
@@ -358,6 +358,10 @@ By now, you should understand how to register, negotiate, and control the
 lifetime of your padding machine. This section should help you understand the
 full set of features available for your padding machine definitions.
 
+<!-- XXX hang on. I thought that before we said that section 3 was going to -->
+<!-- be about how to enhance the existing tor code to support more -->
+<!-- complicated machines. -->
+
 A padding machine is specified using the
 [circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
 of this structure specify the precise functionality of a machine, and it's
@@ -370,7 +374,7 @@ structure.
 
 ### 3.1 Padding Machine States
 
-A padding machine is basically a finite state machine where each state
+A padding machine is a finite state machine where each state
 specifies a different style of padding. Transitions between states occur
 using various types of events as specified in XXX.
 
