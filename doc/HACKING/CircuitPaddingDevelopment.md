@@ -63,7 +63,7 @@ relays and more users.
 
 Second: Additional latency is unappealing to the wider Internet community, for
 the simple reason that bandwidth
-[https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html](continues to increase exponentially),
+[continues to increase exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
 where as the speed of light is fixed. Significant
 engineering effort has been devoted to optimizations that reduce the effect of
 latency on Internet protocols. To go against this trend would ensure our
@@ -74,7 +74,7 @@ However, these two factors only mean that delay is unacceptable to add to the
 general-purpose Tor network. It does not mean that delay is unacceptable in
 every case. It is acceptable for specific websites to add delay to themselves
 and even to signal delay strategies to their own clients, such as in the
-[https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf](Alpaca defense),
+[Alpaca defense](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf)
 since this does not affect the Tor network, nor does it apply to
 other websites which may prefer responsiveness. It is also acceptable
 for high-latency protocols to utilize a fixed-size batch mixing stragegy
@@ -87,9 +87,9 @@ delay to all web clients (such as LLaMa and Walkie-Talkie), are also
 unacceptable, *unless their use can be negotiated only by specific websites*.
 
 In terms of acceptable overhead, because Tor onion services
-[https://metrics.torproject.org/hidserv-rend-relayed-cells.html](currently use)
+[currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
 less than 1% of the
-[https://metrics.torproject.org/bandwidth-flags.html](total consumed bandwidth)
+[total consumed bandwidth](https://metrics.torproject.org/bandwidth-flags.html)
 of the Tor network, and because onion services are meant to provide
 higher security as compared to Tor Exit traffic, they are an attractive target
 for higher-overhead defenses. We encourage researchers to target this use case
