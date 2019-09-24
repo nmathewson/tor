@@ -90,7 +90,7 @@ quickly.
 ### 1.2. Design Philosophy, Design Constraints, and Layering Model
 
 The circuit padding framework is meant to provide one layer in a layered
-system of interchagable components. Because it operates at the Tor circuit
+system of interchangeable components. Because it operates at the Tor circuit
 layer, it deals only with the inter-packet timings and quantity of cells sent
 on a circuit. This means that it does not deal with packet sizes, or ways that
 the Tor protocol might be recognized on the wire.
@@ -103,7 +103,7 @@ which may optionally be used in conjunction with this framework (or without
 it).
 
 Moreover, because there is no known feasible way to add arbitrary delay to
-cells within the Tor network without adding queueing overhead that scales in
+cells within the Tor network without adding queuing overhead that scales in
 proportion to the number of circuits, this framework also does not provide any
 mechanisms to delay packets. 
 
@@ -130,7 +130,7 @@ However, as a last resort for narrowly scoped application domains (such as
 shaping Tor service-side onion service traffic to look like other websites or
 different protocols), delay *may* be added at the [application
 layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
-Ideally, any additional cover traffic required by such defenes would still be
+Ideally, any additional cover traffic required by such defenses would still be
 added at the circuit padding layer to provide engineering efficiency through
 loose layer coupling and component re-use, as well as to provide additional
 gains against [low
@@ -209,7 +209,7 @@ specification definition functions.
 Each machine must have a client instance and a relay instance. Register your
 client-side machine instance in the `origin_padding_machines` list, and your
 relay side machine instance in the `relay_padding_machines` list. Once you
-have reagisted your instance, you do not need to worry about deallocation;
+have registered your instance, you do not need to worry about deallocation;
 this is handled for you automatically.
 
 Both machine lists use registration order to signal machine precedence for a
@@ -298,7 +298,7 @@ Padding machines can be shut down on a circuit in three main ways:
      relay during negotiation.
 
 Each of these cases causes the originating node to send a relay cell towards
-the other side, indicating that shutown has occurred. The client side sends
+the other side, indicating that shutdown has occurred. The client side sends
 `RELAY_COMMAND_PADDING_NEGOTIATE`, and the relay side sends
 `RELAY_COMMAND_PADDING_NEGOTIATED`.
 
@@ -447,7 +447,7 @@ histogram''. The main advantages of a histogram are that it allows you to
 specify distributions that are not easily parameterized in closed form, or
 require specific packet counts at particular time intervals. Histograms also
 allow you to make use of an optional traffic minimization and shaping
-optimization called *token removal*, which is cental to the original
+optimization called *token removal*, which is central to the original
 [Adaptive Padding](https://www.freehaven.net/anonbib/cache/ShWa-Timing06.pdf)
 concept.
 
@@ -613,7 +613,7 @@ assumptions.
 
 However, it is not ethical, or even possible, to run high-resolution traffic
 analysis attacks on the entire Tor network. But, it is both ethical and
-posssible to run small scale experiments that target only your own clients,
+possible to run small scale experiments that target only your own clients,
 who will only use your own Tor relays that support your new padding
 machines.
 
@@ -776,7 +776,7 @@ information.
 If a `circpad_state_t` of a machine specifies a `token_removal` strategy
 other than `CIRCPAD_TOKEN_REMOVAL_NONE` (see section XXX), then every time
 there is a state transition into this state, `circpad_machine_setup_tokens()`
-will copy the read-only `circpad_state_t.historam` array into a mutable
+will copy the read-only `circpad_state_t.histogram` array into a mutable
 version at `circpad_machine_runtime_t.histogram`. This mutable copy is used
 to decrement the histogram bin accounts as packets are sent, as per the
 specified token removal strategy.
@@ -947,7 +947,7 @@ negotiated, and/or streamline that negotiation process:
   * [Better shutdown handling](https://bugs.torproject.org/30992)
   * [Preference-ordered negotiation menu](https://bugs.torproject.org/30348)
 
-### 7.4. Probabalstic State Transitions
+### 7.4. Probabilistic State Transitions
 
 Right now, the state machine transitions are fully deterministic. However,
 one could imagine a state machine that uses probabilistic transitions between
