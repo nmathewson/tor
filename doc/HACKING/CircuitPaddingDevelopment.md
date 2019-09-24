@@ -71,9 +71,12 @@ conditions under which it should be applied to circuits.
 
 This compact C structure representation is meant to function as a
 microlanguage, which is compiled down into a bitstring that can be tuned using
-various optimization methods, either in bitstring form or C struct form. The
-event driven, self-contained nature of this framework is also meant to make
-simulation both expedient and rigorously reproducible.
+various optimization methods, either in bitstring form or C struct form. This
+compact form is a deliberate design decision to make tuning easy and efficient
+through various machine learning optimization mechanisms (such as gradient
+descent, GAs, or GANs). The event driven, self-contained nature of this
+framework is also meant to make simulation both expedient and rigorously
+reproducible.
 
 The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
@@ -86,29 +89,23 @@ quickly.
 
 ### 1.2. Design Philosophy, Design Constraints, and Layering Model
 
-The circuit padding framework is meant to provide just one layer in a layered
+The circuit padding framework is meant to provide one layer in a layered
 system of interchagable components. Because it operates at the Tor circuit
 layer, it deals only with the inter-packet timings and quantity of cells sent
-on a circuit. Moreover, because there is no known feasible way to add
-arbitrary delay to cells within the Tor network without adding queueing
-overhead that scales in proportion to the number of circuits, it does not
-provide any mechanisms to delay packets. This also means that it does not deal
-with packet sizes, or ways that the Tor protocol might be recognized on the
-wire.
+on a circuit. This means that it does not deal with packet sizes, or ways that
+the Tor protocol might be recognized on the wire.
 
-In effect, this means that this framework is strictly concerned with the
-classification of contents of traffic that is already known to be Tor traffic.
 The problem of differentiating Tor traffic from non-Tor traffic based on
 packet sizes, initial handshake patterns, and DPI characteristics is the
 domain of [pluggable
 transports](https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPluggableTransports),
-which are meant to be used in conjunction with this framework, by way of being
-layered on top of it.
+which may optionally be used in conjunction with this framework (or without
+it).
 
-Through [proper load balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
-and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
-believe it is possible to add significant bandwidth overhead in the form of
-cover traffic, without significantly impacting end-user performance.
+Moreover, because there is no known feasible way to add arbitrary delay to
+cells within the Tor network without adding queueing overhead that scales in
+proportion to the number of circuits, this framework also does not provide any
+mechanisms to delay packets. 
 
 We are keenly aware that if we were to support additional delay, [defenses
 would be able to have more success with less bandwidth
@@ -121,22 +118,30 @@ devoted to optimizations that reduce the effect of latency on Internet
 protocols. To go against this trend would ensure our irrelevance to the wider
 conversation about traffic analysis of low latency protocols.
 
-While we are discouraging defenses that add such delay, we are not ruling them
-out for narrowly scoped application domains (such as shaping Tor service-side
-onion service traffic to look like other websites or different protocols).
-The right layer to add this kind of traffic shaping (or any shaping that
-imposes delay) is at the [application
+Through [proper load
+balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
+believe it is possible to add significant bandwidth overhead in the form of
+cover traffic, without significantly impacting end-user performance. So for
+this reason, we strongly discourage the use of delay for protecting general
+purpose web traffic.
+
+However, as a last resort for narrowly scoped application domains (such as
+shaping Tor service-side onion service traffic to look like other websites or
+different protocols), delay *may* be added at the [application
 layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
 Ideally, any additional cover traffic required by such defenes would still be
-added at the circuit padding layer to ensure engineering efficiency, as well
-as provide gains against generalized end-to-end traffic analysis of various
-resolution (however modest those gains may be).
+added at the circuit padding layer to provide engineering efficiency through
+loose layer coupling and component re-use, as well as to provide additional
+gains against [low
+resolution](https://github.com/torproject/torspec/blob/master/padding-spec.txt#L47)
+end-to-end traffic analysis.
 
 Because such delay-based defenses will impact performance significantly more
 than simply adding cover traffic, they must be optional, and negotiated by
 only specific application layer endpoints that want them. This will have
-consequences for anonymity sets, if such traffic shaping and additional cover
-traffic is not very carefully constructed.
+consequences for anonymity sets and base rates, if such traffic shaping and
+additional cover traffic is not very carefully constructed.
 
 This document focuses primarily on the circuit padding framework's cover
 traffic features, and will only briefly touch on the potential obfuscation and
@@ -152,9 +157,6 @@ higher-overhead defenses. We encourage researchers to target this use case
 for defenses that require more overhead, and/or for the deployment of
 optional negotiated application-layer delays on either the server or the
 client side.
-
-XXX: mention the utility of the C struct representation as input to an
-optimization problem, such as GAN/GA.
 
 ## 2. Creating a New Padding Machine
 
