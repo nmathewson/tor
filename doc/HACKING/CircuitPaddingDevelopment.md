@@ -520,7 +520,10 @@ the consensus parameters, but only apply to that specific machine.
 ## 4. Evaluating new machines
 
 One of the goals of the circuit padding framework is to provide improved
-evaluation and scientific reproducibility for lower cost.
+evaluation and scientific reproducibility for lower cost. This includes both
+the choice of the compact C structure representation (which has an
+easy-to-produce bitstring equivalent representation for optimization by
+gradient descent, GAs, or GANs), as well as rapid prototyping and evaluation.
 
 So far, whenever evaluation cost has been a barrier, each research group has
 developed their own ad-hoc packet-level simulators of various padding
