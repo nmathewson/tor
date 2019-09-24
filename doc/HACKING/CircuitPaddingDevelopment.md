@@ -891,6 +891,7 @@ one could imagine a state machine that uses probabilistic transitions between
 states to simulate a random walk or Hidden Markov Model traversal across
 several pages.
 
+XXX: array of structs instead
 For this, the `circpad_state_t.next_state` array would have to become two
 dimensional, so that an array of next state and probability pairs could be
 provided. If you need this feature, please see
