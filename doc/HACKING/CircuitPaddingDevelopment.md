@@ -43,7 +43,7 @@ implement and deploy novel delay-free cover traffic defenses.
 
 The circuit padding framework is the official way to implement padding
 defenses in Tor. It may be used in combination with application-layer
-defenses, or on its own.
+defenses, and/or obfuscation defenses, or on its own.
 
 Its current design should be enough to deploy most defenses without
 modification, but you can extend it to provide new features as well. Section
@@ -61,73 +61,77 @@ use to ask a relay to start padding. The list of padding mechanisms is
 currently hardcoded in the Tor source code, but in the future we will be able
 to serialize them in the Tor consensus or in Tor configuration files.
 
-Circuit-level padding is specified using 'padding machines'. A padding
-machine is in principle a ''finite state machine''' in which every state
-specifies a different form of padding style, or stage of padding, in terms of
-latency and throughput. The padding designer specifies when the padding
-machine should transition between padding states, either based on external
-events (like incoming Tor cells) or on internal events (like the state of
-machine, packet counts, etc).
+Circuit-level padding is performed by 'padding machines'. A padding machine is
+in principle a ''finite state machine''' in which every state specifies a
+different form of padding style, or stage of padding, in terms of latency and
+throughput. This state machine is specified by simply filling in fields of a C
+structure, which specifies the transition between padding states based on
+various events, probability distributions of inter-packet delays, and the
+conditions under which it should be applied to circuits. 
 
-Padding machines can be configured to operate on all circuits, or on
-constrained to run only under certain conditions (like the circuit's type).
-When a padding machine is activated, it is attached to the corresponding
-circuit, both on the client-side and the relay-side. The machine will
-continue to run so long as its circuit-level conditions hold, or until it
-reaches a terminal end state.
+This compact C structure representation is meant to function as a
+microlanguage, which is compiled down into a bitstring that can be tuned using
+various optimization methods, either in bitstring form or C struct form. The
+event driven, self-contained nature of this framework is also meant to make
+simulation both expedient and rigorously reproducible.
 
 The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
 support new machine features.
 
-### 1.2. Design Philosophy, Design Constraints, and thoughts on delay
+### 1.2. Design Philosophy, Design Constraints, and Layering Model
 
-The circuit padding framework is designed to allow many forms of cover
-traffic to be added to Tor circuits, for a wide range of purposes and
-scenarios. Through
-[proper load balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+The circuit padding framework is meant to provide just one layer in a layered
+system of interchagable components. Because it operates at the Tor circuit
+layer, it deals only with the inter-packet timings and quantity of cells sent
+on a circuit. Moreover, because there is no known feasible way to add
+arbitrary delay to cells within the Tor network without adding queueing
+overhead that scales in proportion to the number of circuits, it does not
+provide any mechanisms to delay packets. This also means that it does not deal
+with packet sizes, or ways that the Tor protocol might be recognized on the
+wire.
+
+In effect, this means that this framework is strictly concerned with the
+classification of contents of traffic that is already known to be Tor traffic.
+The problem of differentiating Tor traffic from non-Tor traffic based on
+packet sizes, initial handshake patterns, and DPI characteristics is the
+domain of [pluggable
+transports](https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPluggableTransports),
+which are meant to be used in conjunction with this framework, by way of being
+layered on top of it.
+
+Through [proper load balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
 and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
 believe it is possible to add significant bandwidth overhead in the form of
 cover traffic, without significantly impacting end-user performance.
 
-Notably absent from the framework, though, is the ability to add delay to
-circuit traffic. We are keenly aware that if we were to support additional
-delay, [defenses would be able to have more success with less bandwidth
+We are keenly aware that if we were to support additional delay, [defenses
+would be able to have more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
-
-Even so, this framework does not support arbitrary delay, for two major
-reasons:
-
-First: Arbitrary delay inherently adds queueing memory overhead to all
-relays.  Tor's static flow control is not well tuned to react rapidly to
-injected delays, and it seems unlikely that even a properly tuned dynamic
-flow control mechanism would be able to keep arbitrary delay queuing overhead
-bounded to a constant amount of memory overhead, as the network scales with
-more relays and more users.
-
-Second: Additional latency is unappealing to the wider Internet community,
-for the simple reason that bandwidth
-[continues to increase exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
+However, additional latency is unappealing to the wider Internet community,
+for the simple reason that bandwidth [continues to increase
+exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
 where as the speed of light is fixed. Significant engineering effort has been
 devoted to optimizations that reduce the effect of latency on Internet
 protocols. To go against this trend would ensure our irrelevance to the wider
 conversation about traffic analysis of low latency protocols.
 
-However, these two factors only mean that delay is unacceptable to add to the
-general-purpose Tor network. It does not mean that delay is unacceptable in
-every case. It is acceptable for specific services to add delay themselves,
-and even to signal delay strategies to their own clients, such as in the
-[Alpaca defense](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf),
-since this would not affect the Tor network as a whole, nor would it apply to
-other services which may prefer responsiveness. It is also acceptable for
-high-latency protocols to utilize a fixed-size batch mixing strategy inside
-the Tor network, as fixed-size batch mixing strategies keep memory overhead
-constant, and priority mechanisms could be used to ensure batch mixed traffic
-has no imact on low latency traffic.
+While we are discouraging defenses that add such delay, we are not ruling them
+out for narrowly scoped application domains (such as shaping Tor service-side
+onion service traffic to look like other websites or different protocols).
+The right layer to add this kind of traffic shaping (or any shaping that
+imposes delay) is at the [application
+layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
+Ideally, any additional cover traffic required by such defenes would still be
+added at the circuit padding layer to ensure engineering efficiency, as well
+as provide gains against generalized end-to-end traffic analysis of various
+resolution (however modest those gains may be).
 
-Unfortunately, this still means that client-side web browser defenses that
-add delay to all web clients (such as LLaMa and Walkie-Talkie), are also
-unacceptable, *unless their use can be negotiated only by specific websites*.
+Because such delay-based defenses will impact performance significantly more
+than simply adding cover traffic, they must be optional, and negotiated by
+only specific application layer endpoints that want them. This will have
+consequences for anonymity sets, if such traffic shaping and additional cover
+traffic is not very carefully constructed.
 
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
@@ -140,10 +144,6 @@ for defenses that require more overhead, and/or for the deployment of
 optional negotiated application-layer delays on either the server or the
 client side.
 
-<!-- Is this above section worded too strongly?  Do we mean to say that we
-would never consider a delay mechanism, or do we mean to say that we don't
-know how to make one acceptable right now? -nm -->
-
 ## 2. Creating a New Padding Machine
 
 This section explains how to use the existing mechanisms in Tor to define a
@@ -151,6 +151,8 @@ new circuit padding machine.  We assume here that you know C, and are at
 least somewhat familiar with Tor development.  For more information on Tor
 development in general, see the other files in doc/HACKING/ in a recent Tor
 distribution.
+
+# XXX: Microlanguage
 
 To create a new padding machine, you must:
 
@@ -298,10 +300,10 @@ should bump the Padding subprotocol version in `src/core/or/protover.c` and
 new field must then be checked in `circpad_node_supports_padding()` in
 `circuitpadding.c`. XXX-link all of these.
 
-Note that this protocol version update is not necessary if your experiments
-will *only* be using your own relays that support your own padding
-machines. This can be accomplished by using the `MiddleNodes` directive; see
-Section XXX for more information.
+Note that this protocol version update and associated support check is not
+necessary if your experiments will *only* be using your own relays that
+support your own padding machines. This can be accomplished by using the
+`MiddleNodes` directive; see Section XXX for more information.
 
 If the protocol support check passes for the circuit, then the client sends a
 RELAY_COMMAND_PADDING_NEGOTIATE cell towards the
@@ -563,7 +565,7 @@ suggests this is not always so.
 XXX: Which order should we put these in? Maybe simulation, then emulation,
 then live makes more sense? That's the order things will get done in
 practice, probably...
-[i think it's ok as this is]
+XXX: Crib from Tobias mail re research cycle + microlanguage
 
 ### 4.1. Live Network Testing
 
@@ -685,6 +687,8 @@ fairly well documented. Each function goes through the following steps:
 
 ### 5.2. Other machines (?)
 
+XXX: Link TObias's machine
+XXX: Discuss Tamaraw benchmark machine
 XXX: Ask other researchers to help fill in subsections for these machines
 
    - WTF-PAD [all examples below can be ditched for MVP. perhaps just a small overview]
@@ -898,6 +902,8 @@ provided. If you need this feature, please see
 [ticket 31787](https://bugs.torproject.org/31787).
 
 ### 7.5. Improved simulation mechanisms
+
+XXX: Unit test simulator
 
 As mentioned in [Section 4](4.Evaluatingnewmachines), for large-scale deep-learning
 based experiments, it may be more efficient to tune your machines in a
