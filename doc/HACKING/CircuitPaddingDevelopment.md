@@ -220,54 +220,6 @@ be instantiated on any client-side circuits that support it. Only client-side
 circuits may initiate padding machines, but either clients or relays may shut
 down padding machines.
 
-#### 2.2.1. Machine Application Events
-
-The framework checks client-side origin circuits to see if padding machines
-should be activated or terminated during specific event callbacks in
-`circuitpadding.c`. We list these event callbacks here only for
-reference. You should not modify any of these callbacks to get your machine
-to run; instead, you should use the `circpad_machine_spec_t.conditions`
-field, as is described in the next section. However, you may add new event
-callbacks if you need other activation events. Any new event callbacks should
-behave exactly like the existing callbacks.
-
-XXX: Mention obfuscation and application layer coupling points here
-
-<!-- The above paragraph implies that this subsubsection belongs in section -->
-<!-- 3, which is about enhancing the API, right? -nickm -->
-
-During each of these event callbacks, the framework checks to see if any
-current running padding machines have conditions that no longer apply as a
-result of the event, and shuts those machines down. Then, it checks to see if
-any new padding machines should be activated as a result of the event, based
-on their circuit application conditions. **Remember: Machines are checked in
-reverse order in the machine list. This means that later, more recently added
-machines take precedence over older, earlier entries in each list.**
-
-Both of these checks are performed using the machine application conditions
-that you specify in your machine's `circpad_machine_spec_t.conditions` field.
-
-The machine application event callbacks are prefixed by `circpad_machine_event_` by convention in circuitpadding.c. As of this writing, these callbacks are:
-
-  - `circpad_machine_event_circ_added_hop()`: Called whenever a new hop is
-    added to a circuit.
-  - `circpad_machine_event_circ_built()`: Called when a circuit has completed
-    construction and is
-    opened. <!-- open != ready for traffic. Which do we mean? -nickm -->
-  - `circpad_machine_event_circ_purpose_changed()`: Called when a circuit
-    changes purpose.
-  - `circpad_machine_event_circ_has_no_relay_early()`: Called when a circuit
-    runs out of RELAY_EARLY cells.
-  - `circpad_machine_event_circ_has_streams()`: Called when a circuit gets a
-    stream attached.
-  - `circpad_machine_event_circ_has_no_streams()`: Called when the last
-    stream is detached from a circuit.
-
-XXX perhaps instead of the callbacks we need to specify the conditions? In
-theory the padding designer should not care about the callbacks since that's
-part of the internals of the framework. The conditions are talked about in
-the section below.
-
 #### 2.2.2. Machine Application Conditions
 
 The
@@ -824,6 +776,47 @@ Additionally, if Tor decides to close a circuit forcibly due to error before
 the padding machine is shut down, then `circuit_t.padding_info` is still
 properly freed by the call to `circpad_circuit_free_all_machineinfos()`
 in `circuit_free_()`.
+
+#### 6.2. Machine Application Events
+
+The framework checks client-side origin circuits to see if padding machines
+should be activated or terminated during specific event callbacks in
+`circuitpadding.c`. We list these event callbacks here only for reference. You
+should not modify any of these callbacks to get your machine to run; instead,
+you should use the `circpad_machine_spec_t.conditions` field, as was described
+in Section XXX.
+
+However, you may add new event callbacks if you need other activation events,
+for example to provide obfuscation-layer or application-layer signaling. Any
+new event callbacks should behave exactly like the existing callbacks.
+
+During each of these event callbacks, the framework checks to see if any
+current running padding machines have conditions that no longer apply as a
+result of the event, and shuts those machines down. Then, it checks to see if
+any new padding machines should be activated as a result of the event, based
+on their circuit application conditions. **Remember: Machines are checked in
+reverse order in the machine list. This means that later, more recently added
+machines take precedence over older, earlier entries in each list.**
+
+Both of these checks are performed using the machine application conditions
+that you specify in your machine's `circpad_machine_spec_t.conditions` field.
+
+The machine application event callbacks are prefixed by `circpad_machine_event_` by convention in circuitpadding.c. As of this writing, these callbacks are:
+
+  - `circpad_machine_event_circ_added_hop()`: Called whenever a new hop is
+    added to a circuit.
+  - `circpad_machine_event_circ_built()`: Called when a circuit has completed
+    construction and is
+    opened. <!-- open != ready for traffic. Which do we mean? -nickm -->
+  - `circpad_machine_event_circ_purpose_changed()`: Called when a circuit
+    changes purpose.
+  - `circpad_machine_event_circ_has_no_relay_early()`: Called when a circuit
+    runs out of RELAY_EARLY cells.
+  - `circpad_machine_event_circ_has_streams()`: Called when a circuit gets a
+    stream attached.
+  - `circpad_machine_event_circ_has_no_streams()`: Called when the last
+    stream is detached from a circuit.
+
 
 ## 7. Future Features and Optimizations
 
