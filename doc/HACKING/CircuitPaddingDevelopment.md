@@ -153,6 +153,9 @@ for defenses that require more overhead, and/or for the deployment of
 optional negotiated application-layer delays on either the server or the
 client side.
 
+XXX: mention the utility of the C struct representation as input to an
+optimization problem, such as GAN/GA.
+
 ## 2. Creating a New Padding Machine
 
 This section explains how to use the existing mechanisms in Tor to define a
@@ -326,10 +329,12 @@ also Section 6.XXX for some more technical details on this mechanism.
 ## 3. Padding Machine Definition Details
 
 By now, you should understand how to register, negotiate, and control the
-lifetime of your padding machine. 
+lifetime of your padding machine, but you still don't know how to make it do
+anything yet. This section should help you understand how to specify how your
+machine reacts to events and adds padding to the wire.
 
-This section should help you understand the
-full set of features available for your padding machine definitions.
+If you prefer to learn by example first instead, you may wish to skip to
+Section XXX.
 
 A padding machine is specified using the
 [circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
@@ -526,36 +531,39 @@ modified trace files.
 Because no standardized simulation and evaluation mechanism exists, it is
 often hard to tell if independent implementations of various attacks and
 defenses are in fact true-to-form or even properly calibrated for direct
-comparison, and discrepancies in results across the literature strongly
-suggests this is not always so.
+comparison, and discrepancies in results across the literature suggests
+this is not always so.
 
-XXX: Which order should we put these in? Maybe simulation, then emulation,
-then live makes more sense? That's the order things will get done in
-practice, probably...
-XXX: Crib from Tobias mail re research cycle + microlanguage
+Our preferred outcome with this framework is that machines are tuned and
+optimized on a tracing simulator, but final results come from an actual live
+network test of the defense. The traces from this final crawl should be
+preserved as artifacts to be run on the simulator and reproduced on the live
+network by future papers, for journal venues that have an artifact
+preservation policy.
 
-### 4.1. Live Network Testing
+### 4.1. Pure Simulation
 
-Live network testing is the gold standard for verifying that any attack or
-defense is behaving as expected, to minimize the influence of simplifying
-assumptions.
+When doing initial tuning of padding machines, especially in adversarial
+settings, variations of a padding machine defense may need to be applied to
+network activity hundreds or even millions of times. The wall-clock time
+required to do this kind of tuning using live testing or even Shadow network
+emulation may often be prohibitive.
 
-However, it is not ethical, or even possible, to run high-resolution traffic
-analysis attacks on the entire Tor network. But, it is both ethical and
-posssible to run small scale experiments that target only your own clients,
-who will only use your own Tor relays that support your new padding
-machines.
+However, because the circuit padding system is event-driven and is otherwise
+only loosely coupled with Tor, and because Tor's unit testing framework
+supports easy replacement of arbitrary functions, it should be relatively easy
+to use the unit testing framework to read in trace files, simulate packets by
+calling into the circuit padding event callbacks, and output new trace files
+by replacing the actual network calls with functions that write packet timings
+to a file.
 
-We provide the `MiddleNodes` torrc directive to enable this, which will allow
-you to specify the fingerprints and/or IP netmasks of relays to be used in
-the second hop position. Options to restrict other hops also exist, if your
-padding system is padding to a different hop. The `HSLayer2Nodes` option
-overrides the `MiddleNodes` option for onion service circuits, if both are
-set. (The
-[vanguards addon](https://github.com/mikeperry-tor/vanguards/README_TECHNICAL.md)
-will set `HSLayer2Nodes`.)
+In this way, a live crawl of the Alexa top sites could be performed once, to
+produce a standard "undefended" corpus. Padding machines can be then quickly
+evaluated on these simulated traces in a standardized way.
 
-When you run your own clients, and use MiddleNodes to restrict your clients to use your relays, you can perform live network evaluations of a defense applied to whatever traffic crawl or activity your clients do.
+See Section XXX and [ticket
+31788](https://trac.torproject.org/projects/tor/ticket/31788) for specific tor
+implementation details and pointers on how to do this successfully.
 
 ### 4.2. Chutney
 
@@ -592,27 +600,28 @@ XXX: Link to Rob's docs + models
 XXX: Do we want to mention netmirage here, too? It is supposed to be
 compatible with shadow models soon.
 
-### 4.4. Pure Simulation
+## 4.4. Live Network Testing
 
-When doing initial tuning of padding machines, especially in adversarial
-settings, variations of a padding machine defense may need to be applied to
-network activity hundreds or even millions of times. The wall-clock time
-required to do this kind of tuning using live testing or even Shadow network
-emulation may often be prohibitive.
+Live network testing is the gold standard for verifying that any attack or
+defense is behaving as expected, to minimize the influence of simplifying
+assumptions.
 
-However, because the circuit padding system is event-driven and is otherwise
-only loosely coupled with Tor, it should be possible to extract
-`circuitpadding.[ch]`, `circuitpadding_machines.[ch]`, and a handful of headers
-from Tor, and use packet and event traces from Tor to call in to the
-`circuitpadding.c` event callbacks, based only on recorded traces.
+However, it is not ethical, or even possible, to run high-resolution traffic
+analysis attacks on the entire Tor network. But, it is both ethical and
+posssible to run small scale experiments that target only your own clients,
+who will only use your own Tor relays that support your new padding
+machines.
 
-In this way, a live crawl of the Alexa top sites could be performed once, to
-produce a standard "undefended" corpus. Padding machines can be then quickly
-evaluated on these simulated traces in a standardized way. As of this
-writing, this has not yet been done.
+We provide the `MiddleNodes` torrc directive to enable this, which will allow
+you to specify the fingerprints and/or IP netmasks of relays to be used in
+the second hop position. Options to restrict other hops also exist, if your
+padding system is padding to a different hop. The `HSLayer2Nodes` option
+overrides the `MiddleNodes` option for onion service circuits, if both are
+set. (The
+[vanguards addon](https://github.com/mikeperry-tor/vanguards/README_TECHNICAL.md)
+will set `HSLayer2Nodes`.)
 
-See Section XXX for specific tor implementation details and pointers on how
-to do this successfully.
+When you run your own clients, and use MiddleNodes to restrict your clients to use your relays, you can perform live network evaluations of a defense applied to whatever traffic crawl or activity your clients do.
 
 ## 5. Example Padding Machines
 
@@ -652,10 +661,48 @@ fairly well documented. Each function goes through the following steps:
    - Specify [state transitions](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding_machines.c#L123).
 - Finally [register the machine](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding_machines.c#L137) to the global machine list
 
-### 5.2. Other machines (?)
+### 5.2. Adaptive Padding Early
 
-XXX: Link TObias's machine
-XXX: Discuss Tamaraw benchmark machine
+[Adaptive Padding Early](https://www.cs.kau.se/pulls/hot/thebasketcase-ape/)
+is a variant of Adaptive Padding/WTF-PAD that does not use histograms or token
+removal to shift padding distributions, but instead uses fixed parameterized
+distributions to specify inter-packet timing threshholds for burst and gap
+inter-packet delays.
+
+Tobias Pulls's [QuickStart Guide](CircuitPaddingQuickStart.md) describes how
+to get this machine up and running, and has links to branches with a working
+implementation.
+
+### 5.3. A Sketch of Tamaraw
+
+The [Tamaraw defense
+paper](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf) is the
+only defense to date that provides a proof of optimality for the finite-length
+website traffic fingerprinting domain. These bounds assume that a defense is
+able to perform a full, arbitrary transform of a trace that is under a fixed
+number of packets in length.
+
+The Tamaraw defense as-specified is unappealing for practical implementation
+because it requires the Tor network to [delay traffic](XXX-1.2) and only send
+it at constant rates in each direction, with additional packets at the end
+(this is how it achieves one such optimal transform in an easily provable
+way).
+
+However, it could be feasible as an optional defense, if it is implemented as
+both an application layer component, as well as a circuit padding framework
+component.
+
+The application layer component would do *optional* constant rate shaping,
+negotiated between a web browser and a website. The Circuit Padding Framework
+can then easily fill in any missing gaps of cover traffic packets, and also
+ensure that only a fixed length number of packets are sent in total.
+
+Such a defense may be a useful benchmark for comparison to the general
+case overhead/machine optimization problem. If you end up pursuing this,
+please let us know.
+
+### 5.4. Other machines (?)
+
 XXX: Ask other researchers to help fill in subsections for these machines
 
    - WTF-PAD [all examples below can be ditched for MVP. perhaps just a small overview]
@@ -666,7 +713,6 @@ XXX: Ask other researchers to help fill in subsections for these machines
      https://www.researchgate.net/publication/329743510_UNDERSTANDING_FEATURE_DISCOVERY_IN_WEBSITE_FINGERPRINTING_ATTACKS)
    - Multiple machines with matching conditions
    - Reimplementation of netflow padding
-
 
 ## 6. Advanced Topics and Implementation Details
 
