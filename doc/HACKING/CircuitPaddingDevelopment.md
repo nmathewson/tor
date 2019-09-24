@@ -47,8 +47,8 @@ defenses, and/or obfuscation defenses, or on its own.
 
 Its current design should be enough to deploy most defenses without
 modification, but you can extend it to provide new features as well. Section
-2XXX of this document describes how to use the framework as-is to add a new
-padding machine, and Section 3 covers internal topics that will help you to
+XXX of this document describes how to use the framework as-is to add a new
+padding machine, and Section XXX covers internal topics that will help you to
 add new framework features to support your machine.
 
 ### 1.1. Global System Overview
@@ -220,7 +220,7 @@ be instantiated on any client-side circuits that support it. Only client-side
 circuits may initiate padding machines, but either clients or relays may shut
 down padding machines.
 
-#### 2.2.2. Machine Application Conditions
+#### 2.2.1. Machine Application Conditions
 
 The
 [circpad_machine_conditions_t conditions field](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L641)
@@ -260,7 +260,7 @@ conditions that we have considered but have not yet implemented, see Section
 XXX. We will happily accept patches for those conditions, or any for other
 additional conditions that are needed for your use case.
 
-#### 2.2.3. Detecting and Negotiating Machine Support
+#### 2.2.2. Detecting and Negotiating Machine Support
 
 When a new machine specification is added to Tor (or removed from Tor), you
 should bump the Padding subprotocol version in `src/core/or/protover.c` and
@@ -281,7 +281,7 @@ padding machine, and may begin sending padding. (The framework does not wait
 for RELAY_COMMAND_PADDING_NEGOTIATED response to begin padding so that we can
 switch between machines rapidly.)
 
-#### 2.2.4. Machine Shutdown Mechanisms
+#### 2.2.3. Machine Shutdown Mechanisms
 
 Padding machines can be shut down on a circuit in three main ways:
   1. During a `circpad_machine_event` callback, when
@@ -326,12 +326,10 @@ also Section 6.XXX for some more technical details on this mechanism.
 ## 3. Padding Machine Definition Details
 
 By now, you should understand how to register, negotiate, and control the
-lifetime of your padding machine. This section should help you understand the
-full set of features available for your padding machine definitions.
+lifetime of your padding machine. 
 
-<!-- XXX hang on. I thought that before we said that section 3 was going to -->
-<!-- be about how to enhance the existing tor code to support more -->
-<!-- complicated machines. -->
+This section should help you understand the
+full set of features available for your padding machine definitions.
 
 A padding machine is specified using the
 [circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
