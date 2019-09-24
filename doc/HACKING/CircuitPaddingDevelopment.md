@@ -79,6 +79,11 @@ The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
 support new machine features.
 
+If you prefer to learn by example, you may want to skip to either the
+[QuickStart Guide](CircuitPaddingQuickStart.md), and/or [Section
+5](#5.ExamplePaddingMachines) for example machines to get you up and running
+quickly.
+
 ### 1.2. Design Philosophy, Design Constraints, and Layering Model
 
 The circuit padding framework is meant to provide just one layer in a layered
@@ -133,6 +138,10 @@ only specific application layer endpoints that want them. This will have
 consequences for anonymity sets, if such traffic shaping and additional cover
 traffic is not very carefully constructed.
 
+This document focuses primarily on the circuit padding framework's cover
+traffic features, and will only briefly touch on the potential obfuscation and
+application layer coupling points of the framework.
+
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
 less than 1% of the
@@ -152,12 +161,15 @@ least somewhat familiar with Tor development.  For more information on Tor
 development in general, see the other files in doc/HACKING/ in a recent Tor
 distribution.
 
-# XXX: Microlanguage
+Again, if you prefer to learn by example, you may want to skip to either the
+[QuickStart Guide](CircuitPaddingQuickStart.md), and/or [Section
+5](#5.ExamplePaddingMachines) for example machines to get you up and running
+quickly.
 
 To create a new padding machine, you must:
 
   1. Define your machine using the fields of a heap-allocated
-     `circpad_machine_spec_t` object.
+     `circpad_machine_spec_t` C structure.
 
   2. Register this object in the global list of available padding machines,
      using `circpad_register_padding_machine()`.
@@ -166,6 +178,9 @@ To create a new padding machine, you must:
      circuit conditions.
 
 ### 2.1. Creating and Registering a New Padding Machine
+
+Again, a circuit padding machine is meant to be specified entirely as a single
+C structure.
 
 Your machine definitions should go into their own functions in a new file
 similar to
@@ -215,6 +230,8 @@ to run; instead, you should use the `circpad_machine_spec_t.conditions`
 field, as is described in the next section. However, you may add new event
 callbacks if you need other activation events. Any new event callbacks should
 behave exactly like the existing callbacks.
+
+XXX: Mention obfuscation and application layer coupling points here
 
 <!-- The above paragraph implies that this subsubsection belongs in section -->
 <!-- 3, which is about enhancing the API, right? -nickm -->
