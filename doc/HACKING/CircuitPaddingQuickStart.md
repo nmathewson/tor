@@ -24,7 +24,9 @@ cd tor
 git checkout tor-0.4.1.5
 ```
 Above we use the tag for tor-0.4.1.5 where the circuit padding framework was
-released, feel free to use something newer (avoid HEAD though, can have bugs).
+released. Note that this version of the framework is missing many features and
+fixes that have since been merged to origin/master. If you need the newest
+framework features, you should use that master instead.
 
 ```bash
 sh autogen.sh 
