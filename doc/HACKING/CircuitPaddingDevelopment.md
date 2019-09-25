@@ -67,7 +67,7 @@ different form of padding style, or stage of padding, in terms of latency and
 throughput. This state machine is specified by simply filling in fields of a C
 structure, which specifies the transition between padding states based on
 various events, probability distributions of inter-packet delays, and the
-conditions under which it should be applied to circuits. 
+conditions under which it should be applied to circuits.
 
 This compact C structure representation is meant to function as a
 microlanguage, which is compiled down into a bitstring that can be tuned using
@@ -92,7 +92,8 @@ quickly.
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
 layer, it deals only with the inter-cell timings and quantity of cells sent on
-a circuit. This means that it does not deal with packet sizes, how cells are
+a circuit. It addresses these only by optionally adding traffic; it cannot
+delay cells. This also means that it does not deal with packet sizes, how cells are
 packed into TLS records, or ways that the Tor protocol might be recognized on
 the wire.
 
@@ -103,16 +104,33 @@ transports](https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPlu
 which may optionally be used in conjunction with this framework (or without
 it).
 
-Moreover, because there is no known feasible way to add arbitrary delay to
-cells within the Tor network without adding queuing overhead that scales in
-proportion to the number of circuits, this framework also does not provide any
-mechanisms to delay packets. 
-
-We are keenly aware that if we were to support additional delay, [defenses
-would be able to have more success with less bandwidth
+The lack of support for delay in the framework is a deliberate choice. We are
+keenly aware that if we were to support additional delay, [defenses would be
+able to have more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
-However, even beyond the major technical hurdles, additional latency is
-also unappealing to the wider Internet community, for the simple reason that
+Additionally, [provably optimal
+defenses](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
+achieve their relatively bandwidth overhead bounds by effectively ensuring
+that a queue is is formed by rate limiting traffic below the actual throughput
+of a circuit. For optimal results, this queue must very rarely drain to empty,
+and yet it must be drained fast enough to avoid tremendous queue overhead
+in relays. 
+
+Unfortunately, Tor's end-to-end flow control is not congestion control. Its
+window sizes are currently fixed. This means there is no signal when queuing
+occurs, and no fine-grained limiting of queue size through pushback. Thus,
+there is currently no way to do the fine-grained queue management necessary to
+create such a queue and rate limit traffic effectively enough to keep this
+queue from draining, without also risking that it would get too full to cause
+excessive memory overhead at relays.
+
+On the othr hand, through [load
+balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
+believe it is possible to add significant bandwidth overhead in the form of
+cover traffic, without significantly impacting end-user performance. 
+Even beyond these major technical hurdles, additional latency is also
+unappealing to the wider Internet community, for the simple reason that
 bandwidth [continues to increase
 exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
 where as the speed of light is fixed. Significant engineering effort has been
@@ -120,16 +138,8 @@ devoted to optimizations that reduce the effect of latency on Internet
 protocols. To go against this trend would ensure our irrelevance to the wider
 conversation about traffic analysis of low latency Internet protocols.
 
-<!--
-XXX: This is not strictly relevant here. Maybe elsewhere?
-Through [proper load
-balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
-and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
-believe it is possible to add significant bandwidth overhead in the form of
-cover traffic, without significantly impacting end-user performance. So for
-this reason, we strongly discourage the use of delay for protecting general
-purpose web traffic.
--->
+For these reasons, we believe the trade-off should be in favor of adding more
+cover traffic, rather than imposing queuing overhead and queuing delay.
 
 However, as a last resort for narrowly scoped application domains (such as
 shaping Tor service-side onion service traffic to look like other websites or
@@ -986,7 +996,7 @@ easier/possible is
 
 # 8. Research Problems and Areas of Application
 
-Phew! So you made it this far.
+XXX: Discuss tuning of WTF-PAD
 
 # 8.1. Onion Service Client-Side Circuit Setup
 
