@@ -110,25 +110,21 @@ able to have more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
 Additionally, [provably optimal
 defenses](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
-achieve their relatively bandwidth overhead bounds by effectively ensuring
-that a queue is is formed by rate limiting traffic below the actual throughput
-of a circuit. For optimal results, this queue must very rarely drain to empty,
-and yet it must be drained fast enough to avoid tremendous queue overhead
-in relays. 
+achieve their bandwidth overhead bounds by effectively ensuring that a queue
+is formed by rate limiting traffic below the actual throughput of a circuit.
+For optimal results, this queue must very rarely drain to empty, and yet it
+must be drained fast enough to avoid tremendous queue overhead in relays which
+carry tens of thousands of circuits simultaneously.
 
 Unfortunately, Tor's end-to-end flow control is not congestion control. Its
 window sizes are currently fixed. This means there is no signal when queuing
-occurs, and no fine-grained limiting of queue size through pushback. Thus,
+occurs, no fine-grained limiting of queue size through pushback, and no way to
+estimate the bandwidth capacity of a circuit from the position of a relay. Thus,
 there is currently no way to do the fine-grained queue management necessary to
 create such a queue and rate limit traffic effectively enough to keep this
-queue from draining, without also risking that it would get too full to cause
-excessive memory overhead at relays.
+queue from draining, without also risking that aggregate queuing would cause
+out-of-memory conditions on large relays.
 
-On the othr hand, through [load
-balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
-and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
-believe it is possible to add significant bandwidth overhead in the form of
-cover traffic, without significantly impacting end-user performance. 
 Even beyond these major technical hurdles, additional latency is also
 unappealing to the wider Internet community, for the simple reason that
 bandwidth [continues to increase
@@ -137,6 +133,12 @@ where as the speed of light is fixed. Significant engineering effort has been
 devoted to optimizations that reduce the effect of latency on Internet
 protocols. To go against this trend would ensure our irrelevance to the wider
 conversation about traffic analysis of low latency Internet protocols.
+
+On the other hand, through [load
+balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
+and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
+believe it is possible to add significant bandwidth overhead in the form of
+cover traffic, without significantly impacting end-user performance. 
 
 For these reasons, we believe the trade-off should be in favor of adding more
 cover traffic, rather than imposing queuing overhead and queuing delay.
