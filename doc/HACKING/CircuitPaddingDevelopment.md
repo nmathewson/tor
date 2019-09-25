@@ -91,12 +91,13 @@ quickly.
 
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
-layer, it deals only with the inter-packet timings and quantity of cells sent
-on a circuit. This means that it does not deal with packet sizes, or ways that
-the Tor protocol might be recognized on the wire.
+layer, it deals only with the inter-cell timings and quantity of cells sent on
+a circuit. This means that it does not deal with packet sizes, how cells are
+packed into TLS records, or ways that the Tor protocol might be recognized on
+the wire.
 
 The problem of differentiating Tor traffic from non-Tor traffic based on
-packet sizes, initial handshake patterns, and DPI characteristics is the
+TCP/TLS packet sizes, initial handshake patterns, and DPI characteristics is the
 domain of [pluggable
 transports](https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPluggableTransports),
 which may optionally be used in conjunction with this framework (or without
@@ -110,14 +111,17 @@ mechanisms to delay packets.
 We are keenly aware that if we were to support additional delay, [defenses
 would be able to have more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
-However, additional latency is unappealing to the wider Internet community,
-for the simple reason that bandwidth [continues to increase
+However, even beyond the major technical hurdles, additional latency is
+also unappealing to the wider Internet community, for the simple reason that
+bandwidth [continues to increase
 exponentially](https://ipcarrier.blogspot.com/2014/02/bandwidth-growth-nearly-what-one-would.html)
 where as the speed of light is fixed. Significant engineering effort has been
 devoted to optimizations that reduce the effect of latency on Internet
 protocols. To go against this trend would ensure our irrelevance to the wider
-conversation about traffic analysis of low latency protocols.
+conversation about traffic analysis of low latency Internet protocols.
 
+<!--
+XXX: This is not strictly relevant here. Maybe elsewhere?
 Through [proper load
 balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
 and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
@@ -125,15 +129,16 @@ believe it is possible to add significant bandwidth overhead in the form of
 cover traffic, without significantly impacting end-user performance. So for
 this reason, we strongly discourage the use of delay for protecting general
 purpose web traffic.
+-->
 
 However, as a last resort for narrowly scoped application domains (such as
 shaping Tor service-side onion service traffic to look like other websites or
 different protocols), delay *may* be added at the [application
 layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
 Ideally, any additional cover traffic required by such defenses would still be
-added at the circuit padding layer to provide engineering efficiency through
-loose layer coupling and component re-use, as well as to provide additional
-gains against [low
+added at the circuit padding layer using this framework, to provide
+engineering efficiency through loose layer coupling and component re-use, as
+well as to provide additional gains against [low
 resolution](https://github.com/torproject/torspec/blob/master/padding-spec.txt#L47)
 end-to-end traffic analysis.
 
@@ -158,6 +163,9 @@ higher-overhead defenses. We encourage researchers to target this use case
 for defenses that require more overhead, and/or for the deployment of
 optional negotiated application-layer delays on either the server or the
 client side.
+
+For the a list of research areas where we believe this framework will
+prove useful, see [Section 8](#8.XXX).
 
 ## 2. Creating a New Padding Machine
 
@@ -978,6 +986,8 @@ easier/possible is
 
 # 8. Research Problems and Areas of Application
 
+Phew! So you made it this far.
+
 # 8.1. Onion Service Client-Side Circuit Setup
 
 # 8.2. Onion Service Client-Side Fingerprinting
@@ -985,6 +995,8 @@ easier/possible is
 # 8.3. Onion Service Service-Side Circuit Setup
 
 # 8.4. Onion Service Service-Side Fingerprinting
+
+XXX: Don't forget to mention studying fingerprinting in combination with vanguards
 
 # 8.5. Open World Fingerprinting
 
