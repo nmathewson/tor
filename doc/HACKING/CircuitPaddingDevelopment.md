@@ -975,3 +975,22 @@ be made more abstract, to facilitate trace simulation.
 The parent ticket for the pieces of work involved in making this
 easier/possible is
 [ticket 31788](https://bugs.torproject.org/31788).
+
+# 8. Research Problems and Areas of Application
+
+# 8.1. Onion Service Client-Side Circuit Setup
+
+# 8.2. Onion Service Client-Side Fingerprinting
+
+# 8.3. Onion Service Service-Side Circuit Setup
+
+# 8.4. Onion Service Service-Side Fingerprinting
+
+# 8.5. Open World Fingerprinting
+
+# 8.6. Protocol Usage Fingerprinting
+
+# 8.7. Side Channel Leakage of Datagram Transports
+
+https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html
+
