@@ -71,12 +71,10 @@ conditions under which it should be applied to circuits.
 
 This compact C structure representation is meant to function as a
 microlanguage, which is compiled down into a bitstring that can be tuned using
-various optimization methods, either in bitstring form or C struct form. This
-compact form is a deliberate design decision to make tuning easy and efficient
-through various machine learning optimization mechanisms (such as gradient
-descent, GAs, or GANs). The event driven, self-contained nature of this
-framework is also meant to make simulation both expedient and rigorously
-reproducible.
+various optimization methods (such as gradient descent, GAs, or GANs), either
+in bitstring form or C struct form. The event driven, self-contained nature
+of this framework is also meant to make simulation both expedient and
+rigorously reproducible.
 
 The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
@@ -92,10 +90,10 @@ quickly.
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
 layer, it deals only with the inter-cell timings and quantity of cells sent on
-a circuit. It addresses these only by optionally adding traffic; it cannot
-delay cells. This also means that it does not deal with packet sizes, how cells are
-packed into TLS records, or ways that the Tor protocol might be recognized on
-the wire.
+a circuit. It addresses these only by inserting cells on a circuit;
+it cannot delay cells. This also means that it does not deal with packet
+sizes, how cells are packed into TLS records, or ways that the Tor protocol
+might be recognized on the wire.
 
 The problem of differentiating Tor traffic from non-Tor traffic based on
 TCP/TLS packet sizes, initial handshake patterns, and DPI characteristics is the
@@ -105,25 +103,26 @@ which may optionally be used in conjunction with this framework (or without
 it).
 
 The lack of support for delay in the framework is a deliberate choice. We are
-keenly aware that if we were to support additional delay, [defenses would be
-able to have more success with less bandwidth
+keenly aware that if we were to support additional delay, defenses would be
+able to have [more success with less bandwidth
 overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
-Additionally, [provably optimal
+
+In the website traffic fingerprinting domain, [provably optimal
 defenses](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
 achieve their bandwidth overhead bounds by effectively ensuring that a queue
-is formed by rate limiting traffic below the actual throughput of a circuit.
-For optimal results, this queue must very rarely drain to empty, and yet it
-must be drained fast enough to avoid tremendous queue overhead in relays which
-carry tens of thousands of circuits simultaneously.
+is maintained, by rate limiting traffic below the actual throughput of a
+circuit. For optimal results, this queue must very rarely drain to empty, and
+yet it must also be drained fast enough to avoid tremendous queue overhead in
+fast Tor relays, which carry tens of thousands of circuits simultaneously.
 
 Unfortunately, Tor's end-to-end flow control is not congestion control. Its
 window sizes are currently fixed. This means there is no signal when queuing
 occurs, no fine-grained limiting of queue size through pushback, and no way to
-estimate the bandwidth capacity of a circuit from the position of a relay. Thus,
-there is currently no way to do the fine-grained queue management necessary to
-create such a queue and rate limit traffic effectively enough to keep this
-queue from draining, without also risking that aggregate queuing would cause
-out-of-memory conditions on large relays.
+estimate the bandwidth capacity of a circuit from the position of a relay.
+Thus, there is currently no way to do the fine-grained queue management
+necessary to create such a queue and rate limit traffic effectively enough to
+keep this queue from draining to empty, without also risking that aggregate
+queuing would cause out-of-memory conditions on fast relays.
 
 Even beyond these major technical hurdles, additional latency is also
 unappealing to the wider Internet community, for the simple reason that
@@ -145,8 +144,8 @@ cover traffic, rather than imposing queuing overhead and queuing delay.
 
 However, as a last resort for narrowly scoped application domains (such as
 shaping Tor service-side onion service traffic to look like other websites or
-different protocols), delay *may* be added at the [application
-layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
+different application-layer protocols), delay *may* be added at the
+[application layer](https://petsymposium.org/2017/papers/issue2/paper54-2017-2-source.pdf).
 Ideally, any additional cover traffic required by such defenses would still be
 added at the circuit padding layer using this framework, to provide
 engineering efficiency through loose layer coupling and component re-use, as
@@ -1000,21 +999,21 @@ easier/possible is
 
 XXX: Discuss tuning of WTF-PAD
 
-# 8.1. Onion Service Client-Side Circuit Setup
+## 8.1. Onion Service Client-Side Circuit Setup
 
-# 8.2. Onion Service Client-Side Fingerprinting
+## 8.2. Onion Service Client-Side Fingerprinting
 
-# 8.3. Onion Service Service-Side Circuit Setup
+## 8.3. Onion Service Service-Side Circuit Setup
 
-# 8.4. Onion Service Service-Side Fingerprinting
+## 8.4. Onion Service Service-Side Fingerprinting
 
 XXX: Don't forget to mention studying fingerprinting in combination with vanguards
 
-# 8.5. Open World Fingerprinting
+## 8.5. Open World Fingerprinting
 
-# 8.6. Protocol Usage Fingerprinting
+## 8.6. Protocol Usage Fingerprinting
 
-# 8.7. Side Channel Leakage of Datagram Transports
+## 8.7. Side Channel Leakage of Datagram Transports
 
 https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html
 
