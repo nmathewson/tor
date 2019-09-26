@@ -86,10 +86,7 @@ defenses in Tor. It may be used in combination with application-layer
 defenses, and/or obfuscation defenses, or on its own.
 
 Its current design should be enough to deploy most defenses without
-modification, but you can extend it to provide new features as well. Section
-XXX of this document describes how to use the framework as-is to add a new
-padding machine, and Section XXX covers internal topics that will help you to
-add new framework features to support your machine.
+modification, but you can extend it to provide new features as well.
 
 ### 1.1. System Overview
 
@@ -203,7 +200,7 @@ additional cover traffic is not very carefully constructed.
 This document focuses primarily on the circuit padding framework's cover
 traffic features, and will only briefly touch on the potential obfuscation and
 application layer coupling points of the framework (you'll want to add those
-coupling points via new events -- see Section 6.2XXX).
+coupling points by [adding new events](#62-machine-events).
 
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
@@ -217,7 +214,7 @@ optional negotiated application-layer delays on either the server or the
 client side.
 
 For the a list of research areas where we believe this framework will
-prove useful, see [Section 8](#8.XXX).
+prove useful, see [Section 8](#8-open-research-problems).
 
 ## 2. Creating New Padding Machines
 
@@ -229,7 +226,7 @@ distribution.
 
 Again, if you prefer to learn by example, you may want to skip to either the
 [QuickStart Guide](CircuitPaddingQuickStart.md), and/or [Section
-5](#5.ExamplePaddingMachines) for example machines to get you up and running
+5](#5-example-padding-machines) for example machines to get you up and running
 quickly.
 
 To create a new padding machine, you must:
@@ -248,11 +245,10 @@ To create a new padding machine, you must:
 Again, a circuit padding machine is meant to be specified entirely as a single
 C structure.
 
-Your machine definitions should go into their own functions in a new file
-similar to
+Your machine definitions should go into their own functions in 
 [circuitpadding_machines.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding_machines.c). For
 details on all of the fields involved in specifying a padding machine, see
-Section XXX.
+[Section 3](#3-specifying-padding-machines).
 
 You must register your machine in `circpad_machines_init()` in
 [circuitpadding.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.c). To
@@ -261,11 +257,6 @@ add a new padding machine specification, you must allocate a
 human readable name string, and a machine number equivalent to the number of
 machines in the list, and register the structure using
 `circpad_register_padding_machine()`.
-
-XXX: Right now, our machine registration actually happens in our
-specification definition functions. This is confusing. We should move the
-registration calls into `circpad_machines_init()` instead of the
-specification definition functions.
 
 Each machine must have a client instance and a relay instance. Register your
 client-side machine instance in the `origin_padding_machines` list, and your
@@ -320,11 +311,12 @@ machine based on:
     (i.e. type) of the circuit (via the `circpad_purpose_mask_t purpose_mask`
     field).
 
-This condition mechanism is the preferred way to determine if a machine
-should apply to a circuit. For information about potentially useful
-conditions that we have considered but have not yet implemented, see Section
-XXX. We will happily accept patches for those conditions, or any for other
-additional conditions that are needed for your use case.
+This condition mechanism is the preferred way to determine if a machine should
+apply to a circuit. For information about potentially useful conditions that
+we have considered but have not yet implemented, see [Section
+7.3](#73-better-machine-negotiation). We will happily accept patches for those
+conditions, or any for other additional conditions that are needed for your
+use case.
 
 #### 2.2.2. Detecting and Negotiating Machine Support
 
@@ -333,12 +325,12 @@ should bump the Padding subprotocol version in `src/core/or/protover.c` and
 `src/rust/protover/protover.rs`, add a field to `protover_summary_flags_t` in
 `or.h`, and set this field in `memoize_protover_summary()` in versions.c. This
 new field must then be checked in `circpad_node_supports_padding()` in
-`circuitpadding.c`. XXX-link all of these.
+`circuitpadding.c`.
 
 Note that this protocol version update and associated support check is not
 necessary if your experiments will *only* be using your own relays that
 support your own padding machines. This can be accomplished by using the
-`MiddleNodes` directive; see Section XXX for more information.
+`MiddleNodes` directive; see [Section 4](#4-evaluating-padding-machines) for more information.
 
 If the protocol support check passes for the circuit, then the client sends a
 RELAY_COMMAND_PADDING_NEGOTIATE cell towards the
@@ -382,11 +374,12 @@ in the same index, without waiting for the response from the first negotiate
 cell.
 
 Unfortunately, there is a known bug as a consequence of this optimization. If
-your machine depends on repeated shutdown and restart of the same
-machine number on the same circuit, please see [Bug
-30922](https://bugs.torproject.org/30992). Depending on
-your use case, we may need to fix that bug or help you find a workaround. See
-also Section 6.XXX for some more technical details on this mechanism.
+your machine depends on repeated shutdown and restart of the same machine
+number on the same circuit, please see [Bug
+30922](https://bugs.torproject.org/30992). Depending on your use case, we may
+need to fix that bug or help you find a workaround. See also [Section
+6.1.3](#613-deallocation-and-shutdown) for some more technical details on this
+mechanism.
 
 
 ## 3. Specifying Padding Machines
@@ -397,7 +390,8 @@ anything yet. This section should help you understand how to specify how your
 machine reacts to events and adds padding to the wire.
 
 If you prefer to learn by example first instead, you may wish to skip to
-Section XXX.
+[Section 5](#5-example-padding-machines).
+
 
 A padding machine is specified by filling in an instance of
 [circpad_machine_spec_t](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
@@ -412,8 +406,7 @@ structure.
 ### 3.1. Padding Machine States
 
 A padding machine is a finite state machine where each state
-specifies a different style of padding. Transitions between states occur
-using various types of events as specified in XXX.
+specifies a different style of padding. 
 
 As an example of a simple padding machine, you could have a state machine
 with the following states: `[START] -> [SETUP] -> [HTTP] -> [END]` where the
@@ -445,8 +438,7 @@ State transitions are specified using the
 [next_state field](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.h#L381)
 of the `circpad_state_t` structure. As a simplistic example, to transition
 from state `A` to state `B` when event `E` occurs, you should implement the
-following code: `A.next_state[E] = B`. For more implementation details,
-please see the section XXXHSMachines below.
+following code: `A.next_state[E] = B`. 
 
 #### 3.2.1. State Transition Events
 
@@ -549,11 +541,11 @@ of tokens, but another (and perhaps easier) way to do this, is to use the
 [length_dist field](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L362)
 of the `circpad_state_t` structure.
 
-The `length_dist` field is basically a probability distribution similar to
-the padding probability distributions we talked about in section XXX, which
-applies to a specific machine state and specifies the amount of padding we
-are willing to send during that state. This value gets sampled when we
-transition to that state (TODO document this in the code).
+The `length_dist` field is basically a probability distribution similar to the
+padding probability distributions, which applies to a specific machine state
+and specifies the amount of padding we are willing to send during that state.
+This value gets sampled when we transition to that state (TODO document this
+in the code).
 
 ### 3.5. Specifying Overhead Limits
 
@@ -627,8 +619,7 @@ In this way, a live crawl of the Alexa top sites could be performed once, to
 produce a standard "undefended" corpus. Padding machines can be then quickly
 evaluated on these simulated traces in a standardized way.
 
-See Section XXX and [ticket
-31788](https://trac.torproject.org/projects/tor/ticket/31788) for specific tor
+See [ticket 31788](https://trac.torproject.org/projects/tor/ticket/31788) for specific tor
 implementation details and pointers on how to do this successfully.
 
 ### 4.2. Testing in Chutney
@@ -749,7 +740,8 @@ able to perform a full, arbitrary transform of a trace that is under a fixed
 number of packets in length.
 
 The Tamaraw defense as-specified is unappealing for practical implementation
-because it requires the Tor network to [delay traffic](XXX-1.2) and only send
+because it requires the Tor network to [delay
+traffic](#12-layering-model-and-deployment-constraints) and only send
 it at constant rates in each direction, with additional packets at the end
 (this is how it achieves one such optimal transform in an easily provable
 way).
@@ -771,14 +763,11 @@ please let us know.
 
 XXX: Ask other researchers to help fill in subsections for these machines
 
-   - WTF-PAD [all examples below can be ditched for MVP. perhaps just a small overview]
-   - APE
    - REB (from
      https://www.researchgate.net/publication/329743510_UNDERSTANDING_FEATURE_DISCOVERY_IN_WEBSITE_FINGERPRINTING_ATTACKS)
    - No-Delay RBB (Bases on
      https://www.researchgate.net/publication/329743510_UNDERSTANDING_FEATURE_DISCOVERY_IN_WEBSITE_FINGERPRINTING_ATTACKS)
    - Multiple machines with matching conditions
-   - Reimplementation of netflow padding
 
 
 ## 6. Framework Implementation Details
@@ -816,8 +805,7 @@ array. Each of these arrays holds at most two elements, as there can be at
 most two padding machines on each circuit.
 
 The `const circpad_machine_spec_t *` points to a globally allocated machine
-specification, as described in
-[section 1.1.XXX](#1.1HeaderWalkthrough). These machine specifications are
+specification. These machine specifications are
 allocated and set up during Tor program startup, in `circpad_machines_init()`
 in
 [circuitpadding.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.c). Because
@@ -829,14 +817,13 @@ The `circpad_machine_runtime_t *` array member points to the mutable runtime
 information for machine specification at that same array index. This runtime
 structure keeps track of the current machine state, packet counts, and other
 information that must be updated as the machine operates. When a padding
-machine is successfully negotiated (see Section 2.XXX),
-`circpad_setup_machine_on_circ()` allocates the associated runtime
-information.
+machine is successfully negotiated `circpad_setup_machine_on_circ()` allocates
+the associated runtime information.
 
 #### 6.1.2. Histogram Management
 
 If a `circpad_state_t` of a machine specifies a `token_removal` strategy
-other than `CIRCPAD_TOKEN_REMOVAL_NONE` (see section XXX), then every time
+other than `CIRCPAD_TOKEN_REMOVAL_NONE`, then every time
 there is a state transition into this state, `circpad_machine_setup_tokens()`
 will copy the read-only `circpad_state_t.histogram` array into a mutable
 version at `circpad_machine_runtime_t.histogram`. This mutable copy is used
@@ -848,8 +835,8 @@ by this same `circpad_machine_setup_tokens()` function.
 
 #### 6.1.3. Deallocation and Shutdown
 
-Recall from Section XXX that padding machines can be swapped in and out by the
-client without waiting a full round trip for the relay machine to shut down.
+As an optimization, padding machines can be swapped in and out by the client
+without waiting a full round trip for the relay machine to shut down.
 
 Internally, this is accomplished by immediately freeing the heap-allocated
 `circuit_t.padding_info` field corresponding to that machine, but still preserving the
@@ -894,8 +881,7 @@ The framework checks client-side origin circuits to see if padding machines
 should be activated or terminated during specific event callbacks in
 `circuitpadding.c`. We list these event callbacks here only for reference. You
 should not modify any of these callbacks to get your machine to run; instead,
-you should use the `circpad_machine_spec_t.conditions` field, as was described
-in Section XXX.
+you should use the `circpad_machine_spec_t.conditions` field.
 
 However, you may add new event callbacks if you need other activation events,
 for example to provide obfuscation-layer or application-layer signaling. Any
@@ -1016,26 +1002,21 @@ one could imagine a state machine that uses probabilistic transitions between
 states to simulate a random walk or Hidden Markov Model traversal across
 several pages.
 
-XXX: array of structs instead
-For this, the `circpad_state_t.next_state` array would have to become two
-dimensional, so that an array of next state and probability pairs could be
-provided. If you need this feature, please see
-[ticket 31787](https://bugs.torproject.org/31787).
+The simplest way to implement this is to make  the `circpad_state_t.next_state` array 
+into an array of structs that have a next state field, and a probability to
+transition to that state.
+
+If you need this feature, please see [ticket
+31787](https://bugs.torproject.org/31787) for more details.
 
 ### 7.5. Improved Simulation Mechanisms
-
-XXX: Unit test simulator
 
 As mentioned in [Section 4](4.Evaluatingnewmachines), for large-scale deep-learning
 based experiments, it may be more efficient to tune your machines in a
 simplified packet-trace simulator.
 
-The circuit padding system is loosely coupled to Tor, but this coupling could
-be made more abstract, to facilitate trace simulation.
-
-The parent ticket for the pieces of work involved in making this
-easier/possible is
-[ticket 31788](https://bugs.torproject.org/31788).
+Tor's unit test framework should make this simulator relatively easy to build.
+See [ticket 31788](https://bugs.torproject.org/31788) for details.
 
 
 ## 8. Open Research Problems
