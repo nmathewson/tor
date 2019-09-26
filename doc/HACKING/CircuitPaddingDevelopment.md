@@ -91,30 +91,29 @@ modification, but you can extend it to provide new features as well.
 
 ### 1.1. System Overview
 
-Circuit-level padding can occur between any Tor client and target relays at
-any hop of one of the client's circuits. Both parties need to support the
-same padding mechanisms for the system to work, and the client must enable
-it: there is a padding negotiation mechanism in the Tor protocol that clients
-use to ask a relay to start padding. The list of padding mechanisms is
-currently hardcoded in the Tor source code, but in the future we will be able
-to serialize them in the Tor consensus or in Tor configuration files.
+Circuit-level padding can occur between Tor clients and target relays at
+any hop of one of the client's circuits. Both parties need to support the same
+padding mechanisms for the system to work, and the client must enable it.
+There is a padding negotiation mechanism in the Tor protocol that clients use
+to ask a relay to start padding, as well as a way for researchers to pin their
+clients' relay selection to the subset of Tor nodes that implement their
+custom defenses, to support ethical live network testing and evaluation.
 
 Circuit-level padding is performed by 'padding machines'. A padding machine is
-in principle a ''finite state machine'' in which every state specifies a
-different form of padding style, or stage of padding, in terms of latency and
-throughput.
+a finite state machine. Every state specifies a different form of
+padding style, or stage of padding, in terms of latency and throughput.
 
-Padding state machines are specified by simply filling in fields of a C
-structure, which specifies the transition between padding states based on
-various events, probability distributions of inter-packet delays, and the
-conditions under which it should be applied to circuits.
+Padding state machines are specified by filling in fields of a C structure,
+which specifies the transitions between padding states based on various events,
+probability distributions of inter-packet delays, and the conditions under
+which padding machines should be applied to circuits.
 
 This compact C structure representation is designed to function as a
-microlanguage, which is compiled down into a bitstring that can be tuned using
+microlanguage, which can be compiled down into a bitstring that can be tuned using
 various optimization methods (such as gradient descent, GAs, or GANs), either
 in bitstring form or C struct form. The event driven, self-contained nature
-of this framework is also designed to make simulation both expedient and
-rigorously reproducible.
+of this framework is also designed to make [evaluation](4-evaluating-padding-machines)
+both expedient and rigorously reproducible.
 
 The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
