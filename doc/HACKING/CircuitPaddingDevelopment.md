@@ -8,42 +8,42 @@ Written by Mike Perry and George Kadianakis.
 
 - 0. [Background](#0-background)
 - 1. [Introduction](#1-introduction)
-   - 1.1. [Global System Overview](#1.1-global-system-overview)
-   - 1.2. [Layering Model and Design Philosophy](#1.2-layering-model-and-design-philosophy)
+    - 1.1. [Global System Overview](#1.1-global-system-overview)
+    - 1.2. [Layering Model and Design Philosophy](#1.2-layering-model-and-design-philosophy)
 - 2. [Creating New Padding Machines](#2-creating-new-padding-machines)
-   - 2.1. [Registering a New Padding Machine](#2.1-registering-a-new-padding-machine)
-   - 2.2. [Machine Activation and Shutdown](#2.2-machine-activation-and-shutdown)
+    - 2.1. [Registering a New Padding Machine](#2.1-registering-a-new-padding-machine)
+    - 2.2. [Machine Activation and Shutdown](#2.2-machine-activation-and-shutdown)
 - 3. [Specifying Padding Machines](#3-specifying-padding-machines)
-   - 3.1. Padding Machine States
-   - 3.2. Padding Machine State Transitions
-   - 3.3. Specifying Per-State Padding
-   - 3.4. Specifying Precise Cell Counts
-   - 3.5. Specifying Overhead Limits
+    - 3.1. Padding Machine States
+    - 3.2. Padding Machine State Transitions
+    - 3.3. Specifying Per-State Padding
+    - 3.4. Specifying Precise Cell Counts
+    - 3.5. Specifying Overhead Limits
 - 4. [Evaluating Padding Machines](#4-evaluating-padding-machines)
-   - 4.1. Pure Simulation
-   - 4.2. Testing in Chutney
-   - 4.3. Testing in Shadow
-   - 4.4. Testing on the Live Network
+    - 4.1. Pure Simulation
+    - 4.2. Testing in Chutney
+    - 4.3. Testing in Shadow
+    - 4.4. Testing on the Live Network
 - 5. [Example Padding Machines](#5-example-padding-machines)
-   - 5.1. Deployed Circuit Setup Machines
-   - 5.2. Adaptive Padding Early
-   - 5.3. A Sketch of Tamaraw
-   - 5.4. Other Padding Machines
+    - 5.1. Deployed Circuit Setup Machines
+    - 5.2. Adaptive Padding Early
+    - 5.3. A Sketch of Tamaraw
+    - 5.4. Other Padding Machines
 - 6. [Framework Implementation Details](#6-framework-implementation-details)
-   - 6.1. Memory Allocation and Pointer Lifespans
-   - 6.2. Machine Application Events
+    - 6.1. Memory Allocation and Pointer Lifespans
+    - 6.2. Machine Application Events
 - 7. [Future Features and Optimizations](#7-future-features-and-optimizations)
-   - 7.1. Load Balancing and Flow Control
-   - 7.2. Timing and Queuing Optimizations
-   - 7.3. Better Machine Negotiation
-   - 7.4. Probabilistic State Transitions
-   - 7.5. Improved Simulation Mechanisms
+    - 7.1. Load Balancing and Flow Control
+    - 7.2. Timing and Queuing Optimizations
+    - 7.3. Better Machine Negotiation
+    - 7.4. Probabilistic State Transitions
+    - 7.5. Improved Simulation Mechanisms
 - 8. [Open Research Problems](#8-open-research-problems)
-   - 8.1. Onion Service Circuit Setup
-   - 8.2. Onion Service Fingerprinting
-   - 8.3. Open World Fingerprinting
-   - 8.4. Protocol Usage Fingerprinting
-   - 8.5. Datagram Transport Side Channels
+    - 8.1. Onion Service Circuit Setup
+    - 8.2. Onion Service Fingerprinting
+    - 8.3. Open World Fingerprinting
+    - 8.4. Protocol Usage Fingerprinting
+    - 8.5. Datagram Transport Side Channels
 
 
 ## 0. Background
