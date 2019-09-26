@@ -115,16 +115,17 @@ achieve their bandwidth overhead bounds by effectively ensuring that a queue
 is maintained, by rate limiting traffic below the actual throughput of a
 circuit. For optimal results, this queue must very rarely drain to empty, and
 yet it must also be drained fast enough to avoid tremendous queue overhead in
-fast Tor relays, which carry tens of thousands of circuits simultaneously.
+fast Tor relays, which carry tens of thousands of circuits simultaneously (and
+in multi-instance Tor relays, hundreds of thousands of circuits, on the same
+machine).
 
 Unfortunately, Tor's end-to-end flow control is not congestion control. Its
 window sizes are currently fixed. This means there is no signal when queuing
-occurs, no fine-grained limiting of queue size through pushback, and no way to
-estimate the bandwidth capacity of a circuit from the position of a relay.
-Thus, there is currently no way to do the fine-grained queue management
-necessary to create such a queue and rate limit traffic effectively enough to
-keep this queue from draining to empty, without also risking that aggregate
-queuing would cause out-of-memory conditions on fast relays.
+occurs, and thus no ability to limit queue size through pushback. This means
+there is currently no way to do the fine-grained queue management necessary to
+create such a queue and rate limit traffic effectively enough to keep this
+queue from draining to empty, without also risking that aggregate queuing
+would cause out-of-memory conditions on fast relays.
 
 Even beyond these major technical hurdles, additional latency is also
 unappealing to the wider Internet community, for the simple reason that
@@ -350,7 +351,7 @@ your use case, we may need to fix that bug or help you find a workaround. See
 also Section 6.XXX for some more technical details on this mechanism.
 
 
-## 3. Padding Machine Definition Details
+## 3. Specifying Padding Machines
 
 By now, you should understand how to register, negotiate, and control the
 lifetime of your padding machine, but you still don't know how to make it do
@@ -360,8 +361,8 @@ machine reacts to events and adds padding to the wire.
 If you prefer to learn by example first instead, you may wish to skip to
 Section XXX.
 
-A padding machine is specified using the
-[circpad_machine_spec_t structure](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
+A padding machine is specified by filling in an instance of
+[circpad_machine_spec_t](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
 of this structure specify the precise functionality of a machine, and it's
 what the circuit padding developer is called to write. Instances of structure
 are created only at startup, and are referenced via `const` pointers during
@@ -409,7 +410,7 @@ from state `A` to state `B` when event `E` occurs, you should implement the
 following code: `A.next_state[E] = B`. For more implementation details,
 please see the section XXXHSMachines below.
 
-#### 3.2.1. State transition events
+#### 3.2.1. State Transition Events
 
 Here we will go through
 [the various events](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.h#L30)
@@ -425,7 +426,7 @@ that can be used to transition between states:
   * `CIRCPAD_EVENT_BINS_EMPTY`: All histogram bins are empty (out of tokens)
   * `CIRCPAD_EVENT_LENGTH_COUNT`: State has used all its padding capacity (see `length_dist` below)
 
-### 3.3. How padding gets specified in a machine state
+### 3.3. Specifying Per-State Padding
 
 Each state of a padding machine specifies either:
   * A padding histogram describing inter-arrival cell delays; OR
@@ -448,7 +449,7 @@ delay distribution towards an overall target distribution.
 We suggest you start with a probability distribution if possible, and if it
 doesn't suit your needs you move to a histogram-based approach.
 
-#### 3.3.1. Padding probability distributions
+#### 3.3.1. Padding Probability Distributions
 
 The easiest, most compact way to schedule padding using a machine state is to
 use a probability distribution that specifies the possible delays. That can
@@ -502,7 +503,7 @@ packets if there are not enough non-padding packets. The cost of doing token
 removal is additional memory allocations for making per-circuit copies of
 your histogram that can be modified.
 
-### 3.4. Specifying precise padding amounts
+### 3.4. Specifying Precise Cell Counts
 
 Padding machines should be able to specify the exact amount of padding they
 send. For histogram-based machines this can be done using a specific amount
@@ -516,7 +517,7 @@ applies to a specific machine state and specifies the amount of padding we
 are willing to send during that state. This value gets sampled when we
 transition to that state (TODO document this in the code).
 
-### 3.5. Specifying overhead limits
+### 3.5. Specifying Overhead Limits
 
 Separately from the length counts, it is possible to rate limit the overhead
 percentage of padding at both the global level across all machines, and on a
@@ -539,7 +540,7 @@ filling in the fields `circpad_machine_spec_t.max_padding_percent` and
 `circpad_machine_spec_t.allowed_padding_count`, which behave identically to
 the consensus parameters, but only apply to that specific machine.
 
-## 4. Evaluating new machines
+## 4. Evaluating New Machines
 
 One of the goals of the circuit padding framework is to provide improved
 evaluation and scientific reproducibility for lower cost. This includes both
@@ -568,7 +569,7 @@ preserved as artifacts to be run on the simulator and reproduced on the live
 network by future papers, for journal venues that have an artifact
 preservation policy.
 
-### 4.1. Pure Simulation
+### 4.1. Pure Simulation of Padding Machines
 
 When doing initial tuning of padding machines, especially in adversarial
 settings, variations of a padding machine defense may need to be applied to
@@ -592,7 +593,7 @@ See Section XXX and [ticket
 31788](https://trac.torproject.org/projects/tor/ticket/31788) for specific tor
 implementation details and pointers on how to do this successfully.
 
-### 4.2. Chutney
+### 4.2. Testing in Chutney
 
 The Tor Project provides a tool called
 [Chutney](https://github.com/torproject/chutney/) which makes it very easy to
@@ -616,7 +617,7 @@ get different results on Chutney. You can work around this by using a
 different set of delays if Chutney is used, or by moving your padding
 machines to the real network when you want to do latency-related testing.
 
-### 4.3. Shadow
+### 4.3. Testing in Shadow
 
 Shadow is an environment for running entire Tor network simulations, similar
 to Chutney, but it is meant to be both more memory efficient, as well as
@@ -627,7 +628,7 @@ XXX: Link to Rob's docs + models
 XXX: Do we want to mention netmirage here, too? It is supposed to be
 compatible with shadow models soon.
 
-### 4.4. Live Network Testing
+### 4.4. Testing on the Live Network
 
 Live network testing is the gold standard for verifying that any attack or
 defense is behaving as expected, to minimize the influence of simplifying
@@ -728,7 +729,7 @@ Such a defense may be a useful benchmark for comparison to the general
 case overhead/machine optimization problem. If you end up pursuing this,
 please let us know.
 
-### 5.4. Other machines (?)
+### 5.4. Other Padding Machines
 
 XXX: Ask other researchers to help fill in subsections for these machines
 
@@ -740,6 +741,7 @@ XXX: Ask other researchers to help fill in subsections for these machines
      https://www.researchgate.net/publication/329743510_UNDERSTANDING_FEATURE_DISCOVERY_IN_WEBSITE_FINGERPRINTING_ATTACKS)
    - Multiple machines with matching conditions
    - Reimplementation of netflow padding
+
 
 ## 6. Advanced Topics and Implementation Details
 
@@ -997,7 +999,8 @@ The parent ticket for the pieces of work involved in making this
 easier/possible is
 [ticket 31788](https://bugs.torproject.org/31788).
 
-# 8. Research Problems and Areas of Application
+
+# 8. Open Research Problems
 
 XXX: Discuss tuning of WTF-PAD
 
