@@ -152,9 +152,7 @@ achieve their bandwidth overhead bounds by effectively ensuring that a queue
 is maintained, by rate limiting traffic below the actual throughput of a
 circuit. For optimal results, this queue must very rarely drain to empty, and
 yet it must also be drained fast enough to avoid tremendous queue overhead in
-fast Tor relays, which carry tens of thousands of circuits simultaneously (and
-in multi-instance Tor relays, hundreds of thousands of circuits, on the same
-machine).
+fast Tor relays, which carry hundreds of thousands of circuits simultaneously.
 
 Unfortunately, Tor's end-to-end flow control is not congestion control. Its
 window sizes are currently fixed. This means there is no signal when queuing
