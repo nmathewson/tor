@@ -1020,9 +1020,15 @@ See [ticket 31788](https://bugs.torproject.org/31788) for details.
 
 ## 8. Open Research Problems
 
-XXX: Discuss tuning of WTF-PAD
+XXX: Discuss tuning of WTF-PAD. WTF-PAD was never tuned.
 
 ### 8.1. Onion Service Circuit Setup
+
+XXX: Our circuit setup padding does not address timing-based features, only
+packet counts. Deep learning can probably see this.
+
+XXX: If you write an attack paper on this without a defense, we'll light you
+and your attack paper on fire. ;)
 
 ### 8.2. Onion Service Fingerprinting
 
@@ -1032,7 +1038,11 @@ XXX: Don't forget to mention studying fingerprinting in combination with vanguar
 
 ### 8.4. Protocol Usage Fingerprinting
 
+XXX: classification of http vs ssh vs irc vs Signal, etc; defenses for same.
+
 ### 8.5. Datagram Transport Side Channels
 
-https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html
+XXX: Padding can reduce the accuracy of dropped-cell side channels in such
+transports, but we don't know [how to measure
+this](https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html)
 
