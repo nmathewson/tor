@@ -6,6 +6,8 @@ This document is written for researchers who wish to prototype and evaluate circ
 
 Written by Mike Perry and George Kadianakis.
 
+XXX: Normalize section header names, build toc with links
+
 ## 0. Background
 
 Tor supports both connection-level and circuit-level padding, and both
@@ -85,7 +87,7 @@ If you prefer to learn by example, you may want to skip to either the
 5](#5.ExamplePaddingMachines) for example machines to get you up and running
 quickly.
 
-### 1.2. Design Philosophy, Design Constraints, and Layering Model
+### 1.2. Layering Model, Design Philosophy, and Design Constraints
 
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
@@ -625,7 +627,7 @@ XXX: Link to Rob's docs + models
 XXX: Do we want to mention netmirage here, too? It is supposed to be
 compatible with shadow models soon.
 
-## 4.4. Live Network Testing
+### 4.4. Live Network Testing
 
 Live network testing is the gold standard for verifying that any attack or
 defense is behaving as expected, to minimize the influence of simplifying
