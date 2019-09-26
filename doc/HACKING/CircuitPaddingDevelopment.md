@@ -148,11 +148,11 @@ overhead](https://freedom.cs.purdue.edu/anonymity/trilemma/index.html).
 
 In the website traffic fingerprinting domain, [provably optimal
 defenses](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
-achieve their bandwidth overhead bounds by effectively ensuring that a queue
-is maintained, by rate limiting traffic below the actual throughput of a
-circuit. For optimal results, this queue must very rarely drain to empty, and
-yet it must also be drained fast enough to avoid tremendous queue overhead in
-fast Tor relays, which carry hundreds of thousands of circuits simultaneously.
+achieve their bandwidth overhead bounds by ensuring that a non-empty queue is
+maintained, by rate limiting traffic below the actual throughput of a circuit.
+For optimal results, this queue must avoid draining to empty, and yet it
+must also be drained fast enough to avoid tremendous queue overhead in fast
+Tor relays, which carry hundreds of thousands of circuits simultaneously.
 
 Unfortunately, Tor's end-to-end flow control is not congestion control. Its
 window sizes are currently fixed. This means there is no signal when queuing
