@@ -44,6 +44,7 @@ Written by Mike Perry and George Kadianakis.
     - [8.3. Open World Fingerprinting](#83-open-world-fingerprinting)
     - [8.4. Protocol Usage Fingerprinting](#84-protocol-usage-fingerprinting)
     - [8.5. Datagram Transport Side Channels](#85-datagram-transport-side-channels)
+- [9. Must Read Papers](#9-must-read-papers
 
 
 ## 0. Background
@@ -1065,3 +1066,14 @@ XXX: Padding can reduce the accuracy of dropped-cell side channels in such
 transports, but we don't know [how to measure
 this](https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html)
 
+## 9. Must Read Papers
+
+These are by far the most important papers in the space, to date. There are
+only four of them, for a reason. Just click on the damn pdfs what could go
+wrong. Chase down what they cite and what cites them if you like, but none of
+it is as important as they are for undetatnading the foundations.
+
+ - [Tamaraw](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
+ - [Bayes, Not Naive](https://www.petsymposium.org/2017/papers/issue4/paper50-2017-4-source.pdf)
+ - [Anonymity Trilemma](https://eprint.iacr.org/2017/954.pdf)
+ - [WTF-PAD](http://arxiv.org/pdf/1512.00524)
