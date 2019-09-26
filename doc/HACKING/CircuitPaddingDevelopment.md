@@ -6,9 +6,20 @@ This document is written for researchers who wish to prototype and evaluate circ
 
 Written by Mike Perry and George Kadianakis.
 
-XXX: Normalize section header names, build toc with links
+# Table of Contents
 
-## 0. Background
+0. [Background](#0-background)
+1. [Introduction](#1-introduction)
+2. [Creating New Padding Machines](#2-creating-new-padding-machines)
+3. [Specifying Padding Machines](#3-specifying-padding-machines)
+4. [Evaluating Padding Machines](#4-evaluating-padding-machines)
+5. [Example Padding Machines](#5-example-padding-machines)
+6. [Framework Implementation Details](#6-framework-implementation-details)
+7. [Future Features and Optimizations](#7-future-features-and-optimizations)
+8. [Open Research Problems](#8-open-research-problems)
+
+
+# 0. Background
 
 Tor supports both connection-level and circuit-level padding, and both
 systems are live on the network today. The connection-level padding behavior
@@ -41,7 +52,7 @@ Pulls, and many other features.
 This document describes how to use Tor's circuit padding framework to
 implement and deploy novel delay-free cover traffic defenses.
 
-## 1. Circuit Padding Framework Introduction
+## 1. Introduction
 
 The circuit padding framework is the official way to implement padding
 defenses in Tor. It may be used in combination with application-layer
@@ -181,7 +192,7 @@ client side.
 For the a list of research areas where we believe this framework will
 prove useful, see [Section 8](#8.XXX).
 
-## 2. Creating a New Padding Machine
+## 2. Creating New Padding Machines
 
 This section explains how to use the existing mechanisms in Tor to define a
 new circuit padding machine.  We assume here that you know C, and are at
@@ -205,7 +216,7 @@ To create a new padding machine, you must:
   3. Ensure that your machine is properly negotiated under your desired
      circuit conditions.
 
-### 2.1. Creating and Registering a New Padding Machine
+### 2.1. Registering a New Padding Machine
 
 Again, a circuit padding machine is meant to be specified entirely as a single
 C structure.
@@ -540,7 +551,7 @@ filling in the fields `circpad_machine_spec_t.max_padding_percent` and
 `circpad_machine_spec_t.allowed_padding_count`, which behave identically to
 the consensus parameters, but only apply to that specific machine.
 
-## 4. Evaluating New Machines
+# 4. Evaluating Padding Machines
 
 One of the goals of the circuit padding framework is to provide improved
 evaluation and scientific reproducibility for lower cost. This includes both
@@ -743,7 +754,7 @@ XXX: Ask other researchers to help fill in subsections for these machines
    - Reimplementation of netflow padding
 
 
-## 6. Advanced Topics and Implementation Details
+## 6. Framework Implementation Details
 
 This section is meant for developers who need to add additional events, conditions, or other features to the circuit padding framework.
 
