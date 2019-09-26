@@ -8,7 +8,7 @@ Written by Mike Perry and George Kadianakis.
 
 - [0. Background](#0-background)
 - [1. Introduction](#1-introduction)
-    - [1.1. System Overview](#11--system-overview)
+    - [1.1. System Overview](#11-system-overview)
     - [1.2. Layering Model and Deployment Constraints](#12-layering-model-and-deployment-constraints)
 - [2. Creating New Padding Machines](#2-creating-new-padding-machines)
     - [2.1. Registering a New Padding Machine](#21-registering-a-new-padding-machine)
@@ -25,7 +25,7 @@ Written by Mike Perry and George Kadianakis.
     - [4.3. Testing in Shadow](#43-testing-in-shadow)
     - [4.4. Testing on the Live Network](#44-testing-on-the-live-network)
 - [5. Example Padding Machines](#5-example-padding-machines)
-    - [5.1. Deployed Circuit Setup Machines](#51-Deployed-Circuit-Setup-Machines])
+    - [5.1. Deployed Circuit Setup Machines](#51-deployed-circuit-setup-machines)
     - [5.2. Adaptive Padding Early](#52-adaptive-padding-early)
     - [5.3. Sketch of Tamaraw](#53-sketch-of-tamaraw)
     - [5.4. Other Padding Machines](#54-other-padding-machines)
@@ -36,7 +36,7 @@ Written by Mike Perry and George Kadianakis.
     - [7.1. Load Balancing and Flow Control](#71-load-balancing-and-flow-control)
     - [7.2. Timing and Queuing Optimizations](#72-timing-and-queuing-optimizations)
     - [7.3. Better Machine Negotiation](#73-better-machine-negotiation)
-    - [7.4. Probabilistic State Transitions](#74-probabalistic-state-transitions)
+    - [7.4. Probabilistic State Transitions](#74-probabilistic-state-transitions)
     - [7.5. Improved Simulation Mechanisms](#75-improved-simulation-mechanisms)
 - [8. Open Research Problems](#8-open-research-problems)
     - [8.1. Onion Service Circuit Setup](#81-onion-service-circuit-setup)
@@ -1048,11 +1048,11 @@ XXX: Discuss tuning of WTF-PAD
 
 XXX: Don't forget to mention studying fingerprinting in combination with vanguards
 
-### 8.4. Open World Fingerprinting
+### 8.3. Open World Fingerprinting
 
-### 8.5. Protocol Usage Fingerprinting
+### 8.4. Protocol Usage Fingerprinting
 
-### 8.6. Datagram Transport Side Channels
+### 8.5. Datagram Transport Side Channels
 
 https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html
 
