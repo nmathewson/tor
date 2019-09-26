@@ -109,11 +109,11 @@ structure, which specifies the transition between padding states based on
 various events, probability distributions of inter-packet delays, and the
 conditions under which it should be applied to circuits.
 
-This compact C structure representation is meant to function as a
+This compact C structure representation is designed to function as a
 microlanguage, which is compiled down into a bitstring that can be tuned using
 various optimization methods (such as gradient descent, GAs, or GANs), either
 in bitstring form or C struct form. The event driven, self-contained nature
-of this framework is also meant to make simulation both expedient and
+of this framework is also designed to make simulation both expedient and
 rigorously reproducible.
 
 The following sections cover the details of the engineering steps to write,
@@ -127,7 +127,7 @@ quickly.
 
 ### 1.2. Layering Model and Deployment Constraints
 
-The circuit padding framework is meant to provide one layer in a layered
+The circuit padding framework is designed to provide one layer in a layered
 system of interchangeable components. 
 
 The circuit padding framework operates at the Tor circuit layer. It only deals
@@ -210,7 +210,7 @@ In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
 less than 1% of the
 [total consumed bandwidth](https://metrics.torproject.org/bandwidth-flags.html)
-of the Tor network, and because onion services are meant to provide higher
+of the Tor network, and because onion services exist to provide higher
 security as compared to Tor Exit traffic, they are an attractive target for
 higher-overhead defenses. We encourage researchers to target this use case
 for defenses that require more overhead, and/or for the deployment of
@@ -246,7 +246,7 @@ To create a new padding machine, you must:
 
 ### 2.1. Registering a New Padding Machine
 
-Again, a circuit padding machine is meant to be specified entirely as a single
+Again, a circuit padding machine is designed to be specified entirely as a single
 C structure.
 
 Your machine definitions should go into their own functions in 
@@ -653,8 +653,8 @@ machines to the real network when you want to do latency-related testing.
 ### 4.3. Testing in Shadow
 
 Shadow is an environment for running entire Tor network simulations, similar
-to Chutney, but it is meant to be both more memory efficient, as well as
-provide an accurate Tor network topology and latency model.
+to Chutney, but designed to be both more memory efficient, as well as provide
+an accurate Tor network topology and latency model.
 
 XXX: Link to Rob's docs + models
 
@@ -776,7 +776,8 @@ XXX: Ask other researchers to help fill in subsections for these machines
 
 ## 6. Framework Implementation Details
 
-This section is meant for developers who need to add additional events, conditions, or other features to the circuit padding framework.
+If you need to add additional events, conditions, or other features to the
+circuit padding framework, then this section is for you.
 
 ### 6.1. Memory Allocation Conventions
 
@@ -928,9 +929,9 @@ that might prove useful to others, but were not essential to implement
 immediately. We do not have immediate plans to implement these ideas, but we
 would gladly accept patches that do so.
 
-The following list is meant to give an overview of these improvements, but as
-this document ages, it may become stale. The canonical list of improvements
-that researchers may find useful is tagged in our bugtracker with
+The following list gives an overview of these improvements, but as this
+document ages, it may become stale. The canonical list of improvements that
+researchers may find useful is tagged in our bugtracker with
 [circpad-researchers](https://trac.torproject.org/projects/tor/query?keywords=~circpad-researchers),
 and the list of improvements that are known to be necessary for some research
 areas are tagged with
