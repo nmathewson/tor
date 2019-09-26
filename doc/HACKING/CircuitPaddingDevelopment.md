@@ -748,25 +748,28 @@ website traffic fingerprinting domain. These bounds assume that a defense is
 able to perform a full, arbitrary transform of a trace that is under a fixed
 number of packets in length.
 
-The Tamaraw defense as-specified is unappealing for practical implementation
-because it requires the Tor network to [delay
-traffic](#12-layering-model-and-deployment-constraints) and only send
-it at constant rates in each direction, with additional packets at the end
-(this is how it achieves one such optimal transform in an easily provable
-way).
+The key insight to understand Tamaraw's optimality is that it achieves one
+such optimal transform by delaying traffic below a circuit's throughput. By
+doing this, it creates a queue that is rarely empty, allowing it to produce
+such provably optimal transforms with minimal overhead. As [Section
+1.2](#12-layering-model-and-deployment-constraints) explains, this queue
+cannot be maintained on the live Tor network without risk of out-of-memory
+conditions at relays.
 
-However, it could be feasible as an optional defense, if it is implemented as
-both an application layer component, as well as a circuit padding framework
-component.
+However, if the queue is not maintained in the Tor network, but instead by the
+application layer, it could be deployed by websites that opt in to using it.
 
-The application layer component would do *optional* constant rate shaping,
-negotiated between a web browser and a website. The Circuit Padding Framework
-can then easily fill in any missing gaps of cover traffic packets, and also
-ensure that only a fixed length number of packets are sent in total.
+In this case, the application layer component would do *optional* constant
+rate shaping, negotiated between a web browser and a website. The Circuit
+Padding Framework can then easily fill in any missing gaps of cover traffic
+packets, and also ensure that only a fixed length number of packets are sent
+in total.
 
-Such a defense may be a useful benchmark for comparison to the general
-case overhead/machine optimization problem. If you end up pursuing this,
-please let us know.
+However, for such a defense to be safe, additional care must be taken to
+ensure that the resulting traffic pattern still has a large
+anonymity/confusion set with other traces on the live network.
+
+Accomplishing this is an unsolved problem.
 
 ### 5.4. Other Padding Machines
 
