@@ -100,9 +100,11 @@ currently hardcoded in the Tor source code, but in the future we will be able
 to serialize them in the Tor consensus or in Tor configuration files.
 
 Circuit-level padding is performed by 'padding machines'. A padding machine is
-in principle a ''finite state machine''' in which every state specifies a
+in principle a ''finite state machine'' in which every state specifies a
 different form of padding style, or stage of padding, in terms of latency and
-throughput. This state machine is specified by simply filling in fields of a C
+throughput.
+
+Padding state machines are specified by simply filling in fields of a C
 structure, which specifies the transition between padding states based on
 various events, probability distributions of inter-packet delays, and the
 conditions under which it should be applied to circuits.
