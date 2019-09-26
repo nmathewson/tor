@@ -8,11 +8,11 @@ Written by Mike Perry and George Kadianakis.
 
 - [0. Background](#0-background)
 - [1. Introduction](#1-introduction)
-    - 1.1. [Global System Overview](#1.1-global-system-overview)
-    - 1.2. [Layering Model and Design Philosophy](#1.2-layering-model-and-design-philosophy)
+    - [1.1. Global System Overview](#11-global-system-overview)
+    - [1.2. Layering Model and Design Philosophy](#12-layering-model-and-design-philosophy)
 - [2. Creating New Padding Machines](#2-creating-new-padding-machines)
-    - 2.1. [Registering a New Padding Machine](#2.1-registering-a-new-padding-machine)
-    - 2.2. [Machine Activation and Shutdown](#2.2-machine-activation-and-shutdown)
+    - [2.1. Registering a New Padding Machine](#21-registering-a-new-padding-machine)
+    - [2.2. Machine Activation and Shutdown](#22-machine-activation-and-shutdown)
 - [3. Specifying Padding Machines](#3-specifying-padding-machines)
     - 3.1. Padding Machine States
     - 3.2. Padding Machine State Transitions
