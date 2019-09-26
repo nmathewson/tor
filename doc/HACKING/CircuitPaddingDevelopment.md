@@ -1010,7 +1010,7 @@ If you need this feature, please see [ticket
 
 ### 7.5. Improved Simulation Mechanisms
 
-As mentioned in [Section 4](4-evaluating-padding-machines), for large-scale deep-learning
+As mentioned in [Section 4](#4-evaluating-padding-machines), for large-scale deep-learning
 based experiments, it may be more efficient to tune your machines in a
 simplified packet-trace simulator.
 
