@@ -119,7 +119,7 @@ support new machine features.
 
 If you prefer to learn by example, you may want to skip to either the
 [QuickStart Guide](CircuitPaddingQuickStart.md), and/or [Section
-5](#5.ExamplePaddingMachines) for example machines to get you up and running
+5](#5-example-padding-machines) for example machines to get you up and running
 quickly.
 
 ### 1.2. Layering Model and Deployment Constraints
@@ -200,7 +200,7 @@ additional cover traffic is not very carefully constructed.
 This document focuses primarily on the circuit padding framework's cover
 traffic features, and will only briefly touch on the potential obfuscation and
 application layer coupling points of the framework (you'll want to add those
-coupling points by [adding new events](#62-machine-events).
+coupling points by [adding new events](#62-machine-application-events).
 
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
@@ -619,7 +619,7 @@ In this way, a live crawl of the Alexa top sites could be performed once, to
 produce a standard "undefended" corpus. Padding machines can be then quickly
 evaluated on these simulated traces in a standardized way.
 
-See [ticket 31788](https://trac.torproject.org/projects/tor/ticket/31788) for specific tor
+See [ticket 31788](https://bugs.torproject.org/31788) for specific tor
 implementation details and pointers on how to do this successfully.
 
 ### 4.2. Testing in Chutney
@@ -980,8 +980,7 @@ less overhead.
 
 ### 7.3. Better Machine Negotiation
 
-Circuit padding is applied to circuits through machine conditions (see
-[Section 2.2](#2.2.Per-CircuitMachineActivationandShutdown)).
+Circuit padding is applied to circuits through machine conditions.
 
 The following machine conditions may be useful for some use cases, but have
 not been implemented yet:
@@ -1011,7 +1010,7 @@ If you need this feature, please see [ticket
 
 ### 7.5. Improved Simulation Mechanisms
 
-As mentioned in [Section 4](4.Evaluatingnewmachines), for large-scale deep-learning
+As mentioned in [Section 4](4-evaluating-padding-machines), for large-scale deep-learning
 based experiments, it may be more efficient to tune your machines in a
 simplified packet-trace simulator.
 
