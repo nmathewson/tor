@@ -125,10 +125,12 @@ quickly.
 ### 1.2. Layering Model and Deployment Constraints
 
 The circuit padding framework is meant to provide one layer in a layered
-system of interchangeable components. Because it operates at the Tor circuit
-layer, it deals only with the inter-cell timings and quantity of cells sent on
-a circuit. It addresses these only by inserting cells on a circuit;
-it cannot delay cells. This also means that it does not deal with packet
+system of interchangeable components. 
+
+The circuit padding framework operates at the Tor circuit layer. It only deals
+with the inter-cell timings and quantity of cells sent on a circuit. It can
+insert cells on a circuit in arbitrary patterns, and in response to arbitary
+conditions, but it cannot delay cells. It also does not deal with packet
 sizes, how cells are packed into TLS records, or ways that the Tor protocol
 might be recognized on the wire.
 
