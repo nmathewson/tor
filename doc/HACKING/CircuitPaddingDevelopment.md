@@ -111,9 +111,11 @@ which padding machines should be applied to circuits.
 This compact C structure representation is designed to function as a
 microlanguage, which can be compiled down into a bitstring that can be tuned using
 various optimization methods (such as gradient descent, GAs, or GANs), either
-in bitstring form or C struct form. The event driven, self-contained nature
-of this framework is also designed to make [evaluation](4-evaluating-padding-machines)
-both expedient and rigorously reproducible.
+in bitstring form or C struct form.
+
+The event driven, self-contained nature of this framework is also designed to
+make [evaluation](#4-evaluating-padding-machines) both expedient and rigorously
+reproducible.
 
 The following sections cover the details of the engineering steps to write,
 test, and deploy a padding machine, as well as how to extend the framework to
@@ -163,6 +165,10 @@ there is currently no way to do the fine-grained queue management necessary to
 create such a queue and rate limit traffic effectively enough to keep this
 queue from draining to empty, without also risking that aggregate queuing
 would cause out-of-memory conditions on fast relays.
+
+It may be possible to create a congestion control algorithm that can support
+such fine grained queue management, but this is a [deeply unsolved area of
+research](https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html).
 
 Even beyond these major technical hurdles, additional latency is also
 unappealing to the wider Internet community, for the simple reason that
