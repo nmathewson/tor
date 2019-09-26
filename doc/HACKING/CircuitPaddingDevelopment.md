@@ -8,42 +8,42 @@ Written by Mike Perry and George Kadianakis.
 
 - [0. Background](#0-background)
 - [1. Introduction](#1-introduction)
-    - [1.1. Global System Overview](#11-global-system-overview)
-    - [1.2. Layering Model and Design Philosophy](#12-layering-model-and-design-philosophy)
+    - [1.1. System Overview](#11--system-overview)
+    - [1.2. Layering Model and Deployment Constraints](#12-layering-model-and-deployment-constraints)
 - [2. Creating New Padding Machines](#2-creating-new-padding-machines)
     - [2.1. Registering a New Padding Machine](#21-registering-a-new-padding-machine)
     - [2.2. Machine Activation and Shutdown](#22-machine-activation-and-shutdown)
 - [3. Specifying Padding Machines](#3-specifying-padding-machines)
-    - 3.1. Padding Machine States
-    - 3.2. Padding Machine State Transitions
-    - 3.3. Specifying Per-State Padding
-    - 3.4. Specifying Precise Cell Counts
-    - 3.5. Specifying Overhead Limits
+    - [3.1. Padding Machine States](#31-padding-machine-states)
+    - [3.2. Padding Machine State Transitions](#32-padding-machine-state-transitions)
+    - [3.3. Specifying Per-State Padding](#33-specifying-per-state-padding)
+    - [3.4. Specifying Precise Cell Counts](#34-specifying-precise-cell-counts)
+    - [3.5. Specifying Overhead Limits](#35-specifying-overhead-limits)
 - [4. Evaluating Padding Machines](#4-evaluating-padding-machines)
-    - 4.1. Pure Simulation
-    - 4.2. Testing in Chutney
-    - 4.3. Testing in Shadow
-    - 4.4. Testing on the Live Network
+    - [4.1. Pure Simulation](#41-pure-simulation)
+    - [4.2. Testing in Chutney](#42-testing-in-chutney)
+    - [4.3. Testing in Shadow](#43-testing-in-shadow)
+    - [4.4. Testing on the Live Network](#44-testing-on-the-live-network)
 - [5. Example Padding Machines](#5-example-padding-machines)
-    - 5.1. Deployed Circuit Setup Machines
-    - 5.2. Adaptive Padding Early
-    - 5.3. A Sketch of Tamaraw
-    - 5.4. Other Padding Machines
+    - [5.1. Deployed Circuit Setup Machines](#51-Deployed-Circuit-Setup-Machines])
+    - [5.2. Adaptive Padding Early](#52-adaptive-padding-early)
+    - [5.3. Sketch of Tamaraw](#53-sketch-of-tamaraw)
+    - [5.4. Other Padding Machines](#54-other-padding-machines)
 - [6. Framework Implementation Details](#6-framework-implementation-details)
-    - 6.1. Memory Allocation and Pointer Lifespans
-    - 6.2. Machine Application Events
+    - [6.1. Memory Allocation Conventions](#61-memory-allocation-conventions)
+    - [6.2. Machine Application Events](#62-machine-application-events)
 - [7. Future Features and Optimizations](#7-future-features-and-optimizations)
-    - 7.1. Load Balancing and Flow Control
-    - 7.2. Timing and Queuing Optimizations
-    - 7.3. Better Machine Negotiation
-    - 7.4. Probabilistic State Transitions
-    - 7.5. Improved Simulation Mechanisms
+    - [7.1. Load Balancing and Flow Control](#71-load-balancing-and-flow-control)
+    - [7.2. Timing and Queuing Optimizations](#72-timing-and-queuing-optimizations)
+    - [7.3. Better Machine Negotiation](#73-better-machine-negotiation)
+    - [7.4. Probabilistic State Transitions](#74-probabalistic-state-transitions)
+    - [7.5. Improved Simulation Mechanisms](#75-improved-simulation-mechanisms)
 - [8. Open Research Problems](#8-open-research-problems)
-    - 8.1. Onion Service Circuit Setup
-    - 8.2. Onion Service Fingerprinting
-    - 8.3. Open World Fingerprinting
-    - 8.4. Protocol Usage Fingerprinting
-    - 8.5. Datagram Transport Side Channels
+    - [8.1. Onion Service Circuit Setup](#81-onion-service-circuit-setup)
+    - [8.2. Onion Service Fingerprinting](#82-onion-service-fingerprinting)
+    - [8.3. Open World Fingerprinting](#83-open-world-fingerprinting)
+    - [8.4. Protocol Usage Fingerprinting](#84-protocol-usage-fingerprinting)
+    - [8.5. Datagram Transport Side Channels](#85-datagram-transport-side-channels)
 
 
 ## 0. Background
@@ -91,7 +91,7 @@ XXX of this document describes how to use the framework as-is to add a new
 padding machine, and Section XXX covers internal topics that will help you to
 add new framework features to support your machine.
 
-### 1.1. Global System Overview
+### 1.1. System Overview
 
 Circuit-level padding can occur between any Tor client and target relays at
 any hop of one of the client's circuits. Both parties need to support the
@@ -125,7 +125,7 @@ If you prefer to learn by example, you may want to skip to either the
 5](#5.ExamplePaddingMachines) for example machines to get you up and running
 quickly.
 
-### 1.2. Layering Model and Design Philosophy
+### 1.2. Layering Model and Deployment Constraints
 
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
@@ -739,7 +739,7 @@ Tobias Pulls's [QuickStart Guide](CircuitPaddingQuickStart.md) describes how
 to get this machine up and running, and has links to branches with a working
 implementation.
 
-### 5.3. A Sketch of Tamaraw
+### 5.3. Sketch of Tamaraw
 
 The [Tamaraw defense
 paper](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf) is the
@@ -785,7 +785,7 @@ XXX: Ask other researchers to help fill in subsections for these machines
 
 This section is meant for developers who need to add additional events, conditions, or other features to the circuit padding framework.
 
-### 6.1. Memory Allocation and Pointer Lifespans
+### 6.1. Memory Allocation Conventions
 
 If the existing circuit padding features are sufficient for your needs, then
 you do not need to worry about memory management or pointer lifespans. The
