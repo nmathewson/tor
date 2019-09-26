@@ -200,7 +200,8 @@ additional cover traffic is not very carefully constructed.
 This document focuses primarily on the circuit padding framework's cover
 traffic features, and will only briefly touch on the potential obfuscation and
 application layer coupling points of the framework (you'll want to add those
-coupling points by [adding new events](#62-machine-application-events).
+coupling points by [adding new events](#62-machine-application-events) to the
+circuit padding framework).
 
 In terms of acceptable overhead, because Tor onion services
 [currently use](https://metrics.torproject.org/hidserv-rend-relayed-cells.html)
