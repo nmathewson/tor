@@ -1030,7 +1030,9 @@ and your attack paper on fire. ;)
 
 ### 8.2. Onion Service Fingerprinting
 
-XXX: Don't forget to mention studying fingerprinting in combination with vanguards
+XXX: Don't forget to mention studying fingerprinting in
+[combination](https://github.com/mikeperry-tor/vanguards/blob/master/README_SECURITY.md) with
+[vanguards](https://github.com/mikeperry-tor/vanguards/blob/master/README_TECHNICAL.md).
 
 ### 8.3. Open World Fingerprinting
 
