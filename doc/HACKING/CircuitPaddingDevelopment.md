@@ -50,9 +50,10 @@ Written by Mike Perry and George Kadianakis.
 
 Tor supports both connection-level and circuit-level padding, and both
 systems are live on the network today. The connection-level padding behavior
-is described in section 2 of
-[padding-spec.txt](https://github.com/mikeperry-tor/torspec/blob/hs-padding-spec/padding-spec.txt). The
-circuit-level padding behavior is described in section 3 of padding-spec.txt.
+is described in [section 2 of
+padding-spec.txt](https://github.com/torproject/torspec/blob/master/padding-spec.txt#L47). The
+circuit-level padding behavior is described in [section 3 of
+padding-spec.txt](https://github.com/torproject/torspec/blob/master/padding-spec.txt#L282).
 
 These two systems are orthogonal and should not be confused. The
 connection-level padding system regards circuit-level padding as normal data
