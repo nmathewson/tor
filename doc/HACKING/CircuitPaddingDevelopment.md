@@ -1,5 +1,3 @@
-{:toc}
-
 # Circuit Padding Developer Documentation
 
 This document is written for researchers who wish to prototype and evaluate circuit-level padding defenses in Tor.
@@ -10,16 +8,47 @@ Written by Mike Perry and George Kadianakis.
 
 0. [Background](#0-background)
 1. [Introduction](#1-introduction)
+  - 1.1. [Global System Overview](#1.1-global-system-overview)
+  - 1.2. [Layering Model and Design Philosophy](#1.2-layering-model-and-design-philosophy)
 2. [Creating New Padding Machines](#2-creating-new-padding-machines)
+  - 2.1. [Registering a New Padding Machine](#2.1-registering-a-new-padding-machine)
+  - 2.2. [Machine Activation and Shutdown](#2.2-machine-activation-and-shutdown)
 3. [Specifying Padding Machines](#3-specifying-padding-machines)
+  - 3.1. Padding Machine States
+  - 3.2. Padding Machine State Transitions
+  - 3.3. Specifying Per-State Padding
+  - 3.4. Specifying Precise Cell Counts
+  - 3.5. Specifying Overhead Limits
 4. [Evaluating Padding Machines](#4-evaluating-padding-machines)
+ - 4.1. Pure Simulation
+ - 4.2. Testing in Chutney
+ - 4.3. Testing in Shadow
+ - 4.4. Testing on the Live Network
 5. [Example Padding Machines](#5-example-padding-machines)
+ - 5.1. Deployed Circuit Setup Machines
+ - 5.2. Adaptive Padding Early
+ - 5.3. A Sketch of Tamaraw
+ - 5.4. Other Padding Machines
 6. [Framework Implementation Details](#6-framework-implementation-details)
+ - 6.1. Memory Allocation and Pointer Lifespans
+ - 6.2. Machine Application Events
 7. [Future Features and Optimizations](#7-future-features-and-optimizations)
+ - 7.1. Load Balancing and Flow Control
+ - 7.2. Timing and Queuing Optimizations
+ - 7.3. Better Machine Negotiation
+ - 7.4. Probabilistic State Transitions
+ - 7.5. Improved Simulation Mechanisms
 8. [Open Research Problems](#8-open-research-problems)
+ - 8.1. Onion Service Client-Side Circuit Setup
+ - 8.2. Onion Service Client-Side Fingerprinting
+ - 8.3. Onion Service Service-Side Circuit Setup
+ - 8.4. Onion Service Service-Side Fingerprinting
+ - 8.5. Open World Fingerprinting
+ - 8.6. Protocol Usage Fingerprinting
+ - 8.7. Side Channel Leakage of Datagram Transports
 
 
-# 0. Background
+## 0. Background
 
 Tor supports both connection-level and circuit-level padding, and both
 systems are live on the network today. The connection-level padding behavior
@@ -98,7 +127,7 @@ If you prefer to learn by example, you may want to skip to either the
 5](#5.ExamplePaddingMachines) for example machines to get you up and running
 quickly.
 
-### 1.2. Layering Model, Design Philosophy, and Design Constraints
+### 1.2. Layering Model and Design Philosophy
 
 The circuit padding framework is meant to provide one layer in a layered
 system of interchangeable components. Because it operates at the Tor circuit
@@ -252,7 +281,7 @@ registered last are checked for activation *before* machines that are
 registered first. (This reverse precedence ordering allows us to
 deprecate older machines simply by adding new ones after them.)
 
-### 2.2. Per-Circuit Machine Activation and Shutdown
+### 2.2. Machine Activation and Shutdown
 
 After a machine has been successfully registered with the framework, it will
 be instantiated on any client-side circuits that support it. Only client-side
@@ -382,7 +411,7 @@ normal operation.
 In this section we will go through the most important elements of that
 structure.
 
-### 3.1 Padding Machine States
+### 3.1. Padding Machine States
 
 A padding machine is a finite state machine where each state
 specifies a different style of padding. Transitions between states occur
@@ -551,7 +580,7 @@ filling in the fields `circpad_machine_spec_t.max_padding_percent` and
 `circpad_machine_spec_t.allowed_padding_count`, which behave identically to
 the consensus parameters, but only apply to that specific machine.
 
-# 4. Evaluating Padding Machines
+## 4. Evaluating Padding Machines
 
 One of the goals of the circuit padding framework is to provide improved
 evaluation and scientific reproducibility for lower cost. This includes both
@@ -580,7 +609,7 @@ preserved as artifacts to be run on the simulator and reproduced on the live
 network by future papers, for journal venues that have an artifact
 preservation policy.
 
-### 4.1. Pure Simulation of Padding Machines
+### 4.1. Pure Simulation
 
 When doing initial tuning of padding machines, especially in adversarial
 settings, variations of a padding machine defense may need to be applied to
@@ -664,7 +693,7 @@ When you run your own clients, and use MiddleNodes to restrict your clients to u
 
 ## 5. Example Padding Machines
 
-### 5.1. Deployed Onion Service Circuit Setup Machines
+### 5.1. Deployed Circuit Setup Machines
 
 Tor currently has two padding machines enabled by default, which aim to hide
 certain features of the client-side onion service circuit setup protocol. For
@@ -861,7 +890,7 @@ the padding machine is shut down, then `circuit_t.padding_info` is still
 properly freed by the call to `circpad_circuit_free_all_machineinfos()`
 in `circuit_free_()`.
 
-#### 6.2. Machine Application Events
+### 6.2. Machine Application Events
 
 The framework checks client-side origin circuits to see if padding machines
 should be activated or terminated during specific event callbacks in
@@ -939,7 +968,7 @@ Additionally, padding cells are not currently subjected to flow control. For
 high amounts of padding, we may want to change this. See [ticket
 31782](https://bugs.torproject.org/31782) for details.
 
-### 7.2. Circuitmux Optimizations
+### 7.2. Timing and Queuing Optimizations
 
 As of this writing (and Tor 0.4.1-stable), the cell event callbacks come from
 post-decryption points in the cell processing codepath, and from the
@@ -965,7 +994,7 @@ that padding should not be sent if there are any cells pending in the cell
 queue, for doing things like extending cell bursts more accurately and with
 less overhead.
 
-### 7.3. Machine Negotiation
+### 7.3. Better Machine Negotiation
 
 Circuit padding is applied to circuits through machine conditions (see
 [Section 2.2](#2.2.Per-CircuitMachineActivationandShutdown)).
@@ -995,7 +1024,7 @@ dimensional, so that an array of next state and probability pairs could be
 provided. If you need this feature, please see
 [ticket 31787](https://bugs.torproject.org/31787).
 
-### 7.5. Improved simulation mechanisms
+### 7.5. Improved Simulation Mechanisms
 
 XXX: Unit test simulator
 
@@ -1011,25 +1040,25 @@ easier/possible is
 [ticket 31788](https://bugs.torproject.org/31788).
 
 
-# 8. Open Research Problems
+## 8. Open Research Problems
 
 XXX: Discuss tuning of WTF-PAD
 
-## 8.1. Onion Service Client-Side Circuit Setup
+### 8.1. Onion Service Client-Side Circuit Setup
 
-## 8.2. Onion Service Client-Side Fingerprinting
+### 8.2. Onion Service Client-Side Fingerprinting
 
-## 8.3. Onion Service Service-Side Circuit Setup
+### 8.3. Onion Service Service-Side Circuit Setup
 
-## 8.4. Onion Service Service-Side Fingerprinting
+### 8.4. Onion Service Service-Side Fingerprinting
 
 XXX: Don't forget to mention studying fingerprinting in combination with vanguards
 
-## 8.5. Open World Fingerprinting
+### 8.5. Open World Fingerprinting
 
-## 8.6. Protocol Usage Fingerprinting
+### 8.6. Protocol Usage Fingerprinting
 
-## 8.7. Side Channel Leakage of Datagram Transports
+### 8.7. Side Channel Leakage of Datagram Transports
 
 https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html
 
