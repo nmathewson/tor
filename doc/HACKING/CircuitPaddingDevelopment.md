@@ -1020,8 +1020,6 @@ See [ticket 31788](https://bugs.torproject.org/31788) for details.
 
 ## 8. Open Research Problems
 
-XXX: Discuss tuning of WTF-PAD. WTF-PAD was never tuned.
-
 ### 8.1. Onion Service Circuit Setup
 
 XXX: Our circuit setup padding does not address timing-based features, only
@@ -1035,6 +1033,12 @@ and your attack paper on fire. ;)
 XXX: Don't forget to mention studying fingerprinting in combination with vanguards
 
 ### 8.3. Open World Fingerprinting
+
+XXX: Discuss tuning of WTF-PAD. WTF-PAD was never tuned. (It didn't need *any*
+tuning to beat classifiers before deep learning).
+
+XXX: We designed this whole framework around ease of representing it as an
+optimization problem. Use that.
 
 ### 8.4. Protocol Usage Fingerprinting
 
