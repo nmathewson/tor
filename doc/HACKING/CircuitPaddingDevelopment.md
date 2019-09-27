@@ -1068,12 +1068,28 @@ this](https://lists.torproject.org/pipermail/tor-dev/2018-November/013562.html)
 
 ## 9. Must Read Papers
 
-These are by far the most important papers in the space, to date. There are
-only four of them, for a reason. Just click on the damn pdfs what could go
-wrong. Chase down what they cite and what cites them if you like, but none of
-it is as important as they are for undetatnading the foundations.
+These are by far the most important papers in the space, to date:
 
  - [Tamaraw](https://www.cypherpunks.ca/~iang/pubs/webfingerprint-ccs14.pdf)
  - [Bayes, Not Naive](https://www.petsymposium.org/2017/papers/issue4/paper50-2017-4-source.pdf)
  - [Anonymity Trilemma](https://eprint.iacr.org/2017/954.pdf)
  - [WTF-PAD](http://arxiv.org/pdf/1512.00524)
+
+Except for WTF-PAD, these papers were selected because they point towards
+optimality bounds that can be benchmarked against.
+
+We cite them even though [we are
+skeptical](#12-layering-model-and-deployment-constraints) that provably
+optimal defenses can be constructed, at least not without trival or
+impractical transforms (such as those that can be created with unbounded queue
+capacity, or stored knowledge of traces for every possible HTTP trace
+on the Internet).
+
+We also are not demanding an optimality or security proof for every defense. 
+
+Instead, we cite the above as benchmarks. We believe the space, especially the
+open world case, to be more akin to an optimization problem, where a
+WTF-PAD-like defense must be tuned through an optimizer to produce results
+comparable to provably optimal but practically unrealizable defenses, through
+rigorous adversarial evaluation.
+
