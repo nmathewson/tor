@@ -29,6 +29,8 @@
 #     "mv fname.c.newdoc fname.c".  Otherwise, you'll need to merge
 #     the parts you like by hand.
 
+from __future__ import print_function
+
 # Which files should we ignore warning from?  Mostly, these are external
 # files that we've snarfed in from somebody else, whose C we do no intend
 # to document for them.
@@ -73,7 +75,7 @@ def parsething(thing):
     else:
         m = THING_RE.match(thing)
         if not m:
-            print thing, "???? Format didn't match."
+            print(thing, "???? Format didn't match.")
             return None, None
         else:
             name, tp, parent = m.groups()
@@ -150,7 +152,7 @@ def checkf(fn, errs):
     """
     for skip in SKIP_FILES:
         if fn.endswith(skip):
-            print "Skipping",fn
+            print("Skipping",fn)
             return
 
     comments = []
@@ -169,8 +171,8 @@ def checkf(fn, errs):
 
         ln = findline(lines, line, name)
         if ln == None:
-            print "Couldn't find the definition of %s allegedly on %s of %s"%(
-                name, line, fn)
+            print("Couldn't find the definition of %s allegedly on %s of %s"%(
+                name, line, fn))
         else:
             if hasdocdoc(lines, line, kind):
 #                print "Has a DOCDOC"
@@ -215,12 +217,12 @@ def applyComments(fn, entries):
         outf.write(line)
     outf.close()
 
-    print "Added %s DOCDOCs to %s" %(N, fn)
+    print("Added %s DOCDOCs to %s" %(N, fn))
 
 e = read()
 
 for fn, errs in e.iteritems():
-    print `(fn, errs)`
+    print(repr((fn, errs)))
     comments = checkf(fn, errs)
     if comments:
         applyComments(fn, comments)
