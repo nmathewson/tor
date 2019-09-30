@@ -223,7 +223,8 @@ def walk_c_files(topdir="src"):
                     for err in consider_include_rules(fullpath, f):
                         yield err
 
-def run_check_includes(topdir, list_unused=False, log_sorted_levels=False,
+def run_check_includes(topdir, list_unused=False,
+                       log_sorted_levels=0,
                        list_advisories=False):
     trouble = False
 
@@ -254,7 +255,11 @@ def run_check_includes(topdir, list_unused=False, log_sorted_levels=False,
     if log_sorted_levels:
         for (n, cur_level) in enumerate(all_levels):
             if cur_level:
-                print(n, cur_level)
+                if log_sorted_levels == 1:
+                    print(n, cur_level)
+                else:
+                    for entry in cur_level:
+                        print(n, entry)
 
     if uses_dirs:
         print("There are circular .may_include dependencies in here somewhere:",
@@ -266,8 +271,12 @@ def main(argv):
 
     progname = argv[0]
     parser = argparse.ArgumentParser(prog=progname)
-    parser.add_argument("--toposort", action="store_true",
+    parser.add_argument("--toposort", action="store_const",
+                        dest="toposort", const=1,
                         help="Print a topologically sorted list of modules")
+    parser.add_argument("--toposort-verbose", action="store_const",
+                        dest="toposort", const=2,
+                        help="Print sorted list of modules in more parseable format")
     parser.add_argument("--list-unused", action="store_true",
                         help="List unused lines in .may_include files.")
     parser.add_argument("--list-advisories", action="store_true",
