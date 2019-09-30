@@ -2481,6 +2481,7 @@ static const struct {
   { "--list-deprecated-options",TAKES_NO_ARGUMENT },
   { "--nt-service",           TAKES_NO_ARGUMENT },
   { "-nt-service",            TAKES_NO_ARGUMENT },
+  { "--dbg-dump-subsystem-list",  TAKES_NO_ARGUMENT },
   { NULL, 0 },
 };
 
@@ -5219,6 +5220,10 @@ options_init_from_torrc(int argc, char **argv)
   if (config_line_find(cmdline_only_options, "--list-deprecated-options")) {
     /* For validating whether what we have deprecated really exists. */
     list_deprecated_options();
+    return 1;
+  }
+  if (config_line_find(cmdline_only_options, "--dbg-dump-subsystem-list")) {
+    subsystems_dump_list();
     return 1;
   }
 

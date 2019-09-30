@@ -564,6 +564,7 @@ tor_init(int argc, char *argv[])
           !strcmp(cl->key, "--library-versions") ||
           !strcmp(cl->key, "--list-modules") ||
           !strcmp(cl->key, "--hash-password") ||
+          !strcmp(cl->key, "--dbg-dump-subsystem-list") ||
           !strcmp(cl->key, "-h") || !strcmp(cl->key, "--help")) {
         if (quiet < 1)
           quiet = 1;
