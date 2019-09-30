@@ -26,4 +26,6 @@ void subsystems_prefork(void);
 void subsystems_postfork(void);
 void subsystems_thread_cleanup(void);
 
+void subsystems_dump_list(void);
+
 #endif /* !defined(TOR_SUBSYSMGR_T) */
