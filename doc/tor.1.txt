@@ -145,6 +145,12 @@ COMMAND-LINE OPTIONS
     For example, the output sent to stdout will be of the form:
     "signing-cert-expiry: 2017-07-25 08:30:15 UTC"
 
+[[opt-dbg]] **--dbg-**...::
+    Tor may support other options beginning with the string "dbg". These
+    are intended for use by developers to debug and test Tor. They are
+    not supported or guaranteed to be stable, and you should probably
+    not use them.
+
 Other options can be specified on the command-line in the format "--option
 value", in the format "option value", or in a configuration file.  For
 instance, you can tell Tor to start listening for SOCKS connections on port
