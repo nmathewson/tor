@@ -343,10 +343,10 @@ support your own padding machines. This can be accomplished by using the
 `MiddleNodes` directive; see [Section 4](#4-evaluating-padding-machines) for more information.
 
 If the protocol support check passes for the circuit, then the client sends a
-RELAY_COMMAND_PADDING_NEGOTIATE cell towards the
+`RELAY_COMMAND_PADDING_NEGOTIATE` cell towards the
 `circpad_machine_spec_t.target_hop` relay, and immediately enables the
 padding machine, and may begin sending padding. (The framework does not wait
-for RELAY_COMMAND_PADDING_NEGOTIATED response to begin padding so that we can
+for `RELAY_COMMAND_PADDING_NEGOTIATED` response to begin padding so that we can
 switch between machines rapidly.)
 
 #### 2.2.3. Machine Shutdown Mechanisms
@@ -879,7 +879,7 @@ condition can happen. This is
 [known bug #30992](https://bugs.torproject.org/30992).
 
 When the relay side decides to shut down a machine, it sends a
-RELAY_COMMAND_PADDING_NEGOTIATED towards the client. If this cell matches the
+`RELAY_COMMAND_PADDING_NEGOTIATED` towards the client. If this cell matches the
 current machine number on the client, that machine is torn down, by freeing
 the `circuit_t.padding_info` slot and immediately setting
 `circuit_t.padding_machine` slot to NULL.
@@ -922,7 +922,7 @@ The machine application event callbacks are prefixed by `circpad_machine_event_`
   - `circpad_machine_event_circ_purpose_changed()`: Called when a circuit
     changes purpose.
   - `circpad_machine_event_circ_has_no_relay_early()`: Called when a circuit
-    runs out of RELAY_EARLY cells.
+    runs out of `RELAY_EARLY` cells.
   - `circpad_machine_event_circ_has_streams()`: Called when a circuit gets a
     stream attached.
   - `circpad_machine_event_circ_has_no_streams()`: Called when the last
