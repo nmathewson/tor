@@ -470,11 +470,12 @@ that can be used to transition between states:
 ### 3.3. Specifying Per-State Padding
 
 Each state of a padding machine specifies either:
-  * A padding histogram describing inter-arrival cell delays; OR
-  * A parameterized delay probability distribution for inter-arrival cell
-    delays
+  * A padding histogram describing inter-transmission delays between cells;
+d     OR
+  * A parameterized delay probability distribution for inter-transmission
+    delays between cells.
 
-Either mechanism specifies essentially the *minimum inter-arrival time*
+Either mechanism specifies essentially the *minimum inter-transmission time*
 distribution. If non-padding traffic does not get transmitted from this
 endpoint before the delay value sampled from this distribution expires, a
 padding packet is sent.
@@ -518,23 +519,24 @@ concept.
 
 If a histogram is used by a state (as opposed to a fixed parameterized
 distribution), then the developer must use the
-[histogram related fields](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L285)
+[histogram-related fields](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L285)
 of the `circpad_state_t` structure.
 
-The width of a histogram specifies the range of inter-packet delay times,
+The width of a histogram bin specifies the range of inter-packet delay times,
 whereas its height specifies the amount of tokens in each bin. To sample a
 padding delay from a histogram, we first randomly pick a bin (weighted by the
 amount of tokens in each bin) and then sample a delay from within that bin by
 picking a uniformly random delay using the width of the bin as the range.
 
-Each histogram also has an ''infinity bin'' as its final bin, and if that's
-chosen then we don't schedule any padding (i.e. we schedule padding with
-infinite delay). If the developer does not want infinite delay, then they can
-just not give any tokens to the ''infinity bin''.
+Each histogram also has an ''infinity bin'' as its final bin.  If the
+''infinity bin'' is chosen,
+we don't schedule any padding (i.e., we schedule padding with
+infinite delay). If the developer does not want infinite delay, they
+should not give any tokens to the ''infinity bin''.
 
 If a token removal strategy is specified (via the
 `circpad_state_t.token_removal` field), each time padding is sent using a
-histogram, the padding machine should remove a token from the appropriate
+histogram, the padding machine will remove a token from the appropriate
 histogram bin whenever this endpoint sends *either a padding packet or a
 non-padding packet*. The different removal strategies govern what to do when
 the bin corresponding to the current inter-packet delay is empty.
@@ -587,7 +589,7 @@ the consensus parameters, but only apply to that specific machine.
 One of the goals of the circuit padding framework is to provide improved
 evaluation and scientific reproducibility for lower cost. This includes both
 the choice of the compact C structure representation (which has an
-easy-to-produce bitstring equivalent representation for optimization by
+easy-to-produce bitstring representation for optimization by
 gradient descent, GAs, or GANs), as well as rapid prototyping and evaluation.
 
 So far, whenever evaluation cost has been a barrier, each research group has
@@ -604,12 +606,12 @@ defenses are in fact true-to-form or even properly calibrated for direct
 comparison, and discrepancies in results across the literature suggests
 this is not always so.
 
-Our preferred outcome with this framework is that machines are tuned and
-optimized on a tracing simulator, but final results come from an actual live
-network test of the defense. The traces from this final crawl should be
-preserved as artifacts to be run on the simulator and reproduced on the live
-network by future papers, for journal venues that have an artifact
-preservation policy.
+Our preferred outcome with this framework would be that machines are tuned
+and optimized on a tracing simulator, but that the final results come from
+an actual live network test of the defense. The traces from this final crawl
+should be preserved as artifacts to be run on the simulator and reproduced
+on the live network by future papers, ideally in journal venues that have an
+artifact preservation policy.
 
 ### 4.1. Pure Simulation
 
@@ -675,10 +677,10 @@ Live network testing is the gold standard for verifying that any attack or
 defense is behaving as expected, to minimize the influence of simplifying
 assumptions.
 
-However, it is not ethical, or even possible, to run high-resolution traffic
-analysis attacks on the entire Tor network. But, it is both ethical and
-possible to run small scale experiments that target only your own clients,
-who will only use your own Tor relays that support your new padding
+However, it is not ethical, or necessarily possible, to run high-resolution
+traffic analysis attacks on the entire Tor network. But it is both ethical
+and possible to run small scale experiments that target only your own
+clients, who will only use your own Tor relays that support your new padding
 machines.
 
 We provide the `MiddleNodes` torrc directive to enable this, which will allow
@@ -690,7 +692,9 @@ set. (The
 [vanguards addon](https://github.com/mikeperry-tor/vanguards/README_TECHNICAL.md)
 will set `HSLayer2Nodes`.)
 
-When you run your own clients, and use MiddleNodes to restrict your clients to use your relays, you can perform live network evaluations of a defense applied to whatever traffic crawl or activity your clients do.
+When you run your own clients, and use MiddleNodes to restrict your clients
+to use your relays, you can perform live network evaluations of a defense
+applied to whatever traffic crawl or activity your clients do.
 
 ## 5. Example Padding Machines
 
@@ -984,6 +988,10 @@ description of this problem, and an experimental branch that changes the cell
 event callback locations to be from circuitmux post-queue, which with KIST,
 should be an accurate reflection of when they are actually sent on the wire.
 
+To make matters worse, Tor's current timers are not as precise as some
+padding designs would require.  Even if we solve the queuing issues, we
+will still have issues of timing precision to solve.
+
 If your padding machine and problem space depends on very accurate notions of
 relay-side packet timing, please try that branch and let us know on the
 ticket if you need any further assistance fixing it up.
@@ -1090,7 +1098,7 @@ on the Internet).
 We also are not demanding an optimality or security proof for every defense.
 
 Instead, we cite the above as benchmarks. We believe the space, especially the
-open world case, to be more akin to an optimization problem, where a
+open-world case, to be more akin to an optimization problem, where a
 WTF-PAD-like defense must be tuned through an optimizer to produce results
 comparable to provably optimal but practically unrealizable defenses, through
 rigorous adversarial evaluation.
