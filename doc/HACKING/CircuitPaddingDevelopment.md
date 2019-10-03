@@ -130,7 +130,7 @@ quickly.
 ### 1.2. Layering Model and Deployment Constraints
 
 The circuit padding framework is designed to provide one layer in a layered
-system of interchangeable components. 
+system of interchangeable components.
 
 The circuit padding framework operates at the Tor circuit layer. It only deals
 with the inter-cell timings and quantity of cells sent on a circuit. It can
@@ -184,7 +184,7 @@ On the other hand, through [load
 balancing](https://gitweb.torproject.org/torspec.git/tree/proposals/265-load-balancing-with-overhead.txt)
 and [circuit multiplexing strategies](https://bugs.torproject.org/29494), we
 believe it is possible to add significant bandwidth overhead in the form of
-cover traffic, without significantly impacting end-user performance. 
+cover traffic, without significantly impacting end-user performance.
 
 For these reasons, we believe the trade-off should be in favor of adding more
 cover traffic, rather than imposing queuing overhead and queuing delay.
@@ -255,7 +255,7 @@ To create a new padding machine, you must:
 Again, a circuit padding machine is designed to be specified entirely as a single
 C structure.
 
-Your machine definitions should go into their own functions in 
+Your machine definitions should go into their own functions in
 [circuitpadding_machines.c](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding_machines.c). For
 details on all of the fields involved in specifying a padding machine, see
 [Section 3](#3-specifying-padding-machines).
@@ -296,14 +296,14 @@ conditions under which your machine will be attached and enabled on a Tor
 circuit, and when it gets shut down.
 
 *All* of your explicitly specified conditions in
- `circpad_machine_spec_t.conditions` *must* be met for the machine to be
- applied to a circuit. If *any* condition ceases to be met, then the machine
- is shut down.  (This is checked on every event that arrives, even if the
- condition is unrelated to the event.)
- Another way to look at this is that
- all specified conditions must evaluate to true for the entire duration that
- your machine is running. If any are false, your machine does not run (or
- stops running and shuts down).
+`circpad_machine_spec_t.conditions` *must* be met for the machine to be
+applied to a circuit. If *any* condition ceases to be met, then the machine
+is shut down.  (This is checked on every event that arrives, even if the
+condition is unrelated to the event.)
+Another way to look at this is that
+all specified conditions must evaluate to true for the entire duration that
+your machine is running. If any are false, your machine does not run (or
+stops running and shuts down).
 
 In particular, as part of the
 [circpad_machine_conditions_t structure](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.h#L149),
@@ -416,7 +416,7 @@ structure.
 ### 3.1. Padding Machine States
 
 A padding machine is a finite state machine where each state
-specifies a different style of padding. 
+specifies a different style of padding.
 
 As an example of a simple padding machine, you could have a state machine
 with the following states: `[START] -> [SETUP] -> [HTTP] -> [END]` where the
@@ -448,7 +448,7 @@ State transitions are specified using the
 [next_state field](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.h#L381)
 of the `circpad_state_t` structure. As a simplistic example, to transition
 from state `A` to state `B` when event `E` occurs, you should implement the
-following code: `A.next_state[E] = B`. 
+following code: `A.next_state[E] = B`.
 
 #### 3.2.1. State Transition Events
 
@@ -1015,7 +1015,7 @@ one could imagine a state machine that uses probabilistic transitions between
 states to simulate a random walk or Hidden Markov Model traversal across
 several pages.
 
-The simplest way to implement this is to make  the `circpad_state_t.next_state` array 
+The simplest way to implement this is to make  the `circpad_state_t.next_state` array
 into an array of structs that have a next state field, and a probability to
 transition to that state.
 
@@ -1085,11 +1085,10 @@ impractical transforms (such as those that can be created with unbounded queue
 capacity, or stored knowledge of traces for every possible HTTP trace
 on the Internet).
 
-We also are not demanding an optimality or security proof for every defense. 
+We also are not demanding an optimality or security proof for every defense.
 
 Instead, we cite the above as benchmarks. We believe the space, especially the
 open world case, to be more akin to an optimization problem, where a
 WTF-PAD-like defense must be tuned through an optimizer to produce results
 comparable to provably optimal but practically unrealizable defenses, through
 rigorous adversarial evaluation.
-
