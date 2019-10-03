@@ -346,7 +346,8 @@ If the protocol support check passes for the circuit, then the client sends a
 `RELAY_COMMAND_PADDING_NEGOTIATE` cell towards the
 `circpad_machine_spec_t.target_hop` relay, and immediately enables the
 padding machine, and may begin sending padding. (The framework does not wait
-for `RELAY_COMMAND_PADDING_NEGOTIATED` response to begin padding so that we can
+for the `RELAY_COMMAND_PADDING_NEGOTIATED` response to begin padding,
+so that we can
 switch between machines rapidly.)
 
 #### 2.2.3. Machine Shutdown Mechanisms
@@ -365,19 +366,19 @@ the other side, indicating that shutdown has occurred. The client side sends
 `RELAY_COMMAND_PADDING_NEGOTIATE`, and the relay side sends
 `RELAY_COMMAND_PADDING_NEGOTIATED`.
 
-Because padding from malicious Exit nodes can be used to construct active
-timing-based side channels to malicious Guard nodes, the client checks that
+Because padding from malicious exit nodes can be used to construct active
+timing-based side channels to malicious guard nodes, the client checks that
 padding-related cells only come from relays with active padding machines.
 For this reason, when a client decides to shut down a padding machine,
 the framework frees the mutable `circuit_t.padding_info`, but leaves the
 `circuit_t.padding_machine` pointer set until the
 `RELAY_COMMAND_PADDING_NEGOTIATED` response comes back, to ensure that any
-remaining in-flight padding packets are recognized as being valid. Tor does
+remaining in-flight padding packets are recognized a valid. Tor does
 not yet close circuits due to violation of this property, but the
-[vanguards addon bandguard component](https://github.com/mikeperry-tor/vanguards/blob/master/README_TECHNICAL.md#the-bandguards-subsystem)
+[vanguards addon component "bandguard"](https://github.com/mikeperry-tor/vanguards/blob/master/README_TECHNICAL.md#the-bandguards-subsystem)
 does.
 
-As an optimization, a client is allowed to replace a machine with another, by
+As an optimization, a client may replace a machine with another, by
 sending a `RELAY_COMMAND_PADDING_NEGOTIATE` cell to shut down a machine, and
 immediately sending a `RELAY_COMMAND_PADDING_NEGOTIATE` to start a new machine
 in the same index, without waiting for the response from the first negotiate
@@ -405,12 +406,12 @@ If you prefer to learn by example first instead, you may wish to skip to
 
 A padding machine is specified by filling in an instance of
 [circpad_machine_spec_t](https://github.com/torproject/tor/blob/35e978da61efa04af9a5ab2399dff863bc6fb20a/src/core/or/circuitpadding.h#L605). Instances
-of this structure specify the precise functionality of a machine, and it's
-what the circuit padding developer is called to write. Instances of structure
+of this structure specify the precise functionality of a machine: it's
+what the circuit padding developer is called to write. These instances
 are created only at startup, and are referenced via `const` pointers during
 normal operation.
 
-In this section we will go through the most important elements of that
+In this section we will go through the most important elements of this
 structure.
 
 ### 3.1. Padding Machine States
@@ -432,22 +433,22 @@ machine state is described by a
 and each such structure specifies the style and amount of padding to be sent,
 as well as the possible state transitions.
 
-The function `circpad_machine_states_init()` must be used for allocation and
-initialization `circpad_machine_spec_t.states` array field before states and
-state transitions can get defined, as some of the state object has non-zero
-initial values.
+The function `circpad_machine_states_init()` must be used for allocating and
+initializing the `circpad_machine_spec_t.states` array before states and
+state transitions can be defined, as some of the state object has non-zero
+default values.
 
 ### 3.2. Padding Machine State Transitions
 
-As described above, padding machines can have multiple states so that they
-can support different forms of padding. Machines can transition between
-states based on certain events that occur either on the circuit-level or on
+As described above, padding machines can have multiple states, to
+support different forms of padding. Machines can transition between
+states based on events that occur either on the circuit level or on
 the machine level.
 
 State transitions are specified using the
 [next_state field](https://github.com/torproject/tor/blob/master/src/core/or/circuitpadding.h#L381)
-of the `circpad_state_t` structure. As a simplistic example, to transition
-from state `A` to state `B` when event `E` occurs, you should implement the
+of the `circpad_state_t` structure. As a simple example, to transition
+from state `A` to state `B` when event `E` occurs, you would use the
 following code: `A.next_state[E] = B`.
 
 #### 3.2.1. State Transition Events
@@ -478,16 +479,17 @@ distribution. If non-padding traffic does not get transmitted from this
 endpoint before the delay value sampled from this distribution expires, a
 padding packet is sent.
 
-Picking between histograms and probability distributions can be subtle. A
+The choice between histograms and probability distributions can be subtle. A
 rule of thumb is that probability distributions are easy to specify and
 consume very little memory, but might not be able to describe certain types
-of intricate padding logic. Histograms on the other hand can support precise
+of complex padding logic. Histograms, in contrast, can support precise
 packet-count oriented or multimodal delay schemes, and can use token removal
 logic to reduce overhead and shape the total padding+non-padding inter-packet
 delay distribution towards an overall target distribution.
 
-We suggest you start with a probability distribution if possible, and if it
-doesn't suit your needs you move to a histogram-based approach.
+We suggest that you start with a probability distribution if possible, and
+you move to a histogram-based approach only if a probability distribution
+does not suit your needs.
 
 #### 3.3.1. Padding Probability Distributions
 
