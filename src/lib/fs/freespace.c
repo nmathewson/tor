@@ -23,41 +23,39 @@
 #include <string.h>
 
 /** Return the amount of free disk space we have permission to use, in
- * bytes. Return -1 if the amount of free space can't be determined. */
+* bytes. Return -1 if the amount of free space can't be determined. */
 int64_t
 tor_get_avail_disk_space(const char *path)
 {
 #ifdef HAVE_STATVFS
-  struct statvfs st;
-  int r;
-  memset(&st, 0, sizeof(st));
+    struct statvfs st;
+    int r;
+    memset(&st, 0, sizeof(st));
 
-  r = statvfs(path, &st);
-  if (r < 0)
-    return -1;
+    r = statvfs(path, &st);
+    if (r < 0)
+        return -1;
 
-  int64_t result = st.f_bavail;
-  if (st.f_frsize) {
-    result *= st.f_frsize;
-  } else if (st.f_bsize) {
-    result *= st.f_bsize;
-  } else {
-    return -1;
-  }
+    int64_t result = st.f_bavail;
+    if (st.f_frsize)
+        result *= st.f_frsize;
+    else if (st.f_bsize)
+        result *= st.f_bsize;
+    else
+        return -1;
 
-  return result;
+    return result;
 #elif defined(_WIN32)
-  ULARGE_INTEGER freeBytesAvail;
-  BOOL ok;
+    ULARGE_INTEGER freeBytesAvail;
+    BOOL ok;
 
-  ok = GetDiskFreeSpaceEx(path, &freeBytesAvail, NULL, NULL);
-  if (!ok) {
-    return -1;
-  }
-  return (int64_t)freeBytesAvail.QuadPart;
+    ok = GetDiskFreeSpaceEx(path, &freeBytesAvail, NULL, NULL);
+    if (!ok)
+        return -1;
+    return (int64_t)freeBytesAvail.QuadPart;
 #else
-  (void)path;
-  errno = ENOSYS;
-  return -1;
+    (void)path;
+    errno = ENOSYS;
+    return -1;
 #endif /* defined(HAVE_STATVFS) || ... */
 }

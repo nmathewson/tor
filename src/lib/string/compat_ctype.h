@@ -17,12 +17,12 @@
 /* Much of the time when we're checking ctypes, we're doing spec compliance,
  * which all assumes we're doing ASCII. */
 #define DECLARE_CTYPE_FN(name)                                          \
-  static int TOR_##name(char c);                                        \
-  extern const uint32_t TOR_##name##_TABLE[];                           \
-  static inline int TOR_##name(char c) {                                \
-    uint8_t u = c;                                                      \
-    return !!(TOR_##name##_TABLE[(u >> 5) & 7] & (1u << (u & 31)));     \
-  }
+    static int TOR_ ## name(char c);                                        \
+    extern const uint32_t TOR_ ## name ## _TABLE[];                           \
+    static inline int TOR_ ## name(char c) {                                \
+        uint8_t u = c;                                                      \
+        return !!(TOR_ ## name ## _TABLE[(u >> 5) & 7] & (1u << (u & 31)));     \
+    }
 DECLARE_CTYPE_FN(ISALPHA)
 DECLARE_CTYPE_FN(ISALNUM)
 DECLARE_CTYPE_FN(ISSPACE)
@@ -42,7 +42,7 @@ static inline int hex_decode_digit(char c);
 static inline int
 hex_decode_digit(char c)
 {
-  switch (c) {
+    switch (c) {
     case '0': return 0;
     case '1': return 1;
     case '2': return 2;
@@ -60,8 +60,8 @@ hex_decode_digit(char c)
     case 'E': case 'e': return 14;
     case 'F': case 'f': return 15;
     default:
-      return -1;
-  }
+        return -1;
+    }
 }
 
 #endif /* !defined(TOR_COMPAT_CTYPE_H) */

@@ -21,14 +21,12 @@ struct ed25519_signature_t;
 
 int crypto_write_tagged_contents_to_file(const char *fname,
                                          const char *typestring,
-                                         const char *tag,
-                                         const uint8_t *data,
+                                         const char *tag, const uint8_t *data,
                                          size_t datalen);
 
 ssize_t crypto_read_tagged_contents_from_file(const char *fname,
                                               const char *typestring,
-                                              char **tag_out,
-                                              uint8_t *data_out,
+                                              char **tag_out, uint8_t *data_out,
                                               ssize_t data_out_len);
 
 int ed25519_public_from_base64(struct ed25519_public_key_t *pkey,

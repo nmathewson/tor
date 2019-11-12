@@ -24,7 +24,6 @@
  * this function is merely a mockable wrapper for POSIX gethostname().)
  */
 MOCK_IMPL(int,
-tor_gethostname,(char *name, size_t namelen))
-{
-   return gethostname(name,namelen);
+          tor_gethostname, (char *name, size_t namelen)){
+    return gethostname(name, namelen);
 }

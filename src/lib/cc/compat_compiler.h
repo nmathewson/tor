@@ -32,20 +32,20 @@
 #error "It seems your platform does not represent 0.0 as zeros. We can't cope."
 #endif
 
-#if 'a'!=97 || 'z'!=122 || 'A'!=65 || ' '!=32
+#if 'a' != 97 || 'z' != 122 || 'A' != 65 || ' ' != 32
 #error "It seems that you encode characters in something other than ASCII."
 #endif
 
 /* GCC can check printf and scanf types on arbitrary functions. */
 #ifdef __GNUC__
 #define CHECK_PRINTF(formatIdx, firstArg) \
-   __attribute__ ((format(printf, formatIdx, firstArg)))
+    __attribute__ ((format(printf, formatIdx, firstArg)))
 #else
 #define CHECK_PRINTF(formatIdx, firstArg)
 #endif /* defined(__GNUC__) */
 #ifdef __GNUC__
 #define CHECK_SCANF(formatIdx, firstArg) \
-   __attribute__ ((format(scanf, formatIdx, firstArg)))
+    __attribute__ ((format(scanf, formatIdx, firstArg)))
 #else
 #define CHECK_SCANF(formatIdx, firstArg)
 #endif /* defined(__GNUC__) */
@@ -60,9 +60,9 @@
 /* Temporarily enable and disable warnings. */
 #ifdef __GNUC__
 #  define PRAGMA_STRINGIFY_(s) #s
-#  define PRAGMA_JOIN_STRINGIFY_(a,b) PRAGMA_STRINGIFY_(a ## b)
+#  define PRAGMA_JOIN_STRINGIFY_(a, b) PRAGMA_STRINGIFY_(a ## b)
 /* Support for macro-generated pragmas (c99) */
-#  define PRAGMA_(x) _Pragma (#x)
+#  define PRAGMA_(x) _Pragma(#x)
 #  ifdef __clang__
 #    define PRAGMA_DIAGNOSTIC_(x) PRAGMA_(clang diagnostic x)
 #  else
@@ -71,16 +71,16 @@
 #  if defined(__clang__) || GCC_VERSION >= 406
 /* we have push/pop support */
 #    define DISABLE_GCC_WARNING(warningopt) \
-          PRAGMA_DIAGNOSTIC_(push) \
-          PRAGMA_DIAGNOSTIC_(ignored PRAGMA_JOIN_STRINGIFY_(-W,warningopt))
+    PRAGMA_DIAGNOSTIC_(push) \
+    PRAGMA_DIAGNOSTIC_(ignored PRAGMA_JOIN_STRINGIFY_(-W, warningopt))
 #    define ENABLE_GCC_WARNING(warningopt) \
-          PRAGMA_DIAGNOSTIC_(pop)
+    PRAGMA_DIAGNOSTIC_(pop)
 #else /* !(defined(__clang__) || GCC_VERSION >= 406) */
 /* older version of gcc: no push/pop support. */
 #    define DISABLE_GCC_WARNING(warningopt) \
-         PRAGMA_DIAGNOSTIC_(ignored PRAGMA_JOIN_STRINGIFY_(-W,warningopt))
+    PRAGMA_DIAGNOSTIC_(ignored PRAGMA_JOIN_STRINGIFY_(-W, warningopt))
 #    define ENABLE_GCC_WARNING(warningopt) \
-         PRAGMA_DIAGNOSTIC_(warning PRAGMA_JOIN_STRINGIFY_(-W,warningopt))
+    PRAGMA_DIAGNOSTIC_(warning PRAGMA_JOIN_STRINGIFY_(-W, warningopt))
 #endif /* defined(__clang__) || GCC_VERSION >= 406 */
 #else /* !defined(__GNUC__) */
 /* not gcc at all */
@@ -168,7 +168,7 @@
 #ifdef __GNUC__
 /** STMT_BEGIN and STMT_END are used to wrap blocks inside macros so that
  * the macro can be used as if it were a single C statement. */
-#define STMT_BEGIN (void) ({
+#define STMT_BEGIN (void)({
 #define STMT_END })
 #elif defined(sun) || defined(__sun__)
 #define STMT_BEGIN if (1) {
@@ -183,7 +183,8 @@
 #define OP_LT <
 #define OP_GT >
 #define OP_GE >=
-#define OP_LE <=
+#define OP_LE \
+    <=
 #define OP_EQ ==
 #define OP_NE !=
 
@@ -191,16 +192,16 @@
 #define MINGW_ANY
 #endif
 
-/** Macro: yield a pointer to the field at position <b>off</b> within the
- * structure <b>st</b>.  Example:
- * <pre>
- *   struct a { int foo; int bar; } x;
- *   ptrdiff_t bar_offset = offsetof(struct a, bar);
- *   int *bar_p = STRUCT_VAR_P(&x, bar_offset);
- *   *bar_p = 3;
- * </pre>
- */
-#define STRUCT_VAR_P(st, off) ((void*) ( ((char*)(st)) + (off) ) )
+/** Macro: yield a pointer to the field at position <b>off < / b > within the
+*structure <b>st</ b>.Example:
+* < pre >
+*struct a { int foo; int bar; } x;
+*ptrdiff_t bar_offset = offsetof(struct a, bar);
+*int *bar_p = STRUCT_VAR_P(&x, bar_offset);
+**bar_p = 3;
+* < / pre >
+* /
+#define STRUCT_VAR_P(st, off) ((void *)(((char *)(st)) + (off)))
 
 /** Macro: yield a pointer to an enclosing structure given a pointer to
  * a substructure at offset <b>off</b>. Example:
@@ -212,7 +213,7 @@
  * </pre>
  */
 #define SUBTYPE_P(p, subtype, basemember) \
-  ((void*) ( ((char*)(p)) - offsetof(subtype, basemember) ))
+    ((void *)(((char *)(p)) - offsetof(subtype, basemember)))
 
 /** Macro: Yields the number of elements in array x. */
 #define ARRAY_LENGTH(x) ((sizeof(x)) / sizeof(x[0]))
@@ -227,6 +228,6 @@
  * a trailing semicolon afterwards.
  **/
 #define EAT_SEMICOLON                                   \
-  struct dummy_semicolon_eater__
+    struct dummy_semicolon_eater__
 
 #endif /* !defined(TOR_COMPAT_COMPILER_H) */

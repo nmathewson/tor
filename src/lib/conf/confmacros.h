@@ -20,7 +20,7 @@
  * Used to indicate the end of an array of configuration variables.
  **/
 #define END_OF_CONFIG_VARS                                      \
-  { .member = { .name = NULL } DUMMY_CONF_TEST_MEMBERS }
+    { .member = { .name = NULL } DUMMY_CONF_TEST_MEMBERS }
 #endif /* !defined(COCCI) */
 
 /**
@@ -34,15 +34,15 @@
  **/
 #define CONFIG_VAR_ETYPE(structtype, varname, vartype, membername,      \
                          varflags, initval)                             \
-  { .member =                                                           \
-    { .name = varname,                                                  \
-      .type = CONFIG_TYPE_ ## vartype,                                  \
-      .offset = offsetof(structtype, membername),                       \
-    },                                                                  \
-    .flags = varflags,                                                  \
-    .initvalue = initval                                                \
-    CONF_TEST_MEMBERS(structtype, vartype, membername)                  \
-  }
+    { .member =                                                           \
+      { .name   = varname,                                                  \
+      .type   = CONFIG_TYPE_ ## vartype,                                  \
+      .offset = offsetof(structtype,     membername),                       \
+      },                                                                  \
+      .flags = varflags,                                                  \
+      .initvalue = initval                                                \
+                   CONF_TEST_MEMBERS(structtype, vartype, membername)                  \
+    }
 
 /**
  * As CONFIG_VAR_ETYPE, but declares a value using an extension type whose
@@ -50,23 +50,23 @@
  **/
 #define CONFIG_VAR_DEFN(structtype, varname, vartype, membername,       \
                         varflags, initval)                              \
-  { .member =                                                           \
-    { .name = varname,                                                \
-      .type = CONFIG_TYPE_EXTENDED,                                     \
+    { .member =                                                           \
+      { .name     = varname,                                                \
+      .type     = CONFIG_TYPE_EXTENDED,                                     \
       .type_def = &vartype ## _type_defn,                               \
-      .offset = offsetof(structtype, membername),                       \
-    },                                                                  \
-    .flags = varflags,                                                  \
-    .initvalue = initval                                                \
-    CONF_TEST_MEMBERS(structtype, vartype, membername)                  \
-  }
+      .offset   = offsetof(structtype,    membername),                       \
+      },                                                                  \
+      .flags = varflags,                                                  \
+      .initvalue = initval                                                \
+                   CONF_TEST_MEMBERS(structtype, vartype, membername)                  \
+    }
 
 /**
  * Declare an obsolete configuration variable with a given name.
  **/
 #define CONFIG_VAR_OBSOLETE(varname)            \
-  { .member = { .name = varname, .type = CONFIG_TYPE_OBSOLETE },        \
-    .flags = CFLG_GROUP_OBSOLETE                                        \
-  }
+    { .member = { .name = varname, .type = CONFIG_TYPE_OBSOLETE },        \
+      .flags = CFLG_GROUP_OBSOLETE                                        \
+    }
 
 #endif /* !defined(TOR_LIB_CONF_CONFMACROS_H) */

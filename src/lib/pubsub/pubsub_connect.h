@@ -27,23 +27,13 @@ struct pub_binding_t;
  **/
 typedef struct pubsub_connector_t pubsub_connector_t;
 
-int pubsub_add_pub_(struct pubsub_connector_t *con,
-                    struct pub_binding_t *out,
-                    channel_id_t channel,
-                    message_id_t msg,
-                    msg_type_id_t type,
-                    unsigned flags,
-                    const char *file,
-                    unsigned line);
+int pubsub_add_pub_(struct pubsub_connector_t *con, struct pub_binding_t *out,
+                    channel_id_t channel, message_id_t msg, msg_type_id_t type,
+                    unsigned flags, const char *file, unsigned line);
 
-int pubsub_add_sub_(struct pubsub_connector_t *con,
-                    recv_fn_t recv_fn,
-                    channel_id_t channel,
-                    message_id_t msg,
-                    msg_type_id_t type,
-                    unsigned flags,
-                    const char *file,
-                    unsigned line);
+int pubsub_add_sub_(struct pubsub_connector_t *con, recv_fn_t recv_fn,
+                    channel_id_t channel, message_id_t msg, msg_type_id_t type,
+                    unsigned flags, const char *file, unsigned line);
 
 int pubsub_connector_register_type_(struct pubsub_connector_t *,
                                     msg_type_id_t,

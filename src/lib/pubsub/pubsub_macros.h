@@ -171,9 +171,9 @@
  * future if need be.
  */
 #define DECLARE_MESSAGE_COMMON__(messagename, typename, c_type)         \
-  typedef c_type msg_arg_type__ ##messagename;                          \
-  typedef const c_type msg_arg_consttype__ ##messagename;               \
-  ATTR_UNUSED static const char msg_arg_name__ ##messagename[] = # typename;
+    typedef c_type msg_arg_type__ ## messagename;                          \
+    typedef const c_type msg_arg_consttype__ ## messagename;               \
+    ATTR_UNUSED static const char msg_arg_name__ ## messagename[] = # typename;
 
 /**
  * Use this macro in a header to declare the existence of a given message,
@@ -190,18 +190,18 @@
  * The "*" needs to be included.
  */
 #define DECLARE_MESSAGE(messagename, typename, c_ptr_type)              \
-  DECLARE_MESSAGE_COMMON__(messagename, typename, c_ptr_type)           \
-  ATTR_UNUSED static inline c_ptr_type                                  \
-  msg_arg_get__ ##messagename(msg_aux_data_t m)                         \
-  {                                                                     \
-    return m.ptr;                                                       \
-  }                                                                     \
-  ATTR_UNUSED static inline void                                        \
-  msg_arg_set__ ##messagename(msg_aux_data_t *m, c_ptr_type v)          \
-  {                                                                     \
-    m->ptr = v;                                                         \
-  }                                                                     \
-  EAT_SEMICOLON
+    DECLARE_MESSAGE_COMMON__(messagename, typename, c_ptr_type)           \
+    ATTR_UNUSED static inline c_ptr_type                                  \
+    msg_arg_get__ ## messagename(msg_aux_data_t m)                         \
+    {                                                                     \
+        return m.ptr;                                                       \
+    }                                                                     \
+    ATTR_UNUSED static inline void                                        \
+        msg_arg_set__ ## messagename(msg_aux_data_t * m, c_ptr_type v)          \
+    {                                                                     \
+        m->ptr = v;                                                         \
+    }                                                                     \
+    EAT_SEMICOLON
 
 /**
  * Use this macro in a header to declare the existence of a given message,
@@ -217,18 +217,18 @@
  * a uint64_t.
  */
 #define DECLARE_MESSAGE_INT(messagename, typename, c_type)              \
-  DECLARE_MESSAGE_COMMON__(messagename, typename, c_type)               \
-  ATTR_UNUSED static inline c_type                                      \
-  msg_arg_get__ ##messagename(msg_aux_data_t m)                         \
-  {                                                                     \
-    return (c_type)m.u64;                                               \
-  }                                                                     \
-  ATTR_UNUSED static inline void                                        \
-  msg_arg_set__ ##messagename(msg_aux_data_t *m, c_type v)              \
-  {                                                                     \
-    m->u64 = (uint64_t)v;                                               \
-  }                                                                     \
-  EAT_SEMICOLON
+    DECLARE_MESSAGE_COMMON__(messagename, typename, c_type)               \
+    ATTR_UNUSED static inline c_type                                      \
+    msg_arg_get__ ## messagename(msg_aux_data_t m)                         \
+    {                                                                     \
+        return (c_type)m.u64;                                               \
+    }                                                                     \
+    ATTR_UNUSED static inline void                                        \
+        msg_arg_set__ ## messagename(msg_aux_data_t * m, c_type v)              \
+    {                                                                     \
+        m->u64 = (uint64_t)v;                                               \
+    }                                                                     \
+    EAT_SEMICOLON
 
 /**
  * Use this macro inside a C module declare that we'll be publishing a given
@@ -243,15 +243,15 @@
  * You can only use this once per message in each subsystem.
  */
 #define DECLARE_PUBLISH(messagename)                                    \
-  static pub_binding_t pub_binding__ ##messagename;                     \
-  static void                                                           \
-  publish_fn__ ##messagename(msg_arg_type__ ##messagename arg)          \
-  {                                                                     \
-    msg_aux_data_t data;                                                \
-    msg_arg_set__ ##messagename(&data, arg);                            \
-    pubsub_pub_(&pub_binding__ ##messagename, data);                    \
-  }                                                                     \
-  EAT_SEMICOLON
+    static pub_binding_t pub_binding__ ## messagename;                     \
+    static void                                                           \
+        publish_fn__ ## messagename(msg_arg_type__ ## messagename arg)          \
+    {                                                                     \
+        msg_aux_data_t data;                                                \
+        msg_arg_set__ ## messagename(&data, arg);                            \
+        pubsub_pub_(&pub_binding__ ## messagename, data);                    \
+    }                                                                     \
+    EAT_SEMICOLON
 
 /**
  * Use this macro inside a C file to declare that we're subscribing to a
@@ -270,38 +270,38 @@
  * You can only use this once per message in each subsystem.
  */
 #define DECLARE_SUBSCRIBE(messagename, hookfn) \
-  static void hookfn(const msg_t *,                             \
-                     const msg_arg_consttype__ ##messagename);  \
-  static void recv_fn__ ## messagename(const msg_t *m)          \
-  {                                                             \
-    msg_arg_type__ ## messagename arg;                          \
-    arg = msg_arg_get__ ##messagename(m->aux_data__);           \
-    hookfn(m, arg);                                             \
-  }                                                             \
-  EAT_SEMICOLON
+    static void hookfn(const msg_t *,                             \
+                       const msg_arg_consttype__ ## messagename);  \
+    static void recv_fn__ ## messagename(const msg_t * m)          \
+    {                                                             \
+        msg_arg_type__ ## messagename arg;                          \
+        arg = msg_arg_get__ ## messagename(m->aux_data__);           \
+        hookfn(m, arg);                                             \
+    }                                                             \
+    EAT_SEMICOLON
 
 /**
  * Add a fake use of the publish function for 'messagename', so that
  * the compiler does not call it unused.
  */
 #define DISPATCH__FAKE_USE_OF_PUBFN_(messagename)                       \
-  ( 0 ? (publish_fn__ ##messagename((msg_arg_type__##messagename)0), 1) \
-    : 1)
+    (0 ? (publish_fn__ ## messagename((msg_arg_type__ ## messagename)0), 1) \
+     : 1)
 
 /**
  * This macro is for internal use.  It backs DISPATCH_ADD_PUB*()
  */
 #define DISPATCH_ADD_PUB_(connector, channel, messagename, flags)       \
-  (                                                                     \
-    DISPATCH__FAKE_USE_OF_PUBFN_(messagename),                          \
-    pubsub_add_pub_((connector),                                        \
-                      &pub_binding__ ##messagename,                     \
-                      get_channel_id(# channel),                        \
-                    get_message_id(# messagename),                      \
-                      get_msg_type_id(msg_arg_name__ ## messagename),   \
-                      (flags),                                          \
-                      __FILE__,                                         \
-                      __LINE__)                                         \
+    (                                                                     \
+        DISPATCH__FAKE_USE_OF_PUBFN_(messagename),                          \
+        pubsub_add_pub_((connector),                                        \
+                        &pub_binding__ ## messagename,                     \
+                        get_channel_id(# channel),                        \
+                        get_message_id(# messagename),                      \
+                        get_msg_type_id(msg_arg_name__ ## messagename),   \
+                        (flags),                                          \
+                        __FILE__,                                         \
+                        __LINE__)                                         \
     )
 
 /**
@@ -326,11 +326,11 @@
  * This macro is for internal use. It backs DISPATCH_ADD_SUB*()
  */
 #define DISPATCH_ADD_SUB_(connector, channel, messagename, flags)       \
-  pubsub_add_sub_((connector),                                          \
-                    recv_fn__ ##messagename,                            \
+    pubsub_add_sub_((connector),                                          \
+                    recv_fn__ ## messagename,                            \
                     get_channel_id(#channel),                           \
                     get_message_id(# messagename),                      \
-                    get_msg_type_id(msg_arg_name__ ##messagename),      \
+                    get_msg_type_id(msg_arg_name__ ## messagename),      \
                     (flags),                                            \
                     __FILE__,                                           \
                     __LINE__)
@@ -357,17 +357,17 @@
  * argument if it is a pointer.)
  */
 #define PUBLISH(messagename, arg)               \
-  publish_fn__ ##messagename(arg)
+    publish_fn__ ## messagename(arg)
 
 /**
  * Use a given connector to declare that the functions to be used to manipuate
  * a certain C type.
  **/
 #define DISPATCH_REGISTER_TYPE(con, type, fns)                  \
-  pubsub_connector_register_type_((con),                        \
-                                  get_msg_type_id(#type),       \
-                                  (fns),                        \
-                                  __FILE__,                     \
-                                  __LINE__)
+    pubsub_connector_register_type_((con),                        \
+                                    get_msg_type_id(#type),       \
+                                    (fns),                        \
+                                    __FILE__,                     \
+                                    __LINE__)
 
 #endif /* !defined(TOR_DISPATCH_MSG_H) */

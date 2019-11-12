@@ -28,14 +28,13 @@
 static char *
 strtok_helper(char *cp, const char *sep)
 {
-  if (sep[1]) {
-    while (*cp && strchr(sep, *cp))
-      ++cp;
-  } else {
-    while (*cp && *cp == *sep)
-      ++cp;
-  }
-  return cp;
+    if (sep[1])
+        while (*cp && strchr(sep, *cp))
+            ++cp;
+    else
+        while (*cp && *cp == *sep)
+            ++cp;
+    return cp;
 }
 
 /** Implementation of strtok_r for platforms whose coders haven't figured out
@@ -44,31 +43,31 @@ strtok_helper(char *cp, const char *sep)
 char *
 tor_strtok_r_impl(char *str, const char *sep, char **lasts)
 {
-  char *cp, *start;
-  raw_assert(*sep);
-  if (str) {
-    str = strtok_helper(str, sep);
-    if (!*str)
-      return NULL;
-    start = cp = *lasts = str;
-  } else if (!*lasts || !**lasts) {
-    return NULL;
-  } else {
-    start = cp = *lasts;
-  }
+    char *cp, *start;
 
-  if (sep[1]) {
-    while (*cp && !strchr(sep, *cp))
-      ++cp;
-  } else {
-    cp = strchr(cp, *sep);
-  }
+    raw_assert(*sep);
+    if (str) {
+        str = strtok_helper(str, sep);
+        if (!*str)
+            return NULL;
+        start = cp = *lasts = str;
+    } else if (!*lasts || !**lasts) {
+        return NULL;
+    } else {
+        start = cp = *lasts;
+    }
 
-  if (!cp || !*cp) {
-    *lasts = NULL;
-  } else {
-    *cp++ = '\0';
-    *lasts = strtok_helper(cp, sep);
-  }
-  return start;
+    if (sep[1])
+        while (*cp && !strchr(sep, *cp))
+            ++cp;
+    else
+        cp = strchr(cp, *sep);
+
+    if (!cp || !*cp) {
+        *lasts = NULL;
+    } else {
+        *cp++ = '\0';
+        *lasts = strtok_helper(cp, sep);
+    }
+    return start;
 }

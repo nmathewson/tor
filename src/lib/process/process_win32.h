@@ -27,7 +27,7 @@ typedef struct process_win32_t process_win32_t;
 process_win32_t *process_win32_new(void);
 void process_win32_free_(process_win32_t *win32_process);
 #define process_win32_free(s) \
-  FREE_AND_NULL(process_win32_t, process_win32_free_, (s))
+    FREE_AND_NULL(process_win32_t, process_win32_free_, (s))
 
 void process_win32_init(void);
 void process_win32_deinit(void);
@@ -57,11 +57,11 @@ struct process_win32_handle_t;
 typedef struct process_win32_handle_t process_win32_handle_t;
 
 typedef enum process_win32_pipe_type_t {
-  /** This pipe is used for reading. */
-  PROCESS_WIN32_PIPE_TYPE_READER,
+    /** This pipe is used for reading. */
+    PROCESS_WIN32_PIPE_TYPE_READER,
 
-  /** This pipe is used for writing. */
-  PROCESS_WIN32_PIPE_TYPE_WRITER
+    /** This pipe is used for writing. */
+    PROCESS_WIN32_PIPE_TYPE_WRITER
 } process_win32_pipe_type_t;
 
 STATIC bool process_win32_create_pipe(HANDLE *,

@@ -39,44 +39,43 @@
  * (Same as gettimeofday(timeval,NULL), but never returns -1.)
  */
 MOCK_IMPL(void,
-tor_gettimeofday, (struct timeval *timeval))
-{
+          tor_gettimeofday, (struct timeval *timeval)){
 #ifdef _WIN32
-  /* Epoch bias copied from perl: number of units between windows epoch and
-   * Unix epoch. */
+    /* Epoch bias copied from perl: number of units between windows epoch and
+     * Unix epoch. */
 #define EPOCH_BIAS UINT64_C(116444736000000000)
 #define UNITS_PER_SEC UINT64_C(10000000)
 #define USEC_PER_SEC UINT64_C(1000000)
 #define UNITS_PER_USEC UINT64_C(10)
-  union {
-    uint64_t ft_64;
-    FILETIME ft_ft;
-  } ft;
-  /* number of 100-nsec units since Jan 1, 1601 */
-  GetSystemTimeAsFileTime(&ft.ft_ft);
-  if (ft.ft_64 < EPOCH_BIAS) {
-    /* LCOV_EXCL_START */
-    raw_assert_unreached_msg("System time is before 1970; failing.");
-    /* LCOV_EXCL_STOP */
-  }
-  ft.ft_64 -= EPOCH_BIAS;
-  timeval->tv_sec = (unsigned) (ft.ft_64 / UNITS_PER_SEC);
-  timeval->tv_usec = (unsigned) ((ft.ft_64 / UNITS_PER_USEC) % USEC_PER_SEC);
+    union {
+        uint64_t ft_64;
+        FILETIME ft_ft;
+    } ft;
+    /* number of 100-nsec units since Jan 1, 1601 */
+    GetSystemTimeAsFileTime(&ft.ft_ft);
+    if (ft.ft_64 < EPOCH_BIAS) {
+        /* LCOV_EXCL_START */
+        raw_assert_unreached_msg("System time is before 1970; failing.");
+        /* LCOV_EXCL_STOP */
+    }
+    ft.ft_64 -= EPOCH_BIAS;
+    timeval->tv_sec = (unsigned)(ft.ft_64 / UNITS_PER_SEC);
+    timeval->tv_usec = (unsigned)((ft.ft_64 / UNITS_PER_USEC) % USEC_PER_SEC);
 #elif defined(HAVE_GETTIMEOFDAY)
-  if (gettimeofday(timeval, NULL)) {
-    /* LCOV_EXCL_START */
-    /* If gettimeofday dies, we have either given a bad timezone (we didn't),
-       or segfaulted.*/
-    raw_assert_unreached_msg("gettimeofday failed");
-    /* LCOV_EXCL_STOP */
-  }
+    if (gettimeofday(timeval, NULL)) {
+        /* LCOV_EXCL_START */
+        /* If gettimeofday dies, we have either given a bad timezone (we didn't),
+         * or segfaulted.*/
+        raw_assert_unreached_msg("gettimeofday failed");
+        /* LCOV_EXCL_STOP */
+    }
 #elif defined(HAVE_FTIME)
-  struct timeb tb;
-  ftime(&tb);
-  timeval->tv_sec = tb.time;
-  timeval->tv_usec = tb.millitm * 1000;
+    struct timeb tb;
+    ftime(&tb);
+    timeval->tv_sec = tb.time;
+    timeval->tv_usec = tb.millitm * 1000;
 #else
 #error "No way to get time."
 #endif /* defined(_WIN32) || ... */
-  return;
+    return;
 }

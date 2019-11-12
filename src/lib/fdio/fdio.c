@@ -48,9 +48,9 @@ off_t
 tor_fd_getpos(int fd)
 {
 #ifdef _WIN32
-  return (off_t) _lseek(fd, 0, SEEK_CUR);
+    return (off_t)_lseek(fd, 0, SEEK_CUR);
 #else
-  return (off_t) lseek(fd, 0, SEEK_CUR);
+    return (off_t)lseek(fd, 0, SEEK_CUR);
 #endif
 }
 
@@ -61,16 +61,16 @@ int
 tor_fd_seekend(int fd)
 {
 #ifdef _WIN32
-  return _lseek(fd, 0, SEEK_END) < 0 ? -1 : 0;
+    return _lseek(fd, 0, SEEK_END) < 0 ? -1 : 0;
 #else
-  off_t rc = lseek(fd, 0, SEEK_END) < 0 ? -1 : 0;
+    off_t rc = lseek(fd, 0, SEEK_END) < 0 ? -1 : 0;
 #ifdef ESPIPE
-  /* If we get an error and ESPIPE, then it's a pipe or a socket of a fifo:
-   * no need to worry. */
-  if (rc < 0 && errno == ESPIPE)
-    rc = 0;
+    /* If we get an error and ESPIPE, then it's a pipe or a socket of a fifo:
+     * no need to worry. */
+    if (rc < 0 && errno == ESPIPE)
+        rc = 0;
 #endif /* defined(ESPIPE) */
-  return (rc < 0) ? -1 : 0;
+    return (rc < 0) ? -1 : 0;
 #endif /* defined(_WIN32) */
 }
 
@@ -80,9 +80,9 @@ int
 tor_fd_setpos(int fd, off_t pos)
 {
 #ifdef _WIN32
-  return _lseek(fd, pos, SEEK_SET) < 0 ? -1 : 0;
+    return _lseek(fd, pos, SEEK_SET) < 0 ? -1 : 0;
 #else
-  return lseek(fd, pos, SEEK_SET) < 0 ? -1 : 0;
+    return lseek(fd, pos, SEEK_SET) < 0 ? -1 : 0;
 #endif
 }
 
@@ -91,15 +91,15 @@ tor_fd_setpos(int fd, off_t pos)
 int
 tor_ftruncate(int fd)
 {
-  /* Rumor has it that some versions of ftruncate do not move the file pointer.
-   */
-  if (tor_fd_setpos(fd, 0) < 0)
-    return -1;
+    /* Rumor has it that some versions of ftruncate do not move the file pointer.
+     */
+    if (tor_fd_setpos(fd, 0) < 0)
+        return -1;
 
 #ifdef _WIN32
-  return _chsize(fd, 0);
+    return _chsize(fd, 0);
 #else
-  return ftruncate(fd, 0);
+    return ftruncate(fd, 0);
 #endif
 }
 
@@ -107,14 +107,15 @@ tor_ftruncate(int fd)
 int
 write_all_to_fd_minimal(int fd, const char *buf, size_t count)
 {
-  size_t written = 0;
-  raw_assert(count < SSIZE_MAX);
+    size_t written = 0;
 
-  while (written < count) {
-    ssize_t result = write(fd, buf+written, count-written);
-    if (result<0)
-      return -1;
-    written += result;
-  }
-  return 0;
+    raw_assert(count < SSIZE_MAX);
+
+    while (written < count) {
+        ssize_t result = write(fd, buf + written, count - written);
+        if (result < 0)
+            return -1;
+        written += result;
+    }
+    return 0;
 }

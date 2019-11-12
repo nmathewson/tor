@@ -6,7 +6,7 @@
 
 /**
  * \file x25519_sizes.h
-
+ *
  * \brief Definitions for sizes of x25519 keys and elements.
  *
  * Tor uses these definitions throughout its codebase, even in parts that

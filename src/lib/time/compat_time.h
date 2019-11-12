@@ -149,31 +149,31 @@
 #if !defined(HAVE_STRUCT_TIMEVAL_TV_SEC)
 /** Implementation of timeval for platforms that don't have it. */
 struct timeval {
-  time_t tv_sec;
-  unsigned int tv_usec;
+    time_t       tv_sec;
+    unsigned int tv_usec;
 };
 #endif /* !defined(HAVE_STRUCT_TIMEVAL_TV_SEC) */
 
 /** Represents a monotonic timer in a platform-dependent way. */
 typedef struct monotime_t {
 #ifdef __APPLE__
-  /* On apple, there is a 64-bit counter whose precision we must look up. */
-  uint64_t abstime_;
+    /* On apple, there is a 64-bit counter whose precision we must look up. */
+    uint64_t        abstime_;
 #elif defined(HAVE_CLOCK_GETTIME)
-  /* It sure would be nice to use clock_gettime(). Posix is a nice thing. */
-  struct timespec ts_;
+    /* It sure would be nice to use clock_gettime(). Posix is a nice thing. */
+    struct timespec ts_;
 #elif defined (_WIN32)
-  /* On Windows, there is a 64-bit counter whose precision we must look up. */
-  int64_t pcount_;
+    /* On Windows, there is a 64-bit counter whose precision we must look up. */
+    int64_t         pcount_;
 #else
 #define MONOTIME_USING_GETTIMEOFDAY
-  /* Otherwise, we will be stuck using gettimeofday. */
-  struct timeval tv_;
+    /* Otherwise, we will be stuck using gettimeofday. */
+    struct timeval  tv_;
 #endif /* defined(__APPLE__) || ... */
 } monotime_t;
 
 #if defined(CLOCK_MONOTONIC_COARSE) && \
-  defined(HAVE_CLOCK_GETTIME)
+    defined(HAVE_CLOCK_GETTIME)
 #define MONOTIME_COARSE_FN_IS_DIFFERENT
 #define monotime_coarse_t monotime_t
 #elif defined(_WIN32)
@@ -181,7 +181,7 @@ typedef struct monotime_t {
 #define MONOTIME_COARSE_TYPE_IS_DIFFERENT
 /** Represents a coarse monotonic time in a platform-independent way. */
 typedef struct monotime_coarse_t {
-  uint64_t tick_count_;
+    uint64_t tick_count_;
 } monotime_coarse_t;
 #elif defined(__APPLE__) && defined(HAVE_MACH_APPROXIMATE_TIME)
 #define MONOTIME_COARSE_FN_IS_DIFFERENT
@@ -225,7 +225,7 @@ uint64_t monotime_absolute_nsec(void);
  * The returned value may be equal to zero.
  * Fractional units are truncated, not rounded.
  */
-MOCK_DECL(uint64_t, monotime_absolute_usec,(void));
+MOCK_DECL(uint64_t, monotime_absolute_usec, (void));
 /**
  * Return the number of milliseconds since the timer system was initialized.
  * The returned value may be equal to zero.
@@ -292,11 +292,11 @@ uint32_t monotime_coarse_get_stamp(void);
  * Like monotime_diff_*(), but faster on some platforms.
  */
 int64_t monotime_coarse_diff_nsec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 int64_t monotime_coarse_diff_usec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 int64_t monotime_coarse_diff_msec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 /**
  * Like monotime_*(), but faster on some platforms.
  */
@@ -339,11 +339,11 @@ monotime_coarse_diff_msec32(const monotime_coarse_t *start,
                             const monotime_coarse_t *end)
 {
 #if SIZEOF_VOID_P == 8
-  // on a 64-bit platform, let's assume 64/64 division is cheap.
-  return (int32_t) monotime_coarse_diff_msec(start, end);
+    // on a 64-bit platform, let's assume 64/64 division is cheap.
+    return (int32_t)monotime_coarse_diff_msec(start, end);
 #else
 #define USING_32BIT_MSEC_HACK
-  return monotime_coarse_diff_msec32_(start, end);
+    return monotime_coarse_diff_msec32_(start, end);
 #endif /* SIZEOF_VOID_P == 8 */
 }
 
