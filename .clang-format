@@ -1,0 +1,98 @@
+---
+Language:        Cpp
+# Out of all supported styles, LLVM seems closest to our own.
+BasedOnStyle:    LLVM
+
+################
+#
+# Deviations from LLVM's style.
+#
+################
+
+# We prefer an indentation width of 4 columns; LLVM likes 2.
+IndentWidth:     4
+
+# We use a function declaration style much closer to BSD KNF than to LLVM's.
+# We say:
+#      int foo(int x);
+#      int
+#      foo(int x)
+#      {
+#          ...
+#      }
+# whereas llvm prefers:
+#      int foo(int x);
+#      int foo(int x) {
+#          ...
+#      }
+# or even:
+#      int foo(int x) { ... }
+#
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction:   true
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterReturnType: AllDefinitions
+
+# We like to have case labeled indented an extra level.
+#
+IndentCaseLabels: true
+
+# We don't like blocks to start with an empty line.
+#
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+################
+#
+# Tor-specific magic
+#
+################
+
+#
+# These comments are magical, and should not be changed.
+#
+CommentPragmas:  'LCOV_EXCL|COVERITY'
+
+#
+# These introduce an iteration, and work a bit like a for loop.
+#
+ForEachMacros:
+  - MAP_FOREACH
+  - MAP_FOREACH_MODIFY
+  - TOR_SIMPLEQ_FOREACH_SAFE
+
+#
+# This explains how to sort our headers.
+#
+IncludeCategories:
+  - Regex:           '^"orconfig.h'
+    Priority:        0
+  - Regex:           '^"(lib|ext)/'
+    Priority:        1
+  - Regex:           '^"core/'
+    Priority:        2
+  - Regex:           '^"feature/'
+    Priority:        2
+
+#
+# These macros should always cause indentation, as though they were { and }.
+#
+MacroBlockBegin: 'STMT_BEGIN'
+MacroBlockEnd:   'STMT_END'
+
+#
+# These macros don't need to have semicolons afterwards.
+#
+StatementMacros:
+   - HT_PROTOTYPE
+   - HT_GENERATE
+   - HT_GENERATE2
+
+#
+# These macros are interpreted as types.
+# (Not supported in my clang-format)
+#
+# TypenameMacros:
+#     - "STACK_OF"
+
+...
