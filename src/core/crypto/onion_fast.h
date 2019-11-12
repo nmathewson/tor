@@ -16,7 +16,7 @@
 #define CREATED_FAST_LEN (DIGEST_LEN*2)
 
 typedef struct fast_handshake_state_t {
-  uint8_t state[DIGEST_LEN];
+    uint8_t state[DIGEST_LEN];
 } fast_handshake_state_t;
 
 void fast_handshake_state_free_(fast_handshake_state_t *victim);

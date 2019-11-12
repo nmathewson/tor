@@ -32,8 +32,8 @@ crypto_cipher_t *crypto_cipher_new(const char *key);
 crypto_cipher_t *crypto_cipher_new_with_bits(const char *key, int bits);
 crypto_cipher_t *crypto_cipher_new_with_iv(const char *key, const char *iv);
 crypto_cipher_t *crypto_cipher_new_with_iv_and_bits(const uint8_t *key,
-                                                    const uint8_t *iv,
-                                                    int bits);
+        const uint8_t *iv,
+        int bits);
 void crypto_cipher_free_(crypto_cipher_t *env);
 #define crypto_cipher_free(c) \
   FREE_AND_NULL(crypto_cipher_t, crypto_cipher_free_, (c))

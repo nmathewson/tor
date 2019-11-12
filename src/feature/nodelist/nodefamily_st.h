@@ -16,17 +16,17 @@
 #include "ht.h"
 
 struct nodefamily_t {
-  /** Entry for this nodefamily_t within the hashtable. */
-  HT_ENTRY(nodefamily_t) ht_ent;
-  /** Reference count.  (The hashtable is not treated as a reference */
-  uint32_t refcnt;
-  /** Number of items encoded in <b>family_members</b>. */
-  uint32_t n_members;
-  /* A byte-array encoding the members of this family.  We encode each member
-   * as one byte to indicate whether it's a nickname or a fingerprint, plus
-   * DIGEST_LEN bytes of data.  The entries are lexically sorted.
-   */
-  uint8_t family_members[FLEXIBLE_ARRAY_MEMBER];
+    /** Entry for this nodefamily_t within the hashtable. */
+    HT_ENTRY(nodefamily_t) ht_ent;
+    /** Reference count.  (The hashtable is not treated as a reference */
+    uint32_t refcnt;
+    /** Number of items encoded in <b>family_members</b>. */
+    uint32_t n_members;
+    /* A byte-array encoding the members of this family.  We encode each member
+     * as one byte to indicate whether it's a nickname or a fingerprint, plus
+     * DIGEST_LEN bytes of data.  The entries are lexically sorted.
+     */
+    uint8_t family_members[FLEXIBLE_ARRAY_MEMBER];
 };
 
 #define NODEFAMILY_MEMBER_LEN (1+DIGEST_LEN)

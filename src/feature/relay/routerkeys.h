@@ -25,14 +25,14 @@ void get_master_rsa_crosscert(const uint8_t **cert_out,
 int router_ed25519_id_is_me(const ed25519_public_key_t *id);
 
 struct tor_cert_st *make_ntor_onion_key_crosscert(
-                                  const curve25519_keypair_t *onion_key,
-                                  const ed25519_public_key_t *master_id_key,
-                                  time_t now, time_t lifetime,
-                                  int *sign_out);
+    const curve25519_keypair_t *onion_key,
+    const ed25519_public_key_t *master_id_key,
+    time_t now, time_t lifetime,
+    int *sign_out);
 uint8_t *make_tap_onion_key_crosscert(const crypto_pk_t *onion_key,
-                                  const ed25519_public_key_t *master_id_key,
-                                  const crypto_pk_t *rsa_id_key,
-                                  int *len_out);
+                                      const ed25519_public_key_t *master_id_key,
+                                      const crypto_pk_t *rsa_id_key,
+                                      int *len_out);
 
 int log_cert_expiration(void);
 int load_ed_keys(const or_options_t *options, time_t now);

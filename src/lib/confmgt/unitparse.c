@@ -22,87 +22,87 @@
 /** Table to map the names of memory units to the number of bytes they
  * contain. */
 const struct unit_table_t memory_units[] = {
-  { "",          1 },
-  { "b",         1<< 0 },
-  { "byte",      1<< 0 },
-  { "bytes",     1<< 0 },
-  { "kb",        1<<10 },
-  { "kbyte",     1<<10 },
-  { "kbytes",    1<<10 },
-  { "kilobyte",  1<<10 },
-  { "kilobytes", 1<<10 },
-  { "kilobits",  1<<7  },
-  { "kilobit",   1<<7  },
-  { "kbits",     1<<7  },
-  { "kbit",      1<<7  },
-  { "m",         1<<20 },
-  { "mb",        1<<20 },
-  { "mbyte",     1<<20 },
-  { "mbytes",    1<<20 },
-  { "megabyte",  1<<20 },
-  { "megabytes", 1<<20 },
-  { "megabits",  1<<17 },
-  { "megabit",   1<<17 },
-  { "mbits",     1<<17 },
-  { "mbit",      1<<17 },
-  { "gb",        1<<30 },
-  { "gbyte",     1<<30 },
-  { "gbytes",    1<<30 },
-  { "gigabyte",  1<<30 },
-  { "gigabytes", 1<<30 },
-  { "gigabits",  1<<27 },
-  { "gigabit",   1<<27 },
-  { "gbits",     1<<27 },
-  { "gbit",      1<<27 },
-  { "tb",        UINT64_C(1)<<40 },
-  { "tbyte",     UINT64_C(1)<<40 },
-  { "tbytes",    UINT64_C(1)<<40 },
-  { "terabyte",  UINT64_C(1)<<40 },
-  { "terabytes", UINT64_C(1)<<40 },
-  { "terabits",  UINT64_C(1)<<37 },
-  { "terabit",   UINT64_C(1)<<37 },
-  { "tbits",     UINT64_C(1)<<37 },
-  { "tbit",      UINT64_C(1)<<37 },
-  { NULL, 0 },
+    { "",          1 },
+    { "b",         1<< 0 },
+    { "byte",      1<< 0 },
+    { "bytes",     1<< 0 },
+    { "kb",        1<<10 },
+    { "kbyte",     1<<10 },
+    { "kbytes",    1<<10 },
+    { "kilobyte",  1<<10 },
+    { "kilobytes", 1<<10 },
+    { "kilobits",  1<<7  },
+    { "kilobit",   1<<7  },
+    { "kbits",     1<<7  },
+    { "kbit",      1<<7  },
+    { "m",         1<<20 },
+    { "mb",        1<<20 },
+    { "mbyte",     1<<20 },
+    { "mbytes",    1<<20 },
+    { "megabyte",  1<<20 },
+    { "megabytes", 1<<20 },
+    { "megabits",  1<<17 },
+    { "megabit",   1<<17 },
+    { "mbits",     1<<17 },
+    { "mbit",      1<<17 },
+    { "gb",        1<<30 },
+    { "gbyte",     1<<30 },
+    { "gbytes",    1<<30 },
+    { "gigabyte",  1<<30 },
+    { "gigabytes", 1<<30 },
+    { "gigabits",  1<<27 },
+    { "gigabit",   1<<27 },
+    { "gbits",     1<<27 },
+    { "gbit",      1<<27 },
+    { "tb",        UINT64_C(1)<<40 },
+    { "tbyte",     UINT64_C(1)<<40 },
+    { "tbytes",    UINT64_C(1)<<40 },
+    { "terabyte",  UINT64_C(1)<<40 },
+    { "terabytes", UINT64_C(1)<<40 },
+    { "terabits",  UINT64_C(1)<<37 },
+    { "terabit",   UINT64_C(1)<<37 },
+    { "tbits",     UINT64_C(1)<<37 },
+    { "tbit",      UINT64_C(1)<<37 },
+    { NULL, 0 },
 };
 
 /** Table to map the names of time units to the number of seconds they
  * contain. */
 const struct unit_table_t time_units[] = {
-  { "",         1 },
-  { "second",   1 },
-  { "seconds",  1 },
-  { "minute",   60 },
-  { "minutes",  60 },
-  { "hour",     60*60 },
-  { "hours",    60*60 },
-  { "day",      24*60*60 },
-  { "days",     24*60*60 },
-  { "week",     7*24*60*60 },
-  { "weeks",    7*24*60*60 },
-  { "month",    2629728, }, /* about 30.437 days */
-  { "months",   2629728, },
-  { NULL, 0 },
+    { "",         1 },
+    { "second",   1 },
+    { "seconds",  1 },
+    { "minute",   60 },
+    { "minutes",  60 },
+    { "hour",     60*60 },
+    { "hours",    60*60 },
+    { "day",      24*60*60 },
+    { "days",     24*60*60 },
+    { "week",     7*24*60*60 },
+    { "weeks",    7*24*60*60 },
+    { "month",    2629728, }, /* about 30.437 days */
+    { "months",   2629728, },
+    { NULL, 0 },
 };
 
 /** Table to map the names of time units to the number of milliseconds
  * they contain. */
 const struct unit_table_t time_msec_units[] = {
-  { "",         1 },
-  { "msec",     1 },
-  { "millisecond", 1 },
-  { "milliseconds", 1 },
-  { "second",   1000 },
-  { "seconds",  1000 },
-  { "minute",   60*1000 },
-  { "minutes",  60*1000 },
-  { "hour",     60*60*1000 },
-  { "hours",    60*60*1000 },
-  { "day",      24*60*60*1000 },
-  { "days",     24*60*60*1000 },
-  { "week",     7*24*60*60*1000 },
-  { "weeks",    7*24*60*60*1000 },
-  { NULL, 0 },
+    { "",         1 },
+    { "msec",     1 },
+    { "millisecond", 1 },
+    { "milliseconds", 1 },
+    { "second",   1000 },
+    { "seconds",  1000 },
+    { "minute",   60*1000 },
+    { "minutes",  60*1000 },
+    { "hour",     60*60*1000 },
+    { "hours",    60*60*1000 },
+    { "day",      24*60*60*1000 },
+    { "days",     24*60*60*1000 },
+    { "week",     7*24*60*60*1000 },
+    { "weeks",    7*24*60*60*1000 },
+    { NULL, 0 },
 };
 
 /** Parse a string <b>val</b> containing a number, zero or more
@@ -115,78 +115,80 @@ const struct unit_table_t time_msec_units[] = {
 uint64_t
 config_parse_units(const char *val, const unit_table_t *u, int *ok)
 {
-  uint64_t v = 0;
-  double d = 0;
-  int use_float = 0;
-  char *cp;
+    uint64_t v = 0;
+    double d = 0;
+    int use_float = 0;
+    char *cp;
 
-  tor_assert(ok);
+    tor_assert(ok);
 
-  v = tor_parse_uint64(val, 10, 0, UINT64_MAX, ok, &cp);
-  if (!*ok || (cp && *cp == '.')) {
-    d = tor_parse_double(val, 0, (double)UINT64_MAX, ok, &cp);
-    if (!*ok)
-      goto done;
-    use_float = 1;
-  }
-
-  if (BUG(!cp)) {
-    // cp should always be non-NULL if the parse operation succeeds.
-
-    // LCOV_EXCL_START
-    *ok = 1;
-    v = use_float ? ((uint64_t)d) :  v;
-    goto done;
-    // LCOV_EXCL_STOP
-  }
-
-  cp = (char*) eat_whitespace(cp);
-
-  for ( ;u->unit;++u) {
-    if (!strcasecmp(u->unit, cp)) {
-      if (use_float) {
-        d = u->multiplier * d;
-
-        if (d < 0) {
-          log_warn(LD_CONFIG, "Got a negative value while parsing %s %s",
-                   val, u->unit);
-          *ok = 0;
-          goto done;
+    v = tor_parse_uint64(val, 10, 0, UINT64_MAX, ok, &cp);
+    if (!*ok || (cp && *cp == '.')) {
+        d = tor_parse_double(val, 0, (double)UINT64_MAX, ok, &cp);
+        if (!*ok) {
+            goto done;
         }
-
-        // Some compilers may warn about casting a double to an unsigned type
-        // because they don't know if d is >= 0
-        if (d >= 0 && (d > (double)INT64_MAX || (uint64_t)d > INT64_MAX)) {
-          log_warn(LD_CONFIG, "Overflow detected while parsing %s %s",
-                   val, u->unit);
-          *ok = 0;
-          goto done;
-        }
-
-        v = (uint64_t) d;
-      } else {
-        v = tor_mul_u64_nowrap(v, u->multiplier);
-
-        if (v > INT64_MAX) {
-          log_warn(LD_CONFIG, "Overflow detected while parsing %s %s",
-                   val, u->unit);
-          *ok = 0;
-          goto done;
-        }
-      }
-
-      *ok = 1;
-      goto done;
+        use_float = 1;
     }
-  }
-  log_warn(LD_CONFIG, "Unknown unit '%s'.", cp);
-  *ok = 0;
- done:
 
-  if (*ok)
-    return v;
-  else
-    return 0;
+    if (BUG(!cp)) {
+        // cp should always be non-NULL if the parse operation succeeds.
+
+        // LCOV_EXCL_START
+        *ok = 1;
+        v = use_float ? ((uint64_t)d) :  v;
+        goto done;
+        // LCOV_EXCL_STOP
+    }
+
+    cp = (char*) eat_whitespace(cp);
+
+    for ( ; u->unit; ++u) {
+        if (!strcasecmp(u->unit, cp)) {
+            if (use_float) {
+                d = u->multiplier * d;
+
+                if (d < 0) {
+                    log_warn(LD_CONFIG, "Got a negative value while parsing %s %s",
+                             val, u->unit);
+                    *ok = 0;
+                    goto done;
+                }
+
+                // Some compilers may warn about casting a double to an unsigned type
+                // because they don't know if d is >= 0
+                if (d >= 0 && (d > (double)INT64_MAX || (uint64_t)d > INT64_MAX)) {
+                    log_warn(LD_CONFIG, "Overflow detected while parsing %s %s",
+                             val, u->unit);
+                    *ok = 0;
+                    goto done;
+                }
+
+                v = (uint64_t) d;
+            } else {
+                v = tor_mul_u64_nowrap(v, u->multiplier);
+
+                if (v > INT64_MAX) {
+                    log_warn(LD_CONFIG, "Overflow detected while parsing %s %s",
+                             val, u->unit);
+                    *ok = 0;
+                    goto done;
+                }
+            }
+
+            *ok = 1;
+            goto done;
+        }
+    }
+    log_warn(LD_CONFIG, "Unknown unit '%s'.", cp);
+    *ok = 0;
+done:
+
+    if (*ok) {
+        return v;
+    } else {
+        return 0;
+    }
 }
 
 /** Parse a string in the format "number unit", where unit is a unit of
@@ -196,8 +198,8 @@ config_parse_units(const char *val, const unit_table_t *u, int *ok)
 uint64_t
 config_parse_memunit(const char *s, int *ok)
 {
-  uint64_t u = config_parse_units(s, memory_units, ok);
-  return u;
+    uint64_t u = config_parse_units(s, memory_units, ok);
+    return u;
 }
 
 /** Parse a string in the format "number unit", where unit is a unit of
@@ -207,14 +209,14 @@ config_parse_memunit(const char *s, int *ok)
 int
 config_parse_msec_interval(const char *s, int *ok)
 {
-  uint64_t r;
-  r = config_parse_units(s, time_msec_units, ok);
-  if (r > INT_MAX) {
-    log_warn(LD_CONFIG, "Msec interval '%s' is too long", s);
-    *ok = 0;
-    return -1;
-  }
-  return (int)r;
+    uint64_t r;
+    r = config_parse_units(s, time_msec_units, ok);
+    if (r > INT_MAX) {
+        log_warn(LD_CONFIG, "Msec interval '%s' is too long", s);
+        *ok = 0;
+        return -1;
+    }
+    return (int)r;
 }
 
 /** Parse a string in the format "number unit", where unit is a unit of time.
@@ -224,12 +226,12 @@ config_parse_msec_interval(const char *s, int *ok)
 int
 config_parse_interval(const char *s, int *ok)
 {
-  uint64_t r;
-  r = config_parse_units(s, time_units, ok);
-  if (r > INT_MAX) {
-    log_warn(LD_CONFIG, "Interval '%s' is too long", s);
-    *ok = 0;
-    return -1;
-  }
-  return (int)r;
+    uint64_t r;
+    r = config_parse_units(s, time_units, ok);
+    if (r > INT_MAX) {
+        log_warn(LD_CONFIG, "Interval '%s' is too long", s);
+        *ok = 0;
+        return -1;
+    }
+    return (int)r;
 }

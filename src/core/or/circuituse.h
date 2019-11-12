@@ -48,13 +48,13 @@ void circuit_build_failed(origin_circuit_t *circ);
  *  to apply some additional filters on the node picked. */
 #define CIRCLAUNCH_IS_V3_RP (1<<4)
 origin_circuit_t *circuit_launch_by_extend_info(uint8_t purpose,
-                                                extend_info_t *info,
-                                                int flags);
+        extend_info_t *info,
+        int flags);
 origin_circuit_t *circuit_launch(uint8_t purpose, int flags);
 void circuit_reset_failure_count(int timeout);
 int connection_ap_handshake_attach_chosen_circuit(entry_connection_t *conn,
-                                                  origin_circuit_t *circ,
-                                                  crypt_path_t *cpath);
+        origin_circuit_t *circ,
+        crypt_path_t *cpath);
 int connection_ap_handshake_attach_circuit(entry_connection_t *conn);
 
 void circuit_change_purpose(circuit_t *circ, uint8_t new_purpose);

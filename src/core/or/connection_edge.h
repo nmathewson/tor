@@ -93,14 +93,14 @@ MOCK_DECL(int,
 int connection_ap_handshake_send_resolve(entry_connection_t *ap_conn);
 
 entry_connection_t  *connection_ap_make_link(connection_t *partner,
-                                            char *address, uint16_t port,
-                                            const char *digest,
-                                            int session_group,
-                                            int isolation_flags,
-                                            int use_begindir, int want_onehop);
+        char *address, uint16_t port,
+        const char *digest,
+        int session_group,
+        int isolation_flags,
+        int use_begindir, int want_onehop);
 void connection_ap_handshake_socks_reply(entry_connection_t *conn, char *reply,
-                                         size_t replylen,
-                                         int endreason);
+        size_t replylen,
+        int endreason);
 MOCK_DECL(void,connection_ap_handshake_socks_resolved,
           (entry_connection_t *conn,
            int answer_type,
@@ -109,9 +109,9 @@ MOCK_DECL(void,connection_ap_handshake_socks_resolved,
            int ttl,
            time_t expires));
 void connection_ap_handshake_socks_resolved_addr(entry_connection_t *conn,
-                                                 const tor_addr_t *answer,
-                                                 int ttl,
-                                                 time_t expires);
+        const tor_addr_t *answer,
+        int ttl,
+        time_t expires);
 
 int connection_exit_begin_conn(cell_t *cell, circuit_t *circ);
 int connection_exit_begin_resolve(cell_t *cell, or_circuit_t *circ);
@@ -123,12 +123,12 @@ void connection_ap_expire_beginning(void);
 void connection_ap_rescan_and_attach_pending(void);
 void connection_ap_attach_pending(int retry);
 void connection_ap_mark_as_pending_circuit_(entry_connection_t *entry_conn,
-                                           const char *file, int line);
+        const char *file, int line);
 #define connection_ap_mark_as_pending_circuit(c) \
   connection_ap_mark_as_pending_circuit_((c), __FILE__, __LINE__)
 void connection_ap_mark_as_non_pending_circuit(entry_connection_t *entry_conn);
 void connection_ap_mark_as_waiting_for_renddesc(
-                                       entry_connection_t *entry_conn);
+    entry_connection_t *entry_conn);
 
 #define CONNECTION_AP_EXPECT_NONPENDING(c) do {                         \
     if (ENTRY_TO_CONN(c)->state == AP_CONN_STATE_CIRCUIT_WAIT) {        \
@@ -148,17 +148,17 @@ int connection_ap_process_transparent(entry_connection_t *conn);
 int address_is_invalid_destination(const char *address, int client);
 
 MOCK_DECL(int, connection_ap_rewrite_and_attach_if_allowed,
-                                                (entry_connection_t *conn,
-                                                 origin_circuit_t *circ,
-                                                 crypt_path_t *cpath));
+          (entry_connection_t *conn,
+           origin_circuit_t *circ,
+           crypt_path_t *cpath));
 int connection_ap_handshake_rewrite_and_attach(entry_connection_t *conn,
-                                               origin_circuit_t *circ,
-                                               crypt_path_t *cpath);
+        origin_circuit_t *circ,
+        crypt_path_t *cpath);
 
 /** Possible return values for parse_extended_hostname. */
 typedef enum hostname_type_t {
-  NORMAL_HOSTNAME, ONION_V2_HOSTNAME, ONION_V3_HOSTNAME,
-  EXIT_HOSTNAME, BAD_HOSTNAME
+    NORMAL_HOSTNAME, ONION_V2_HOSTNAME, ONION_V3_HOSTNAME,
+    EXIT_HOSTNAME, BAD_HOSTNAME
 } hostname_type_t;
 hostname_type_t parse_extended_hostname(char *address);
 
@@ -167,29 +167,29 @@ int get_pf_socket(void);
 #endif
 
 int connection_edge_compatible_with_circuit(const entry_connection_t *conn,
-                                            const origin_circuit_t *circ);
+        const origin_circuit_t *circ);
 int connection_edge_update_circuit_isolation(const entry_connection_t *conn,
-                                             origin_circuit_t *circ,
-                                             int dry_run);
+        origin_circuit_t *circ,
+        int dry_run);
 void circuit_clear_isolation(origin_circuit_t *circ);
 streamid_t get_unique_stream_id_by_circ(origin_circuit_t *circ);
 
 void connection_edge_free_all(void);
 
 void connection_ap_warn_and_unmark_if_pending_circ(
-                                             entry_connection_t *entry_conn,
-                                             const char *where);
+    entry_connection_t *entry_conn,
+    const char *where);
 
 int connection_half_edge_is_valid_data(const smartlist_t *half_conns,
                                        streamid_t stream_id);
 int connection_half_edge_is_valid_sendme(const smartlist_t *half_conns,
-                                         streamid_t stream_id);
+        streamid_t stream_id);
 int connection_half_edge_is_valid_connected(const smartlist_t *half_conns,
-                                            streamid_t stream_id);
+        streamid_t stream_id);
 int connection_half_edge_is_valid_end(smartlist_t *half_conns,
                                       streamid_t stream_id);
 int connection_half_edge_is_valid_resolved(smartlist_t *half_conns,
-                                           streamid_t stream_id);
+        streamid_t stream_id);
 
 size_t half_streams_get_total_allocation(void);
 struct half_edge_t;
@@ -221,60 +221,60 @@ void half_edge_free_(struct half_edge_t *he);
 
 /** A parsed BEGIN or BEGIN_DIR cell */
 typedef struct begin_cell_t {
-  /** The address the client has asked us to connect to, or NULL if this is
-   * a BEGIN_DIR cell*/
-  char *address;
-  /** The flags specified in the BEGIN cell's body.  One or more of
-   * BEGIN_FLAG_*. */
-  uint32_t flags;
-  /** The client's requested port. */
-  uint16_t port;
-  /** The client's requested Stream ID */
-  uint16_t stream_id;
-  /** True iff this is a BEGIN_DIR cell. */
-  unsigned is_begindir : 1;
+    /** The address the client has asked us to connect to, or NULL if this is
+     * a BEGIN_DIR cell*/
+    char *address;
+    /** The flags specified in the BEGIN cell's body.  One or more of
+     * BEGIN_FLAG_*. */
+    uint32_t flags;
+    /** The client's requested port. */
+    uint16_t port;
+    /** The client's requested Stream ID */
+    uint16_t stream_id;
+    /** True iff this is a BEGIN_DIR cell. */
+    unsigned is_begindir : 1;
 } begin_cell_t;
 
 STATIC int begin_cell_parse(const cell_t *cell, begin_cell_t *bcell,
-                     uint8_t *end_reason_out);
+                            uint8_t *end_reason_out);
 STATIC int connected_cell_format_payload(uint8_t *payload_out,
-                                  const tor_addr_t *addr,
-                                  uint32_t ttl);
+        const tor_addr_t *addr,
+        uint32_t ttl);
 
 typedef struct {
-  /** Original address, after we lowercased it but before we started
-   * mapping it.
-   */
-  char orig_address[MAX_SOCKS_ADDR_LEN];
-  /** True iff the address has been automatically remapped to a local
-   * address in VirtualAddrNetwork.  (Only set true when we do a resolve
-   * and get a virtual address; not when we connect to the address.) */
-  int automap;
-  /** If this connection has a .exit address, who put it there? */
-  addressmap_entry_source_t exit_source;
-  /** If we've rewritten the address, when does this map expire? */
-  time_t map_expires;
-  /** If we should close the connection, this is the end_reason to pass
-   * to connection_mark_unattached_ap */
-  int end_reason;
-  /** True iff we should close the connection, either because of error or
-   * because of successful early RESOLVED reply. */
-  int should_close;
+    /** Original address, after we lowercased it but before we started
+     * mapping it.
+     */
+    char orig_address[MAX_SOCKS_ADDR_LEN];
+    /** True iff the address has been automatically remapped to a local
+     * address in VirtualAddrNetwork.  (Only set true when we do a resolve
+     * and get a virtual address; not when we connect to the address.) */
+    int automap;
+    /** If this connection has a .exit address, who put it there? */
+    addressmap_entry_source_t exit_source;
+    /** If we've rewritten the address, when does this map expire? */
+    time_t map_expires;
+    /** If we should close the connection, this is the end_reason to pass
+     * to connection_mark_unattached_ap */
+    int end_reason;
+    /** True iff we should close the connection, either because of error or
+     * because of successful early RESOLVED reply. */
+    int should_close;
 } rewrite_result_t;
 
 STATIC void connection_ap_handshake_rewrite(entry_connection_t *conn,
-                                            rewrite_result_t *out);
+        rewrite_result_t *out);
 
 STATIC int connection_ap_process_http_connect(entry_connection_t *conn);
 STATIC void export_hs_client_circuit_id(edge_connection_t *edge_conn,
-                            hs_circuit_id_protocol_t protocol);
+                                        hs_circuit_id_protocol_t protocol);
 
 struct half_edge_t;
 STATIC void connection_half_edge_add(const edge_connection_t *conn,
                                      origin_circuit_t *circ);
 STATIC struct half_edge_t *connection_half_edge_find_stream_id(
-                                     const smartlist_t *half_conns,
-                                     streamid_t stream_id);
+    const smartlist_t *half_conns,
+    streamid_t stream_id);
 #endif /* defined(CONNECTION_EDGE_PRIVATE) */
 
 #endif /* !defined(TOR_CONNECTION_EDGE_H) */

@@ -38,10 +38,10 @@ void dump_desc_init(void);
  */
 
 typedef struct {
-  char *filename;
-  size_t len;
-  uint8_t digest_sha256[DIGEST256_LEN];
-  time_t when;
+    char *filename;
+    size_t len;
+    uint8_t digest_sha256[DIGEST256_LEN];
+    time_t when;
 } dumped_desc_t;
 struct smartlist_t;
 
@@ -49,7 +49,7 @@ EXTERN(uint64_t, len_descs_dumped)
 EXTERN(struct smartlist_t *, descs_dumped)
 
 MOCK_DECL(STATIC dumped_desc_t *, dump_desc_populate_one_file,
-    (const char *dirname, const char *f));
+          (const char *dirname, const char *f));
 STATIC void dump_desc_populate_fifo_from_directory(const char *dirname);
 #endif /* defined(UNPARSEABLE_PRIVATE) */
 

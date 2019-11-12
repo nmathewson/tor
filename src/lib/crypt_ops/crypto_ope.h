@@ -44,7 +44,7 @@ uint64_t crypto_ope_encrypt(const crypto_ope_t *ope, int plaintext);
 #ifdef CRYPTO_OPE_PRIVATE
 struct aes_cnt_cipher;
 STATIC struct aes_cnt_cipher *ope_get_cipher(const crypto_ope_t *ope,
-                                              uint32_t initial_idx);
+        uint32_t initial_idx);
 STATIC uint64_t sum_values_from_cipher(struct aes_cnt_cipher *c, size_t n);
 #endif /* defined(CRYPTO_OPE_PRIVATE) */
 

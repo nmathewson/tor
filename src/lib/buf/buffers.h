@@ -39,9 +39,9 @@ size_t buf_get_total_allocation(void);
 int buf_add(buf_t *buf, const char *string, size_t string_len);
 void buf_add_string(buf_t *buf, const char *string);
 void buf_add_printf(buf_t *buf, const char *format, ...)
-  CHECK_PRINTF(2, 3);
+CHECK_PRINTF(2, 3);
 void buf_add_vprintf(buf_t *buf, const char *format, va_list args)
-  CHECK_PRINTF(2, 0);
+CHECK_PRINTF(2, 0);
 int buf_move_to_buf(buf_t *buf_out, buf_t *buf_in, size_t *buf_flushlen);
 void buf_move_all(buf_t *buf_out, buf_t *buf_in);
 void buf_peek(const buf_t *buf, char *string, size_t string_len);
@@ -71,15 +71,15 @@ size_t buf_preferred_chunk_size(size_t target);
 #define DEBUG_CHUNK_ALLOC
 /** A single chunk on a buffer. */
 typedef struct chunk_t {
-  struct chunk_t *next; /**< The next chunk on the buffer. */
-  size_t datalen; /**< The number of bytes stored in this chunk */
-  size_t memlen; /**< The number of usable bytes of storage in <b>mem</b>. */
+    struct chunk_t *next; /**< The next chunk on the buffer. */
+    size_t datalen; /**< The number of bytes stored in this chunk */
+    size_t memlen; /**< The number of usable bytes of storage in <b>mem</b>. */
 #ifdef DEBUG_CHUNK_ALLOC
-  size_t DBG_alloc;
+    size_t DBG_alloc;
 #endif
-  char *data; /**< A pointer to the first byte of data stored in <b>mem</b>. */
-  uint32_t inserted_time; /**< Timestamp when this chunk was inserted. */
-  char mem[FLEXIBLE_ARRAY_MEMBER]; /**< The actual memory used for storage in
+    char *data; /**< A pointer to the first byte of data stored in <b>mem</b>. */
+    uint32_t inserted_time; /**< Timestamp when this chunk was inserted. */
+    char mem[FLEXIBLE_ARRAY_MEMBER]; /**< The actual memory used for storage in
                 * this chunk. */
 } chunk_t;
 
@@ -87,13 +87,13 @@ typedef struct chunk_t {
 #define BUFFER_MAGIC 0xB0FFF312u
 /** A resizeable buffer, optimized for reading and writing. */
 struct buf_t {
-  uint32_t magic; /**< Magic cookie for debugging: Must be set to
+    uint32_t magic; /**< Magic cookie for debugging: Must be set to
                    *   BUFFER_MAGIC. */
-  size_t datalen; /**< How many bytes is this buffer holding right now? */
-  size_t default_chunk_size; /**< Don't allocate any chunks smaller than
+    size_t datalen; /**< How many bytes is this buffer holding right now? */
+    size_t default_chunk_size; /**< Don't allocate any chunks smaller than
                               * this for this buffer. */
-  chunk_t *head; /**< First chunk in the list, or NULL for none. */
-  chunk_t *tail; /**< Last chunk in the list, or NULL for none. */
+    chunk_t *head; /**< First chunk in the list, or NULL for none. */
+    chunk_t *tail; /**< Last chunk in the list, or NULL for none. */
 };
 
 chunk_t *buf_add_chunk_with_capacity(buf_t *buf, size_t capacity, int capped);
@@ -106,7 +106,7 @@ chunk_t *buf_add_chunk_with_capacity(buf_t *buf, size_t capacity, int capped);
 static inline size_t
 CHUNK_REMAINING_CAPACITY(const chunk_t *chunk)
 {
-  return (chunk->mem + chunk->memlen) - (chunk->data + chunk->datalen);
+    return (chunk->mem + chunk->memlen) - (chunk->data + chunk->datalen);
 }
 
 /** Return the next character in <b>chunk</b> onto which data can be appended.
@@ -114,7 +114,7 @@ CHUNK_REMAINING_CAPACITY(const chunk_t *chunk)
 static inline char *
 CHUNK_WRITE_PTR(chunk_t *chunk)
 {
-  return chunk->data + chunk->datalen;
+    return chunk->data + chunk->datalen;
 }
 
 #endif /* defined(BUFFERS_PRIVATE) */

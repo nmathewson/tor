@@ -35,18 +35,18 @@ struct smartlist_t;
 /// C_RUST_COUPLED: src/rust/protover/ffi.rs `translate_to_rust`
 /// C_RUST_COUPLED: src/rust/protover/protover.rs `Proto`
 typedef enum protocol_type_t {
-  PRT_LINK      = 0,
-  PRT_LINKAUTH  = 1,
-  PRT_RELAY     = 2,
-  PRT_DIRCACHE  = 3,
-  PRT_HSDIR     = 4,
-  PRT_HSINTRO   = 5,
-  PRT_HSREND    = 6,
-  PRT_DESC      = 7,
-  PRT_MICRODESC = 8,
-  PRT_CONS      = 9,
-  PRT_PADDING   = 10,
-  PRT_FLOWCTRL  = 11,
+    PRT_LINK      = 0,
+    PRT_LINKAUTH  = 1,
+    PRT_RELAY     = 2,
+    PRT_DIRCACHE  = 3,
+    PRT_HSDIR     = 4,
+    PRT_HSINTRO   = 5,
+    PRT_HSREND    = 6,
+    PRT_DESC      = 7,
+    PRT_MICRODESC = 8,
+    PRT_CONS      = 9,
+    PRT_PADDING   = 10,
+    PRT_FLOWCTRL  = 11,
 } protocol_type_t;
 
 bool protover_contains_long_protocol_names(const char *s);
@@ -60,8 +60,8 @@ const char *protover_compute_for_old_tor(const char *version);
 int protocol_list_supports_protocol(const char *list, protocol_type_t tp,
                                     uint32_t version);
 int protocol_list_supports_protocol_or_later(const char *list,
-                                             protocol_type_t tp,
-                                             uint32_t version);
+        protocol_type_t tp,
+        uint32_t version);
 
 void protover_free_all(void);
 
@@ -69,20 +69,20 @@ void protover_free_all(void);
 /** Represents a range of subprotocols of a given type. All subprotocols
  * between <b>low</b> and <b>high</b> inclusive are included. */
 typedef struct proto_range_t {
-  uint32_t low;
-  uint32_t high;
+    uint32_t low;
+    uint32_t high;
 } proto_range_t;
 
 /** Represents a set of ranges of subprotocols of a given type. */
 typedef struct proto_entry_t {
-  /** The name of the protocol.
-   *
-   * (This needs to handle voting on protocols which
-   * we don't recognize yet, so it's a char* rather than a protocol_type_t.)
-   */
-  char *name;
-  /** Smartlist of proto_range_t */
-  struct smartlist_t *ranges;
+    /** The name of the protocol.
+     *
+     * (This needs to handle voting on protocols which
+     * we don't recognize yet, so it's a char* rather than a protocol_type_t.)
+     */
+    char *name;
+    /** Smartlist of proto_range_t */
+    struct smartlist_t *ranges;
 } proto_entry_t;
 
 #if !defined(HAVE_RUST) && defined(TOR_UNIT_TESTS)

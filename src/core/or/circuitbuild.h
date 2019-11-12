@@ -22,10 +22,10 @@ void circuit_log_path(int severity, unsigned int domain,
                       origin_circuit_t *circ);
 origin_circuit_t *origin_circuit_init(uint8_t purpose, int flags);
 origin_circuit_t *circuit_establish_circuit(uint8_t purpose,
-                                            extend_info_t *exit,
-                                            int flags);
+        extend_info_t *exit,
+        int flags);
 struct circuit_guard_state_t *origin_circuit_get_guard_state(
-                                            origin_circuit_t *circ);
+    origin_circuit_t *circ);
 int circuit_handle_first_hop(origin_circuit_t *circ);
 void circuit_n_chan_done(channel_t *chan, int status,
                          int close_origin_circuits);
@@ -43,8 +43,8 @@ int onionskin_answer(or_circuit_t *circ,
                      const char *keys, size_t keys_len,
                      const uint8_t *rend_circ_nonce);
 MOCK_DECL(int, circuit_all_predicted_ports_handled, (time_t now,
-                                                     int *need_uptime,
-                                                     int *need_capacity));
+          int *need_uptime,
+          int *need_capacity));
 
 int circuit_append_new_exit(origin_circuit_t *circ, extend_info_t *info);
 int circuit_extend_to_new_exit(origin_circuit_t *circ, extend_info_t *info);
@@ -72,8 +72,8 @@ const char *build_state_get_exit_nickname(cpath_build_state_t *state);
 struct circuit_guard_state_t;
 
 const node_t *choose_good_entry_server(uint8_t purpose,
-                           cpath_build_state_t *state,
-                           struct circuit_guard_state_t **guard_state_out);
+                                       cpath_build_state_t *state,
+                                       struct circuit_guard_state_t **guard_state_out);
 void circuit_upgrade_circuits_from_guard_wait(void);
 
 #ifdef CIRCUITBUILD_PRIVATE
@@ -81,7 +81,7 @@ STATIC circid_t get_unique_circ_id_by_chan(channel_t *chan);
 STATIC int new_route_len(uint8_t purpose, extend_info_t *exit_ei,
                          const smartlist_t *nodes);
 MOCK_DECL(STATIC int, count_acceptable_nodes, (const smartlist_t *nodes,
-                                               int direct));
+          int direct));
 
 STATIC int onion_extend_cpath(origin_circuit_t *circ);
 

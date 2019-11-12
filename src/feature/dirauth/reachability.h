@@ -29,7 +29,7 @@ void dirserv_test_reachability(time_t now);
 
 #ifdef HAVE_MODULE_DIRAUTH
 int dirserv_should_launch_reachability_test(const routerinfo_t *ri,
-                                            const routerinfo_t *ri_old);
+        const routerinfo_t *ri_old);
 void dirserv_orconn_tls_done(const tor_addr_t *addr,
                              uint16_t or_port,
                              const char *digest_rcvd,
@@ -37,11 +37,11 @@ void dirserv_orconn_tls_done(const tor_addr_t *addr,
 #else /* !defined(HAVE_MODULE_DIRAUTH) */
 static inline int
 dirserv_should_launch_reachability_test(const routerinfo_t *ri,
-                                            const routerinfo_t *ri_old)
+                                        const routerinfo_t *ri_old)
 {
-  (void)ri;
-  (void)ri_old;
-  return 0;
+    (void)ri;
+    (void)ri_old;
+    return 0;
 }
 static inline void
 dirserv_orconn_tls_done(const tor_addr_t *addr,
@@ -49,10 +49,10 @@ dirserv_orconn_tls_done(const tor_addr_t *addr,
                         const char *digest_rcvd,
                         const struct ed25519_public_key_t *ed_id_rcvd)
 {
-  (void)addr;
-  (void)or_port;
-  (void)digest_rcvd;
-  (void)ed_id_rcvd;
+    (void)addr;
+    (void)or_port;
+    (void)digest_rcvd;
+    (void)ed_id_rcvd;
 }
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
 

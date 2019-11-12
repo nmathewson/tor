@@ -16,7 +16,7 @@
  * Container for distribution parameters for sampling, CDF, &c.
  */
 struct dist {
-  const struct dist_ops *ops;
+    const struct dist_ops *ops;
 };
 
 /**
@@ -126,19 +126,19 @@ double dist_isf(const struct dist *, double p);
  * `vtable' and the members are virtual member functions.
  */
 struct dist_ops {
-  const char *name;
-  double (*sample)(const struct dist *);
-  double (*cdf)(const struct dist *, double x);
-  double (*sf)(const struct dist *, double x);
-  double (*icdf)(const struct dist *, double p);
-  double (*isf)(const struct dist *, double p);
+    const char *name;
+    double (*sample)(const struct dist *);
+    double (*cdf)(const struct dist *, double x);
+    double (*sf)(const struct dist *, double x);
+    double (*icdf)(const struct dist *, double p);
+    double (*isf)(const struct dist *, double p);
 };
 
 /* Geometric distribution on positive number of trials before first success */
 
 struct geometric {
-  struct dist base;
-  double p; /* success probability */
+    struct dist base;
+    double p; /* success probability */
 };
 
 extern const struct dist_ops geometric_ops;
@@ -149,10 +149,10 @@ extern const struct dist_ops geometric_ops;
 /* Pareto distribution */
 
 struct genpareto {
-  struct dist base;
-  double mu;
-  double sigma;
-  double xi;
+    struct dist base;
+    double mu;
+    double sigma;
+    double xi;
 };
 
 extern const struct dist_ops genpareto_ops;
@@ -163,9 +163,9 @@ extern const struct dist_ops genpareto_ops;
 /* Weibull distribution */
 
 struct weibull {
-  struct dist base;
-  double lambda;
-  double k;
+    struct dist base;
+    double lambda;
+    double k;
 };
 
 extern const struct dist_ops weibull_ops;
@@ -176,9 +176,9 @@ extern const struct dist_ops weibull_ops;
 /* Log-logistic distribution */
 
 struct log_logistic {
-  struct dist base;
-  double alpha;
-  double beta;
+    struct dist base;
+    double alpha;
+    double beta;
 };
 
 extern const struct dist_ops log_logistic_ops;
@@ -189,9 +189,9 @@ extern const struct dist_ops log_logistic_ops;
 /* Logistic distribution */
 
 struct logistic {
-  struct dist base;
-  double mu;
-  double sigma;
+    struct dist base;
+    double mu;
+    double sigma;
 };
 
 extern const struct dist_ops logistic_ops;
@@ -202,9 +202,9 @@ extern const struct dist_ops logistic_ops;
 /* Uniform distribution */
 
 struct uniform {
-  struct dist base;
-  double a;
-  double b;
+    struct dist base;
+    double a;
+    double b;
 };
 
 extern const struct dist_ops uniform_ops;

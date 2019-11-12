@@ -20,8 +20,8 @@
  * 9th describes how much iteration to do. */
 #define S2K_RFC2440_SPECIFIER_LEN 9
 void secret_to_key_rfc2440(
-                   char *key_out, size_t key_out_len, const char *secret,
-                   size_t secret_len, const char *s2k_specifier);
+    char *key_out, size_t key_out_len, const char *secret,
+    size_t secret_len, const char *s2k_specifier);
 
 /** Flag for secret-to-key function: do not use scrypt. */
 #define S2K_FLAG_NO_SCRYPT  (1u<<0)
@@ -62,7 +62,7 @@ int secret_to_key_new(uint8_t *buf,
 int secret_to_key_make_specifier(uint8_t *buf, size_t buf_len, unsigned flags);
 
 int secret_to_key_check(const uint8_t *spec_and_key, size_t spec_and_key_len,
-                          const char *secret, size_t secret_len);
+                        const char *secret, size_t secret_len);
 
 int secret_to_key_derivekey(uint8_t *key_out, size_t key_out_len,
                             const uint8_t *spec, size_t spec_len,

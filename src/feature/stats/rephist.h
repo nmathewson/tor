@@ -56,7 +56,7 @@ void rep_hist_buffer_stats_add_circ(circuit_t *circ,
 time_t rep_hist_buffer_stats_write(time_t now);
 void rep_hist_buffer_stats_term(void);
 void rep_hist_add_buffer_stats(double mean_num_cells_in_queue,
-     double mean_time_cells_in_queue, uint32_t processed_cells);
+                               double mean_time_cells_in_queue, uint32_t processed_cells);
 char *rep_hist_format_buffer_stats(time_t now);
 void rep_hist_reset_buffer_stats(time_t now);
 
@@ -87,7 +87,7 @@ void rep_hist_stored_maybe_new_hs(const crypto_pk_t *pubkey);
 void rep_hist_free_all(void);
 
 void rep_hist_note_negotiated_link_proto(unsigned link_proto,
-                                         int started_here);
+        int started_here);
 void rep_hist_log_link_protocol_counts(void);
 
 extern uint64_t rephist_total_alloc;

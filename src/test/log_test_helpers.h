@@ -9,11 +9,11 @@
 /** An element of mock_saved_logs(); records the log element that we
  * received. */
 typedef struct mock_saved_log_entry_t {
-  int severity;
-  const char *funcname;
-  const char *suffix;
-  const char *format;
-  char *generated_msg;
+    int severity;
+    const char *funcname;
+    const char *suffix;
+    const char *format;
+    char *generated_msg;
 } mock_saved_log_entry_t;
 
 void mock_clean_saved_logs(void);

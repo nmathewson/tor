@@ -40,9 +40,9 @@
    </pre>
  */
 typedef struct ratelim_t {
-  int rate;
-  time_t last_allowed;
-  int n_calls_since_last_time;
+    int rate;
+    time_t last_allowed;
+    int n_calls_since_last_time;
 } ratelim_t;
 
 #ifndef COCCI

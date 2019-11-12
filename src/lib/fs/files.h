@@ -80,8 +80,8 @@ MOCK_DECL(int, write_bytes_to_file,(const char *fname, const char *str,
 /** An ad-hoc type to hold a string of characters and a count; used by
  * write_chunks_to_file. */
 typedef struct sized_chunk_t {
-  const char *bytes;
-  size_t len;
+    const char *bytes;
+    size_t len;
 } sized_chunk_t;
 struct smartlist_t;
 int write_chunks_to_file(const char *fname, const struct smartlist_t *chunks,
@@ -97,11 +97,11 @@ int write_bytes_to_new_file(const char *fname, const char *str, size_t len,
 #define RFTS_IGNORE_MISSING 2
 
 MOCK_DECL_ATTR(char *, read_file_to_str,(const char *filename, int flags,
-                                         struct stat *stat_out),
+               struct stat *stat_out),
                ATTR_MALLOC);
 char *read_file_to_str_until_eof(int fd, size_t max_bytes_to_read,
                                  size_t *sz_out)
-  ATTR_MALLOC;
+ATTR_MALLOC;
 
 #if !defined(HAVE_GETDELIM) || defined(TOR_UNIT_TESTS)
 /** Internal back-end function to implement getdelim(): only exists when

@@ -23,15 +23,15 @@
 /** Represents an mmaped file. Allocated via tor_mmap_file; freed with
  * tor_munmap_file. */
 typedef struct tor_mmap_t {
-  const char *data; /**< Mapping of the file's contents. */
-  size_t size; /**< Size of the file. */
+    const char *data; /**< Mapping of the file's contents. */
+    size_t size; /**< Size of the file. */
 
-  /* None of the fields below should be accessed from outside compat.c */
+    /* None of the fields below should be accessed from outside compat.c */
 #ifdef HAVE_MMAP
-  size_t mapping_size; /**< Size of the actual mapping. (This is this file
+    size_t mapping_size; /**< Size of the actual mapping. (This is this file
                         * size, rounded up to the nearest page.) */
 #elif defined _WIN32
-  HANDLE mmap_handle;
+    HANDLE mmap_handle;
 #endif /* defined(HAVE_MMAP) || ... */
 
 } tor_mmap_t;

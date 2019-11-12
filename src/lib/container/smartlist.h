@@ -20,10 +20,10 @@
 #include "lib/smartlist_core/smartlist_split.h"
 
 void smartlist_add_asprintf(struct smartlist_t *sl, const char *pattern, ...)
-  CHECK_PRINTF(2, 3);
+CHECK_PRINTF(2, 3);
 void smartlist_add_vasprintf(struct smartlist_t *sl, const char *pattern,
                              va_list args)
-  CHECK_PRINTF(2, 0);
+CHECK_PRINTF(2, 0);
 void smartlist_reverse(smartlist_t *sl);
 void smartlist_string_remove(smartlist_t *sl, const char *element);
 int smartlist_contains_string(const smartlist_t *sl, const char *element);
@@ -44,8 +44,8 @@ int smartlist_ptrs_eq(const smartlist_t *s1,
 void smartlist_sort(smartlist_t *sl,
                     int (*compare)(const void **a, const void **b));
 void *smartlist_get_most_frequent_(const smartlist_t *sl,
-                    int (*compare)(const void **a, const void **b),
-                    int *count_out);
+                                   int (*compare)(const void **a, const void **b),
+                                   int *count_out);
 #define smartlist_get_most_frequent(sl, compare) \
   smartlist_get_most_frequent_((sl), (compare), NULL)
 void smartlist_uniq(smartlist_t *sl,
@@ -59,7 +59,7 @@ void smartlist_sort_pointers(smartlist_t *sl);
 
 const char *smartlist_get_most_frequent_string(smartlist_t *sl);
 const char *smartlist_get_most_frequent_string_(smartlist_t *sl,
-                                                int *count_out);
+        int *count_out);
 const uint8_t *smartlist_get_most_frequent_digest256(smartlist_t *sl);
 
 void smartlist_uniq_strings(smartlist_t *sl);
@@ -90,7 +90,7 @@ char *smartlist_join_strings(smartlist_t *sl, const char *join, int terminate,
                              size_t *len_out) ATTR_MALLOC;
 char *smartlist_join_strings2(smartlist_t *sl, const char *join,
                               size_t join_len, int terminate, size_t *len_out)
-  ATTR_MALLOC;
+ATTR_MALLOC;
 
 #ifndef COCCI
 /* Helper: Given two lists of items, possibly of different types, such that

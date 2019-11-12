@@ -41,18 +41,18 @@ int storage_dir_save_string_to_file(storage_dir_t *d,
                                     int binary,
                                     char **fname_out);
 int storage_dir_save_labeled_to_file(storage_dir_t *d,
-                                      const struct config_line_t *labels,
-                                      const uint8_t *data,
-                                      size_t length,
-                                      char **fname_out);
+                                     const struct config_line_t *labels,
+                                     const uint8_t *data,
+                                     size_t length,
+                                     char **fname_out);
 struct tor_mmap_t *storage_dir_map_labeled(storage_dir_t *dir,
-                                     const char *fname,
-                                     struct config_line_t **labels_out,
-                                     const uint8_t **data_out,
-                                     size_t *size_out);
+        const char *fname,
+        struct config_line_t **labels_out,
+        const uint8_t **data_out,
+        size_t *size_out);
 uint8_t *storage_dir_read_labeled(storage_dir_t *d, const char *fname,
-                                   struct config_line_t **labels_out,
-                                   size_t *sz_out);
+                                  struct config_line_t **labels_out,
+                                  size_t *sz_out);
 void storage_dir_remove_file(storage_dir_t *d,
                              const char *fname);
 int storage_dir_shrink(storage_dir_t *d,

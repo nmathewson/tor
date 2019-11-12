@@ -118,8 +118,8 @@ void dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items,
 
 /* Storing signatures and votes functions */
 struct pending_vote_t * dirvote_add_vote(const char *vote_body,
-                                         const char **msg_out,
-                                         int *status_out);
+        const char **msg_out,
+        int *status_out);
 int dirvote_add_signatures(const char *detached_signatures_body,
                            const char *source,
                            const char **msg_out);
@@ -133,9 +133,9 @@ char *format_recommended_version_list(const struct config_line_t *line,
 static inline time_t
 dirvote_act(const or_options_t *options, time_t now)
 {
-  (void) options;
-  (void) now;
-  return TIME_MAX;
+    (void) options;
+    (void) now;
+    return TIME_MAX;
 }
 
 static inline void
@@ -146,37 +146,37 @@ dirvote_free_all(void)
 static inline void
 dirvote_parse_sr_commits(networkstatus_t *ns, const smartlist_t *tokens)
 {
-  (void) ns;
-  (void) tokens;
+    (void) ns;
+    (void) tokens;
 }
 
 static inline void
 dirvote_clear_commits(networkstatus_t *ns)
 {
-  (void) ns;
+    (void) ns;
 }
 
 static inline void
 dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items,
                                smartlist_t *dir_items)
 {
-  (void) url;
-  (void) items;
-  (void) dir_items;
+    (void) url;
+    (void) items;
+    (void) dir_items;
 }
 
 static inline struct pending_vote_t *
 dirvote_add_vote(const char *vote_body, const char **msg_out, int *status_out)
 {
-  (void) vote_body;
-  /* If the dirauth module is disabled, this should NEVER be called else we
-   * failed to safeguard the dirauth module. */
-  tor_assert_nonfatal_unreached();
+    (void) vote_body;
+    /* If the dirauth module is disabled, this should NEVER be called else we
+     * failed to safeguard the dirauth module. */
+    tor_assert_nonfatal_unreached();
 
-  /* We need to send out an error code. */
-  *status_out = 400;
-  *msg_out = "No directory authority support";
-  return NULL;
+    /* We need to send out an error code. */
+    *status_out = 400;
+    *msg_out = "No directory authority support";
+    return NULL;
 }
 
 static inline int
@@ -184,13 +184,13 @@ dirvote_add_signatures(const char *detached_signatures_body,
                        const char *source,
                        const char **msg_out)
 {
-  (void) detached_signatures_body;
-  (void) source;
-  (void) msg_out;
-  /* If the dirauth module is disabled, this should NEVER be called else we
-   * failed to safeguard the dirauth module. */
-  tor_assert_nonfatal_unreached();
-  return 0;
+    (void) detached_signatures_body;
+    (void) source;
+    (void) msg_out;
+    /* If the dirauth module is disabled, this should NEVER be called else we
+     * failed to safeguard the dirauth module. */
+    tor_assert_nonfatal_unreached();
+    return 0;
 }
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
@@ -210,9 +210,9 @@ dirserv_generate_networkstatus_vote_obj(crypto_pk_t *private_key,
                                         authority_cert_t *cert);
 
 vote_microdesc_hash_t *dirvote_format_all_microdesc_vote_lines(
-                                        const routerinfo_t *ri,
-                                        time_t now,
-                                        smartlist_t *microdescriptors_out);
+    const routerinfo_t *ri,
+    time_t now,
+    smartlist_t *microdescriptors_out);
 
 /*
  * Exposed functions for unit tests.
@@ -222,13 +222,13 @@ vote_microdesc_hash_t *dirvote_format_all_microdesc_vote_lines(
 /* Cert manipulation */
 STATIC authority_cert_t *authority_cert_dup(authority_cert_t *cert);
 STATIC int32_t dirvote_get_intermediate_param_value(
-                                   const smartlist_t *param_list,
-                                   const char *keyword,
-                                   int32_t default_val);
+    const smartlist_t *param_list,
+    const char *keyword,
+    int32_t default_val);
 STATIC char *format_networkstatus_vote(crypto_pk_t *private_key,
-                                 networkstatus_t *v3_ns);
+                                       networkstatus_t *v3_ns);
 STATIC smartlist_t *dirvote_compute_params(smartlist_t *votes, int method,
-                             int total_authorities);
+        int total_authorities);
 STATIC char *compute_consensus_package_lines(smartlist_t *votes);
 STATIC char *make_consensus_method_list(int low, int high, const char *sep);
 STATIC int
@@ -245,14 +245,14 @@ char *networkstatus_compute_consensus(smartlist_t *votes,
                                       consensus_flavor_t flavor);
 STATIC
 int networkstatus_add_detached_signatures(networkstatus_t *target,
-                                          ns_detached_signatures_t *sigs,
-                                          const char *source,
-                                          int severity,
-                                          const char **msg_out);
+        ns_detached_signatures_t *sigs,
+        const char *source,
+        int severity,
+        const char **msg_out);
 STATIC
 char *networkstatus_get_detached_signatures(smartlist_t *consensuses);
 STATIC microdesc_t *dirvote_create_microdescriptor(const routerinfo_t *ri,
-                                                   int consensus_method);
+        int consensus_method);
 
 #endif /* defined(DIRVOTE_PRIVATE) */
 

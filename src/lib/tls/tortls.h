@@ -115,8 +115,8 @@ void tor_tls_get_n_raw_bytes(tor_tls_t *tls,
                              size_t *n_read, size_t *n_written);
 
 int tor_tls_get_buffer_sizes(tor_tls_t *tls,
-                              size_t *rbuf_capacity, size_t *rbuf_bytes,
-                              size_t *wbuf_capacity, size_t *wbuf_bytes);
+                             size_t *rbuf_capacity, size_t *rbuf_bytes,
+                             size_t *wbuf_capacity, size_t *wbuf_bytes);
 
 MOCK_DECL(double, tls_get_write_overhead_ratio, (void));
 
@@ -131,10 +131,10 @@ MOCK_DECL(int,tor_tls_get_tlssecrets,(tor_tls_t *tls, uint8_t *secrets_out));
 #define HAVE_WORKING_TOR_TLS_GET_TLSSECRETS
 #endif
 MOCK_DECL(int,tor_tls_export_key_material,(
-                     tor_tls_t *tls, uint8_t *secrets_out,
-                     const uint8_t *context,
-                     size_t context_len,
-                     const char *label));
+              tor_tls_t *tls, uint8_t *secrets_out,
+              const uint8_t *context,
+              size_t context_len,
+              const char *label));
 
 #ifdef ENABLE_OPENSSL
 /* Log and abort if there are unhandled TLS errors in OpenSSL's error stack.

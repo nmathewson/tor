@@ -51,18 +51,18 @@ options_validate_dirauth_mode(const or_options_t *old_options,
                               or_options_t *options,
                               char **msg)
 {
-  (void)old_options;
+    (void)old_options;
 
-  /* Only check the primary option for now, #29211 will disable more
-   * options. */
-  if (options->AuthoritativeDir) {
-    /* REJECT() this configuration */
-    *msg = tor_strdup("This tor was built with dirauth mode disabled. "
-                      "It can not be configured with AuthoritativeDir 1.");
-    return -1;
-  }
+    /* Only check the primary option for now, #29211 will disable more
+     * options. */
+    if (options->AuthoritativeDir) {
+        /* REJECT() this configuration */
+        *msg = tor_strdup("This tor was built with dirauth mode disabled. "
+                          "It can not be configured with AuthoritativeDir 1.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 #define options_validate_dirauth_bandwidth(old_options, options, msg) \

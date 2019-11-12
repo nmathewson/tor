@@ -52,53 +52,53 @@
 
 /** Protocol phase. */
 typedef enum {
-  /** Commitment phase */
-  SR_PHASE_COMMIT  = 1,
-  /** Reveal phase */
-  SR_PHASE_REVEAL  = 2,
+    /** Commitment phase */
+    SR_PHASE_COMMIT  = 1,
+    /** Reveal phase */
+    SR_PHASE_REVEAL  = 2,
 } sr_phase_t;
 
 /** A shared random value (SRV). */
 typedef struct sr_srv_t {
-  /** The number of reveal values used to derive this SRV. */
-  uint64_t num_reveals;
-  /** The actual value. This is the stored result of SHA3-256. */
-  uint8_t value[DIGEST256_LEN];
+    /** The number of reveal values used to derive this SRV. */
+    uint64_t num_reveals;
+    /** The actual value. This is the stored result of SHA3-256. */
+    uint8_t value[DIGEST256_LEN];
 } sr_srv_t;
 
 /** A commit (either ours or from another authority). */
 typedef struct sr_commit_t {
-  /** Hashing algorithm used. */
-  digest_algorithm_t alg;
-  /** Indicate if this commit has been verified thus valid. */
-  unsigned int valid:1;
+    /** Hashing algorithm used. */
+    digest_algorithm_t alg;
+    /** Indicate if this commit has been verified thus valid. */
+    unsigned int valid:1;
 
-  /* Commit owner info */
+    /* Commit owner info */
 
-  /** The RSA identity key of the authority and its base16 representation,
-   * which includes the NUL terminated byte. */
-  char rsa_identity[DIGEST_LEN];
-  char rsa_identity_hex[HEX_DIGEST_LEN + 1];
+    /** The RSA identity key of the authority and its base16 representation,
+     * which includes the NUL terminated byte. */
+    char rsa_identity[DIGEST_LEN];
+    char rsa_identity_hex[HEX_DIGEST_LEN + 1];
 
-  /* Commitment information */
+    /* Commitment information */
 
-  /** Timestamp of reveal. Correspond to TIMESTAMP. */
-  uint64_t reveal_ts;
-  /* H(REVEAL) as found in COMMIT message. */
-  char hashed_reveal[DIGEST256_LEN];
-  /* Base64 encoded COMMIT. We use this to put it in our vote. */
-  char encoded_commit[SR_COMMIT_BASE64_LEN + 1];
+    /** Timestamp of reveal. Correspond to TIMESTAMP. */
+    uint64_t reveal_ts;
+    /* H(REVEAL) as found in COMMIT message. */
+    char hashed_reveal[DIGEST256_LEN];
+    /* Base64 encoded COMMIT. We use this to put it in our vote. */
+    char encoded_commit[SR_COMMIT_BASE64_LEN + 1];
 
-  /* Reveal information */
+    /* Reveal information */
 
-  /** H(RN) which is what we used as the random value for this commit. We
-   * don't use the raw bytes since those are sent on the network thus
-   * avoiding possible information leaks of our PRNG. */
-  uint8_t random_number[SR_RANDOM_NUMBER_LEN];
-  /** Timestamp of commit. Correspond to TIMESTAMP. */
-  uint64_t commit_ts;
-  /** This is the whole reveal message. We use it during verification */
-  char encoded_reveal[SR_REVEAL_BASE64_LEN + 1];
+    /** H(RN) which is what we used as the random value for this commit. We
+     * don't use the raw bytes since those are sent on the network thus
+     * avoiding possible information leaks of our PRNG. */
+    uint8_t random_number[SR_RANDOM_NUMBER_LEN];
+    /** Timestamp of commit. Correspond to TIMESTAMP. */
+    uint64_t commit_ts;
+    /** This is the whole reveal message. We use it during verification */
+    char encoded_reveal[SR_REVEAL_BASE64_LEN + 1];
 } sr_commit_t;
 
 /* API */
@@ -117,9 +117,9 @@ void sr_act_post_consensus(const networkstatus_t *consensus);
 static inline int
 sr_init(int save_to_disk)
 {
-  (void) save_to_disk;
-  /* Always return success. */
-  return 0;
+    (void) save_to_disk;
+    /* Always return success. */
+    return 0;
 }
 
 static inline void
@@ -130,7 +130,7 @@ sr_save_and_cleanup(void)
 static inline void
 sr_act_post_consensus(const networkstatus_t *consensus)
 {
-  (void) consensus;
+    (void) consensus;
 }
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
@@ -150,7 +150,7 @@ void sr_commit_free_(sr_commit_t *commit);
 static inline
 const char *sr_commit_get_rsa_fpr(const sr_commit_t *commit)
 {
-  return commit->rsa_identity_hex;
+    return commit->rsa_identity_hex;
 }
 
 void sr_compute_srv(void);
@@ -172,7 +172,7 @@ STATIC int commit_has_reveal_value(const sr_commit_t *commit);
 STATIC int verify_commit_and_reveal(const sr_commit_t *commit);
 
 STATIC sr_srv_t *get_majority_srv_from_votes(const smartlist_t *votes,
-                                             int current);
+        int current);
 
 STATIC void save_commit_to_state(sr_commit_t *commit);
 STATIC int commitments_are_the_same(const sr_commit_t *commit_one,

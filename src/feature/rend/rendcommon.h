@@ -13,9 +13,9 @@
 #define TOR_RENDCOMMON_H
 
 typedef enum rend_intro_point_failure_t {
-  INTRO_POINT_FAILURE_GENERIC     = 0,
-  INTRO_POINT_FAILURE_TIMEOUT     = 1,
-  INTRO_POINT_FAILURE_UNREACHABLE = 2,
+    INTRO_POINT_FAILURE_GENERIC     = 0,
+    INTRO_POINT_FAILURE_TIMEOUT     = 1,
+    INTRO_POINT_FAILURE_UNREACHABLE = 2,
 } rend_intro_point_failure_t;
 
 int rend_cmp_service_ids(const char *one, const char *two);
@@ -30,7 +30,7 @@ void rend_service_descriptor_free_(rend_service_descriptor_t *desc);
                 (desc))
 int rend_get_service_id(crypto_pk_t *pk, char *out);
 void rend_encoded_v2_service_descriptor_free_(
-                               rend_encoded_v2_service_descriptor_t *desc);
+    rend_encoded_v2_service_descriptor_t *desc);
 #define rend_encoded_v2_service_descriptor_free(desc) \
   FREE_AND_NULL(rend_encoded_v2_service_descriptor_t, \
                 rend_encoded_v2_service_descriptor_free_, (desc))
@@ -53,7 +53,7 @@ void rend_get_descriptor_id_bytes(char *descriptor_id_out,
                                   const char *service_id,
                                   const char *secret_id_part);
 int hid_serv_get_responsible_directories(smartlist_t *responsible_dirs,
-                                         const char *id);
+        const char *id);
 
 int rend_circuit_pk_digest_eq(const origin_circuit_t *ocirc,
                               const uint8_t *digest);

@@ -24,13 +24,13 @@ const smartlist_t *bridge_list_get(void);
 const uint8_t *bridge_get_rsa_id_digest(const bridge_info_t *bridge);
 const tor_addr_port_t * bridge_get_addr_port(const bridge_info_t *bridge);
 bridge_info_t *get_configured_bridge_by_addr_port_digest(
-                                          const tor_addr_t *addr,
-                                          uint16_t port,
-                                          const char *digest);
+    const tor_addr_t *addr,
+    uint16_t port,
+    const char *digest);
 bridge_info_t *get_configured_bridge_by_exact_addr_port_digest(
-                                          const tor_addr_t *addr,
-                                          uint16_t port,
-                                          const char *digest);
+    const tor_addr_t *addr,
+    uint16_t port,
+    const char *digest);
 
 int addr_is_a_configured_bridge(const tor_addr_t *addr, uint16_t port,
                                 const char *digest);
@@ -46,15 +46,15 @@ void retry_bridge_descriptor_fetch_directly(const char *digest);
 void fetch_bridge_descriptors(const or_options_t *options, time_t now);
 void learned_bridge_descriptor(routerinfo_t *ri, int from_cache);
 const smartlist_t *get_socks_args_by_bridge_addrport(const tor_addr_t *addr,
-                                                     uint16_t port);
+        uint16_t port);
 
 int any_bridges_dont_support_microdescriptors(void);
 
 const char *find_transport_name_by_bridge_addrport(const tor_addr_t *addr,
-                                                   uint16_t port);
+        uint16_t port);
 struct transport_t;
 int get_transport_by_bridge_addrport(const tor_addr_t *addr, uint16_t port,
-                                      const struct transport_t **transport);
+                                     const struct transport_t **transport);
 
 MOCK_DECL(int, transport_is_needed, (const char *transport_name));
 int validate_pluggable_transports_config(void);
@@ -69,8 +69,8 @@ void bridges_free_all(void);
 STATIC void clear_bridge_list(void);
 STATIC bridge_info_t *find_bridge_by_digest(const char *digest);
 STATIC bridge_info_t *get_configured_bridge_by_orports_digest(
-                                                  const char *digest,
-                                                  const smartlist_t *orports);
+    const char *digest,
+    const smartlist_t *orports);
 STATIC void bridge_resolve_conflicts(const tor_addr_t *addr,
                                      uint16_t port,
                                      const char *digest,

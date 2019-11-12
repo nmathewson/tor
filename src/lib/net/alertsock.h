@@ -19,17 +19,17 @@
 /** Helper type used to manage waking up the main thread while it's in
  * the libevent main loop.  Used by the work queue code. */
 typedef struct alert_sockets_t {
-  /* XXXX This structure needs a better name. */
-  /** Socket that the main thread should listen for EV_READ events on.
-   * Note that this socket may be a regular fd on a non-Windows platform.
-   */
-  tor_socket_t read_fd;
-  /** Socket to use when alerting the main thread. */
-  tor_socket_t write_fd;
-  /** Function to alert the main thread */
-  int (*alert_fn)(tor_socket_t write_fd);
-  /** Function to make the main thread no longer alerted. */
-  int (*drain_fn)(tor_socket_t read_fd);
+    /* XXXX This structure needs a better name. */
+    /** Socket that the main thread should listen for EV_READ events on.
+     * Note that this socket may be a regular fd on a non-Windows platform.
+     */
+    tor_socket_t read_fd;
+    /** Socket to use when alerting the main thread. */
+    tor_socket_t write_fd;
+    /** Function to alert the main thread */
+    int (*alert_fn)(tor_socket_t write_fd);
+    /** Function to make the main thread no longer alerted. */
+    int (*drain_fn)(tor_socket_t read_fd);
 } alert_sockets_t;
 
 /* Flags to disable one or more alert_sockets backends. */

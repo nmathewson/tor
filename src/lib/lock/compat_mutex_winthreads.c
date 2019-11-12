@@ -20,27 +20,27 @@ tor_locking_init(void)
 void
 tor_mutex_init(tor_mutex_t *m)
 {
-  InitializeCriticalSection(&m->mutex);
+    InitializeCriticalSection(&m->mutex);
 }
 void
 tor_mutex_init_nonrecursive(tor_mutex_t *m)
 {
-  InitializeCriticalSection(&m->mutex);
+    InitializeCriticalSection(&m->mutex);
 }
 
 void
 tor_mutex_uninit(tor_mutex_t *m)
 {
-  DeleteCriticalSection(&m->mutex);
+    DeleteCriticalSection(&m->mutex);
 }
 void
 tor_mutex_acquire(tor_mutex_t *m)
 {
-  raw_assert(m);
-  EnterCriticalSection(&m->mutex);
+    raw_assert(m);
+    EnterCriticalSection(&m->mutex);
 }
 void
 tor_mutex_release(tor_mutex_t *m)
 {
-  LeaveCriticalSection(&m->mutex);
+    LeaveCriticalSection(&m->mutex);
 }

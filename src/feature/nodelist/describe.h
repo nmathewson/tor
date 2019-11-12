@@ -47,10 +47,10 @@ void router_get_verbose_nickname(char *buf, const routerinfo_t *router);
 #ifdef TOR_UNIT_TESTS
 
 STATIC const char *format_node_description(char *buf,
-                                           const char *id_digest,
-                                           const char *nickname,
-                                           const tor_addr_t *addr,
-                                           uint32_t addr32h);
+        const char *id_digest,
+        const char *nickname,
+        const tor_addr_t *addr,
+        uint32_t addr32h);
 
 #endif /* defined(TOR_UNIT_TESTS) */
 

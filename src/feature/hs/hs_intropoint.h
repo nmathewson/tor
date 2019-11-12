@@ -15,13 +15,13 @@
 /** Object containing introduction point common data between the service and
  * the client side. */
 typedef struct hs_intropoint_t {
-  /** Does this intro point only supports legacy ID ?. */
-  unsigned int is_only_legacy : 1;
+    /** Does this intro point only supports legacy ID ?. */
+    unsigned int is_only_legacy : 1;
 
-  /** Authentication key certificate from the descriptor. */
-  tor_cert_t *auth_key_cert;
-  /** A list of link specifier. */
-  smartlist_t *link_specifiers;
+    /** Authentication key certificate from the descriptor. */
+    tor_cert_t *auth_key_cert;
+    /** A list of link specifier. */
+    smartlist_t *link_specifiers;
 } hs_intropoint_t;
 
 int hs_intro_received_establish_intro(or_circuit_t *circ,
@@ -58,8 +58,8 @@ STATIC int handle_introduce1(or_circuit_t *client_circ,
 STATIC int validate_introduce1_parsed_cell(const trn_cell_introduce1_t *cell);
 STATIC int circuit_is_suitable_for_introduce1(const or_circuit_t *circ);
 STATIC bool cell_dos_extension_parameters_are_valid(
-                                          uint64_t intro2_rate_per_sec,
-                                          uint64_t intro2_burst_per_sec);
+    uint64_t intro2_rate_per_sec,
+    uint64_t intro2_burst_per_sec);
 
 #endif /* defined(HS_INTROPOINT_PRIVATE) */
 

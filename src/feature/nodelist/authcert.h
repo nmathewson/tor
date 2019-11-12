@@ -34,7 +34,7 @@ void trusted_dirs_flush_certs_to_disk(void);
 authority_cert_t *authority_cert_get_newest_by_id(const char *id_digest);
 authority_cert_t *authority_cert_get_by_sk_digest(const char *sk_digest);
 authority_cert_t *authority_cert_get_by_digests(const char *id_digest,
-                                                const char *sk_digest);
+        const char *sk_digest);
 void authority_cert_get_all(smartlist_t *certs_out);
 void authority_cert_dl_failed(const char *id_digest,
                               const char *signing_key_digest, int status);
@@ -53,7 +53,7 @@ MOCK_DECL(download_status_t *, id_only_download_status_for_authority_id,
 MOCK_DECL(smartlist_t *, list_sk_digests_for_authority_id,
           (const char *digest));
 MOCK_DECL(download_status_t *, download_status_for_authority_id_and_sk,
-    (const char *id_digest, const char *sk_digest));
+          (const char *id_digest, const char *sk_digest));
 
 void authcert_free_all(void);
 

@@ -27,37 +27,37 @@
 
 /** A cached rendezvous descriptor. */
 typedef struct rend_cache_entry_t {
-  size_t len; /**< Length of <b>desc</b> */
-  time_t last_served; /**< When did we last write this one to somebody?
+    size_t len; /**< Length of <b>desc</b> */
+    time_t last_served; /**< When did we last write this one to somebody?
                        * (HSDir only) */
-  char *desc; /**< Service descriptor */
-  rend_service_descriptor_t *parsed; /**< Parsed value of 'desc' */
+    char *desc; /**< Service descriptor */
+    rend_service_descriptor_t *parsed; /**< Parsed value of 'desc' */
 } rend_cache_entry_t;
 
 /* Introduction point failure type. */
 typedef struct rend_cache_failure_intro_t {
-  /* When this intro point failure occurred thus we allocated this object and
-   * cache it. */
-  time_t created_ts;
-  rend_intro_point_failure_t failure_type;
+    /* When this intro point failure occurred thus we allocated this object and
+     * cache it. */
+    time_t created_ts;
+    rend_intro_point_failure_t failure_type;
 } rend_cache_failure_intro_t;
 
 /** Cache failure object indexed by service ID. */
 typedef struct rend_cache_failure_t {
-  /* Contains rend_cache_failure_intro_t indexed by identity digest. */
-  digestmap_t *intro_failures;
+    /* Contains rend_cache_failure_intro_t indexed by identity digest. */
+    digestmap_t *intro_failures;
 } rend_cache_failure_t;
 
 typedef enum {
-  REND_CACHE_TYPE_CLIENT  = 1,
-  REND_CACHE_TYPE_SERVICE = 2,
+    REND_CACHE_TYPE_CLIENT  = 1,
+    REND_CACHE_TYPE_SERVICE = 2,
 } rend_cache_type_t;
 
 /* Return maximum lifetime in seconds of a cache entry. */
 static inline time_t
 rend_cache_max_entry_lifetime(void)
 {
-  return REND_CACHE_MAX_AGE + REND_CACHE_MAX_SKEW;
+    return REND_CACHE_MAX_AGE + REND_CACHE_MAX_SKEW;
 }
 
 void rend_cache_init(void);
@@ -69,7 +69,7 @@ void rend_cache_free_all(void);
 int rend_cache_lookup_entry(const char *query, int version,
                             rend_cache_entry_t **entry_out);
 int rend_cache_lookup_v2_desc_as_service(const char *query,
-                                         rend_cache_entry_t **entry_out);
+        rend_cache_entry_t **entry_out);
 int rend_cache_lookup_v2_desc_as_dir(const char *query, const char **desc);
 
 int rend_cache_store_v2_desc_as_dir(const char *desc);
@@ -96,7 +96,7 @@ STATIC void rend_cache_entry_free_(rend_cache_entry_t *e);
 #define rend_cache_entry_free(e) \
   FREE_AND_NULL(rend_cache_entry_t, rend_cache_entry_free_, (e))
 STATIC void rend_cache_failure_intro_entry_free_(rend_cache_failure_intro_t
-                                                 *entry);
+        *entry);
 #define rend_cache_failure_intro_entry_free(e)                          \
   FREE_AND_NULL(rend_cache_failure_intro_t,                   \
                           rend_cache_failure_intro_entry_free_, (e))
@@ -109,14 +109,14 @@ STATIC int cache_failure_intro_lookup(const uint8_t *identity,
                                       rend_cache_failure_intro_t
                                       **intro_entry);
 STATIC rend_cache_failure_intro_t *rend_cache_failure_intro_entry_new(
-                                      rend_intro_point_failure_t failure);
+    rend_intro_point_failure_t failure);
 STATIC rend_cache_failure_t *rend_cache_failure_entry_new(void);
 STATIC void rend_cache_failure_remove(rend_service_descriptor_t *desc);
 STATIC void cache_failure_intro_add(const uint8_t *identity,
                                     const char *service_id,
                                     rend_intro_point_failure_t failure);
 STATIC void validate_intro_point_failure(const rend_service_descriptor_t *desc,
-                                        const char *service_id);
+        const char *service_id);
 
 STATIC void rend_cache_failure_entry_free_void(void *entry);
 

@@ -57,11 +57,11 @@ struct process_win32_handle_t;
 typedef struct process_win32_handle_t process_win32_handle_t;
 
 typedef enum process_win32_pipe_type_t {
-  /** This pipe is used for reading. */
-  PROCESS_WIN32_PIPE_TYPE_READER,
+    /** This pipe is used for reading. */
+    PROCESS_WIN32_PIPE_TYPE_READER,
 
-  /** This pipe is used for writing. */
-  PROCESS_WIN32_PIPE_TYPE_WRITER
+    /** This pipe is used for writing. */
+    PROCESS_WIN32_PIPE_TYPE_WRITER
 } process_win32_pipe_type_t;
 
 STATIC bool process_win32_create_pipe(HANDLE *,
@@ -72,21 +72,21 @@ STATIC bool process_win32_create_pipe(HANDLE *,
 STATIC void process_win32_cleanup_handle(process_win32_handle_t *handle);
 
 STATIC VOID WINAPI process_win32_stdout_read_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
+        DWORD,
+        LPOVERLAPPED);
 STATIC VOID WINAPI process_win32_stderr_read_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
+        DWORD,
+        LPOVERLAPPED);
 STATIC VOID WINAPI process_win32_stdin_write_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
+        DWORD,
+        LPOVERLAPPED);
 
 STATIC int process_win32_read_from_handle(process_win32_handle_t *,
-                                          buf_t *,
-                                          LPOVERLAPPED_COMPLETION_ROUTINE);
+        buf_t *,
+        LPOVERLAPPED_COMPLETION_ROUTINE);
 STATIC bool process_win32_handle_read_completion(process_win32_handle_t *,
-                                                 DWORD,
-                                                 DWORD);
+        DWORD,
+        DWORD);
 
 STATIC char *format_win_cmdline_argument(const char *arg);
 STATIC char *tor_join_win_cmdline(const char *argv[]);

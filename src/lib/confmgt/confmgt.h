@@ -70,23 +70,23 @@ void config_free_(const config_mgr_t *fmt, void *options);
   } while (0)
 
 struct config_line_t *config_get_assigned_option(const config_mgr_t *mgr,
-                                          const void *options, const char *key,
-                                          int escape_val);
+        const void *options, const char *key,
+        int escape_val);
 int config_is_same(const config_mgr_t *fmt,
                    const void *o1, const void *o2,
                    const char *name);
 struct config_line_t *config_get_changes(const config_mgr_t *mgr,
-                                  const void *options1, const void *options2);
+        const void *options1, const void *options2);
 void config_init(const config_mgr_t *mgr, void *options);
 
 /** An enumeration to report which validation step failed. */
 typedef enum {
-  VSTAT_PRE_NORMALIZE_ERR = -5,
-  VSTAT_VALIDATE_ERR = -4,
-  VSTAT_LEGACY_ERR = -3,
-  VSTAT_TRANSITION_ERR = -2,
-  VSTAT_POST_NORMALIZE_ERR = -1,
-  VSTAT_OK = 0,
+    VSTAT_PRE_NORMALIZE_ERR = -5,
+    VSTAT_VALIDATE_ERR = -4,
+    VSTAT_LEGACY_ERR = -3,
+    VSTAT_TRANSITION_ERR = -2,
+    VSTAT_POST_NORMALIZE_ERR = -1,
+    VSTAT_OK = 0,
 } validation_status_t;
 
 validation_status_t config_validate(const config_mgr_t *mgr,

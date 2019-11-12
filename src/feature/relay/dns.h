@@ -51,25 +51,25 @@ tor_addr_t *configured_nameserver_address(const size_t idx);
 #endif
 
 MOCK_DECL(STATIC int,dns_resolve_impl,(edge_connection_t *exitconn,
-int is_resolve,or_circuit_t *oncirc, char **hostname_out,
-int *made_connection_pending_out, cached_resolve_t **resolve_out));
+                                       int is_resolve,or_circuit_t *oncirc, char **hostname_out,
+                                       int *made_connection_pending_out, cached_resolve_t **resolve_out));
 
 MOCK_DECL(STATIC void,send_resolved_cell,(edge_connection_t *conn,
-uint8_t answer_type,const cached_resolve_t *resolved));
+          uint8_t answer_type,const cached_resolve_t *resolved));
 
 MOCK_DECL(STATIC void,send_resolved_hostname_cell,(edge_connection_t *conn,
-const char *hostname));
+          const char *hostname));
 
 cached_resolve_t *dns_get_cache_entry(cached_resolve_t *query);
 void dns_insert_cache_entry(cached_resolve_t *new_entry);
 
 MOCK_DECL(STATIC int,
-set_exitconn_info_from_resolve,(edge_connection_t *exitconn,
-                                const cached_resolve_t *resolve,
-                                char **hostname_out));
+          set_exitconn_info_from_resolve,(edge_connection_t *exitconn,
+                  const cached_resolve_t *resolve,
+                  char **hostname_out));
 
 MOCK_DECL(STATIC int,
-launch_resolve,(cached_resolve_t *resolve));
+          launch_resolve,(cached_resolve_t *resolve));
 
 #endif /* defined(DNS_PRIVATE) */
 

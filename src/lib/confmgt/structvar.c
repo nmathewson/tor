@@ -35,10 +35,10 @@
 void
 struct_set_magic(void *object, const struct_magic_decl_t *decl)
 {
-  tor_assert(object);
-  tor_assert(decl);
-  uint32_t *ptr = STRUCT_VAR_P(object, decl->magic_offset);
-  *ptr = decl->magic_val;
+    tor_assert(object);
+    tor_assert(decl);
+    uint32_t *ptr = STRUCT_VAR_P(object, decl->magic_offset);
+    *ptr = decl->magic_val;
 }
 
 /**
@@ -47,14 +47,14 @@ struct_set_magic(void *object, const struct_magic_decl_t *decl)
 void
 struct_check_magic(const void *object, const struct_magic_decl_t *decl)
 {
-  tor_assert(object);
-  tor_assert(decl);
+    tor_assert(object);
+    tor_assert(decl);
 
-  const uint32_t *ptr = STRUCT_VAR_P(object, decl->magic_offset);
-  tor_assertf(*ptr == decl->magic_val,
-              "Bad magic number on purported %s object. "
-              "Expected %"PRIu32"x but got "PRIu32"x.",
-              decl->magic_val, *ptr);
+    const uint32_t *ptr = STRUCT_VAR_P(object, decl->magic_offset);
+    tor_assertf(*ptr == decl->magic_val,
+                "Bad magic number on purported %s object. "
+                "Expected %"PRIu32"x but got "PRIu32"x.",
+                decl->magic_val, *ptr);
 }
 
 /**
@@ -64,8 +64,8 @@ struct_check_magic(const void *object, const struct_magic_decl_t *decl)
 void *
 struct_get_mptr(void *object, const struct_member_t *member)
 {
-  tor_assert(object);
-  return STRUCT_VAR_P(object, member->offset);
+    tor_assert(object);
+    return STRUCT_VAR_P(object, member->offset);
 }
 
 /**
@@ -75,8 +75,8 @@ struct_get_mptr(void *object, const struct_member_t *member)
 const void *
 struct_get_ptr(const void *object, const struct_member_t *member)
 {
-  tor_assert(object);
-  return STRUCT_VAR_P(object, member->offset);
+    tor_assert(object);
+    return STRUCT_VAR_P(object, member->offset);
 }
 
 /**
@@ -86,10 +86,11 @@ struct_get_ptr(const void *object, const struct_member_t *member)
 static const var_type_def_t *
 get_type_def(const struct_member_t *member)
 {
-  if (member->type_def)
-    return member->type_def;
+    if (member->type_def) {
+        return member->type_def;
+    }
 
-  return lookup_type_def(member->type);
+    return lookup_type_def(member->type);
 }
 
 /**
@@ -99,10 +100,10 @@ get_type_def(const struct_member_t *member)
 void
 struct_var_free(void *object, const struct_member_t *member)
 {
-  void *p = struct_get_mptr(object, member);
-  const var_type_def_t *def = get_type_def(member);
+    void *p = struct_get_mptr(object, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  typed_var_free(p, def);
+    typed_var_free(p, def);
 }
 
 /**
@@ -112,11 +113,11 @@ struct_var_free(void *object, const struct_member_t *member)
 int
 struct_var_copy(void *dest, const void *src, const struct_member_t *member)
 {
-  void *p_dest = struct_get_mptr(dest, member);
-  const void *p_src = struct_get_ptr(src, member);
-  const var_type_def_t *def = get_type_def(member);
+    void *p_dest = struct_get_mptr(dest, member);
+    const void *p_src = struct_get_ptr(src, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return typed_var_copy(p_dest, p_src, def);
+    return typed_var_copy(p_dest, p_src, def);
 }
 
 /**
@@ -126,11 +127,11 @@ struct_var_copy(void *dest, const void *src, const struct_member_t *member)
 bool
 struct_var_eq(const void *a, const void *b, const struct_member_t *member)
 {
-  const void *p_a = struct_get_ptr(a, member);
-  const void *p_b = struct_get_ptr(b, member);
-  const var_type_def_t *def = get_type_def(member);
+    const void *p_a = struct_get_ptr(a, member);
+    const void *p_b = struct_get_ptr(b, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return typed_var_eq(p_a, p_b, def);
+    return typed_var_eq(p_a, p_b, def);
 }
 
 /**
@@ -140,10 +141,10 @@ struct_var_eq(const void *a, const void *b, const struct_member_t *member)
 bool
 struct_var_ok(const void *object, const struct_member_t *member)
 {
-  const void *p = struct_get_ptr(object, member);
-  const var_type_def_t *def = get_type_def(member);
+    const void *p = struct_get_ptr(object, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return typed_var_ok(p, def);
+    return typed_var_ok(p, def);
 }
 
 /**
@@ -155,10 +156,10 @@ struct_var_kvassign(void *object, const struct config_line_t *line,
                     char **errmsg,
                     const struct_member_t *member)
 {
-  void *p = struct_get_mptr(object, member);
-  const var_type_def_t *def = get_type_def(member);
+    void *p = struct_get_mptr(object, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return typed_var_kvassign(p, line, errmsg, def);
+    return typed_var_kvassign(p, line, errmsg, def);
 }
 
 /**
@@ -166,12 +167,12 @@ struct_var_kvassign(void *object, const struct config_line_t *line,
  * defined by <b>member</b>.)
  **/
 struct config_line_t *
-struct_var_kvencode(const void *object, const struct_member_t *member)
+    struct_var_kvencode(const void *object, const struct_member_t *member)
 {
-  const void *p = struct_get_ptr(object, member);
-  const var_type_def_t *def = get_type_def(member);
+    const void *p = struct_get_ptr(object, member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return typed_var_kvencode(member->name, p, def);
+    return typed_var_kvencode(member->name, p, def);
 }
 
 /**
@@ -182,9 +183,9 @@ struct_var_kvencode(const void *object, const struct_member_t *member)
 void
 struct_var_mark_fragile(void *object, const struct_member_t *member)
 {
-  void *p = struct_get_mptr(object, member);
-  const var_type_def_t *def = get_type_def(member);
-  return typed_var_mark_fragile(p, def);
+    void *p = struct_get_mptr(object, member);
+    const var_type_def_t *def = get_type_def(member);
+    return typed_var_mark_fragile(p, def);
 }
 
 /**
@@ -193,7 +194,7 @@ struct_var_mark_fragile(void *object, const struct_member_t *member)
 const char *
 struct_var_get_name(const struct_member_t *member)
 {
-  return member->name;
+    return member->name;
 }
 
 /**
@@ -206,16 +207,16 @@ struct_var_get_name(const struct_member_t *member)
 const char *
 struct_var_get_typename(const struct_member_t *member)
 {
-  const var_type_def_t *def = get_type_def(member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return def ? def->name : NULL;
+    return def ? def->name : NULL;
 }
 
 /** Return all of the flags set for this struct member. */
 uint32_t
 struct_var_get_flags(const struct_member_t *member)
 {
-  const var_type_def_t *def = get_type_def(member);
+    const var_type_def_t *def = get_type_def(member);
 
-  return def ? def->flags : 0;
+    return def ? def->flags : 0;
 }

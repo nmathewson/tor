@@ -64,10 +64,10 @@ int init_keys(void);
 int init_keys_client(void);
 
 uint16_t router_get_active_listener_port_by_type_af(int listener_type,
-                                                    sa_family_t family);
+        sa_family_t family);
 uint16_t router_get_advertised_or_port(const or_options_t *options);
 uint16_t router_get_advertised_or_port_by_af(const or_options_t *options,
-                                             sa_family_t family);
+        sa_family_t family);
 uint16_t router_get_advertised_dir_port(const or_options_t *options,
                                         uint16_t dirport);
 
@@ -97,18 +97,18 @@ const uint8_t *router_get_my_id_digest(void);
 int router_extrainfo_digest_is_me(const char *digest);
 int router_is_me(const routerinfo_t *router);
 MOCK_DECL(int,router_pick_published_address,(const or_options_t *options,
-                                             uint32_t *addr,
-                                             int cache_only));
+          uint32_t *addr,
+          int cache_only));
 int router_build_fresh_descriptor(routerinfo_t **r, extrainfo_t **e);
 int router_rebuild_descriptor(int force);
 char *router_dump_router_to_string(routerinfo_t *router,
-                             const crypto_pk_t *ident_key,
-                             const crypto_pk_t *tap_key,
-                             const struct curve25519_keypair_t *ntor_keypair,
-                             const struct ed25519_keypair_t *signing_keypair);
+                                   const crypto_pk_t *ident_key,
+                                   const crypto_pk_t *tap_key,
+                                   const struct curve25519_keypair_t *ntor_keypair,
+                                   const struct ed25519_keypair_t *signing_keypair);
 char *router_dump_exit_policy_to_string(const routerinfo_t *router,
-                                         int include_ipv4,
-                                         int include_ipv6);
+                                        int include_ipv4,
+                                        int include_ipv6);
 int extrainfo_dump_to_string(char **s, extrainfo_t *extrainfo,
                              crypto_pk_t *ident_key,
                              const struct ed25519_keypair_t *signing_keypair);
@@ -131,14 +131,14 @@ extern time_t desc_clean_since;
 extern const char *desc_dirty_reason;
 void set_server_identity_key_digest_testing(const uint8_t *digest);
 MOCK_DECL(STATIC const struct curve25519_keypair_t *,
-                                       get_current_curve25519_keypair,(void));
+          get_current_curve25519_keypair,(void));
 
 MOCK_DECL(STATIC int,
-              router_build_fresh_unsigned_routerinfo,(routerinfo_t **ri_out));
+          router_build_fresh_unsigned_routerinfo,(routerinfo_t **ri_out));
 STATIC extrainfo_t *router_build_fresh_signed_extrainfo(
-                                                      const routerinfo_t *ri);
+    const routerinfo_t *ri);
 STATIC void router_update_routerinfo_from_extrainfo(routerinfo_t *ri,
-                                                    const extrainfo_t *ei);
+        const extrainfo_t *ei);
 STATIC int router_dump_and_sign_routerinfo_descriptor_body(routerinfo_t *ri);
 #endif /* defined(TOR_UNIT_TESTS) */
 

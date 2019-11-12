@@ -106,8 +106,8 @@ void connection_dir_about_to_close(dir_connection_t *dir_conn);
 #define DSR_DIGEST256 (1<<2)
 #define DSR_SORT_UNIQ (1<<3)
 int dir_split_resource_into_fingerprints(const char *resource,
-                                     smartlist_t *fp_out, int *compressed_out,
-                                     int flags);
+        smartlist_t *fp_out, int *compressed_out,
+        int flags);
 enum dir_spool_source_t;
 int dir_split_resource_into_spoolable(const char *resource,
                                       enum dir_spool_source_t source,
@@ -115,7 +115,7 @@ int dir_split_resource_into_spoolable(const char *resource,
                                       int *compressed_out,
                                       int flags);
 int dir_split_resource_into_fingerprint_pairs(const char *res,
-                                              smartlist_t *pairs_out);
+        smartlist_t *pairs_out);
 char *directory_dump_request_log(void);
 void note_request(const char *key, size_t bytes);
 

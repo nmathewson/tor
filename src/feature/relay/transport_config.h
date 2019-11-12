@@ -31,8 +31,8 @@ int options_act_server_transport(const or_options_t *old_options);
 #ifdef RELAY_TRANSPORT_CONFIG_PRIVATE
 
 STATIC smartlist_t *get_options_from_transport_options_line(
-                      const char *line,
-                      const char *transport);
+    const char *line,
+    const char *transport);
 
 #endif /* defined(RELAY_TRANSPORT_CONFIG_PRIVATE) */
 
@@ -49,23 +49,23 @@ options_validate_server_transport(const or_options_t *old_options,
                                   or_options_t *options,
                                   char **msg)
 {
-  (void)old_options;
+    (void)old_options;
 
-  /* These ExtORPort checks are too strict, and will reject valid configs
-   * that disable ports, like "ExtORPort 0". */
-  if (options->ServerTransportPlugin ||
-      options->ServerTransportListenAddr ||
-      options->ServerTransportOptions ||
-      options->ExtORPort_lines) {
-    /* REJECT() this configuration */
-    *msg = tor_strdup("This tor was built with relay mode disabled. "
-                      "It can not be configured with an ExtORPort, "
-                      "a ServerTransportPlugin, a ServerTransportListenAddr, "
-                      "or ServerTransportOptions.");
-    return -1;
-  }
+    /* These ExtORPort checks are too strict, and will reject valid configs
+     * that disable ports, like "ExtORPort 0". */
+    if (options->ServerTransportPlugin ||
+        options->ServerTransportListenAddr ||
+        options->ServerTransportOptions ||
+        options->ExtORPort_lines) {
+        /* REJECT() this configuration */
+        *msg = tor_strdup("This tor was built with relay mode disabled. "
+                          "It can not be configured with an ExtORPort, "
+                          "a ServerTransportPlugin, a ServerTransportListenAddr, "
+                          "or ServerTransportOptions.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 #define pt_get_bindaddr_from_config(transport) \

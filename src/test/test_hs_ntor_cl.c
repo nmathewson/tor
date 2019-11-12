@@ -47,52 +47,52 @@
 static int
 client1(int argc, char **argv)
 {
-  int retval;
+    int retval;
 
-  /* Inputs */
-  curve25519_public_key_t intro_enc_pubkey;
-  ed25519_public_key_t intro_auth_pubkey;
-  curve25519_keypair_t client_ephemeral_enc_keypair;
-  uint8_t subcredential[DIGEST256_LEN];
+    /* Inputs */
+    curve25519_public_key_t intro_enc_pubkey;
+    ed25519_public_key_t intro_auth_pubkey;
+    curve25519_keypair_t client_ephemeral_enc_keypair;
+    uint8_t subcredential[DIGEST256_LEN];
 
-  /* Output */
-  hs_ntor_intro_cell_keys_t hs_ntor_intro_cell_keys;
+    /* Output */
+    hs_ntor_intro_cell_keys_t hs_ntor_intro_cell_keys;
 
-  char buf[256];
+    char buf[256];
 
-  N_ARGS(6);
-  BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
-  BASE16(3, intro_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
-  BASE16(4, client_ephemeral_enc_keypair.seckey.secret_key,
-         CURVE25519_SECKEY_LEN);
-  BASE16(5, subcredential, DIGEST256_LEN);
+    N_ARGS(6);
+    BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
+    BASE16(3, intro_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
+    BASE16(4, client_ephemeral_enc_keypair.seckey.secret_key,
+           CURVE25519_SECKEY_LEN);
+    BASE16(5, subcredential, DIGEST256_LEN);
 
-  /* Generate keypair */
-  curve25519_public_key_generate(&client_ephemeral_enc_keypair.pubkey,
-                                 &client_ephemeral_enc_keypair.seckey);
+    /* Generate keypair */
+    curve25519_public_key_generate(&client_ephemeral_enc_keypair.pubkey,
+                                   &client_ephemeral_enc_keypair.seckey);
 
-  retval = hs_ntor_client_get_introduce1_keys(&intro_auth_pubkey,
-                                              &intro_enc_pubkey,
-                                              &client_ephemeral_enc_keypair,
-                                              subcredential,
-                                              &hs_ntor_intro_cell_keys);
-  if (retval < 0) {
-    goto done;
-  }
+    retval = hs_ntor_client_get_introduce1_keys(&intro_auth_pubkey,
+             &intro_enc_pubkey,
+             &client_ephemeral_enc_keypair,
+             subcredential,
+             &hs_ntor_intro_cell_keys);
+    if (retval < 0) {
+        goto done;
+    }
 
-  /* Send ENC_KEY */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_intro_cell_keys.enc_key,
-                sizeof(hs_ntor_intro_cell_keys.enc_key));
-  printf("%s\n", buf);
-  /* Send MAC_KEY */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_intro_cell_keys.mac_key,
-                sizeof(hs_ntor_intro_cell_keys.mac_key));
-  printf("%s\n", buf);
+    /* Send ENC_KEY */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_intro_cell_keys.enc_key,
+                  sizeof(hs_ntor_intro_cell_keys.enc_key));
+    printf("%s\n", buf);
+    /* Send MAC_KEY */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_intro_cell_keys.mac_key,
+                  sizeof(hs_ntor_intro_cell_keys.mac_key));
+    printf("%s\n", buf);
 
- done:
-  return retval;
+done:
+    return retval;
 }
 
 /** The second part of the HS ntor protocol. The service-side computes all
@@ -100,80 +100,80 @@ client1(int argc, char **argv)
 static int
 server1(int argc, char **argv)
 {
-  int retval;
+    int retval;
 
-  /* Inputs */
-  curve25519_keypair_t intro_enc_keypair;
-  ed25519_public_key_t intro_auth_pubkey;
-  curve25519_public_key_t client_ephemeral_enc_pubkey;
-  uint8_t subcredential[DIGEST256_LEN];
+    /* Inputs */
+    curve25519_keypair_t intro_enc_keypair;
+    ed25519_public_key_t intro_auth_pubkey;
+    curve25519_public_key_t client_ephemeral_enc_pubkey;
+    uint8_t subcredential[DIGEST256_LEN];
 
-  /* Output */
-  hs_ntor_intro_cell_keys_t hs_ntor_intro_cell_keys;
-  hs_ntor_rend_cell_keys_t hs_ntor_rend_cell_keys;
-  curve25519_keypair_t service_ephemeral_rend_keypair;
+    /* Output */
+    hs_ntor_intro_cell_keys_t hs_ntor_intro_cell_keys;
+    hs_ntor_rend_cell_keys_t hs_ntor_rend_cell_keys;
+    curve25519_keypair_t service_ephemeral_rend_keypair;
 
-  char buf[256];
+    char buf[256];
 
-  N_ARGS(6);
-  BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
-  BASE16(3, intro_enc_keypair.seckey.secret_key, CURVE25519_SECKEY_LEN);
-  BASE16(4, client_ephemeral_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
-  BASE16(5, subcredential, DIGEST256_LEN);
+    N_ARGS(6);
+    BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
+    BASE16(3, intro_enc_keypair.seckey.secret_key, CURVE25519_SECKEY_LEN);
+    BASE16(4, client_ephemeral_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
+    BASE16(5, subcredential, DIGEST256_LEN);
 
-  /* Generate keypair */
-  curve25519_public_key_generate(&intro_enc_keypair.pubkey,
-                                 &intro_enc_keypair.seckey);
-  curve25519_keypair_generate(&service_ephemeral_rend_keypair, 0);
+    /* Generate keypair */
+    curve25519_public_key_generate(&intro_enc_keypair.pubkey,
+                                   &intro_enc_keypair.seckey);
+    curve25519_keypair_generate(&service_ephemeral_rend_keypair, 0);
 
-  /* Get INTRODUCE1 keys */
-  retval = hs_ntor_service_get_introduce1_keys(&intro_auth_pubkey,
-                                               &intro_enc_keypair,
-                                               &client_ephemeral_enc_pubkey,
-                                               subcredential,
-                                               &hs_ntor_intro_cell_keys);
-  if (retval < 0) {
-    goto done;
-  }
+    /* Get INTRODUCE1 keys */
+    retval = hs_ntor_service_get_introduce1_keys(&intro_auth_pubkey,
+             &intro_enc_keypair,
+             &client_ephemeral_enc_pubkey,
+             subcredential,
+             &hs_ntor_intro_cell_keys);
+    if (retval < 0) {
+        goto done;
+    }
 
-  /* Get RENDEZVOUS1 keys */
-  retval = hs_ntor_service_get_rendezvous1_keys(&intro_auth_pubkey,
-                                               &intro_enc_keypair,
-                                               &service_ephemeral_rend_keypair,
-                                               &client_ephemeral_enc_pubkey,
-                                               &hs_ntor_rend_cell_keys);
-  if (retval < 0) {
-    goto done;
-  }
+    /* Get RENDEZVOUS1 keys */
+    retval = hs_ntor_service_get_rendezvous1_keys(&intro_auth_pubkey,
+             &intro_enc_keypair,
+             &service_ephemeral_rend_keypair,
+             &client_ephemeral_enc_pubkey,
+             &hs_ntor_rend_cell_keys);
+    if (retval < 0) {
+        goto done;
+    }
 
-  /* Send ENC_KEY */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_intro_cell_keys.enc_key,
-                sizeof(hs_ntor_intro_cell_keys.enc_key));
-  printf("%s\n", buf);
-  /* Send MAC_KEY */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_intro_cell_keys.mac_key,
-                sizeof(hs_ntor_intro_cell_keys.mac_key));
-  printf("%s\n", buf);
-  /* Send AUTH_MAC */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_rend_cell_keys.rend_cell_auth_mac,
-                sizeof(hs_ntor_rend_cell_keys.rend_cell_auth_mac));
-  printf("%s\n", buf);
-  /* Send NTOR_KEY_SEED */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_rend_cell_keys.ntor_key_seed,
-                sizeof(hs_ntor_rend_cell_keys.ntor_key_seed));
-  printf("%s\n", buf);
-  /* Send service ephemeral pubkey (Y) */
-  base16_encode(buf, sizeof(buf),
-                (const char*)service_ephemeral_rend_keypair.pubkey.public_key,
-                sizeof(service_ephemeral_rend_keypair.pubkey.public_key));
-  printf("%s\n", buf);
+    /* Send ENC_KEY */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_intro_cell_keys.enc_key,
+                  sizeof(hs_ntor_intro_cell_keys.enc_key));
+    printf("%s\n", buf);
+    /* Send MAC_KEY */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_intro_cell_keys.mac_key,
+                  sizeof(hs_ntor_intro_cell_keys.mac_key));
+    printf("%s\n", buf);
+    /* Send AUTH_MAC */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_rend_cell_keys.rend_cell_auth_mac,
+                  sizeof(hs_ntor_rend_cell_keys.rend_cell_auth_mac));
+    printf("%s\n", buf);
+    /* Send NTOR_KEY_SEED */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_rend_cell_keys.ntor_key_seed,
+                  sizeof(hs_ntor_rend_cell_keys.ntor_key_seed));
+    printf("%s\n", buf);
+    /* Send service ephemeral pubkey (Y) */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)service_ephemeral_rend_keypair.pubkey.public_key,
+                  sizeof(service_ephemeral_rend_keypair.pubkey.public_key));
+    printf("%s\n", buf);
 
- done:
-  return retval;
+done:
+    return retval;
 }
 
 /** The final step of the ntor protocol, the client computes and returns the
@@ -181,79 +181,80 @@ server1(int argc, char **argv)
 static int
 client2(int argc, char **argv)
 {
-  int retval;
+    int retval;
 
-  /* Inputs */
-  curve25519_public_key_t intro_enc_pubkey;
-  ed25519_public_key_t intro_auth_pubkey;
-  curve25519_keypair_t client_ephemeral_enc_keypair;
-  curve25519_public_key_t service_ephemeral_rend_pubkey;
-  uint8_t subcredential[DIGEST256_LEN];
+    /* Inputs */
+    curve25519_public_key_t intro_enc_pubkey;
+    ed25519_public_key_t intro_auth_pubkey;
+    curve25519_keypair_t client_ephemeral_enc_keypair;
+    curve25519_public_key_t service_ephemeral_rend_pubkey;
+    uint8_t subcredential[DIGEST256_LEN];
 
-  /* Output */
-  hs_ntor_rend_cell_keys_t hs_ntor_rend_cell_keys;
+    /* Output */
+    hs_ntor_rend_cell_keys_t hs_ntor_rend_cell_keys;
 
-  char buf[256];
+    char buf[256];
 
-  N_ARGS(7);
-  BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
-  BASE16(3, client_ephemeral_enc_keypair.seckey.secret_key,
-         CURVE25519_SECKEY_LEN);
-  BASE16(4, intro_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
-  BASE16(5, service_ephemeral_rend_pubkey.public_key, CURVE25519_PUBKEY_LEN);
-  BASE16(6, subcredential, DIGEST256_LEN);
+    N_ARGS(7);
+    BASE16(2, intro_auth_pubkey.pubkey, ED25519_PUBKEY_LEN);
+    BASE16(3, client_ephemeral_enc_keypair.seckey.secret_key,
+           CURVE25519_SECKEY_LEN);
+    BASE16(4, intro_enc_pubkey.public_key, CURVE25519_PUBKEY_LEN);
+    BASE16(5, service_ephemeral_rend_pubkey.public_key, CURVE25519_PUBKEY_LEN);
+    BASE16(6, subcredential, DIGEST256_LEN);
 
-  /* Generate keypair */
-  curve25519_public_key_generate(&client_ephemeral_enc_keypair.pubkey,
-                                 &client_ephemeral_enc_keypair.seckey);
+    /* Generate keypair */
+    curve25519_public_key_generate(&client_ephemeral_enc_keypair.pubkey,
+                                   &client_ephemeral_enc_keypair.seckey);
 
-  /* Get RENDEZVOUS1 keys */
-  retval = hs_ntor_client_get_rendezvous1_keys(&intro_auth_pubkey,
-                                               &client_ephemeral_enc_keypair,
-                                               &intro_enc_pubkey,
-                                               &service_ephemeral_rend_pubkey,
-                                               &hs_ntor_rend_cell_keys);
-  if (retval < 0) {
-    goto done;
-  }
+    /* Get RENDEZVOUS1 keys */
+    retval = hs_ntor_client_get_rendezvous1_keys(&intro_auth_pubkey,
+             &client_ephemeral_enc_keypair,
+             &intro_enc_pubkey,
+             &service_ephemeral_rend_pubkey,
+             &hs_ntor_rend_cell_keys);
+    if (retval < 0) {
+        goto done;
+    }
 
-  /* Send AUTH_MAC */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_rend_cell_keys.rend_cell_auth_mac,
-                sizeof(hs_ntor_rend_cell_keys.rend_cell_auth_mac));
-  printf("%s\n", buf);
-  /* Send NTOR_KEY_SEED */
-  base16_encode(buf, sizeof(buf),
-                (const char*)hs_ntor_rend_cell_keys.ntor_key_seed,
-                sizeof(hs_ntor_rend_cell_keys.ntor_key_seed));
-  printf("%s\n", buf);
+    /* Send AUTH_MAC */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_rend_cell_keys.rend_cell_auth_mac,
+                  sizeof(hs_ntor_rend_cell_keys.rend_cell_auth_mac));
+    printf("%s\n", buf);
+    /* Send NTOR_KEY_SEED */
+    base16_encode(buf, sizeof(buf),
+                  (const char*)hs_ntor_rend_cell_keys.ntor_key_seed,
+                  sizeof(hs_ntor_rend_cell_keys.ntor_key_seed));
+    printf("%s\n", buf);
 
- done:
-  return 1;
+done:
+    return 1;
 }
 
 /** Perform a different part of the protocol depdning on the argv used. */
 int
 main(int argc, char **argv)
 {
-  if (argc < 2) {
-    fprintf(stderr, "I need arguments. Read source for more info.\n");
-    return 1;
-  }
+    if (argc < 2) {
+        fprintf(stderr, "I need arguments. Read source for more info.\n");
+        return 1;
+    }
 
-  init_logging(1);
-  curve25519_init();
-  if (crypto_global_init(0, NULL, NULL) < 0)
-    return 1;
+    init_logging(1);
+    curve25519_init();
+    if (crypto_global_init(0, NULL, NULL) < 0) {
+        return 1;
+    }
 
-  if (!strcmp(argv[1], "client1")) {
-    return client1(argc, argv);
-  } else if (!strcmp(argv[1], "server1")) {
-    return server1(argc, argv);
-  } else if (!strcmp(argv[1], "client2")) {
-    return client2(argc, argv);
-  } else {
-    fprintf(stderr, "What's a %s?\n", argv[1]);
-    return 1;
-  }
+    if (!strcmp(argv[1], "client1")) {
+        return client1(argc, argv);
+    } else if (!strcmp(argv[1], "server1")) {
+        return server1(argc, argv);
+    } else if (!strcmp(argv[1], "client2")) {
+        return client2(argc, argv);
+    } else {
+        fprintf(stderr, "What's a %s?\n", argv[1]);
+        return 1;
+    }
 }

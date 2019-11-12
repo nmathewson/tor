@@ -24,7 +24,7 @@ int authdir_mode_bridge(const or_options_t *options);
 static inline int
 authdir_mode_v3(const or_options_t *options)
 {
-  return authdir_mode(options) && options->V3AuthoritativeDir != 0;
+    return authdir_mode(options) && options->V3AuthoritativeDir != 0;
 }
 
 /* Is the dirauth module enabled? */

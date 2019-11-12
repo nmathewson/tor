@@ -55,24 +55,24 @@
 * again in the next second. If a positive value is returned it will update the
 * interval time. */
 typedef int (*periodic_event_helper_t)(time_t now,
-                                      const or_options_t *options);
+                                       const or_options_t *options);
 
 struct mainloop_event_t;
 
 /** A single item for the periodic-events-function table. */
 typedef struct periodic_event_item_t {
-  periodic_event_helper_t fn; /**< The function to run the event */
-  time_t last_action_time; /**< The last time the function did something */
-  struct mainloop_event_t *ev; /**< Libevent callback we're using to implement
+    periodic_event_helper_t fn; /**< The function to run the event */
+    time_t last_action_time; /**< The last time the function did something */
+    struct mainloop_event_t *ev; /**< Libevent callback we're using to implement
                                 * this */
-  const char *name; /**< Name of the function -- for debug */
+    const char *name; /**< Name of the function -- for debug */
 
-  /* Bitmask of roles define above for which this event applies. */
-  uint32_t roles;
-  /* Bitmask of flags which can change the behavior of the event. */
-  uint32_t flags;
-  /* Indicate that this event has been enabled that is scheduled. */
-  unsigned int enabled : 1;
+    /* Bitmask of roles define above for which this event applies. */
+    uint32_t roles;
+    /* Bitmask of flags which can change the behavior of the event. */
+    uint32_t flags;
+    /* Indicate that this event has been enabled that is scheduled. */
+    unsigned int enabled : 1;
 } periodic_event_item_t;
 
 /** events will get their interval from first execution */
@@ -86,7 +86,7 @@ typedef struct periodic_event_item_t {
 static inline int
 periodic_event_is_enabled(const periodic_event_item_t *item)
 {
-  return item->enabled;
+    return item->enabled;
 }
 
 void periodic_event_launch(periodic_event_item_t *event);

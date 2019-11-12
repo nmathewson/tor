@@ -22,7 +22,7 @@ struct curve25519_public_key_t;
 MOCK_DECL(node_t *, node_get_mutable_by_id,(const char *identity_digest));
 MOCK_DECL(const node_t *, node_get_by_id, (const char *identity_digest));
 node_t *node_get_mutable_by_ed25519_id(
-                            const struct ed25519_public_key_t *ed_id);
+    const struct ed25519_public_key_t *ed_id);
 MOCK_DECL(const node_t *, node_get_by_ed25519_id,
           (const struct ed25519_public_key_t *ed_id));
 
@@ -49,7 +49,7 @@ MOCK_DECL(const node_t *, node_get_by_nickname,
 void node_get_verbose_nickname(const node_t *node,
                                char *verbose_name_out);
 void node_get_verbose_nickname_by_id(const char *id_digest,
-                                char *verbose_name_out);
+                                     char *verbose_name_out);
 int node_is_dir(const node_t *node);
 int node_is_good_exit(const node_t *node);
 int node_has_any_descriptor(const node_t *node);
@@ -72,14 +72,14 @@ const struct ed25519_public_key_t *node_get_ed25519_id(const node_t *node);
 int node_ed25519_id_matches(const node_t *node,
                             const struct ed25519_public_key_t *id);
 int node_supports_ed25519_link_authentication(const node_t *node,
-                                              int compatible_with_us);
+        int compatible_with_us);
 int node_supports_v3_hsdir(const node_t *node);
 int node_supports_ed25519_hs_intro(const node_t *node);
 int node_supports_v3_rendezvous_point(const node_t *node);
 int node_supports_establish_intro_dos_extension(const node_t *node);
 const uint8_t *node_get_rsa_id_digest(const node_t *node);
 smartlist_t *node_get_link_specifier_smartlist(const node_t *node,
-                                               bool direct_conn);
+        bool direct_conn);
 void link_specifier_smartlist_free_(smartlist_t *ls_list);
 #define link_specifier_smartlist_free(ls_list) \
   FREE_AND_NULL(smartlist_t, link_specifier_smartlist_free_, (ls_list))
@@ -99,7 +99,7 @@ void node_get_pref_dirport(const node_t *node, tor_addr_port_t *ap_out);
 void node_get_pref_ipv6_dirport(const node_t *node, tor_addr_port_t *ap_out);
 int node_has_curve25519_onion_key(const node_t *node);
 const struct curve25519_public_key_t *node_get_curve25519_onion_key(
-                                  const node_t *node);
+    const node_t *node);
 crypto_pk_t *node_get_rsa_onion_key(const node_t *node);
 
 MOCK_DECL(const smartlist_t *, nodelist_get_list, (void));
@@ -114,9 +114,9 @@ void nodelist_add_node_and_family(smartlist_t *nodes, const node_t *node);
 int nodes_in_same_family(const node_t *node1, const node_t *node2);
 
 const node_t *router_find_exact_exit_enclave(const char *address,
-                                             uint16_t port);
+        uint16_t port);
 int node_is_unreliable(const node_t *router, int need_uptime,
-                         int need_capacity, int need_guard);
+                       int need_capacity, int need_guard);
 int router_exit_policy_all_nodes_reject(const tor_addr_t *addr, uint16_t port,
                                         int need_uptime);
 void router_set_status(const char *digest, int up);
@@ -142,14 +142,14 @@ MOCK_DECL(int, router_have_minimum_dir_info,(void));
  * reason to believe our last known value was invalid or has expired.
  */
 typedef enum {
-  /* we haven't checked yet, or we have invalidated our previous check */
-  CONSENSUS_PATH_UNKNOWN = -1,
-  /* The consensus only has internal relays, and we should only
-   * create internal paths, circuits, streams, ... */
-  CONSENSUS_PATH_INTERNAL = 0,
-  /* The consensus has at least one exit, and can therefore (potentially)
-   * create exit and internal paths, circuits, streams, ... */
-  CONSENSUS_PATH_EXIT = 1
+    /* we haven't checked yet, or we have invalidated our previous check */
+    CONSENSUS_PATH_UNKNOWN = -1,
+    /* The consensus only has internal relays, and we should only
+     * create internal paths, circuits, streams, ... */
+    CONSENSUS_PATH_INTERNAL = 0,
+    /* The consensus has at least one exit, and can therefore (potentially)
+     * create exit and internal paths, circuits, streams, ... */
+    CONSENSUS_PATH_EXIT = 1
 } consensus_path_type_t;
 
 MOCK_DECL(consensus_path_type_t, router_have_consensus_path, (void));

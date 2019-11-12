@@ -44,11 +44,11 @@ int get_protocol_warning_severity_level(void);
 
 /** An error from options_trial_assign() or options_init_from_string(). */
 typedef enum setopt_err_t {
-  SETOPT_OK = 0,
-  SETOPT_ERR_MISC = -1,
-  SETOPT_ERR_PARSE = -2,
-  SETOPT_ERR_TRANSITION = -3,
-  SETOPT_ERR_SETTING = -4,
+    SETOPT_OK = 0,
+    SETOPT_ERR_MISC = -1,
+    SETOPT_ERR_PARSE = -2,
+    SETOPT_ERR_TRANSITION = -3,
+    SETOPT_ERR_SETTING = -4,
 } setopt_err_t;
 setopt_err_t options_trial_assign(struct config_line_t *list, unsigned flags,
                                   char **msg);
@@ -67,17 +67,17 @@ void options_init(or_options_t *options);
 char *options_dump(const or_options_t *options, int how_to_dump);
 int options_init_from_torrc(int argc, char **argv);
 setopt_err_t options_init_from_string(const char *cf_defaults, const char *cf,
-                            int command, const char *command_arg, char **msg);
+                                      int command, const char *command_arg, char **msg);
 int option_is_recognized(const char *key);
 const char *option_get_canonical_name(const char *key);
 struct config_line_t *option_get_assignment(const or_options_t *options,
-                                     const char *key);
+        const char *key);
 int options_save_current(void);
 const char *get_torrc_fname(int defaults_fname);
 typedef enum {
-  DIRROOT_DATADIR,
-  DIRROOT_CACHEDIR,
-  DIRROOT_KEYDIR
+    DIRROOT_DATADIR,
+    DIRROOT_CACHEDIR,
+    DIRROOT_KEYDIR
 } directory_root_t;
 
 MOCK_DECL(char *,
@@ -165,13 +165,13 @@ MOCK_DECL(const smartlist_t *,get_configured_ports,(void));
 int port_binds_ipv4(const port_cfg_t *port);
 int port_binds_ipv6(const port_cfg_t *port);
 int get_first_advertised_port_by_type_af(int listener_type,
-                                         int address_family);
+        int address_family);
 #define get_primary_or_port() \
   (get_first_advertised_port_by_type_af(CONN_TYPE_OR_LISTENER, AF_INET))
 #define get_primary_dir_port() \
   (get_first_advertised_port_by_type_af(CONN_TYPE_DIR_LISTENER, AF_INET))
 const tor_addr_t *get_first_advertised_addr_by_type_af(int listener_type,
-                                                       int address_family);
+        int address_family);
 int port_exists_by_type_addr_port(int listener_type, const tor_addr_t *addr,
                                   int port, int check_wildcard);
 int port_exists_by_type_addr32h_port(int listener_type, uint32_t addr_ipv4h,
@@ -194,21 +194,21 @@ or_options_t *options_new(void);
 
 /** Options settings parsed from the command-line. */
 typedef struct {
-  /** List of options that can only be set from the command-line */
-  struct config_line_t *cmdline_opts;
-  /** List of other options, to be handled by the general Tor configuration
-      system. */
-  struct config_line_t *other_opts;
-  /** Subcommand that Tor has been told to run */
-  tor_cmdline_mode_t command;
-  /** Argument for the command mode, if any. */
-  const char *command_arg;
-  /** How quiet have we been told to be? */
-  quiet_level_t quiet_level;
+    /** List of options that can only be set from the command-line */
+    struct config_line_t *cmdline_opts;
+    /** List of other options, to be handled by the general Tor configuration
+        system. */
+    struct config_line_t *other_opts;
+    /** Subcommand that Tor has been told to run */
+    tor_cmdline_mode_t command;
+    /** Argument for the command mode, if any. */
+    const char *command_arg;
+    /** How quiet have we been told to be? */
+    quiet_level_t quiet_level;
 } parsed_cmdline_t;
 
 parsed_cmdline_t *config_parse_commandline(int argc, char **argv,
-                                           int ignore_errors);
+        int ignore_errors);
 void parsed_cmdline_free_(parsed_cmdline_t *cmdline);
 #define parsed_cmdline_free(c) \
   FREE_AND_NULL(parsed_cmdline_t, parsed_cmdline_free_, (c))
@@ -227,12 +227,12 @@ int port_cfg_line_extract_addrport(const char *line,
 
 /** Represents the information stored in a torrc Bridge line. */
 typedef struct bridge_line_t {
-  tor_addr_t addr; /* The IP address of the bridge. */
-  uint16_t port; /* The TCP port of the bridge. */
-  char *transport_name; /* The name of the pluggable transport that
+    tor_addr_t addr; /* The IP address of the bridge. */
+    uint16_t port; /* The TCP port of the bridge. */
+    char *transport_name; /* The name of the pluggable transport that
                            should be used to connect to the bridge. */
-  char digest[DIGEST_LEN]; /* The bridge's identity key digest. */
-  smartlist_t *socks_args; /* SOCKS arguments for the pluggable
+    char digest[DIGEST_LEN]; /* The bridge's identity key digest. */
+    smartlist_t *socks_args; /* SOCKS arguments for the pluggable
                                transport proxy. */
 } bridge_line_t;
 
@@ -266,18 +266,18 @@ port_cfg_t *port_cfg_new(size_t namelen);
 void port_cfg_free_(port_cfg_t *port);
 
 int port_count_real_listeners(const smartlist_t *ports,
-                         int listenertype,
-                         int count_sockets);
+                              int listenertype,
+                              int count_sockets);
 int pt_parse_transport_line(const or_options_t *options,
-                         const char *line, int validate_only,
-                         int server);
+                            const char *line, int validate_only,
+                            int server);
 int config_ensure_bandwidth_cap(uint64_t *value, const char *desc, char **msg);
 
 #ifdef CONFIG_PRIVATE
 
 MOCK_DECL(STATIC int, options_act,(const or_options_t *old_options));
 MOCK_DECL(STATIC int, options_act_reversible,(const or_options_t *old_options,
-                                             char **msg));
+          char **msg));
 struct config_mgr_t;
 STATIC const struct config_mgr_t *get_options_mgr(void);
 
@@ -285,7 +285,7 @@ STATIC const struct config_mgr_t *get_options_mgr(void);
   FREE_AND_NULL(or_options_t, or_options_free_, (opt))
 STATIC void or_options_free_(or_options_t *options);
 STATIC int options_validate_single_onion(or_options_t *options,
-                                         char **msg);
+        char **msg);
 STATIC int consider_adding_dir_servers(const or_options_t *options,
                                        const or_options_t *old_options);
 STATIC void add_default_trusted_dir_authorities(dirinfo_type_t type);
@@ -296,7 +296,7 @@ STATIC int parse_dir_authority_line(const char *line,
 STATIC int parse_dir_fallback_line(const char *line, int validate_only);
 
 STATIC uint64_t compute_real_max_mem_in_queues(const uint64_t val,
-                                               int log_guess);
+        int log_guess);
 STATIC int open_and_add_file_log(const log_severity_list_t *severity,
                                  const char *fname,
                                  int truncate_log);

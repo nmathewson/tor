@@ -16,7 +16,7 @@
 
 /* ===== Insecure rng */
 typedef struct tor_weak_rng_t {
-  uint32_t state;
+    uint32_t state;
 } tor_weak_rng_t;
 
 #ifndef COCCI

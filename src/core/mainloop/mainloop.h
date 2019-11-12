@@ -33,9 +33,9 @@ void stats_increment_bytes_read_and_written(uint64_t r, uint64_t w);
 /** Bitmask for events that we can turn on and off with
  * connection_watch_events. */
 typedef enum watchable_events {
-  /* Yes, it is intentional that these match Libevent's EV_READ and EV_WRITE */
-  READ_EVENT=0x02, /**< We want to know when a connection is readable */
-  WRITE_EVENT=0x04 /**< We want to know when a connection is writable */
+    /* Yes, it is intentional that these match Libevent's EV_READ and EV_WRITE */
+    READ_EVENT=0x02, /**< We want to know when a connection is readable */
+    WRITE_EVENT=0x04 /**< We want to know when a connection is writable */
 } watchable_events_t;
 void connection_watch_events(connection_t *conn, watchable_events_t events);
 int connection_is_reading(connection_t *conn);
@@ -103,7 +103,7 @@ STATIC void close_closeable_connections(void);
 STATIC void teardown_periodic_events(void);
 STATIC int get_my_roles(const or_options_t *);
 STATIC int check_network_participation_callback(time_t now,
-                                                const or_options_t *options);
+        const or_options_t *options);
 
 #ifdef TOR_UNIT_TESTS
 extern smartlist_t *connection_array;

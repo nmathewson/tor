@@ -14,19 +14,19 @@ typedef struct replaycache_t replaycache_t;
 #ifdef REPLAYCACHE_PRIVATE
 
 struct replaycache_t {
-  /** Scrub interval */
-  time_t scrub_interval;
-  /** Last scrubbed */
-  time_t scrubbed;
-  /**
-   * Horizon
-   * (don't return true on digests in the cache but older than this)
-   */
-  time_t horizon;
-  /**
-   * Digest map: keys are digests, values are times the digest was last seen
-   */
-  digest256map_t *digests_seen;
+    /** Scrub interval */
+    time_t scrub_interval;
+    /** Last scrubbed */
+    time_t scrubbed;
+    /**
+     * Horizon
+     * (don't return true on digests in the cache but older than this)
+     */
+    time_t horizon;
+    /**
+     * Digest map: keys are digests, values are times the digest was last seen
+     */
+    digest256map_t *digests_seen;
 };
 
 #endif /* defined(REPLAYCACHE_PRIVATE) */

@@ -18,10 +18,10 @@ struct workqueue_entry_s;
 enum workqueue_reply_t;
 enum workqueue_priority_t;
 MOCK_DECL(struct workqueue_entry_s *, cpuworker_queue_work, (
-                    enum workqueue_priority_t priority,
-                    enum workqueue_reply_t (*fn)(void *, void *),
-                    void (*reply_fn)(void *),
-                    void *arg));
+              enum workqueue_priority_t priority,
+              enum workqueue_reply_t (*fn)(void *, void *),
+              void (*reply_fn)(void *),
+              void *arg));
 
 struct create_cell_t;
 int assign_onionskin_to_cpuworker(or_circuit_t *circ,

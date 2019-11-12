@@ -19,13 +19,13 @@
  * added to the bucket in each time unit (the "rate"), and the maximum number
  * of tokens in the bucket (the "burst") */
 typedef struct token_bucket_cfg_t {
-  uint32_t rate;
-  int32_t burst;
+    uint32_t rate;
+    int32_t burst;
 } token_bucket_cfg_t;
 
 /** A raw token bucket, decoupled from its configuration and timestamp. */
 typedef struct token_bucket_raw_t {
-  int32_t bucket;
+    int32_t bucket;
 } token_bucket_raw_t;
 
 void token_bucket_cfg_init(token_bucket_cfg_t *cfg,
@@ -50,17 +50,17 @@ static inline size_t token_bucket_raw_get(const token_bucket_raw_t *bucket);
 static inline size_t
 token_bucket_raw_get(const token_bucket_raw_t *bucket)
 {
-  return bucket->bucket >= 0 ? bucket->bucket : 0;
+    return bucket->bucket >= 0 ? bucket->bucket : 0;
 }
 
 /** A convenience type containing all the pieces needed for a coupled
  * read-bucket and write-bucket that have the same rate limit, and which use
  * "timestamp units" (see compat_time.h) for their time. */
 typedef struct token_bucket_rw_t {
-  token_bucket_cfg_t cfg;
-  token_bucket_raw_t read_bucket;
-  token_bucket_raw_t write_bucket;
-  uint32_t last_refilled_at_timestamp;
+    token_bucket_cfg_t cfg;
+    token_bucket_raw_t read_bucket;
+    token_bucket_raw_t write_bucket;
+    uint32_t last_refilled_at_timestamp;
 } token_bucket_rw_t;
 
 void token_bucket_rw_init(token_bucket_rw_t *bucket,
@@ -92,15 +92,15 @@ static inline size_t token_bucket_rw_get_read(const token_bucket_rw_t *bucket);
 static inline size_t
 token_bucket_rw_get_read(const token_bucket_rw_t *bucket)
 {
-  return token_bucket_raw_get(&bucket->read_bucket);
+    return token_bucket_raw_get(&bucket->read_bucket);
 }
 
 static inline size_t token_bucket_rw_get_write(
-                                            const token_bucket_rw_t *bucket);
+    const token_bucket_rw_t *bucket);
 static inline size_t
 token_bucket_rw_get_write(const token_bucket_rw_t *bucket)
 {
-  return token_bucket_raw_get(&bucket->write_bucket);
+    return token_bucket_raw_get(&bucket->write_bucket);
 }
 
 /**
@@ -108,9 +108,9 @@ token_bucket_rw_get_write(const token_bucket_rw_t *bucket)
  */
 
 typedef struct token_bucket_ctr_t {
-  token_bucket_cfg_t cfg;
-  token_bucket_raw_t counter;
-  uint32_t last_refilled_at_timestamp;
+    token_bucket_cfg_t cfg;
+    token_bucket_raw_t counter;
+    uint32_t last_refilled_at_timestamp;
 } token_bucket_ctr_t;
 
 void token_bucket_ctr_init(token_bucket_ctr_t *bucket, uint32_t rate,
@@ -123,13 +123,13 @@ void token_bucket_ctr_refill(token_bucket_ctr_t *bucket, uint32_t now_ts);
 static inline bool
 token_bucket_ctr_dec(token_bucket_ctr_t *bucket, ssize_t n)
 {
-  return token_bucket_raw_dec(&bucket->counter, n);
+    return token_bucket_raw_dec(&bucket->counter, n);
 }
 
 static inline size_t
 token_bucket_ctr_get(const token_bucket_ctr_t *bucket)
 {
-  return token_bucket_raw_get(&bucket->counter);
+    return token_bucket_raw_get(&bucket->counter);
 }
 
 #ifdef TOKEN_BUCKET_PRIVATE

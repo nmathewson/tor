@@ -22,22 +22,22 @@
 static int
 subsys_or_initialize(void)
 {
-  or_register_periodic_events();
-  return 0;
+    or_register_periodic_events();
+    return 0;
 }
 
 static void
 subsys_or_shutdown(void)
 {
-  protover_free_all();
-  protover_summary_cache_free_all();
-  policies_free_all();
+    protover_free_all();
+    protover_summary_cache_free_all();
+    policies_free_all();
 }
 
 const struct subsys_fns_t sys_or = {
-  .name = "or",
-  .supported = true,
-  .level = 20,
-  .initialize = subsys_or_initialize,
-  .shutdown = subsys_or_shutdown,
+    .name = "or",
+    .supported = true,
+    .level = 20,
+    .initialize = subsys_or_initialize,
+    .shutdown = subsys_or_shutdown,
 };

@@ -22,30 +22,30 @@ typedef struct workqueue_entry_s workqueue_entry_t;
 
 /** Possible return value from a work function: */
 typedef enum workqueue_reply_t {
-  WQ_RPL_REPLY = 0, /** indicates success */
-  WQ_RPL_ERROR = 1, /** indicates fatal error */
-  WQ_RPL_SHUTDOWN = 2, /** indicates thread is shutting down */
+    WQ_RPL_REPLY = 0, /** indicates success */
+    WQ_RPL_ERROR = 1, /** indicates fatal error */
+    WQ_RPL_SHUTDOWN = 2, /** indicates thread is shutting down */
 } workqueue_reply_t;
 
 /** Possible priorities for work.  Lower numeric values are more important. */
 typedef enum workqueue_priority_t {
-  WQ_PRI_HIGH = 0,
-  WQ_PRI_MED  = 1,
-  WQ_PRI_LOW  = 2,
+    WQ_PRI_HIGH = 0,
+    WQ_PRI_MED  = 1,
+    WQ_PRI_LOW  = 2,
 } workqueue_priority_t;
 
 workqueue_entry_t *threadpool_queue_work_priority(threadpool_t *pool,
-                                    workqueue_priority_t prio,
-                                    workqueue_reply_t (*fn)(void *,
-                                                            void *),
-                                    void (*reply_fn)(void *),
-                                    void *arg);
+        workqueue_priority_t prio,
+        workqueue_reply_t (*fn)(void *,
+                                void *),
+        void (*reply_fn)(void *),
+        void *arg);
 
 workqueue_entry_t *threadpool_queue_work(threadpool_t *pool,
-                                         workqueue_reply_t (*fn)(void *,
-                                                                 void *),
-                                         void (*reply_fn)(void *),
-                                         void *arg);
+        workqueue_reply_t (*fn)(void *,
+                                void *),
+        void (*reply_fn)(void *),
+        void *arg);
 
 int threadpool_queue_update(threadpool_t *pool,
                             void *(*dup_fn)(void *),

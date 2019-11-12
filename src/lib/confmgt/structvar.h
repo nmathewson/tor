@@ -48,7 +48,7 @@ int struct_var_kvassign(void *object, const struct config_line_t *line,
                         char **errmsg,
                         const struct struct_member_t *member);
 struct config_line_t *struct_var_kvencode(
-                        const void *object,
-                        const struct struct_member_t *member);
+    const void *object,
+    const struct struct_member_t *member);
 
 #endif /* !defined(TOR_LIB_CONFMGT_STRUCTVAR_H) */

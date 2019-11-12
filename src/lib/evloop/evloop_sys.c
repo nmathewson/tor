@@ -18,32 +18,32 @@
 static int
 subsys_evloop_initialize(void)
 {
-  if (tor_init_libevent_rng() < 0) {
-    log_warn(LD_NET, "Problem initializing libevent RNG.");
-    return -1;
-  }
-  return 0;
+    if (tor_init_libevent_rng() < 0) {
+        log_warn(LD_NET, "Problem initializing libevent RNG.");
+        return -1;
+    }
+    return 0;
 }
 
 static void
 subsys_evloop_postfork(void)
 {
 #ifdef TOR_UNIT_TESTS
-  tor_libevent_postfork();
+    tor_libevent_postfork();
 #endif
 }
 
 static void
 subsys_evloop_shutdown(void)
 {
-  tor_libevent_free_all();
+    tor_libevent_free_all();
 }
 
 const struct subsys_fns_t sys_evloop = {
-  .name = "evloop",
-  .supported = true,
-  .level = -20,
-  .initialize = subsys_evloop_initialize,
-  .shutdown = subsys_evloop_shutdown,
-  .postfork = subsys_evloop_postfork,
+    .name = "evloop",
+    .supported = true,
+    .level = -20,
+    .initialize = subsys_evloop_initialize,
+    .shutdown = subsys_evloop_shutdown,
+    .postfork = subsys_evloop_postfork,
 };

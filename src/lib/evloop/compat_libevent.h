@@ -36,9 +36,9 @@ void tor_event_free_(struct event *ev);
 typedef struct periodic_timer_t periodic_timer_t;
 
 periodic_timer_t *periodic_timer_new(struct event_base *base,
-             const struct timeval *tv,
-             void (*cb)(periodic_timer_t *timer, void *data),
-             void *data);
+                                     const struct timeval *tv,
+                                     void (*cb)(periodic_timer_t *timer, void *data),
+                                     void *data);
 void periodic_timer_free_(periodic_timer_t *);
 void periodic_timer_launch(periodic_timer_t *, const struct timeval *tv);
 void periodic_timer_disable(periodic_timer_t *);
@@ -49,8 +49,8 @@ typedef struct mainloop_event_t mainloop_event_t;
 mainloop_event_t *mainloop_event_new(void (*cb)(mainloop_event_t *, void *),
                                      void *userdata);
 mainloop_event_t * mainloop_event_postloop_new(
-                                     void (*cb)(mainloop_event_t *, void *),
-                                     void *userdata);
+    void (*cb)(mainloop_event_t *, void *),
+    void *userdata);
 void mainloop_event_activate(mainloop_event_t *event);
 int mainloop_event_schedule(mainloop_event_t *event,
                             const struct timeval *delay);
@@ -62,11 +62,11 @@ void mainloop_event_free_(mainloop_event_t *event);
 /** Defines a configuration for using libevent with Tor: passed as an argument
  * to tor_libevent_initialize() to describe how we want to set up. */
 typedef struct tor_libevent_cfg {
-  /** How many CPUs should we use (not currently useful). */
-  int num_cpus;
-  /** How many milliseconds should we allow between updating bandwidth limits?
-   * (Not currently useful). */
-  int msec_per_tick;
+    /** How many CPUs should we use (not currently useful). */
+    int num_cpus;
+    /** How many milliseconds should we allow between updating bandwidth limits?
+     * (Not currently useful). */
+    int msec_per_tick;
 } tor_libevent_cfg;
 
 void tor_libevent_initialize(tor_libevent_cfg *cfg);

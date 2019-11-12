@@ -1,5 +1,5 @@
- /* Copyright (c) 2014-2019, The Tor Project, Inc. */
- /* See LICENSE for licensing information */
+/* Copyright (c) 2014-2019, The Tor Project, Inc. */
+/* See LICENSE for licensing information */
 
 #ifndef TOR_FAKECHANS_H
 #define TOR_FAKECHANS_H

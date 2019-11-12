@@ -86,10 +86,9 @@ struct buf_t;
  * by new connection described by port configuration. Only used when
  * moving listeners to/from wildcard IP address.
  */
-typedef struct
-{
-  connection_t *old_conn; /* Old listener connection to be replaced */
-  const port_cfg_t *new_port; /* New port configuration */
+typedef struct {
+    connection_t *old_conn; /* Old listener connection to be replaced */
+    const port_cfg_t *new_port; /* New port configuration */
 } listener_replacement_t;
 
 const char *conn_type_to_string(int type);
@@ -210,11 +209,11 @@ int connection_handle_read(connection_t *conn);
 
 int connection_buf_get_bytes(char *string, size_t len, connection_t *conn);
 int connection_buf_get_line(connection_t *conn, char *data,
-                                   size_t *data_len);
+                            size_t *data_len);
 int connection_fetch_from_buf_http(connection_t *conn,
-                               char **headers_out, size_t max_headerlen,
-                               char **body_out, size_t *body_used,
-                               size_t max_bodylen, int force_complete);
+                                   char **headers_out, size_t max_headerlen,
+                                   char **body_out, size_t *body_used,
+                                   size_t max_bodylen, int force_complete);
 
 int connection_wants_to_flush(connection_t *conn);
 int connection_outbuf_too_full(connection_t *conn);
@@ -225,13 +224,13 @@ MOCK_DECL(void, connection_write_to_buf_impl_,
           (const char *string, size_t len, connection_t *conn, int zlib));
 /* DOCDOC connection_write_to_buf */
 static void connection_buf_add(const char *string, size_t len,
-                                    connection_t *conn);
+                               connection_t *conn);
 void connection_dir_buf_add(const char *string, size_t len,
                             dir_connection_t *dir_conn, int done);
 static inline void
 connection_buf_add(const char *string, size_t len, connection_t *conn)
 {
-  connection_write_to_buf_impl_(string, len, conn, 0);
+    connection_write_to_buf_impl_(string, len, conn, 0);
 }
 void connection_buf_add_compress(const char *string, size_t len,
                                  dir_connection_t *conn, int done);
@@ -244,20 +243,20 @@ connection_t *connection_get_by_global_id(uint64_t id);
 connection_t *connection_get_by_type(int type);
 MOCK_DECL(connection_t *,connection_get_by_type_nonlinked,(int type));
 MOCK_DECL(connection_t *,connection_get_by_type_addr_port_purpose,(int type,
-                                                  const tor_addr_t *addr,
-                                                  uint16_t port, int purpose));
+          const tor_addr_t *addr,
+          uint16_t port, int purpose));
 connection_t *connection_get_by_type_state(int type, int state);
 connection_t *connection_get_by_type_state_rendquery(int type, int state,
-                                                     const char *rendquery);
+        const char *rendquery);
 smartlist_t *connection_list_by_type_state(int type, int state);
 smartlist_t *connection_list_by_type_purpose(int type, int purpose);
 smartlist_t *connection_dir_list_by_purpose_and_resource(
-                                                  int purpose,
-                                                  const char *resource);
+    int purpose,
+    const char *resource);
 smartlist_t *connection_dir_list_by_purpose_resource_and_state(
-                                                  int purpose,
-                                                  const char *resource,
-                                                  int state);
+    int purpose,
+    const char *resource,
+    int state);
 
 #define CONN_LEN_AND_FREE_TEMPLATE(sl) \
   STMT_BEGIN                           \
@@ -270,29 +269,29 @@ smartlist_t *connection_dir_list_by_purpose_resource_and_state(
  * described by <b>purpose</b>/<b>resource</b>. */
 static inline int
 connection_dir_count_by_purpose_and_resource(
-                                             int purpose,
-                                             const char *resource)
+    int purpose,
+    const char *resource)
 {
-  smartlist_t *conns = connection_dir_list_by_purpose_and_resource(
-                                                                   purpose,
-                                                                   resource);
-  CONN_LEN_AND_FREE_TEMPLATE(conns);
+    smartlist_t *conns = connection_dir_list_by_purpose_and_resource(
+                             purpose,
+                             resource);
+    CONN_LEN_AND_FREE_TEMPLATE(conns);
 }
 
 /** Return a count of directory connections that are fetching the item
  * described by <b>purpose</b>/<b>resource</b>/<b>state</b>. */
 static inline int
 connection_dir_count_by_purpose_resource_and_state(
-                                                   int purpose,
-                                                   const char *resource,
-                                                   int state)
+    int purpose,
+    const char *resource,
+    int state)
 {
-  smartlist_t *conns =
-    connection_dir_list_by_purpose_resource_and_state(
-                                                      purpose,
-                                                      resource,
-                                                      state);
-  CONN_LEN_AND_FREE_TEMPLATE(conns);
+    smartlist_t *conns =
+        connection_dir_list_by_purpose_resource_and_state(
+            purpose,
+            resource,
+            state);
+    CONN_LEN_AND_FREE_TEMPLATE(conns);
 }
 
 #undef CONN_LEN_AND_FREE_TEMPLATE
@@ -342,12 +341,12 @@ STATIC void connection_free_minimal(connection_t *conn);
 
 /* Used only by connection.c and test*.c */
 MOCK_DECL(STATIC int,connection_connect_sockaddr,
-                                            (connection_t *conn,
-                                             const struct sockaddr *sa,
-                                             socklen_t sa_len,
-                                             const struct sockaddr *bindaddr,
-                                             socklen_t bindaddr_len,
-                                             int *socket_error));
+          (connection_t *conn,
+           const struct sockaddr *sa,
+           socklen_t sa_len,
+           const struct sockaddr *bindaddr,
+           socklen_t bindaddr_len,
+           int *socket_error));
 MOCK_DECL(STATIC void, kill_conn_list_for_oos, (smartlist_t *conns));
 MOCK_DECL(STATIC smartlist_t *, pick_oos_victims, (int n));
 

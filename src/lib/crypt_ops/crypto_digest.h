@@ -42,11 +42,11 @@
  * An identifier for a cryptographic digest algorithm.
  **/
 typedef enum {
-  DIGEST_SHA1 = 0,
-  DIGEST_SHA256 = 1,
-  DIGEST_SHA512 = 2,
-  DIGEST_SHA3_256 = 3,
-  DIGEST_SHA3_512 = 4,
+    DIGEST_SHA1 = 0,
+    DIGEST_SHA256 = 1,
+    DIGEST_SHA512 = 2,
+    DIGEST_SHA3_256 = 3,
+    DIGEST_SHA3_512 = 4,
 } digest_algorithm_t;
 /** Number of digest algorithms that we know */
 #define  N_DIGEST_ALGORITHMS (DIGEST_SHA3_512+1)
@@ -68,12 +68,12 @@ typedef enum {
  * for SHA1 digest for now. */
 typedef struct crypto_digest_checkpoint_t {
 #ifdef ENABLE_NSS
-  /** The number of bytes used in <b>mem</b>. */
-  unsigned int bytes_used;
+    /** The number of bytes used in <b>mem</b>. */
+    unsigned int bytes_used;
 #endif
-  /** A buffer to store the SHA1 state. Its contents are unspecified, and
-   * are managed by the underlying crypto library.*/
-  uint8_t mem[DIGEST_CHECKPOINT_BYTES];
+    /** A buffer to store the SHA1 state. Its contents are unspecified, and
+     * are managed by the underlying crypto library.*/
+    uint8_t mem[DIGEST_CHECKPOINT_BYTES];
 } crypto_digest_checkpoint_t;
 
 /** A set of all the digests we commonly compute, taken on a single
@@ -85,8 +85,8 @@ typedef struct crypto_digest_checkpoint_t {
  * once.
  **/
 typedef struct {
-  /** An array of digest outputs, one for each "common" digest algorithm. */
-  char d[N_COMMON_DIGEST_ALGORITHMS][DIGEST256_LEN];
+    /** An array of digest outputs, one for each "common" digest algorithm. */
+    char d[N_COMMON_DIGEST_ALGORITHMS][DIGEST256_LEN];
 } common_digests_t;
 
 /**

@@ -17,8 +17,8 @@
 /** Used to indicate the type of a CIRC_MINOR event passed to the controller.
  * The various types are defined in control-spec.txt . */
 typedef enum circuit_status_minor_event_t {
-  CIRC_MINOR_EVENT_PURPOSE_CHANGED,
-  CIRC_MINOR_EVENT_CANNIBALIZED,
+    CIRC_MINOR_EVENT_PURPOSE_CHANGED,
+    CIRC_MINOR_EVENT_CANNIBALIZED,
 } circuit_status_minor_event_t;
 
 #include "core/or/orconn_event.h"
@@ -26,68 +26,68 @@ typedef enum circuit_status_minor_event_t {
 /** Used to indicate the type of a stream event passed to the controller.
  * The various types are defined in control-spec.txt */
 typedef enum stream_status_event_t {
-  STREAM_EVENT_SENT_CONNECT = 0,
-  STREAM_EVENT_SENT_RESOLVE = 1,
-  STREAM_EVENT_SUCCEEDED    = 2,
-  STREAM_EVENT_FAILED       = 3,
-  STREAM_EVENT_CLOSED       = 4,
-  STREAM_EVENT_NEW          = 5,
-  STREAM_EVENT_NEW_RESOLVE  = 6,
-  STREAM_EVENT_FAILED_RETRIABLE = 7,
-  STREAM_EVENT_REMAP        = 8
+    STREAM_EVENT_SENT_CONNECT = 0,
+    STREAM_EVENT_SENT_RESOLVE = 1,
+    STREAM_EVENT_SUCCEEDED    = 2,
+    STREAM_EVENT_FAILED       = 3,
+    STREAM_EVENT_CLOSED       = 4,
+    STREAM_EVENT_NEW          = 5,
+    STREAM_EVENT_NEW_RESOLVE  = 6,
+    STREAM_EVENT_FAILED_RETRIABLE = 7,
+    STREAM_EVENT_REMAP        = 8
 } stream_status_event_t;
 
 /** Used to indicate the type of a buildtime event */
 typedef enum buildtimeout_set_event_t {
-  BUILDTIMEOUT_SET_EVENT_COMPUTED  = 0,
-  BUILDTIMEOUT_SET_EVENT_RESET     = 1,
-  BUILDTIMEOUT_SET_EVENT_SUSPENDED = 2,
-  BUILDTIMEOUT_SET_EVENT_DISCARD = 3,
-  BUILDTIMEOUT_SET_EVENT_RESUME = 4
+    BUILDTIMEOUT_SET_EVENT_COMPUTED  = 0,
+    BUILDTIMEOUT_SET_EVENT_RESET     = 1,
+    BUILDTIMEOUT_SET_EVENT_SUSPENDED = 2,
+    BUILDTIMEOUT_SET_EVENT_DISCARD = 3,
+    BUILDTIMEOUT_SET_EVENT_RESUME = 4
 } buildtimeout_set_event_t;
 
 /** Enum describing various stages of bootstrapping, for use with controller
  * bootstrap status events. The values range from 0 to 100. */
 typedef enum {
-  BOOTSTRAP_STATUS_UNDEF=-1,
-  BOOTSTRAP_STATUS_STARTING=0,
+    BOOTSTRAP_STATUS_UNDEF=-1,
+    BOOTSTRAP_STATUS_STARTING=0,
 
-  /* Initial connection to any relay */
+    /* Initial connection to any relay */
 
-  BOOTSTRAP_STATUS_CONN_PT=1,
-  BOOTSTRAP_STATUS_CONN_DONE_PT=2,
-  BOOTSTRAP_STATUS_CONN_PROXY=3,
-  BOOTSTRAP_STATUS_CONN_DONE_PROXY=4,
-  BOOTSTRAP_STATUS_CONN=5,
-  BOOTSTRAP_STATUS_CONN_DONE=10,
-  BOOTSTRAP_STATUS_HANDSHAKE=14,
-  BOOTSTRAP_STATUS_HANDSHAKE_DONE=15,
+    BOOTSTRAP_STATUS_CONN_PT=1,
+    BOOTSTRAP_STATUS_CONN_DONE_PT=2,
+    BOOTSTRAP_STATUS_CONN_PROXY=3,
+    BOOTSTRAP_STATUS_CONN_DONE_PROXY=4,
+    BOOTSTRAP_STATUS_CONN=5,
+    BOOTSTRAP_STATUS_CONN_DONE=10,
+    BOOTSTRAP_STATUS_HANDSHAKE=14,
+    BOOTSTRAP_STATUS_HANDSHAKE_DONE=15,
 
-  /* Loading directory info */
+    /* Loading directory info */
 
-  BOOTSTRAP_STATUS_ONEHOP_CREATE=20,
-  BOOTSTRAP_STATUS_REQUESTING_STATUS=25,
-  BOOTSTRAP_STATUS_LOADING_STATUS=30,
-  BOOTSTRAP_STATUS_LOADING_KEYS=40,
-  BOOTSTRAP_STATUS_REQUESTING_DESCRIPTORS=45,
-  BOOTSTRAP_STATUS_LOADING_DESCRIPTORS=50,
-  BOOTSTRAP_STATUS_ENOUGH_DIRINFO=75,
+    BOOTSTRAP_STATUS_ONEHOP_CREATE=20,
+    BOOTSTRAP_STATUS_REQUESTING_STATUS=25,
+    BOOTSTRAP_STATUS_LOADING_STATUS=30,
+    BOOTSTRAP_STATUS_LOADING_KEYS=40,
+    BOOTSTRAP_STATUS_REQUESTING_DESCRIPTORS=45,
+    BOOTSTRAP_STATUS_LOADING_DESCRIPTORS=50,
+    BOOTSTRAP_STATUS_ENOUGH_DIRINFO=75,
 
-  /* Connecting to a relay for AP circuits */
+    /* Connecting to a relay for AP circuits */
 
-  BOOTSTRAP_STATUS_AP_CONN_PT=76,
-  BOOTSTRAP_STATUS_AP_CONN_DONE_PT=77,
-  BOOTSTRAP_STATUS_AP_CONN_PROXY=78,
-  BOOTSTRAP_STATUS_AP_CONN_DONE_PROXY=79,
-  BOOTSTRAP_STATUS_AP_CONN=80,
-  BOOTSTRAP_STATUS_AP_CONN_DONE=85,
-  BOOTSTRAP_STATUS_AP_HANDSHAKE=89,
-  BOOTSTRAP_STATUS_AP_HANDSHAKE_DONE=90,
+    BOOTSTRAP_STATUS_AP_CONN_PT=76,
+    BOOTSTRAP_STATUS_AP_CONN_DONE_PT=77,
+    BOOTSTRAP_STATUS_AP_CONN_PROXY=78,
+    BOOTSTRAP_STATUS_AP_CONN_DONE_PROXY=79,
+    BOOTSTRAP_STATUS_AP_CONN=80,
+    BOOTSTRAP_STATUS_AP_CONN_DONE=85,
+    BOOTSTRAP_STATUS_AP_HANDSHAKE=89,
+    BOOTSTRAP_STATUS_AP_HANDSHAKE_DONE=90,
 
-  /* Creating AP circuits */
+    /* Creating AP circuits */
 
-  BOOTSTRAP_STATUS_CIRCUIT_CREATE=95,
-  BOOTSTRAP_STATUS_DONE=100
+    BOOTSTRAP_STATUS_CIRCUIT_CREATE=95,
+    BOOTSTRAP_STATUS_DONE=100
 } bootstrap_status_t;
 
 /** Reason for remapping an AP connection's address: we have a cached
@@ -111,7 +111,7 @@ int control_any_per_second_event_enabled(void);
 int control_event_circuit_status(origin_circuit_t *circ,
                                  circuit_status_event_t e, int reason);
 int control_event_circuit_purpose_changed(origin_circuit_t *circ,
-                                          int old_purpose);
+        int old_purpose);
 int control_event_circuit_cannibalized(origin_circuit_t *circ,
                                        int old_purpose,
                                        const struct timeval *old_tv_created);
@@ -142,18 +142,18 @@ int control_event_networkstatus_changed(smartlist_t *statuses);
 int control_event_newconsensus(const networkstatus_t *consensus);
 int control_event_networkstatus_changed_single(const routerstatus_t *rs);
 int control_event_general_status(int severity, const char *format, ...)
-  CHECK_PRINTF(2,3);
+CHECK_PRINTF(2,3);
 int control_event_client_status(int severity, const char *format, ...)
-  CHECK_PRINTF(2,3);
+CHECK_PRINTF(2,3);
 int control_event_server_status(int severity, const char *format, ...)
-  CHECK_PRINTF(2,3);
+CHECK_PRINTF(2,3);
 
 int control_event_general_error(const char *format, ...)
-  CHECK_PRINTF(1,2);
+CHECK_PRINTF(1,2);
 int control_event_client_error(const char *format, ...)
-  CHECK_PRINTF(1,2);
+CHECK_PRINTF(1,2);
 int control_event_server_error(const char *format, ...)
-  CHECK_PRINTF(1,2);
+CHECK_PRINTF(1,2);
 
 int control_event_guard(const char *nickname, const char *digest,
                         const char *status);
@@ -164,8 +164,8 @@ int control_event_signal(uintptr_t signal);
 
 void control_event_bootstrap(bootstrap_status_t status, int progress);
 MOCK_DECL(void, control_event_bootstrap_prob_or,(const char *warn,
-                                                 int reason,
-                                                 or_connection_t *or_conn));
+          int reason,
+          or_connection_t *or_conn));
 void control_event_boot_dir(bootstrap_status_t status, int progress);
 void control_event_boot_first_orconn(void);
 void control_event_bootstrap_problem(const char *warn, const char *reason,
@@ -181,45 +181,45 @@ void control_event_pt_log(const char *log);
 void control_event_pt_status(const char *status);
 
 void control_event_hs_descriptor_requested(const char *onion_address,
-                                           rend_auth_type_t auth_type,
-                                           const char *id_digest,
-                                           const char *desc_id,
-                                           const char *hsdir_index);
+        rend_auth_type_t auth_type,
+        const char *id_digest,
+        const char *desc_id,
+        const char *hsdir_index);
 void control_event_hs_descriptor_created(const char *onion_address,
-                                         const char *desc_id,
-                                         int replica);
+        const char *desc_id,
+        int replica);
 void control_event_hs_descriptor_upload(const char *onion_address,
                                         const char *desc_id,
                                         const char *hs_dir,
                                         const char *hsdir_index);
 void control_event_hs_descriptor_upload_end(const char *action,
-                                            const char *onion_address,
-                                            const char *hs_dir,
-                                            const char *reason);
+        const char *onion_address,
+        const char *hs_dir,
+        const char *reason);
 void control_event_hs_descriptor_uploaded(const char *hs_dir,
-                                          const char *onion_address);
+        const char *onion_address);
 /* Hidden service v2 HS_DESC specific. */
 void control_event_hsv2_descriptor_failed(const rend_data_t *rend_data,
-                                          const char *id_digest,
-                                          const char *reason);
+        const char *id_digest,
+        const char *reason);
 void control_event_hsv2_descriptor_received(const char *onion_address,
-                                            const rend_data_t *rend_data,
-                                            const char *id_digest);
+        const rend_data_t *rend_data,
+        const char *id_digest);
 /* Hidden service v3 HS_DESC specific. */
 void control_event_hsv3_descriptor_failed(const char *onion_address,
-                                          const char *desc_id,
-                                          const char *hsdir_id_digest,
-                                          const char *reason);
+        const char *desc_id,
+        const char *hsdir_id_digest,
+        const char *reason);
 void control_event_hsv3_descriptor_received(const char *onion_address,
-                                            const char *desc_id,
-                                            const char *hsdir_id_digest);
+        const char *desc_id,
+        const char *hsdir_id_digest);
 void control_event_hs_descriptor_upload_failed(const char *hs_dir,
-                                               const char *onion_address,
-                                               const char *reason);
+        const char *onion_address,
+        const char *reason);
 void control_event_hs_descriptor_content(const char *onion_address,
-                                         const char *desc_id,
-                                         const char *hsdir_fp,
-                                         const char *content);
+        const char *desc_id,
+        const char *hsdir_fp,
+        const char *content);
 
 void control_events_free_all(void);
 
@@ -305,18 +305,18 @@ typedef uint64_t event_mask_t;
 
 /** Helper structure: temporarily stores cell statistics for a circuit. */
 typedef struct cell_stats_t {
-  /** Number of cells added in app-ward direction by command. */
-  uint64_t added_cells_appward[CELL_COMMAND_MAX_ + 1];
-  /** Number of cells added in exit-ward direction by command. */
-  uint64_t added_cells_exitward[CELL_COMMAND_MAX_ + 1];
-  /** Number of cells removed in app-ward direction by command. */
-  uint64_t removed_cells_appward[CELL_COMMAND_MAX_ + 1];
-  /** Number of cells removed in exit-ward direction by command. */
-  uint64_t removed_cells_exitward[CELL_COMMAND_MAX_ + 1];
-  /** Total waiting time of cells in app-ward direction by command. */
-  uint64_t total_time_appward[CELL_COMMAND_MAX_ + 1];
-  /** Total waiting time of cells in exit-ward direction by command. */
-  uint64_t total_time_exitward[CELL_COMMAND_MAX_ + 1];
+    /** Number of cells added in app-ward direction by command. */
+    uint64_t added_cells_appward[CELL_COMMAND_MAX_ + 1];
+    /** Number of cells added in exit-ward direction by command. */
+    uint64_t added_cells_exitward[CELL_COMMAND_MAX_ + 1];
+    /** Number of cells removed in app-ward direction by command. */
+    uint64_t removed_cells_appward[CELL_COMMAND_MAX_ + 1];
+    /** Number of cells removed in exit-ward direction by command. */
+    uint64_t removed_cells_exitward[CELL_COMMAND_MAX_ + 1];
+    /** Total waiting time of cells in app-ward direction by command. */
+    uint64_t total_time_appward[CELL_COMMAND_MAX_ + 1];
+    /** Total waiting time of cells in exit-ward direction by command. */
+    uint64_t total_time_exitward[CELL_COMMAND_MAX_ + 1];
 } cell_stats_t;
 
 void sum_up_cell_stats_by_command(circuit_t *circ,
@@ -330,8 +330,8 @@ void format_cell_stats(char **event_string, circuit_t *circ,
 
 /** Helper structure: maps event values to their names. */
 struct control_event_t {
-  uint16_t event_code;
-  const char *event_name;
+    uint16_t event_code;
+    const char *event_name;
 };
 
 extern const struct control_event_t control_event_table[];

@@ -44,8 +44,8 @@ int tor_add_addrinfo(const char *addr);
 struct addrinfo;
 /** Replacement for getaddrinfo(), using pre-recorded results. */
 int tor_getaddrinfo(const char *name, const char *servname,
-                        const struct addrinfo *hints,
-                        struct addrinfo **res);
+                    const struct addrinfo *hints,
+                    struct addrinfo **res);
 void tor_freeaddrinfo(struct addrinfo *addrinfo);
 void tor_free_getaddrinfo_cache(void);
 #else /* !defined(USE_SANDBOX_GETADDRINFO) */
@@ -66,8 +66,8 @@ void tor_make_getaddrinfo_cache_active(void);
  */
 #ifdef RESOLVE_PRIVATE
 MOCK_DECL(STATIC int, tor_addr_lookup_host_impl, (const char *name,
-                                                  uint16_t family,
-                                                  struct tor_addr_t *addr));
+          uint16_t family,
+          struct tor_addr_t *addr));
 #endif
 
 #endif /* !defined(TOR_RESOLVE_H) */

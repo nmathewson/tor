@@ -22,25 +22,25 @@
 #define PROCESS_MAX_READ  (1024)
 
 typedef enum {
-  /** The process is not running. */
-  PROCESS_STATUS_NOT_RUNNING,
+    /** The process is not running. */
+    PROCESS_STATUS_NOT_RUNNING,
 
-  /** The process is running. */
-  PROCESS_STATUS_RUNNING,
+    /** The process is running. */
+    PROCESS_STATUS_RUNNING,
 
-  /** The process is in an erroneous state. */
-  PROCESS_STATUS_ERROR
+    /** The process is in an erroneous state. */
+    PROCESS_STATUS_ERROR
 } process_status_t;
 
 const char *process_status_to_string(process_status_t status);
 
 typedef enum {
-  /** Pass complete newline-terminated lines to the
-   *  callback (with the LF or CRLF removed). */
-  PROCESS_PROTOCOL_LINE,
+    /** Pass complete newline-terminated lines to the
+     *  callback (with the LF or CRLF removed). */
+    PROCESS_PROTOCOL_LINE,
 
-  /** Pass the raw response from read() to the callback. */
-  PROCESS_PROTOCOL_RAW
+    /** Pass the raw response from read() to the callback. */
+    PROCESS_PROTOCOL_RAW
 } process_protocol_t;
 
 const char *process_protocol_to_string(process_protocol_t protocol);

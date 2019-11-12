@@ -28,10 +28,10 @@ int check_signature_token(const char *digest,
                           const char *doctype);
 
 int router_get_hash_impl_helper(const char *s, size_t s_len,
-                            const char *start_str,
-                            const char *end_str, char end_c,
-                            int log_severity,
-                            const char **start_out, const char **end_out);
+                                const char *start_str,
+                                const char *end_str, char end_c,
+                                int log_severity,
+                                const char **start_out, const char **end_out);
 int router_get_hashes_impl(const char *s, size_t s_len,
                            common_digests_t *digests,
                            const char *start_str, const char *end_str,
@@ -41,8 +41,8 @@ int router_get_hashes_impl(const char *s, size_t s_len,
 MOCK_DECL(STATIC int, signed_digest_equals,
           (const uint8_t *d1, const uint8_t *d2, size_t len));
 MOCK_DECL(STATIC int, router_compute_hash_final,(char *digest,
-                           const char *start, size_t len,
-                           digest_algorithm_t alg));
+          const char *start, size_t len,
+          digest_algorithm_t alg));
 #endif /* defined(SIGCOMMON_PRIVATE) */
 
 #endif /* !defined(TOR_SIGCOMMON_H) */

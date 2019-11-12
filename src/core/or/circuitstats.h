@@ -43,7 +43,7 @@ int circuit_build_times_needs_circuits_now(const circuit_build_times_t *cbt);
 void circuit_build_times_init(circuit_build_times_t *cbt);
 void circuit_build_times_free_timeouts(circuit_build_times_t *cbt);
 void circuit_build_times_new_consensus_params(circuit_build_times_t *cbt,
-                                              networkstatus_t *ns);
+        networkstatus_t *ns);
 double circuit_build_times_timeout_rate(const circuit_build_times_t *cbt);
 double circuit_build_times_close_rate(const circuit_build_times_t *cbt);
 
@@ -135,18 +135,18 @@ int32_t circuit_build_times_initial_timeout(void);
 
 #ifdef CIRCUITSTATS_PRIVATE
 STATIC double circuit_build_times_calculate_timeout(circuit_build_times_t *cbt,
-                                             double quantile);
+        double quantile);
 STATIC int circuit_build_times_update_alpha(circuit_build_times_t *cbt);
 STATIC void circuit_build_times_reset(circuit_build_times_t *cbt);
 
 /* Network liveness functions */
 STATIC int circuit_build_times_network_check_changed(
-                                             circuit_build_times_t *cbt);
+    circuit_build_times_t *cbt);
 #endif /* defined(CIRCUITSTATS_PRIVATE) */
 
 #ifdef TOR_UNIT_TESTS
 build_time_t circuit_build_times_generate_sample(circuit_build_times_t *cbt,
-                                                 double q_lo, double q_hi);
+        double q_lo, double q_hi);
 double circuit_build_times_cdf(circuit_build_times_t *cbt, double x);
 void circuit_build_times_initial_alpha(circuit_build_times_t *cbt,
                                        double quantile, double time_ms);
@@ -161,51 +161,51 @@ void circuit_build_times_network_circ_success(circuit_build_times_t *cbt);
 #ifdef CIRCUITSTATS_PRIVATE
 /** Information about the state of our local network connection */
 typedef struct {
-  /** The timestamp we last completed a TLS handshake or received a cell */
-  time_t network_last_live;
-  /** If the network is not live, how many timeouts has this caused? */
-  int nonlive_timeouts;
-  /** Circular array of circuits that have made it to the first hop. Slot is
-   * 1 if circuit timed out, 0 if circuit succeeded */
-  int8_t *timeouts_after_firsthop;
-  /** Number of elements allocated for the above array */
-  int num_recent_circs;
-  /** Index into circular array. */
-  int after_firsthop_idx;
+    /** The timestamp we last completed a TLS handshake or received a cell */
+    time_t network_last_live;
+    /** If the network is not live, how many timeouts has this caused? */
+    int nonlive_timeouts;
+    /** Circular array of circuits that have made it to the first hop. Slot is
+     * 1 if circuit timed out, 0 if circuit succeeded */
+    int8_t *timeouts_after_firsthop;
+    /** Number of elements allocated for the above array */
+    int num_recent_circs;
+    /** Index into circular array. */
+    int after_firsthop_idx;
 } network_liveness_t;
 
 /** Structure for circuit build times history */
 struct circuit_build_times_s {
-  /** The circular array of recorded build times in milliseconds */
-  build_time_t circuit_build_times[CBT_NCIRCUITS_TO_OBSERVE];
-  /** Current index in the circuit_build_times circular array */
-  int build_times_idx;
-  /** Total number of build times accumulated. Max CBT_NCIRCUITS_TO_OBSERVE */
-  int total_build_times;
-  /** Information about the state of our local network connection */
-  network_liveness_t liveness;
-  /** Last time we built a circuit. Used to decide to build new test circs */
-  time_t last_circ_at;
-  /** "Minimum" value of our pareto distribution (actually mode) */
-  build_time_t Xm;
-  /** alpha exponent for pareto dist. */
-  double alpha;
-  /** Have we computed a timeout? */
-  int have_computed_timeout;
-  /** The exact value for that timeout in milliseconds. Stored as a double
-   * to maintain precision from calculations to and from quantile value. */
-  double timeout_ms;
-  /** How long we wait before actually closing the circuit. */
-  double close_ms;
-  /** Total succeeded counts. Old measurements may be scaled downward if
-   * we've seen a lot of circuits. */
-  uint32_t num_circ_succeeded;
-  /** Total timeout counts.  Old measurements may be scaled downward if
-   * we've seen a lot of circuits. */
-  uint32_t num_circ_timeouts;
-  /** Total closed counts.  Old measurements may be scaled downward if
-   * we've seen a lot of circuits.*/
-  uint32_t num_circ_closed;
+    /** The circular array of recorded build times in milliseconds */
+    build_time_t circuit_build_times[CBT_NCIRCUITS_TO_OBSERVE];
+    /** Current index in the circuit_build_times circular array */
+    int build_times_idx;
+    /** Total number of build times accumulated. Max CBT_NCIRCUITS_TO_OBSERVE */
+    int total_build_times;
+    /** Information about the state of our local network connection */
+    network_liveness_t liveness;
+    /** Last time we built a circuit. Used to decide to build new test circs */
+    time_t last_circ_at;
+    /** "Minimum" value of our pareto distribution (actually mode) */
+    build_time_t Xm;
+    /** alpha exponent for pareto dist. */
+    double alpha;
+    /** Have we computed a timeout? */
+    int have_computed_timeout;
+    /** The exact value for that timeout in milliseconds. Stored as a double
+     * to maintain precision from calculations to and from quantile value. */
+    double timeout_ms;
+    /** How long we wait before actually closing the circuit. */
+    double close_ms;
+    /** Total succeeded counts. Old measurements may be scaled downward if
+     * we've seen a lot of circuits. */
+    uint32_t num_circ_succeeded;
+    /** Total timeout counts.  Old measurements may be scaled downward if
+     * we've seen a lot of circuits. */
+    uint32_t num_circ_timeouts;
+    /** Total closed counts.  Old measurements may be scaled downward if
+     * we've seen a lot of circuits.*/
+    uint32_t num_circ_closed;
 
 };
 #endif /* defined(CIRCUITSTATS_PRIVATE) */

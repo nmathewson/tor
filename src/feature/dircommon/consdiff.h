@@ -28,12 +28,12 @@ struct memarea_t;
  * refers to a chunk of memory allocated elsewhere, and is not necessarily
  * NUL-terminated: this helps us avoid copies and save memory. */
 typedef struct cdline_t {
-  const char *s;
-  uint32_t len;
+    const char *s;
+    uint32_t len;
 } cdline_t;
 
 typedef struct consensus_digest_t {
-  uint8_t sha3_256[DIGEST256_LEN];
+    uint8_t sha3_256[DIGEST256_LEN];
 } consensus_digest_t;
 
 STATIC smartlist_t *consdiff_gen_diff(const smartlist_t *cons1,
@@ -50,15 +50,15 @@ STATIC int consdiff_get_digests(const smartlist_t *diff,
 
 /** Data structure to define a slice of a smarltist. */
 typedef struct smartlist_slice_t {
-  /**
-   * Smartlist that this slice is made from.
-   * References the whole original smartlist that the slice was made out of.
-   * */
-  const smartlist_t *list;
-  /** Starting position of the slice in the smartlist. */
-  int offset;
-  /** Length of the slice, i.e. the number of elements it holds. */
-  int len;
+    /**
+     * Smartlist that this slice is made from.
+     * References the whole original smartlist that the slice was made out of.
+     * */
+    const smartlist_t *list;
+    /** Starting position of the slice in the smartlist. */
+    int offset;
+    /** Length of the slice, i.e. the number of elements it holds. */
+    int len;
 } smartlist_slice_t;
 STATIC smartlist_t *gen_ed_diff(const smartlist_t *cons1,
                                 const smartlist_t *cons2,
@@ -69,7 +69,7 @@ STATIC smartlist_t *apply_ed_diff(const smartlist_t *cons1,
 STATIC void calc_changes(smartlist_slice_t *slice1, smartlist_slice_t *slice2,
                          bitarray_t *changed1, bitarray_t *changed2);
 STATIC smartlist_slice_t *smartlist_slice(const smartlist_t *list,
-                                          int start, int end);
+        int start, int end);
 STATIC int next_router(const smartlist_t *cons, int cur);
 STATIC int *lcs_lengths(const smartlist_slice_t *slice1,
                         const smartlist_slice_t *slice2,
@@ -96,7 +96,7 @@ MOCK_DECL(STATIC int,
                                     consensus_digest_t *digest_out));
 MOCK_DECL(STATIC int,
           consensus_compute_digest_as_signed,(const char *cons, size_t len,
-                                              consensus_digest_t *digest_out));
+                  consensus_digest_t *digest_out));
 MOCK_DECL(STATIC int,
           consensus_digest_eq,(const uint8_t *d1,
                                const uint8_t *d2));

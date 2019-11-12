@@ -16,7 +16,7 @@
 #include "lib/defs/logging_types.h"
 
 typedef void (*tor_log_fn)(int, log_domain_mask_t, const char *fmt, ...)
-  CHECK_PRINTF(3,4);
+CHECK_PRINTF(3,4);
 
 void log_backtrace_impl(int severity, log_domain_mask_t domain,
                         const char *msg,

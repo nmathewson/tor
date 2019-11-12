@@ -47,13 +47,12 @@ struct in_addr;
  * have a working in6_addr there anyway, so we can use it to parse IPv6
  * addresses. */
 #if !defined(HAVE_STRUCT_IN6_ADDR)
-struct in6_addr
-{
-  union {
-    uint8_t u6_addr8[16];
-    uint16_t u6_addr16[8];
-    uint32_t u6_addr32[4];
-  } in6_u;
+struct in6_addr {
+    union {
+        uint8_t u6_addr8[16];
+        uint16_t u6_addr16[8];
+        uint32_t u6_addr32[4];
+    } in6_u;
 #define s6_addr   in6_u.u6_addr8
 #define s6_addr16 in6_u.u6_addr16
 #define s6_addr32 in6_u.u6_addr32
@@ -96,11 +95,11 @@ typedef uint16_t sa_family_t;
  * it. See notes on struct in6_addr. */
 #if !defined(HAVE_STRUCT_SOCKADDR_IN6)
 struct sockaddr_in6 {
-  sa_family_t sin6_family;
-  uint16_t sin6_port;
-  // uint32_t sin6_flowinfo;
-  struct in6_addr sin6_addr;
-  // uint32_t sin6_scope_id;
+    sa_family_t sin6_family;
+    uint16_t sin6_port;
+    // uint32_t sin6_flowinfo;
+    struct in6_addr sin6_addr;
+    // uint32_t sin6_scope_id;
 };
 #endif /* !defined(HAVE_STRUCT_SOCKADDR_IN6) */
 

@@ -27,16 +27,16 @@ struct smartlist_t;
 
 /** A linked list of lines in a config file, or elsewhere */
 typedef struct config_line_t {
-  char *key;
-  char *value;
-  struct config_line_t *next;
+    char *key;
+    char *value;
+    struct config_line_t *next;
 
-  /** What special treatment (if any) does this line require? */
-  unsigned int command:2;
-  /** If true, subsequent assignments to this linelist should replace
-   * it, not extend it.  Set only on the first item in a linelist in an
-   * or_options_t. */
-  unsigned int fragile:1;
+    /** What special treatment (if any) does this line require? */
+    unsigned int command:2;
+    /** If true, subsequent assignments to this linelist should replace
+     * it, not extend it.  Set only on the first item in a linelist in an
+     * or_options_t. */
+    unsigned int fragile:1;
 } config_line_t;
 
 void config_line_append(config_line_t **lst,
@@ -45,11 +45,11 @@ void config_line_prepend(config_line_t **lst,
                          const char *key, const char *val);
 config_line_t *config_lines_dup(const config_line_t *inp);
 config_line_t *config_lines_dup_and_filter(const config_line_t *inp,
-                                           const char *key);
+        const char *key);
 const config_line_t *config_line_find(const config_line_t *lines,
                                       const char *key);
 const config_line_t *config_line_find_case(const config_line_t *lines,
-                                           const char *key);
+        const char *key);
 int config_lines_eq(const config_line_t *a, const config_line_t *b);
 int config_count_key(const config_line_t *a, const char *key);
 void config_free_lines_(config_line_t *front);
@@ -59,8 +59,8 @@ void config_free_lines_(config_line_t *front);
     (front) = NULL;              \
   } while (0)
 const char *parse_config_line_from_str_verbose(const char *line,
-                                       char **key_out, char **value_out,
-                                       const char **err_out);
+        char **key_out, char **value_out,
+        const char **err_out);
 
 int config_get_lines(const char *string, struct config_line_t **result,
                      int extended);

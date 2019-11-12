@@ -59,18 +59,19 @@ long
 tor_parse_long(const char *s, int base, long min, long max,
                int *ok, char **next)
 {
-  char *endptr;
-  long r;
+    char *endptr;
+    long r;
 
-  if (base < 0) {
-    if (ok)
-      *ok = 0;
-    return 0;
-  }
+    if (base < 0) {
+        if (ok) {
+            *ok = 0;
+        }
+        return 0;
+    }
 
-  errno = 0;
-  r = strtol(s, &endptr, base);
-  CHECK_STRTOX_RESULT();
+    errno = 0;
+    r = strtol(s, &endptr, base);
+    CHECK_STRTOX_RESULT();
 }
 
 /** As tor_parse_long(), but return an unsigned long. */
@@ -78,30 +79,31 @@ unsigned long
 tor_parse_ulong(const char *s, int base, unsigned long min,
                 unsigned long max, int *ok, char **next)
 {
-  char *endptr;
-  unsigned long r;
+    char *endptr;
+    unsigned long r;
 
-  if (base < 0) {
-    if (ok)
-      *ok = 0;
-    return 0;
-  }
+    if (base < 0) {
+        if (ok) {
+            *ok = 0;
+        }
+        return 0;
+    }
 
-  errno = 0;
-  r = strtoul(s, &endptr, base);
-  CHECK_STRTOX_RESULT();
+    errno = 0;
+    r = strtoul(s, &endptr, base);
+    CHECK_STRTOX_RESULT();
 }
 
 /** As tor_parse_long(), but return a double. */
 double
 tor_parse_double(const char *s, double min, double max, int *ok, char **next)
 {
-  char *endptr;
-  double r;
+    char *endptr;
+    double r;
 
-  errno = 0;
-  r = strtod(s, &endptr);
-  CHECK_STRTOX_RESULT();
+    errno = 0;
+    r = strtod(s, &endptr);
+    CHECK_STRTOX_RESULT();
 }
 
 /** As tor_parse_long, but return a uint64_t.  Only base 10 is guaranteed to
@@ -110,25 +112,26 @@ uint64_t
 tor_parse_uint64(const char *s, int base, uint64_t min,
                  uint64_t max, int *ok, char **next)
 {
-  char *endptr;
-  uint64_t r;
+    char *endptr;
+    uint64_t r;
 
-  if (base < 0) {
-    if (ok)
-      *ok = 0;
-    return 0;
-  }
+    if (base < 0) {
+        if (ok) {
+            *ok = 0;
+        }
+        return 0;
+    }
 
-  errno = 0;
+    errno = 0;
 #ifdef HAVE_STRTOULL
-  r = (uint64_t)strtoull(s, &endptr, base);
+    r = (uint64_t)strtoull(s, &endptr, base);
 #elif defined(_WIN32)
-  r = (uint64_t)_strtoui64(s, &endptr, base);
+    r = (uint64_t)_strtoui64(s, &endptr, base);
 #elif SIZEOF_LONG == 8
-  r = (uint64_t)strtoul(s, &endptr, base);
+    r = (uint64_t)strtoul(s, &endptr, base);
 #else
 #error "I don't know how to parse 64-bit numbers."
 #endif /* defined(HAVE_STRTOULL) || ... */
 
-  CHECK_STRTOX_RESULT();
+    CHECK_STRTOX_RESULT();
 }

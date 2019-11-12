@@ -17,12 +17,12 @@ microdesc_cache_t *get_microdesc_cache(void);
 void microdesc_check_counts(void);
 
 smartlist_t *microdescs_add_to_cache(microdesc_cache_t *cache,
-                        const char *s, const char *eos, saved_location_t where,
-                        int no_save, time_t listed_at,
-                        smartlist_t *requested_digests256);
+                                     const char *s, const char *eos, saved_location_t where,
+                                     int no_save, time_t listed_at,
+                                     smartlist_t *requested_digests256);
 smartlist_t *microdescs_add_list_to_cache(microdesc_cache_t *cache,
-                        smartlist_t *descriptors, saved_location_t where,
-                        int no_save);
+        smartlist_t *descriptors, saved_location_t where,
+        int no_save);
 
 void microdesc_cache_clean(microdesc_cache_t *cache, time_t cutoff, int force);
 int microdesc_cache_rebuild(microdesc_cache_t *cache, int force);
@@ -30,12 +30,12 @@ int microdesc_cache_reload(microdesc_cache_t *cache);
 void microdesc_cache_clear(microdesc_cache_t *cache);
 
 microdesc_t *microdesc_cache_lookup_by_digest256(microdesc_cache_t *cache,
-                                                 const char *d);
+        const char *d);
 
 smartlist_t *microdesc_list_missing_digest256(networkstatus_t *ns,
-                                              microdesc_cache_t *cache,
-                                              int downloadable_only,
-                                              digest256map_t *skip);
+        microdesc_cache_t *cache,
+        int downloadable_only,
+        digest256map_t *skip);
 
 void microdesc_free_(microdesc_t *md, const char *fname, int line);
 #define microdesc_free(md) do {                 \

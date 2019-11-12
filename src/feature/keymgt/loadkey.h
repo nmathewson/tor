@@ -33,13 +33,13 @@ crypto_pk_t *init_key_from_file(const char *fname, int generate,
 
 struct tor_cert_st;
 ed25519_keypair_t *ed_key_init_from_file(const char *fname, uint32_t flags,
-                                         int severity,
-                                         const ed25519_keypair_t *signing_key,
-                                         time_t now,
-                                         time_t lifetime,
-                                         uint8_t cert_type,
-                                         struct tor_cert_st **cert_out,
-                                         const or_options_t *options);
+        int severity,
+        const ed25519_keypair_t *signing_key,
+        time_t now,
+        time_t lifetime,
+        uint8_t cert_type,
+        struct tor_cert_st **cert_out,
+        const or_options_t *options);
 ed25519_keypair_t *ed_key_new(const ed25519_keypair_t *signing_key,
                               uint32_t flags,
                               time_t now,

@@ -133,34 +133,34 @@ struct ed25519_keypair_t;
 
 /** Type of authentication key used by an introduction point. */
 typedef enum {
-  HS_AUTH_KEY_TYPE_LEGACY  = 1,
-  HS_AUTH_KEY_TYPE_ED25519 = 2,
+    HS_AUTH_KEY_TYPE_LEGACY  = 1,
+    HS_AUTH_KEY_TYPE_ED25519 = 2,
 } hs_auth_key_type_t;
 
 /** Return value when adding an ephemeral service through the ADD_ONION
  * control port command. Both v2 and v3 share these. */
 typedef enum {
-  RSAE_BADAUTH     = -5, /**< Invalid auth_type/auth_clients */
-  RSAE_BADVIRTPORT = -4, /**< Invalid VIRTPORT/TARGET(s) */
-  RSAE_ADDREXISTS  = -3, /**< Onion address collision */
-  RSAE_BADPRIVKEY  = -2, /**< Invalid public key */
-  RSAE_INTERNAL    = -1, /**< Internal error */
-  RSAE_OKAY        = 0   /**< Service added as expected */
+    RSAE_BADAUTH     = -5, /**< Invalid auth_type/auth_clients */
+    RSAE_BADVIRTPORT = -4, /**< Invalid VIRTPORT/TARGET(s) */
+    RSAE_ADDREXISTS  = -3, /**< Onion address collision */
+    RSAE_BADPRIVKEY  = -2, /**< Invalid public key */
+    RSAE_INTERNAL    = -1, /**< Internal error */
+    RSAE_OKAY        = 0   /**< Service added as expected */
 } hs_service_add_ephemeral_status_t;
 
 /** Represents the mapping from a virtual port of a rendezvous service to a
  * real port on some IP. */
 typedef struct rend_service_port_config_t {
-  /** The incoming HS virtual port we're mapping */
-  uint16_t virtual_port;
-  /** Is this an AF_UNIX port? */
-  unsigned int is_unix_addr:1;
-  /** The outgoing TCP port to use, if !is_unix_addr */
-  uint16_t real_port;
-  /** The outgoing IPv4 or IPv6 address to use, if !is_unix_addr */
-  tor_addr_t real_addr;
-  /** The socket path to connect to, if is_unix_addr */
-  char unix_addr[FLEXIBLE_ARRAY_MEMBER];
+    /** The incoming HS virtual port we're mapping */
+    uint16_t virtual_port;
+    /** Is this an AF_UNIX port? */
+    unsigned int is_unix_addr:1;
+    /** The outgoing TCP port to use, if !is_unix_addr */
+    uint16_t real_port;
+    /** The outgoing IPv4 or IPv6 address to use, if !is_unix_addr */
+    tor_addr_t real_addr;
+    /** The socket path to connect to, if is_unix_addr */
+    char unix_addr[FLEXIBLE_ARRAY_MEMBER];
 } rend_service_port_config_t;
 
 void hs_init(void);
@@ -239,9 +239,9 @@ int32_t hs_get_hsdir_spread_fetch(void);
 int32_t hs_get_hsdir_spread_store(void);
 
 void hs_get_responsible_hsdirs(const struct ed25519_public_key_t *blinded_pk,
-                              uint64_t time_period_num,
-                              int use_second_hsdir_index,
-                              int for_fetching, smartlist_t *responsible_dirs);
+                               uint64_t time_period_num,
+                               int use_second_hsdir_index,
+                               int for_fetching, smartlist_t *responsible_dirs);
 routerstatus_t *hs_pick_hsdir(smartlist_t *responsible_dirs,
                               const char *req_key_str,
                               bool *is_rate_limited_out);
@@ -260,8 +260,8 @@ void hs_inc_rdv_stream_counter(origin_circuit_t *circ);
 void hs_dec_rdv_stream_counter(origin_circuit_t *circ);
 
 extend_info_t *hs_get_extend_info_from_lspecs(const smartlist_t *lspecs,
-                          const struct curve25519_public_key_t *onion_key,
-                          int direct_conn);
+        const struct curve25519_public_key_t *onion_key,
+        int direct_conn);
 
 link_specifier_t *link_specifier_dup(const link_specifier_t *src);
 

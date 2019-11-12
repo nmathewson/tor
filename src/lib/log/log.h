@@ -25,7 +25,7 @@
 #if LOG_DEBUG < LOG_ERR
 #ifndef COCCI
 #error "Your syslog.h thinks high numbers are more important.  " \
-       "We aren't prepared to deal with that."
+"We aren't prepared to deal with that."
 #endif
 #endif /* LOG_DEBUG < LOG_ERR */
 #else /* !defined(HAVE_SYSLOG_H) */
@@ -149,9 +149,9 @@
 /** Configures which severities are logged for each logging domain for a given
  * log target. */
 typedef struct log_severity_list_t {
-  /** For each log severity, a bitmask of which domains a given logger is
-   * logging. */
-  log_domain_mask_t masks[LOG_DEBUG-LOG_ERR+1];
+    /** For each log severity, a bitmask of which domains a given logger is
+     * logging. */
+    log_domain_mask_t masks[LOG_DEBUG-LOG_ERR+1];
 } log_severity_list_t;
 
 /** Callback type used for add_callback_log. */
@@ -200,7 +200,7 @@ MOCK_DECL(void, set_log_time_granularity,(int granularity_msec));
 void truncate_logs(void);
 
 void tor_log(int severity, log_domain_mask_t domain, const char *format, ...)
-  CHECK_PRINTF(3,4);
+CHECK_PRINTF(3,4);
 
 void tor_log_update_sigsafe_err_fds(void);
 
@@ -220,18 +220,18 @@ static inline bool debug_logging_enabled(void);
  */
 static inline bool debug_logging_enabled(void)
 {
-  return PREDICT_UNLIKELY(log_global_min_severity_ == LOG_DEBUG);
+    return PREDICT_UNLIKELY(log_global_min_severity_ == LOG_DEBUG);
 }
 #endif /* defined(TOR_COVERAGE) */
 
 void log_fn_(int severity, log_domain_mask_t domain,
              const char *funcname, const char *format, ...)
-  CHECK_PRINTF(4,5);
+CHECK_PRINTF(4,5);
 struct ratelim_t;
 void log_fn_ratelim_(struct ratelim_t *ratelim, int severity,
                      log_domain_mask_t domain, const char *funcname,
                      const char *format, ...)
-  CHECK_PRINTF(5,6);
+CHECK_PRINTF(5,6);
 
 int log_message_is_interesting(int severity, log_domain_mask_t domain);
 void tor_log_string(int severity, log_domain_mask_t domain,
@@ -306,10 +306,10 @@ extern const log_domain_mask_t LD_GENERAL_;
 
 #ifdef LOG_PRIVATE
 MOCK_DECL(STATIC void, logv, (int severity, log_domain_mask_t domain,
-    const char *funcname, const char *suffix, const char *format,
-    va_list ap) CHECK_PRINTF(5,0));
+                              const char *funcname, const char *suffix, const char *format,
+                              va_list ap) CHECK_PRINTF(5,0));
 MOCK_DECL(STATIC void, add_stream_log_impl,(
-         const log_severity_list_t *severity, const char *name, int fd));
+              const log_severity_list_t *severity, const char *name, int fd));
 #endif /* defined(LOG_PRIVATE) */
 
 #if defined(LOG_PRIVATE) || defined(TOR_UNIT_TESTS)

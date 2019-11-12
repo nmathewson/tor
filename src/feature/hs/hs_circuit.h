@@ -34,9 +34,9 @@ int hs_circ_launch_rendezvous_point(const hs_service_t *service,
 void hs_circ_retry_service_rendezvous_point(origin_circuit_t *circ);
 
 origin_circuit_t *hs_circ_service_get_intro_circ(
-                                      const hs_service_intro_point_t *ip);
+    const hs_service_intro_point_t *ip);
 origin_circuit_t *hs_circ_service_get_established_intro_circ(
-                                      const hs_service_intro_point_t *ip);
+    const hs_service_intro_point_t *ip);
 
 /* Cell API. */
 int hs_circ_handle_intro_established(const hs_service_t *service,
@@ -62,7 +62,7 @@ int hs_circuit_setup_e2e_rend_circ(origin_circuit_t *circ,
                                    size_t seed_len,
                                    int is_service_side);
 int hs_circuit_setup_e2e_rend_circ_legacy_client(origin_circuit_t *circ,
-                                          const uint8_t *rend_cell_body);
+        const uint8_t *rend_cell_body);
 
 #ifdef HS_CIRCUIT_PRIVATE
 

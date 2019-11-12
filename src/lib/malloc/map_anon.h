@@ -32,15 +32,15 @@
 #define ANONMAP_NOINHERIT (1u<<1)
 
 typedef enum {
-  /** Possible value for inherit_result_out: the memory will be kept
-   * by any child process. */
-  INHERIT_RES_KEEP=0,
-  /** Possible value for inherit_result_out: the memory will be dropped in the
-   * child process. Attempting to access it will likely cause a segfault. */
-  INHERIT_RES_DROP,
-  /** Possible value for inherit_result_out: the memory will be cleared in
-   * the child process. */
-  INHERIT_RES_ZERO
+    /** Possible value for inherit_result_out: the memory will be kept
+     * by any child process. */
+    INHERIT_RES_KEEP=0,
+    /** Possible value for inherit_result_out: the memory will be dropped in the
+     * child process. Attempting to access it will likely cause a segfault. */
+    INHERIT_RES_DROP,
+    /** Possible value for inherit_result_out: the memory will be cleared in
+     * the child process. */
+    INHERIT_RES_ZERO
 } inherit_res_t;
 
 /* Here we define the NOINHERIT_CAN_FAIL macro if and only if

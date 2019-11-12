@@ -17,18 +17,18 @@
 #define CHANNELPADDING_SOS_DEFAULT 1
 
 typedef enum {
-  CHANNELPADDING_WONTPAD,
-  CHANNELPADDING_PADLATER,
-  CHANNELPADDING_PADDING_SCHEDULED,
-  CHANNELPADDING_PADDING_ALREADY_SCHEDULED,
-  CHANNELPADDING_PADDING_SENT,
+    CHANNELPADDING_WONTPAD,
+    CHANNELPADDING_PADLATER,
+    CHANNELPADDING_PADDING_SCHEDULED,
+    CHANNELPADDING_PADDING_ALREADY_SCHEDULED,
+    CHANNELPADDING_PADDING_SENT,
 } channelpadding_decision_t;
 
 channelpadding_decision_t channelpadding_decide_to_pad_channel(channel_t
-                                                               *chan);
+        *chan);
 int channelpadding_update_padding_for_channel(channel_t *,
-                                              const channelpadding_negotiate_t
-                                              *chan);
+        const channelpadding_negotiate_t
+        *chan);
 
 void channelpadding_disable_padding_on_channel(channel_t *chan);
 void channelpadding_reduce_padding_on_channel(channel_t *chan);

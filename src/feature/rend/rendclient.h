@@ -26,8 +26,8 @@ int rend_client_fetch_v2_desc(rend_data_t *query, smartlist_t *hsdirs);
 void rend_client_cancel_descriptor_fetches(void);
 
 int rend_client_report_intro_point_failure(extend_info_t *failed_intro,
-                                           rend_data_t *rend_data,
-                                           unsigned int failure_type);
+        rend_data_t *rend_data,
+        unsigned int failure_type);
 
 int rend_client_receive_rendezvous(origin_circuit_t *circ,
                                    const uint8_t *request,
@@ -44,7 +44,7 @@ int rend_client_send_introduction(origin_circuit_t *introcirc,
 int rend_parse_service_authorization(const or_options_t *options,
                                      int validate_only);
 rend_service_authorization_t *rend_client_lookup_service_authorization(
-                                                const char *onion_address);
+    const char *onion_address);
 void rend_service_authorization_free_all(void);
 
 #endif /* !defined(TOR_RENDCLIENT_H) */

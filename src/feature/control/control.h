@@ -52,8 +52,8 @@ void control_free_all(void);
 
 #ifdef CONTROL_MODULE_PRIVATE
 struct signal_name_t {
-  int sig;
-  const char *signal_name;
+    int sig;
+    const char *signal_name;
 };
 extern const struct signal_name_t signal_table[];
 int get_cached_network_liveness(void);
@@ -62,8 +62,8 @@ void set_cached_network_liveness(int liveness);
 
 #ifdef CONTROL_PRIVATE
 STATIC char *control_split_incoming_command(char *incoming_cmd,
-                                            size_t *data_len,
-                                            char **current_cmd_out);
+        size_t *data_len,
+        char **current_cmd_out);
 #endif
 
 #endif /* !defined(TOR_CONTROL_H) */

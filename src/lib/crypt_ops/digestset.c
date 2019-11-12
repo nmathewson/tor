@@ -19,7 +19,7 @@ static uint64_t
 bloomfilt_digest_hash(const struct sipkey *key,
                       const void *item)
 {
-  return siphash24(item, DIGEST_LEN, key);
+    return siphash24(item, DIGEST_LEN, key);
 }
 
 /**
@@ -29,9 +29,9 @@ bloomfilt_digest_hash(const struct sipkey *key,
 digestset_t *
 digestset_new(int max_guess)
 {
-  uint8_t k[BLOOMFILT_KEY_LEN];
-  crypto_rand((void*)k, sizeof(k));
-  return bloomfilt_new(max_guess, bloomfilt_digest_hash, k);
+    uint8_t k[BLOOMFILT_KEY_LEN];
+    crypto_rand((void*)k, sizeof(k));
+    return bloomfilt_new(max_guess, bloomfilt_digest_hash, k);
 }
 
 /**
@@ -43,7 +43,7 @@ digestset_new(int max_guess)
 void
 digestset_add(digestset_t *set, const char *digest)
 {
-  bloomfilt_add(set, digest);
+    bloomfilt_add(set, digest);
 }
 
 /**
@@ -54,5 +54,5 @@ int
 digestset_probably_contains(const digestset_t *set,
                             const char *digest)
 {
-  return bloomfilt_probably_contains(set, digest);
+    return bloomfilt_probably_contains(set, digest);
 }

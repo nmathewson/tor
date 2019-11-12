@@ -37,20 +37,20 @@ bool accounting_tor_is_dormant(void);
 #ifdef HIBERNATE_PRIVATE
 /** Possible values of hibernate_state */
 typedef enum {
-  /** We are running normally. */
-  HIBERNATE_STATE_LIVE=1,
-  /** We're trying to shut down cleanly, and we'll kill all active connections
-   * at shutdown_time. */
-  HIBERNATE_STATE_EXITING=2,
-  /** We're running low on allocated bandwidth for this period, so we won't
-   * accept any new connections. */
-  HIBERNATE_STATE_LOWBANDWIDTH=3,
-  /** We are hibernating, and we won't wake up till there's more bandwidth to
-   * use. */
-  HIBERNATE_STATE_DORMANT=4,
-  /** We start out in state default, which means we havent decided which state
-   * we're in. */
-  HIBERNATE_STATE_INITIAL=5
+    /** We are running normally. */
+    HIBERNATE_STATE_LIVE=1,
+    /** We're trying to shut down cleanly, and we'll kill all active connections
+     * at shutdown_time. */
+    HIBERNATE_STATE_EXITING=2,
+    /** We're running low on allocated bandwidth for this period, so we won't
+     * accept any new connections. */
+    HIBERNATE_STATE_LOWBANDWIDTH=3,
+    /** We are hibernating, and we won't wake up till there's more bandwidth to
+     * use. */
+    HIBERNATE_STATE_DORMANT=4,
+    /** We start out in state default, which means we havent decided which state
+     * we're in. */
+    HIBERNATE_STATE_INITIAL=5
 } hibernate_state_t;
 
 #ifdef TOR_UNIT_TESTS

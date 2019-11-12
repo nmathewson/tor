@@ -34,11 +34,12 @@
 static int
 check_canonical_channels_callback(time_t now, const or_options_t *options)
 {
-  (void)now;
-  if (public_server_mode(options))
-    channel_check_for_duplicates();
+    (void)now;
+    if (public_server_mode(options)) {
+        channel_check_for_duplicates();
+    }
 
-  return CHANNEL_CHECK_INTERVAL;
+    return CHANNEL_CHECK_INTERVAL;
 }
 
 DECLARE_EVENT(check_canonical_channels, RELAY, FL(NEED_NET));
@@ -50,10 +51,10 @@ static int
 expire_old_circuits_serverside_callback(time_t now,
                                         const or_options_t *options)
 {
-  (void)options;
-  /* every 11 seconds, so not usually the same second as other such events */
-  circuit_expire_old_circuits_serverside(now);
-  return 11;
+    (void)options;
+    /* every 11 seconds, so not usually the same second as other such events */
+    circuit_expire_old_circuits_serverside(now);
+    return 11;
 }
 
 DECLARE_EVENT(expire_old_circuits_serverside, ROUTER, FL(NEED_NET));
@@ -61,7 +62,7 @@ DECLARE_EVENT(expire_old_circuits_serverside, ROUTER, FL(NEED_NET));
 void
 or_register_periodic_events(void)
 {
-  // These are router-only events, but they're owned by the OR subsystem. */
-  periodic_events_register(&check_canonical_channels_event);
-  periodic_events_register(&expire_old_circuits_serverside_event);
+    // These are router-only events, but they're owned by the OR subsystem. */
+    periodic_events_register(&check_canonical_channels_event);
+    periodic_events_register(&expire_old_circuits_serverside_event);
 }

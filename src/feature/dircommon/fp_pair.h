@@ -11,8 +11,8 @@
 
 /** A pair of digests created by dir_split_resource_info_fingerprint_pairs() */
 typedef struct {
-  char first[DIGEST_LEN];
-  char second[DIGEST_LEN];
+    char first[DIGEST_LEN];
+    char second[DIGEST_LEN];
 } fp_pair_t;
 
 /*
@@ -42,9 +42,9 @@ int fp_pair_map_isempty(const fp_pair_map_t *map);
 int fp_pair_map_size(const fp_pair_map_t *map);
 fp_pair_map_iter_t * fp_pair_map_iter_init(fp_pair_map_t *map);
 fp_pair_map_iter_t * fp_pair_map_iter_next(fp_pair_map_t *map,
-                                           fp_pair_map_iter_t *iter);
+        fp_pair_map_iter_t *iter);
 fp_pair_map_iter_t * fp_pair_map_iter_next_rmv(fp_pair_map_t *map,
-                                               fp_pair_map_iter_t *iter);
+        fp_pair_map_iter_t *iter);
 void fp_pair_map_iter_get(fp_pair_map_iter_t *iter,
                           fp_pair_t *key_out, void **val_out);
 int fp_pair_map_iter_done(fp_pair_map_iter_t *iter);

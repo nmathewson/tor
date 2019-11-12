@@ -59,7 +59,7 @@ void pubsub_builder_free_(pubsub_builder_t *);
  * initialization.
  */
 struct pubsub_connector_t *pubsub_connector_for_subsystem(pubsub_builder_t *,
-                                                          subsys_id_t);
+        subsys_id_t);
 
 /**
  * The main-init code does this after subsystem initialization.
@@ -78,7 +78,7 @@ void pubsub_connector_free_(struct pubsub_connector_t *);
  * entering the mainloop.
  */
 struct dispatch_t *pubsub_builder_finalize(pubsub_builder_t *,
-                                           pubsub_items_t **items_out);
+        pubsub_items_t **items_out);
 
 /**
  * Clear all pub_binding_t backpointers in <b>items</b>.

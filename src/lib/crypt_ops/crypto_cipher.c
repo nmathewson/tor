@@ -30,10 +30,10 @@ crypto_cipher_new_with_iv_and_bits(const uint8_t *key,
                                    const uint8_t *iv,
                                    int bits)
 {
-  tor_assert(key);
-  tor_assert(iv);
+    tor_assert(key);
+    tor_assert(iv);
 
-  return aes_new_cipher((const uint8_t*)key, (const uint8_t*)iv, bits);
+    return aes_new_cipher((const uint8_t*)key, (const uint8_t*)iv, bits);
 }
 
 /** Allocate and return a new symmetric cipher using the provided key and iv.
@@ -43,8 +43,8 @@ crypto_cipher_new_with_iv_and_bits(const uint8_t *key,
 crypto_cipher_t *
 crypto_cipher_new_with_iv(const char *key, const char *iv)
 {
-  return crypto_cipher_new_with_iv_and_bits((uint8_t*)key, (uint8_t*)iv,
-                                            128);
+    return crypto_cipher_new_with_iv_and_bits((uint8_t*)key, (uint8_t*)iv,
+            128);
 }
 
 /** Return a new crypto_cipher_t with the provided <b>key</b> and an IV of all
@@ -53,10 +53,10 @@ crypto_cipher_new_with_iv(const char *key, const char *iv)
 crypto_cipher_t *
 crypto_cipher_new_with_bits(const char *key, int bits)
 {
-  char zeroiv[CIPHER_IV_LEN];
-  memset(zeroiv, 0, sizeof(zeroiv));
-  return crypto_cipher_new_with_iv_and_bits((uint8_t*)key, (uint8_t*)zeroiv,
-                                            bits);
+    char zeroiv[CIPHER_IV_LEN];
+    memset(zeroiv, 0, sizeof(zeroiv));
+    return crypto_cipher_new_with_iv_and_bits((uint8_t*)key, (uint8_t*)zeroiv,
+            bits);
 }
 
 /** Return a new crypto_cipher_t with the provided <b>key</b> (of
@@ -64,7 +64,7 @@ crypto_cipher_new_with_bits(const char *key, int bits)
 crypto_cipher_t *
 crypto_cipher_new(const char *key)
 {
-  return crypto_cipher_new_with_bits(key, 128);
+    return crypto_cipher_new_with_bits(key, 128);
 }
 
 /** Free a symmetric cipher.
@@ -72,10 +72,11 @@ crypto_cipher_new(const char *key)
 void
 crypto_cipher_free_(crypto_cipher_t *env)
 {
-  if (!env)
-    return;
+    if (!env) {
+        return;
+    }
 
-  aes_cipher_free(env);
+    aes_cipher_free(env);
 }
 
 /* symmetric crypto */
@@ -88,16 +89,16 @@ int
 crypto_cipher_encrypt(crypto_cipher_t *env, char *to,
                       const char *from, size_t fromlen)
 {
-  tor_assert(env);
-  tor_assert(env);
-  tor_assert(from);
-  tor_assert(fromlen);
-  tor_assert(to);
-  tor_assert(fromlen < SIZE_T_CEILING);
+    tor_assert(env);
+    tor_assert(env);
+    tor_assert(from);
+    tor_assert(fromlen);
+    tor_assert(to);
+    tor_assert(fromlen < SIZE_T_CEILING);
 
-  memcpy(to, from, fromlen);
-  aes_crypt_inplace(env, to, fromlen);
-  return 0;
+    memcpy(to, from, fromlen);
+    aes_crypt_inplace(env, to, fromlen);
+    return 0;
 }
 
 /** Decrypt <b>fromlen</b> bytes from <b>from</b> using the cipher
@@ -108,14 +109,14 @@ int
 crypto_cipher_decrypt(crypto_cipher_t *env, char *to,
                       const char *from, size_t fromlen)
 {
-  tor_assert(env);
-  tor_assert(from);
-  tor_assert(to);
-  tor_assert(fromlen < SIZE_T_CEILING);
+    tor_assert(env);
+    tor_assert(from);
+    tor_assert(to);
+    tor_assert(fromlen < SIZE_T_CEILING);
 
-  memcpy(to, from, fromlen);
-  aes_crypt_inplace(env, to, fromlen);
-  return 0;
+    memcpy(to, from, fromlen);
+    aes_crypt_inplace(env, to, fromlen);
+    return 0;
 }
 
 /** Encrypt <b>len</b> bytes on <b>from</b> using the cipher in <b>env</b>;
@@ -124,8 +125,8 @@ crypto_cipher_decrypt(crypto_cipher_t *env, char *to,
 void
 crypto_cipher_crypt_inplace(crypto_cipher_t *env, char *buf, size_t len)
 {
-  tor_assert(len < SIZE_T_CEILING);
-  aes_crypt_inplace(env, buf, len);
+    tor_assert(len < SIZE_T_CEILING);
+    aes_crypt_inplace(env, buf, len);
 }
 
 /** Encrypt <b>fromlen</b> bytes (at least 1) from <b>from</b> with the key in
@@ -139,25 +140,27 @@ crypto_cipher_encrypt_with_iv(const char *key,
                               char *to, size_t tolen,
                               const char *from, size_t fromlen)
 {
-  crypto_cipher_t *cipher;
-  tor_assert(from);
-  tor_assert(to);
-  tor_assert(fromlen < INT_MAX);
+    crypto_cipher_t *cipher;
+    tor_assert(from);
+    tor_assert(to);
+    tor_assert(fromlen < INT_MAX);
 
-  if (fromlen < 1)
-    return -1;
-  if (tolen < fromlen + CIPHER_IV_LEN)
-    return -1;
+    if (fromlen < 1) {
+        return -1;
+    }
+    if (tolen < fromlen + CIPHER_IV_LEN) {
+        return -1;
+    }
 
-  char iv[CIPHER_IV_LEN];
-  crypto_rand(iv, sizeof(iv));
-  cipher = crypto_cipher_new_with_iv(key, iv);
+    char iv[CIPHER_IV_LEN];
+    crypto_rand(iv, sizeof(iv));
+    cipher = crypto_cipher_new_with_iv(key, iv);
 
-  memcpy(to, iv, CIPHER_IV_LEN);
-  crypto_cipher_encrypt(cipher, to+CIPHER_IV_LEN, from, fromlen);
-  crypto_cipher_free(cipher);
-  memwipe(iv, 0, sizeof(iv));
-  return (int)(fromlen + CIPHER_IV_LEN);
+    memcpy(to, iv, CIPHER_IV_LEN);
+    crypto_cipher_encrypt(cipher, to+CIPHER_IV_LEN, from, fromlen);
+    crypto_cipher_free(cipher);
+    memwipe(iv, 0, sizeof(iv));
+    return (int)(fromlen + CIPHER_IV_LEN);
 }
 
 /** Decrypt <b>fromlen</b> bytes (at least 1+CIPHER_IV_LEN) from <b>from</b>
@@ -171,20 +174,22 @@ crypto_cipher_decrypt_with_iv(const char *key,
                               char *to, size_t tolen,
                               const char *from, size_t fromlen)
 {
-  crypto_cipher_t *cipher;
-  tor_assert(key);
-  tor_assert(from);
-  tor_assert(to);
-  tor_assert(fromlen < INT_MAX);
+    crypto_cipher_t *cipher;
+    tor_assert(key);
+    tor_assert(from);
+    tor_assert(to);
+    tor_assert(fromlen < INT_MAX);
 
-  if (fromlen <= CIPHER_IV_LEN)
-    return -1;
-  if (tolen < fromlen - CIPHER_IV_LEN)
-    return -1;
+    if (fromlen <= CIPHER_IV_LEN) {
+        return -1;
+    }
+    if (tolen < fromlen - CIPHER_IV_LEN) {
+        return -1;
+    }
 
-  cipher = crypto_cipher_new_with_iv(key, from);
+    cipher = crypto_cipher_new_with_iv(key, from);
 
-  crypto_cipher_encrypt(cipher, to, from+CIPHER_IV_LEN, fromlen-CIPHER_IV_LEN);
-  crypto_cipher_free(cipher);
-  return (int)(fromlen - CIPHER_IV_LEN);
+    crypto_cipher_encrypt(cipher, to, from+CIPHER_IV_LEN, fromlen-CIPHER_IV_LEN);
+    crypto_cipher_free(cipher);
+    return (int)(fromlen - CIPHER_IV_LEN);
 }

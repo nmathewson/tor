@@ -14,9 +14,9 @@
 
 /** Hidden-service side configuration of client authorization. */
 struct rend_authorized_client_t {
-  char *client_name;
-  uint8_t descriptor_cookie[REND_DESC_COOKIE_LEN];
-  crypto_pk_t *client_key;
+    char *client_name;
+    uint8_t descriptor_cookie[REND_DESC_COOKIE_LEN];
+    crypto_pk_t *client_key;
 };
 
 #endif /* !defined(REND_AUTHORIZED_CLIENT_ST_H) */

@@ -22,7 +22,7 @@ void reschedule_dirvote(const or_options_t *options);
 static inline void
 reschedule_dirvote(const or_options_t *options)
 {
-  (void)options;
+    (void)options;
 }
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */

@@ -15,21 +15,21 @@
 /** Possible statuses of a version of Tor, given opinions from the directory
  * servers. */
 typedef enum version_status_t {
-  VS_RECOMMENDED=0, /**< This version is listed as recommended. */
-  VS_OLD=1, /**< This version is older than any recommended version. */
-  VS_NEW=2, /**< This version is newer than any recommended version. */
-  VS_NEW_IN_SERIES=3, /**< This version is newer than any recommended version
+    VS_RECOMMENDED=0, /**< This version is listed as recommended. */
+    VS_OLD=1, /**< This version is older than any recommended version. */
+    VS_NEW=2, /**< This version is newer than any recommended version. */
+    VS_NEW_IN_SERIES=3, /**< This version is newer than any recommended version
                        * in its series, but later recommended versions exist.
                        */
-  VS_UNRECOMMENDED=4, /**< This version is not recommended (general case). */
-  VS_EMPTY=5, /**< The version list was empty; no agreed-on versions. */
-  VS_UNKNOWN, /**< We have no idea. */
+    VS_UNRECOMMENDED=4, /**< This version is not recommended (general case). */
+    VS_EMPTY=5, /**< The version list was empty; no agreed-on versions. */
+    VS_UNKNOWN, /**< We have no idea. */
 } version_status_t;
 
 time_t tor_get_approx_release_date(void);
 
 version_status_t tor_version_is_obsolete(const char *myversion,
-                                         const char *versionlist);
+        const char *versionlist);
 int tor_version_parse_platform(const char *platform,
                                tor_version_t *version_out,
                                int strict);

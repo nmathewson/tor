@@ -36,9 +36,9 @@ uint32_t dirserv_get_credible_bandwidth_kb(const routerinfo_t *ri);
 
 #ifdef BWAUTH_PRIVATE
 typedef struct measured_bw_line_t {
-  char node_id[DIGEST_LEN];
-  char node_hex[MAX_HEX_NICKNAME_LEN+1];
-  long int bw_kb;
+    char node_id[DIGEST_LEN];
+    char node_hex[MAX_HEX_NICKNAME_LEN+1];
+    long int bw_kb;
 } measured_bw_line_t;
 
 /* Put the MAX_MEASUREMENT_AGE #define here so unit tests can see it */
@@ -48,10 +48,10 @@ STATIC int measured_bw_line_parse(measured_bw_line_t *out, const char *line,
                                   int line_is_after_headers);
 
 STATIC int measured_bw_line_apply(measured_bw_line_t *parsed_line,
-                           smartlist_t *routerstatuses);
+                                  smartlist_t *routerstatuses);
 
 STATIC void dirserv_cache_measured_bw(const measured_bw_line_t *parsed_line,
-                               time_t as_of);
+                                      time_t as_of);
 STATIC void dirserv_expire_measured_bw_cache(time_t now);
 #endif /* defined(BWAUTH_PRIVATE) */
 

@@ -20,19 +20,19 @@
  * we get an end cell or a resolved cell for this stream id.
  */
 typedef struct half_edge_t {
-  /** stream_id for the half-closed connection */
-  streamid_t stream_id;
+    /** stream_id for the half-closed connection */
+    streamid_t stream_id;
 
-  /** How many sendme's can the other end still send, based on how
-   * much data we had sent at the time of close */
-  int sendmes_pending;
+    /** How many sendme's can the other end still send, based on how
+     * much data we had sent at the time of close */
+    int sendmes_pending;
 
-  /** How much more data can the other end still send, based on
-   * our deliver window */
-  int data_pending;
+    /** How much more data can the other end still send, based on
+     * our deliver window */
+    int data_pending;
 
-  /** Is there a connected cell pending? */
-  int connected_pending : 1;
+    /** Is there a connected cell pending? */
+    int connected_pending : 1;
 } half_edge_t;
 
 #endif /* !defined(HALF_EDGE_ST_H) */

@@ -47,7 +47,7 @@ tor_main_configuration_t *tor_main_configuration_new(void);
  * Return 0 on success, -1 on failure.
  */
 int tor_main_configuration_set_command_line(tor_main_configuration_t *cfg,
-                                            int argc, char *argv[]);
+        int argc, char *argv[]);
 
 #ifdef _WIN32
 typedef SOCKET tor_control_socket_t;
@@ -59,7 +59,7 @@ typedef int tor_control_socket_t;
 
 /** DOCDOC */
 tor_control_socket_t tor_main_configuration_setup_control_socket(
-                                          tor_main_configuration_t *cfg);
+    tor_main_configuration_t *cfg);
 
 /**
  * Release all storage held in <b>cfg</b>.

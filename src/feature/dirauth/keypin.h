@@ -25,14 +25,14 @@ int keypin_load_journal(const char *fname);
 static inline int
 keypin_open_journal(const char *fname)
 {
-  (void)fname;
-  return 0;
+    (void)fname;
+    return 0;
 }
 static inline int
 keypin_load_journal(const char *fname)
 {
-  (void)fname;
-  return 0;
+    (void)fname;
+    return 0;
 }
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
 void keypin_clear(void);
@@ -49,12 +49,12 @@ int keypin_check_lone_rsa(const uint8_t *rsa_id_digest);
  * In-memory representation of a key-pinning table entry.
  */
 typedef struct keypin_ent_st {
-  HT_ENTRY(keypin_ent_st) rsamap_node;
-  HT_ENTRY(keypin_ent_st) edmap_node;
-  /** SHA1 hash of the RSA key */
-  uint8_t rsa_id[DIGEST_LEN];
-  /** Ed2219 key. */
-  uint8_t ed25519_key[DIGEST256_LEN];
+    HT_ENTRY(keypin_ent_st) rsamap_node;
+    HT_ENTRY(keypin_ent_st) edmap_node;
+    /** SHA1 hash of the RSA key */
+    uint8_t rsa_id[DIGEST_LEN];
+    /** Ed2219 key. */
+    uint8_t ed25519_key[DIGEST256_LEN];
 } keypin_ent_t;
 
 STATIC keypin_ent_t * keypin_parse_journal_line(const char *cp);

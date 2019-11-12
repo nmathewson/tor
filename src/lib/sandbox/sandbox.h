@@ -50,8 +50,8 @@ typedef struct sandbox_cfg_elem sandbox_cfg_t;
  * Enum used to manage the type of the implementation for general purpose.
  */
 typedef enum {
-  /** Libseccomp implementation based on seccomp2*/
-  LIBSECCOMP2 = 0
+    /** Libseccomp implementation based on seccomp2*/
+    LIBSECCOMP2 = 0
 } SB_IMPL;
 
 /**
@@ -59,16 +59,16 @@ typedef enum {
  *  implementation.
  */
 typedef struct smp_param {
-  /** syscall associated with parameter. */
-  int syscall;
+    /** syscall associated with parameter. */
+    int syscall;
 
-  /** parameter value. */
-  char *value;
-  /** parameter value, second argument. */
-  char *value2;
+    /** parameter value. */
+    char *value;
+    /** parameter value, second argument. */
+    char *value2;
 
-  /**  parameter flag (0 = not protected, 1 = protected). */
-  int prot;
+    /**  parameter flag (0 = not protected, 1 = protected). */
+    int prot;
 } smp_param_t;
 
 /**
@@ -78,27 +78,27 @@ typedef struct smp_param {
  * parameters for open, openat, execve, stat64.
  */
 struct sandbox_cfg_elem {
-  /** Sandbox implementation which dictates the parameter type. */
-  SB_IMPL implem;
+    /** Sandbox implementation which dictates the parameter type. */
+    SB_IMPL implem;
 
-  /** Configuration parameter. */
-  smp_param_t *param;
+    /** Configuration parameter. */
+    smp_param_t *param;
 
-  /** Next element of the configuration*/
-  struct sandbox_cfg_elem *next;
+    /** Next element of the configuration*/
+    struct sandbox_cfg_elem *next;
 };
 
 /** Function pointer defining the prototype of a filter function.*/
 typedef int (*sandbox_filter_func_t)(scmp_filter_ctx ctx,
-    sandbox_cfg_t *filter);
+                                     sandbox_cfg_t *filter);
 
 /** Type that will be used in step 3 in order to manage multiple sandboxes.*/
 typedef struct {
-  /** function pointers associated with the filter */
-  sandbox_filter_func_t *filter_func;
+    /** function pointers associated with the filter */
+    sandbox_filter_func_t *filter_func;
 
-  /** filter function pointer parameters */
-  sandbox_cfg_t *filter_dynamic;
+    /** filter function pointer parameters */
+    sandbox_cfg_t *filter_dynamic;
 } sandbox_t;
 
 #endif /* defined(USE_LIBSECCOMP) */

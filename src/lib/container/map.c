@@ -45,28 +45,28 @@ DEFINE_MAP_STRUCTS(digest256map_t, uint8_t key[DIGEST256_LEN], digest256map_);
 static inline int
 strmap_entries_eq(const strmap_entry_t *a, const strmap_entry_t *b)
 {
-  return !strcmp(a->key, b->key);
+    return !strcmp(a->key, b->key);
 }
 
 /** Helper: return a hash value for a strmap_entry_t. */
 static inline unsigned int
 strmap_entry_hash(const strmap_entry_t *a)
 {
-  return (unsigned) siphash24g(a->key, strlen(a->key));
+    return (unsigned) siphash24g(a->key, strlen(a->key));
 }
 
 /** Helper: compare digestmap_entry_t objects by key value. */
 static inline int
 digestmap_entries_eq(const digestmap_entry_t *a, const digestmap_entry_t *b)
 {
-  return tor_memeq(a->key, b->key, DIGEST_LEN);
+    return tor_memeq(a->key, b->key, DIGEST_LEN);
 }
 
 /** Helper: return a hash value for a digest_map_t. */
 static inline unsigned int
 digestmap_entry_hash(const digestmap_entry_t *a)
 {
-  return (unsigned) siphash24g(a->key, DIGEST_LEN);
+    return (unsigned) siphash24g(a->key, DIGEST_LEN);
 }
 
 /** Helper: compare digestmap_entry_t objects by key value. */
@@ -74,14 +74,14 @@ static inline int
 digest256map_entries_eq(const digest256map_entry_t *a,
                         const digest256map_entry_t *b)
 {
-  return tor_memeq(a->key, b->key, DIGEST256_LEN);
+    return tor_memeq(a->key, b->key, DIGEST256_LEN);
 }
 
 /** Helper: return a hash value for a digest_map_t. */
 static inline unsigned int
 digest256map_entry_hash(const digest256map_entry_t *a)
 {
-  return (unsigned) siphash24g(a->key, DIGEST256_LEN);
+    return (unsigned) siphash24g(a->key, DIGEST256_LEN);
 }
 
 HT_PROTOTYPE(strmap_impl, strmap_entry_t, node, strmap_entry_hash,
@@ -111,49 +111,49 @@ HT_GENERATE2(digest256map_impl, digest256map_entry_t, node,
 static inline void
 strmap_entry_free_(strmap_entry_t *ent)
 {
-  tor_free(ent->key);
-  tor_free(ent);
+    tor_free(ent->key);
+    tor_free(ent);
 }
 static inline void
 digestmap_entry_free_(digestmap_entry_t *ent)
 {
-  tor_free(ent);
+    tor_free(ent);
 }
 static inline void
 digest256map_entry_free_(digest256map_entry_t *ent)
 {
-  tor_free(ent);
+    tor_free(ent);
 }
 
 static inline void
 strmap_assign_tmp_key(strmap_entry_t *ent, const char *key)
 {
-  ent->key = (char*)key;
+    ent->key = (char*)key;
 }
 static inline void
 digestmap_assign_tmp_key(digestmap_entry_t *ent, const char *key)
 {
-  memcpy(ent->key, key, DIGEST_LEN);
+    memcpy(ent->key, key, DIGEST_LEN);
 }
 static inline void
 digest256map_assign_tmp_key(digest256map_entry_t *ent, const uint8_t *key)
 {
-  memcpy(ent->key, key, DIGEST256_LEN);
+    memcpy(ent->key, key, DIGEST256_LEN);
 }
 static inline void
 strmap_assign_key(strmap_entry_t *ent, const char *key)
 {
-  ent->key = tor_strdup(key);
+    ent->key = tor_strdup(key);
 }
 static inline void
 digestmap_assign_key(digestmap_entry_t *ent, const char *key)
 {
-  memcpy(ent->key, key, DIGEST_LEN);
+    memcpy(ent->key, key, DIGEST_LEN);
 }
 static inline void
 digest256map_assign_key(digest256map_entry_t *ent, const uint8_t *key)
 {
-  memcpy(ent->key, key, DIGEST256_LEN);
+    memcpy(ent->key, key, DIGEST256_LEN);
 }
 
 /**
@@ -378,36 +378,36 @@ IMPLEMENT_MAP_FNS(digest256map_t, uint8_t *, digest256map)
 void *
 strmap_set_lc(strmap_t *map, const char *key, void *val)
 {
-  /* We could be a little faster by using strcasecmp instead, and a separate
-   * type, but I don't think it matters. */
-  void *v;
-  char *lc_key = tor_strdup(key);
-  tor_strlower(lc_key);
-  v = strmap_set(map,lc_key,val);
-  tor_free(lc_key);
-  return v;
+    /* We could be a little faster by using strcasecmp instead, and a separate
+     * type, but I don't think it matters. */
+    void *v;
+    char *lc_key = tor_strdup(key);
+    tor_strlower(lc_key);
+    v = strmap_set(map,lc_key,val);
+    tor_free(lc_key);
+    return v;
 }
 
 /** Same as strmap_get, but first converts <b>key</b> to lowercase. */
 void *
 strmap_get_lc(const strmap_t *map, const char *key)
 {
-  void *v;
-  char *lc_key = tor_strdup(key);
-  tor_strlower(lc_key);
-  v = strmap_get(map,lc_key);
-  tor_free(lc_key);
-  return v;
+    void *v;
+    char *lc_key = tor_strdup(key);
+    tor_strlower(lc_key);
+    v = strmap_get(map,lc_key);
+    tor_free(lc_key);
+    return v;
 }
 
 /** Same as strmap_remove, but first converts <b>key</b> to lowercase */
 void *
 strmap_remove_lc(strmap_t *map, const char *key)
 {
-  void *v;
-  char *lc_key = tor_strdup(key);
-  tor_strlower(lc_key);
-  v = strmap_remove(map,lc_key);
-  tor_free(lc_key);
-  return v;
+    void *v;
+    char *lc_key = tor_strdup(key);
+    tor_strlower(lc_key);
+    v = strmap_remove(map,lc_key);
+    tor_free(lc_key);
+    return v;
 }

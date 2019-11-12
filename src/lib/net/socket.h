@@ -25,26 +25,26 @@ MOCK_DECL(int, tor_close_socket, (tor_socket_t s));
 void tor_take_socket_ownership(tor_socket_t s);
 void tor_release_socket_ownership(tor_socket_t s);
 tor_socket_t tor_open_socket_with_extensions(
-                                           int domain, int type, int protocol,
-                                           int cloexec, int nonblock);
+    int domain, int type, int protocol,
+    int cloexec, int nonblock);
 MOCK_DECL(tor_socket_t,tor_open_socket,(int domain, int type, int protocol));
 tor_socket_t tor_open_socket_nonblocking(int domain, int type, int protocol);
 tor_socket_t tor_accept_socket(tor_socket_t sockfd, struct sockaddr *addr,
-                                  socklen_t *len);
+                               socklen_t *len);
 tor_socket_t tor_accept_socket_nonblocking(tor_socket_t sockfd,
-                                           struct sockaddr *addr,
-                                           socklen_t *len);
+        struct sockaddr *addr,
+        socklen_t *len);
 tor_socket_t tor_accept_socket_with_extensions(tor_socket_t sockfd,
-                                               struct sockaddr *addr,
-                                               socklen_t *len,
-                                               int cloexec, int nonblock);
+        struct sockaddr *addr,
+        socklen_t *len,
+        int cloexec, int nonblock);
 MOCK_DECL(tor_socket_t, tor_connect_socket,(tor_socket_t socket,
-                                            const struct sockaddr *address,
-                                            socklen_t address_len));
+          const struct sockaddr *address,
+          socklen_t address_len));
 int get_n_open_sockets(void);
 
 MOCK_DECL(int,tor_getsockname,(tor_socket_t socket, struct sockaddr *address,
-                 socklen_t *address_len));
+                               socklen_t *address_len));
 struct tor_addr_t;
 int tor_addr_from_getsockname(struct tor_addr_t *addr_out, tor_socket_t sock);
 

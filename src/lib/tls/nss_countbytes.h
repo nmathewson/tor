@@ -16,7 +16,7 @@ void tor_nss_countbytes_init(void);
 
 struct PRFileDesc;
 struct PRFileDesc *tor_wrap_prfiledesc_with_byte_counter(
-                                               struct PRFileDesc *stack);
+    struct PRFileDesc *stack);
 
 int tor_get_prfiledesc_byte_counts(struct PRFileDesc *fd,
                                    uint64_t *n_read_out,

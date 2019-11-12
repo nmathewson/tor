@@ -23,11 +23,11 @@ void *tor_realloc_(void *ptr, size_t size);
 void *tor_reallocarray_(void *ptr, size_t size1, size_t size2);
 char *tor_strdup_(const char *s) ATTR_MALLOC;
 char *tor_strndup_(const char *s, size_t n)
-  ATTR_MALLOC;
+ATTR_MALLOC;
 void *tor_memdup_(const void *mem, size_t len)
-  ATTR_MALLOC;
+ATTR_MALLOC;
 void *tor_memdup_nulterm_(const void *mem, size_t len)
-  ATTR_MALLOC;
+ATTR_MALLOC;
 void tor_free_(void *mem);
 
 /** Release memory allocated by tor_malloc, tor_realloc, tor_strdup,

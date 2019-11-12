@@ -58,8 +58,8 @@ int addressmap_address_should_automap(const char *address,
 
 #ifdef ADDRESSMAP_PRIVATE
 typedef struct virtual_addr_conf_t {
-  tor_addr_t addr;
-  maskbits_t bits;
+    tor_addr_t addr;
+    maskbits_t bits;
 } virtual_addr_conf_t;
 
 STATIC void get_random_virtual_addr(const virtual_addr_conf_t *conf,

@@ -20,28 +20,28 @@
  * used with confmgt.c.  See CONF_CHECK_VAR_TYPE for a description of how
  * it is used. */
 typedef union {
-  char **STRING;
-  char **FILENAME;
-  int *POSINT; /* yes, this is really an int, and not an unsigned int.  For
+    char **STRING;
+    char **FILENAME;
+    int *POSINT; /* yes, this is really an int, and not an unsigned int.  For
                 * historical reasons, many configuration values are restricted
                 * to the range [0,INT_MAX], and stored in signed ints.
                 */
-  uint64_t *UINT64;
-  int *INT;
-  int *INTERVAL;
-  int *MSEC_INTERVAL;
-  uint64_t *MEMUNIT;
-  double *DOUBLE;
-  int *BOOL;
-  int *AUTOBOOL;
-  time_t *ISOTIME;
-  struct smartlist_t **CSV;
-  int *CSV_INTERVAL;
-  struct config_line_t **LINELIST;
-  struct config_line_t **LINELIST_S;
-  struct config_line_t **LINELIST_V;
-  // XXXX this doesn't belong at this level of abstraction.
-  struct routerset_t **ROUTERSET;
+    uint64_t *UINT64;
+    int *INT;
+    int *INTERVAL;
+    int *MSEC_INTERVAL;
+    uint64_t *MEMUNIT;
+    double *DOUBLE;
+    int *BOOL;
+    int *AUTOBOOL;
+    time_t *ISOTIME;
+    struct smartlist_t **CSV;
+    int *CSV_INTERVAL;
+    struct config_line_t **LINELIST;
+    struct config_line_t **LINELIST_S;
+    struct config_line_t **LINELIST_V;
+    // XXXX this doesn't belong at this level of abstraction.
+    struct routerset_t **ROUTERSET;
 } confparse_dummy_values_t;
 
 /* Macros to define extra members inside config_var_t fields, and at the

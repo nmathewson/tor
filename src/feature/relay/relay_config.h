@@ -32,14 +32,14 @@ uint32_t relay_get_effective_bwrate(const or_options_t *options);
 uint32_t relay_get_effective_bwburst(const or_options_t *options);
 
 void port_warn_nonlocal_ext_orports(const smartlist_t *ports,
-                               const char *portname);
+                                    const char *portname);
 
 int port_parse_ports_relay(or_options_t *options,
-                      char **msg,
-                      smartlist_t *ports_out,
-                      int *have_low_ports_out);
+                           char **msg,
+                           smartlist_t *ports_out,
+                           int *have_low_ports_out);
 void port_update_port_set_relay(or_options_t *options,
-                           const smartlist_t *ports);
+                                const smartlist_t *ports);
 
 int options_validate_relay_os(const or_options_t *old_options,
                               or_options_t *options,
@@ -106,23 +106,23 @@ options_validate_relay_mode(const or_options_t *old_options,
                             or_options_t *options,
                             char **msg)
 {
-  (void)old_options;
+    (void)old_options;
 
-  /* Only check the primary options for now, #29211 will disable more
-   * options. These ORPort and DirPort checks are too strict, and will
-   * reject valid configs that disable ports, like "ORPort 0". */
-  if (options->DirCache ||
-      options->BridgeRelay ||
-      options->ORPort_lines ||
-      options->DirPort_lines) {
-    /* REJECT() this configuration */
-    *msg = tor_strdup("This tor was built with relay mode disabled. "
-                      "It can not be configured with an ORPort, a DirPort, "
-                      "DirCache 1, or BridgeRelay 1.");
-    return -1;
-  }
+    /* Only check the primary options for now, #29211 will disable more
+     * options. These ORPort and DirPort checks are too strict, and will
+     * reject valid configs that disable ports, like "ORPort 0". */
+    if (options->DirCache ||
+        options->BridgeRelay ||
+        options->ORPort_lines ||
+        options->DirPort_lines) {
+        /* REJECT() this configuration */
+        *msg = tor_strdup("This tor was built with relay mode disabled. "
+                          "It can not be configured with an ORPort, a DirPort, "
+                          "DirCache 1, or BridgeRelay 1.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 #define relay_get_dirportfrontpage() \

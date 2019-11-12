@@ -187,7 +187,7 @@ void circuit_set_n_circid_chan(circuit_t *circ, circid_t id,
 void channel_mark_circid_unusable(channel_t *chan, circid_t id);
 void channel_mark_circid_usable(channel_t *chan, circid_t id);
 time_t circuit_id_when_marked_unusable_on_channel(circid_t circ_id,
-                                                  channel_t *chan);
+        channel_t *chan);
 int circuit_event_status(origin_circuit_t *circ, circuit_status_event_t tp,
                          int reason_code);
 void circuit_set_state(circuit_t *circ, uint8_t state);
@@ -196,30 +196,30 @@ int32_t circuit_initial_package_window(void);
 origin_circuit_t *origin_circuit_new(void);
 or_circuit_t *or_circuit_new(circid_t p_circ_id, channel_t *p_chan);
 circuit_t *circuit_get_by_circid_channel(circid_t circ_id,
-                                         channel_t *chan);
+        channel_t *chan);
 circuit_t *
 circuit_get_by_circid_channel_even_if_marked(circid_t circ_id,
-                                             channel_t *chan);
+        channel_t *chan);
 int circuit_id_in_use_on_channel(circid_t circ_id, channel_t *chan);
 circuit_t *circuit_get_by_edge_conn(edge_connection_t *conn);
 void circuit_unlink_all_from_channel(channel_t *chan, int reason);
 origin_circuit_t *circuit_get_by_global_id(uint32_t id);
 origin_circuit_t *circuit_get_ready_rend_circ_by_rend_data(
-  const rend_data_t *rend_data);
+    const rend_data_t *rend_data);
 origin_circuit_t *circuit_get_next_by_pk_and_purpose(origin_circuit_t *start,
-                                     const uint8_t *digest, uint8_t purpose);
+        const uint8_t *digest, uint8_t purpose);
 origin_circuit_t *circuit_get_next_intro_circ(const origin_circuit_t *start,
-                                              bool want_client_circ);
+        bool want_client_circ);
 origin_circuit_t *circuit_get_next_service_rp_circ(origin_circuit_t *start);
 origin_circuit_t *circuit_get_next_service_hsdir_circ(origin_circuit_t *start);
 origin_circuit_t *circuit_find_to_cannibalize(uint8_t purpose,
-                                              extend_info_t *info, int flags);
+        extend_info_t *info, int flags);
 void circuit_mark_all_unused_circs(void);
 void circuit_mark_all_dirty_circs_as_unusable(void);
 void circuit_synchronize_written_or_bandwidth(const circuit_t *c,
-                                              circuit_channel_direction_t dir);
+        circuit_channel_direction_t dir);
 MOCK_DECL(void, circuit_mark_for_close_, (circuit_t *circ, int reason,
-                                          int line, const char *cfile));
+          int line, const char *cfile));
 int circuit_get_cpath_len(origin_circuit_t *circ);
 int circuit_get_cpath_opened_len(const origin_circuit_t *);
 void circuit_clear_cpath(origin_circuit_t *circ);

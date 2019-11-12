@@ -26,32 +26,32 @@
 /** An ed25519-signed certificate as used throughout the Tor protocol.
  **/
 typedef struct tor_cert_st {
-  /** The key authenticated by this certificate */
-  ed25519_public_key_t signed_key;
-  /** The key that signed this certificate. This value may be unset if the
-   * certificate has never been checked, and didn't include its own key. */
-  ed25519_public_key_t signing_key;
-  /** A time after which this certificate will no longer be valid. */
-  time_t valid_until;
+    /** The key authenticated by this certificate */
+    ed25519_public_key_t signed_key;
+    /** The key that signed this certificate. This value may be unset if the
+     * certificate has never been checked, and didn't include its own key. */
+    ed25519_public_key_t signing_key;
+    /** A time after which this certificate will no longer be valid. */
+    time_t valid_until;
 
-  /** The encoded representation of this certificate */
-  uint8_t *encoded;
-  /** The length of <b>encoded</b> */
-  size_t encoded_len;
+    /** The encoded representation of this certificate */
+    uint8_t *encoded;
+    /** The length of <b>encoded</b> */
+    size_t encoded_len;
 
-  /** One of CERT_TYPE_... */
-  uint8_t cert_type;
-  /** True iff we received a signing key embedded in this certificate */
-  unsigned signing_key_included : 1;
-  /** True iff we checked the signature and found it bad */
-  unsigned sig_bad : 1;
-  /** True iff we checked the signature and found it correct */
-  unsigned sig_ok : 1;
-  /** True iff we checked the signature and first found that the cert
-   * had expired */
-  unsigned cert_expired : 1;
-  /** True iff we checked the signature and found the whole cert valid */
-  unsigned cert_valid : 1;
+    /** One of CERT_TYPE_... */
+    uint8_t cert_type;
+    /** True iff we received a signing key embedded in this certificate */
+    unsigned signing_key_included : 1;
+    /** True iff we checked the signature and found it bad */
+    unsigned sig_bad : 1;
+    /** True iff we checked the signature and found it correct */
+    unsigned sig_ok : 1;
+    /** True iff we checked the signature and first found that the cert
+     * had expired */
+    unsigned cert_expired : 1;
+    /** True iff we checked the signature and found the whole cert valid */
+    unsigned cert_valid : 1;
 } tor_cert_t;
 
 struct tor_tls_t;
@@ -85,11 +85,11 @@ ssize_t tor_make_rsa_ed25519_crosscert(const ed25519_public_key_t *ed_key,
                                        time_t expires,
                                        uint8_t **cert);
 MOCK_DECL(int,
-rsa_ed25519_crosscert_check, (const uint8_t *crosscert,
-                              const size_t crosscert_len,
-                              const crypto_pk_t *rsa_id_key,
-                              const ed25519_public_key_t *master_key,
-                              const time_t reject_if_expired_before));
+          rsa_ed25519_crosscert_check, (const uint8_t *crosscert,
+                                        const size_t crosscert_len,
+                                        const crypto_pk_t *rsa_id_key,
+                                        const ed25519_public_key_t *master_key,
+                                        const time_t reject_if_expired_before));
 
 or_handshake_certs_t *or_handshake_certs_new(void);
 void or_handshake_certs_free_(or_handshake_certs_t *certs);
@@ -104,18 +104,18 @@ int or_handshake_certs_ed25519_ok(int severity,
                                   struct tor_tls_t *tls,
                                   time_t now);
 void or_handshake_certs_check_both(int severity,
-                              or_handshake_certs_t *certs,
-                              struct tor_tls_t *tls,
-                              time_t now,
-                              const ed25519_public_key_t **ed_id_out,
-                              const common_digests_t **rsa_id_out);
+                                   or_handshake_certs_t *certs,
+                                   struct tor_tls_t *tls,
+                                   time_t now,
+                                   const ed25519_public_key_t **ed_id_out,
+                                   const common_digests_t **rsa_id_out);
 
 int tor_cert_encode_ed22519(const tor_cert_t *cert, char **cert_str_out);
 
 MOCK_DECL(int, check_tap_onion_key_crosscert,(const uint8_t *crosscert,
-                                  int crosscert_len,
-                                  const crypto_pk_t *onion_pkey,
-                                  const ed25519_public_key_t *master_id_pkey,
-                                  const uint8_t *rsa_id_digest));
+          int crosscert_len,
+          const crypto_pk_t *onion_pkey,
+          const ed25519_public_key_t *master_id_pkey,
+          const uint8_t *rsa_id_digest));
 
 #endif /* !defined(TORCERT_H_INCLUDED) */
