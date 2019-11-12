@@ -9,18 +9,17 @@
 #ifndef TOR_SENDME_H
 #define TOR_SENDME_H
 
-#include "core/or/edge_connection_st.h"
-#include "core/or/crypt_path_st.h"
 #include "core/or/circuit_st.h"
+#include "core/or/crypt_path_st.h"
+#include "core/or/edge_connection_st.h"
 
 /* Sending SENDME cell. */
 void sendme_connection_edge_consider_sending(edge_connection_t *edge_conn);
-void sendme_circuit_consider_sending(circuit_t *circ,
-                                     crypt_path_t *layer_hint);
+void sendme_circuit_consider_sending(circuit_t *circ, crypt_path_t *layer_hint);
 
 /* Processing SENDME cell. */
-int sendme_process_circuit_level(crypt_path_t *layer_hint,
-                                 circuit_t *circ, const uint8_t *cell_payload,
+int sendme_process_circuit_level(crypt_path_t *layer_hint, circuit_t *circ,
+                                 const uint8_t *cell_payload,
                                  uint16_t cell_payload_len);
 int sendme_process_stream_level(edge_connection_t *conn, circuit_t *circ,
                                 uint16_t cell_body_len);
@@ -69,8 +68,7 @@ STATIC bool cell_version_can_be_handled(uint8_t cell_version);
 
 STATIC ssize_t build_cell_payload_v1(const uint8_t *cell_digest,
                                      uint8_t *payload);
-STATIC bool sendme_is_valid(const circuit_t *circ,
-                            const uint8_t *cell_payload,
+STATIC bool sendme_is_valid(const circuit_t *circ, const uint8_t *cell_payload,
                             size_t cell_payload_len);
 
 #endif /* defined(TOR_UNIT_TESTS) */

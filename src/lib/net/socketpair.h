@@ -12,8 +12,8 @@
  **/
 
 #include "orconfig.h"
-#include "lib/testsupport/testsupport.h"
 #include "lib/net/nettypes.h"
+#include "lib/testsupport/testsupport.h"
 
 #if !defined(HAVE_SOCKETPAIR) || defined(_WIN32) || defined(TOR_UNIT_TESTS)
 #define NEED_ERSATZ_SOCKETPAIR

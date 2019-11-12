@@ -58,8 +58,8 @@ typedef int tor_control_socket_t;
 #endif /* defined(_WIN32) */
 
 /** DOCDOC */
-tor_control_socket_t tor_main_configuration_setup_control_socket(
-                                          tor_main_configuration_t *cfg);
+tor_control_socket_t
+tor_main_configuration_setup_control_socket(tor_main_configuration_t *cfg);
 
 /**
  * Release all storage held in <b>cfg</b>.

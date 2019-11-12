@@ -19,8 +19,8 @@
 #include "lib/container/namemap.h"
 #include "lib/container/namemap_st.h"
 
-#include "lib/log/util_bug.h"
 #include "lib/log/log.h"
+#include "lib/log/util_bug.h"
 
 #include <stdlib.h>
 
@@ -42,26 +42,23 @@ dispatch_naming_init(void)
 /* Helper macro: declare functions to map IDs to and from names for a given
  * type in a namemap_t.
  */
-#define DECLARE_ID_MAP_FNS(type)                                        \
-  type##_id_t                                                           \
-  get_##type##_id(const char *name)                                     \
-  {                                                                     \
-    unsigned u = namemap_get_or_create_id(&type##_id_map, name);        \
-    tor_assert(u != NAMEMAP_ERR);                                       \
-    tor_assert(u != ERROR_ID);                                          \
-    return (type##_id_t) u;                                             \
-  }                                                                     \
-  const char *                                                          \
-  get_##type##_id_name(type##_id_t id)                                  \
-  {                                                                     \
-    return namemap_fmt_name(&type##_id_map, id);                        \
-  }                                                                     \
-  size_t                                                                \
-  get_num_##type##_ids(void)                                            \
-  {                                                                     \
-    return namemap_get_size(&type##_id_map);                            \
-  }                                                                     \
-  EAT_SEMICOLON
+#define DECLARE_ID_MAP_FNS(type)                                               \
+    type##_id_t get_##type##_id(const char *name)                              \
+    {                                                                          \
+        unsigned u = namemap_get_or_create_id(&type##_id_map, name);           \
+        tor_assert(u != NAMEMAP_ERR);                                          \
+        tor_assert(u != ERROR_ID);                                             \
+        return (type##_id_t)u;                                                 \
+    }                                                                          \
+    const char *get_##type##_id_name(type##_id_t id)                           \
+    {                                                                          \
+        return namemap_fmt_name(&type##_id_map, id);                           \
+    }                                                                          \
+    size_t get_num_##type##_ids(void)                                          \
+    {                                                                          \
+        return namemap_get_size(&type##_id_map);                               \
+    }                                                                          \
+    EAT_SEMICOLON
 #endif /* !defined(COCCI) */
 
 DECLARE_ID_MAP_FNS(message);

@@ -20,8 +20,8 @@ int validate_recommended_package_line(const char *line);
 static inline int
 validate_recommended_package_line(const char *line)
 {
-  (void) line;
-  return 0;
+    (void)line;
+    return 0;
 }
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */

@@ -13,20 +13,18 @@
 #ifndef TOR_BUFFERS_NET_H
 #define TOR_BUFFERS_NET_H
 
-#include <stddef.h>
 #include "lib/net/socket.h"
+#include <stddef.h>
 
 struct buf_t;
 int buf_read_from_socket(struct buf_t *buf, tor_socket_t s, size_t at_most,
-                         int *reached_eof,
-                         int *socket_error);
+                         int *reached_eof, int *socket_error);
 
 int buf_flush_to_socket(struct buf_t *buf, tor_socket_t s, size_t sz,
                         size_t *buf_flushlen);
 
 int buf_read_from_pipe(struct buf_t *buf, int fd, size_t at_most,
-                       int *reached_eof,
-                       int *socket_error);
+                       int *reached_eof, int *socket_error);
 
 int buf_flush_to_pipe(struct buf_t *buf, int fd, size_t sz,
                       size_t *buf_flushlen);

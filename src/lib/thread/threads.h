@@ -13,8 +13,8 @@
 
 #include "orconfig.h"
 #include "lib/cc/torint.h"
-#include "lib/testsupport/testsupport.h"
 #include "lib/lock/compat_mutex.h"
+#include "lib/testsupport/testsupport.h"
 
 #if defined(HAVE_STDATOMIC_H) && defined(STDATOMIC_WORKS)
 #define HAVE_WORKING_STDATOMIC
@@ -40,14 +40,14 @@ int in_main_thread(void);
 
 typedef struct tor_cond_t {
 #ifdef USE_PTHREADS
-  pthread_cond_t cond;
+    pthread_cond_t cond;
 #elif defined(USE_WIN32_THREADS)
-  HANDLE event;
+    HANDLE event;
 
-  CRITICAL_SECTION lock;
-  int n_waiting;
-  int n_to_wake;
-  int generation;
+    CRITICAL_SECTION lock;
+    int n_waiting;
+    int n_to_wake;
+    int generation;
 #else
 #error no known condition implementation.
 #endif /* defined(USE_PTHREADS) || ... */
@@ -65,9 +65,9 @@ void tor_cond_signal_all(tor_cond_t *cond);
 
 typedef struct tor_threadlocal_s {
 #ifdef _WIN32
-  DWORD index;
+    DWORD index;
 #else
-  pthread_key_t key;
+    pthread_key_t key;
 #endif
 } tor_threadlocal_t;
 
@@ -104,15 +104,15 @@ void tor_threadlocal_set(tor_threadlocal_t *threadlocal, void *value);
  */
 #ifdef HAVE_WORKING_STDATOMIC
 typedef struct atomic_counter_t {
-  atomic_size_t val;
+    atomic_size_t val;
 } atomic_counter_t;
 #ifndef COCCI
 #define ATOMIC_LINKAGE static
 #endif
 #else /* !defined(HAVE_WORKING_STDATOMIC) */
 typedef struct atomic_counter_t {
-  tor_mutex_t mutex;
-  size_t val;
+    tor_mutex_t mutex;
+    size_t val;
 } atomic_counter_t;
 #define ATOMIC_LINKAGE
 #endif /* defined(HAVE_WORKING_STDATOMIC) */
@@ -131,7 +131,7 @@ ATOMIC_LINKAGE size_t atomic_counter_exchange(atomic_counter_t *counter,
 static inline void
 atomic_counter_init(atomic_counter_t *counter)
 {
-  atomic_init(&counter->val, 0);
+    atomic_init(&counter->val, 0);
 }
 /** Clean up all resources held by an atomic counter.
  *
@@ -147,34 +147,34 @@ atomic_counter_init(atomic_counter_t *counter)
 static inline void
 atomic_counter_destroy(atomic_counter_t *counter)
 {
-  (void)counter;
+    (void)counter;
 }
 /** Add a value to an atomic counter. */
 static inline void
 atomic_counter_add(atomic_counter_t *counter, size_t add)
 {
-  (void) atomic_fetch_add(&counter->val, add);
+    (void)atomic_fetch_add(&counter->val, add);
 }
 /** Subtract a value from an atomic counter. */
 static inline void
 atomic_counter_sub(atomic_counter_t *counter, size_t sub)
 {
-  (void) atomic_fetch_sub(&counter->val, sub);
+    (void)atomic_fetch_sub(&counter->val, sub);
 }
 /** Return the current value of an atomic counter */
 static inline size_t
 atomic_counter_get(atomic_counter_t *counter)
 {
-  return atomic_load(&counter->val);
+    return atomic_load(&counter->val);
 }
 /** Replace the value of an atomic counter; return the old one. */
 static inline size_t
 atomic_counter_exchange(atomic_counter_t *counter, size_t newval)
 {
-  return atomic_exchange(&counter->val, newval);
+    return atomic_exchange(&counter->val, newval);
 }
 
-#else /* !defined(HAVE_WORKING_STDATOMIC) */
+#else  /* !defined(HAVE_WORKING_STDATOMIC) */
 #endif /* defined(HAVE_WORKING_STDATOMIC) */
 
 #endif /* !defined(TOR_COMPAT_THREADS_H) */

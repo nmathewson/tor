@@ -17,11 +17,11 @@
  * circuit among multiple circuits built in parallel to the same
  * destination rendezvous point. */
 struct crypt_path_reference_t {
-  /** The reference count. */
-  unsigned int refcount;
-  /** The pointer.  Set to NULL when the crypt_path_t is put into use
-   * on an opened rendezvous circuit. */
-  crypt_path_t *cpath;
+    /** The reference count. */
+    unsigned int refcount;
+    /** The pointer.  Set to NULL when the crypt_path_t is put into use
+     * on an opened rendezvous circuit. */
+    crypt_path_t *cpath;
 };
 
 #endif /* !defined(CRYPT_PATH_REFERENCE_ST_H) */

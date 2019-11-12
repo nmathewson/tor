@@ -13,10 +13,10 @@
 #define TOR_GEOIP_H
 
 #include "orconfig.h"
+#include "lib/geoip/country.h"
+#include "lib/net/inaddr_st.h"
 #include "lib/net/nettypes.h"
 #include "lib/testsupport/testsupport.h"
-#include "lib/net/inaddr_st.h"
-#include "lib/geoip/country.h"
 
 #ifdef GEOIP_PRIVATE
 STATIC int geoip_parse_entry(const char *line, sa_family_t family);
@@ -31,8 +31,8 @@ int geoip_get_country_by_ipv6(const struct in6_addr *addr);
 
 /** A per-country GeoIP record. */
 typedef struct geoip_country_t {
-  /** A nul-terminated two-letter country-code. */
-  char countrycode[3];
+    /** A nul-terminated two-letter country-code. */
+    char countrycode[3];
 } geoip_country_t;
 
 struct smartlist_t;

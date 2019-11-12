@@ -21,44 +21,44 @@
  * Eventually there will be a tracker for directory downloads as well.
  **/
 
+#include "lib/pubsub/pubsub.h"
+#include "lib/subsys/subsys.h"
 #include "feature/control/btrack_circuit.h"
 #include "feature/control/btrack_orconn.h"
 #include "feature/control/btrack_sys.h"
-#include "lib/pubsub/pubsub.h"
-#include "lib/subsys/subsys.h"
 
 static int
 btrack_init(void)
 {
-  if (btrack_orconn_init())
-    return -1;
+    if (btrack_orconn_init())
+        return -1;
 
-  return 0;
+    return 0;
 }
 
 static void
 btrack_fini(void)
 {
-  btrack_orconn_fini();
-  btrack_circ_fini();
+    btrack_orconn_fini();
+    btrack_circ_fini();
 }
 
 static int
 btrack_add_pubsub(pubsub_connector_t *connector)
 {
-  if (btrack_orconn_add_pubsub(connector))
-    return -1;
-  if (btrack_circ_add_pubsub(connector))
-    return -1;
+    if (btrack_orconn_add_pubsub(connector))
+        return -1;
+    if (btrack_circ_add_pubsub(connector))
+        return -1;
 
-  return 0;
+    return 0;
 }
 
 const subsys_fns_t sys_btrack = {
-  .name = "btrack",
-  .supported = true,
-  .level = -30,
-  .initialize = btrack_init,
-  .shutdown = btrack_fini,
-  .add_pubsub = btrack_add_pubsub,
+    .name = "btrack",
+    .supported = true,
+    .level = -30,
+    .initialize = btrack_init,
+    .shutdown = btrack_fini,
+    .add_pubsub = btrack_add_pubsub,
 };

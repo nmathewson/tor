@@ -40,24 +40,24 @@ typedef uint16_t msg_type_id_t;
  * types will have the same range across platforms.
  **/
 typedef union {
-  void *ptr;
-  uint64_t u64;
+    void *ptr;
+    uint64_t u64;
 } msg_aux_data_t;
 
 /**
  * Structure of a received message.
  **/
 typedef struct msg_t {
-  TOR_SIMPLEQ_ENTRY(msg_t) next;
-  subsys_id_t sender;
-  channel_id_t channel;
-  message_id_t msg;
-  /** We could omit this field, since it is implicit in the message type, but
-   * IMO let's leave it in for safety. */
-  msg_type_id_t type;
-  /** Untyped auxiliary data. You shouldn't have to mess with this
-   * directly. */
-  msg_aux_data_t aux_data__;
+    TOR_SIMPLEQ_ENTRY(msg_t) next;
+    subsys_id_t sender;
+    channel_id_t channel;
+    message_id_t msg;
+    /** We could omit this field, since it is implicit in the message type, but
+     * IMO let's leave it in for safety. */
+    msg_type_id_t type;
+    /** Untyped auxiliary data. You shouldn't have to mess with this
+     * directly. */
+    msg_aux_data_t aux_data__;
 } msg_t;
 
 /**
@@ -70,11 +70,11 @@ typedef void (*recv_fn_t)(const msg_t *m);
  * will be treated as no-ops.
  **/
 typedef struct dispatch_typefns_t {
-  /** Release storage held for the auxiliary data of this type. */
-  void (*free_fn)(msg_aux_data_t);
-  /** Format and return a newly allocated string describing the contents
-   * of this data element. */
-  char *(*fmt_fn)(msg_aux_data_t);
+    /** Release storage held for the auxiliary data of this type. */
+    void (*free_fn)(msg_aux_data_t);
+    /** Format and return a newly allocated string describing the contents
+     * of this data element. */
+    char *(*fmt_fn)(msg_aux_data_t);
 } dispatch_typefns_t;
 
 #endif /* !defined(TOR_DISPATCH_MSGTYPES_H) */

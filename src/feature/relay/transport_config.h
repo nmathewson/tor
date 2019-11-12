@@ -20,8 +20,7 @@ typedef struct or_options_t or_options_t;
 typedef struct smartlist_t smartlist_t;
 
 int options_validate_server_transport(const or_options_t *old_options,
-                                      or_options_t *options,
-                                      char **msg);
+                                      or_options_t *options, char **msg);
 
 char *pt_get_bindaddr_from_config(const char *transport);
 smartlist_t *pt_get_options_for_server_transport(const char *transport);
@@ -30,9 +29,9 @@ int options_act_server_transport(const or_options_t *old_options);
 
 #ifdef RELAY_TRANSPORT_CONFIG_PRIVATE
 
-STATIC smartlist_t *get_options_from_transport_options_line(
-                      const char *line,
-                      const char *transport);
+STATIC smartlist_t *
+get_options_from_transport_options_line(const char *line,
+                                        const char *transport);
 
 #endif /* defined(RELAY_TRANSPORT_CONFIG_PRIVATE) */
 
@@ -46,39 +45,35 @@ STATIC smartlist_t *get_options_from_transport_options_line(
  * ServerTransportOptions are set in options. Otherwise returns 0. */
 static inline int
 options_validate_server_transport(const or_options_t *old_options,
-                                  or_options_t *options,
-                                  char **msg)
+                                  or_options_t *options, char **msg)
 {
-  (void)old_options;
+    (void)old_options;
 
-  /* These ExtORPort checks are too strict, and will reject valid configs
-   * that disable ports, like "ExtORPort 0". */
-  if (options->ServerTransportPlugin ||
-      options->ServerTransportListenAddr ||
-      options->ServerTransportOptions ||
-      options->ExtORPort_lines) {
-    /* REJECT() this configuration */
-    *msg = tor_strdup("This tor was built with relay mode disabled. "
-                      "It can not be configured with an ExtORPort, "
-                      "a ServerTransportPlugin, a ServerTransportListenAddr, "
-                      "or ServerTransportOptions.");
-    return -1;
-  }
+    /* These ExtORPort checks are too strict, and will reject valid configs
+     * that disable ports, like "ExtORPort 0". */
+    if (options->ServerTransportPlugin || options->ServerTransportListenAddr ||
+        options->ServerTransportOptions || options->ExtORPort_lines) {
+        /* REJECT() this configuration */
+        *msg =
+            tor_strdup("This tor was built with relay mode disabled. "
+                       "It can not be configured with an ExtORPort, "
+                       "a ServerTransportPlugin, a ServerTransportListenAddr, "
+                       "or ServerTransportOptions.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
-#define pt_get_bindaddr_from_config(transport) \
-  (((void)(transport)),NULL)
+#define pt_get_bindaddr_from_config(transport) (((void)(transport)), NULL)
 
 /* 31851: called from client/transports.c, but only from server code */
-#define pt_get_options_for_server_transport(transport) \
-  (((void)(transport)),NULL)
+#define pt_get_options_for_server_transport(transport)                         \
+    (((void)(transport)), NULL)
 
-#define options_validate_server_transport(old_options, options, msg) \
-  (((void)(old_options)),((void)(options)),((void)(msg)),0)
-#define options_act_server_transport(old_options) \
-  (((void)(old_options)),0)
+#define options_validate_server_transport(old_options, options, msg)           \
+    (((void)(old_options)), ((void)(options)), ((void)(msg)), 0)
+#define options_act_server_transport(old_options) (((void)(old_options)), 0)
 
 #endif /* defined(HAVE_MODULE_RELAY) */
 

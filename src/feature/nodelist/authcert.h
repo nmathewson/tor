@@ -44,8 +44,8 @@ int authority_cert_dl_looks_uncertain(const char *id_digest);
 int authority_cert_is_blacklisted(const authority_cert_t *cert);
 
 void authority_cert_free_(authority_cert_t *cert);
-#define authority_cert_free(cert) \
-  FREE_AND_NULL(authority_cert_t, authority_cert_free_, (cert))
+#define authority_cert_free(cert)                                              \
+    FREE_AND_NULL(authority_cert_t, authority_cert_free_, (cert))
 
 MOCK_DECL(smartlist_t *, list_authority_ids_with_downloads, (void));
 MOCK_DECL(download_status_t *, id_only_download_status_for_authority_id,
@@ -53,7 +53,7 @@ MOCK_DECL(download_status_t *, id_only_download_status_for_authority_id,
 MOCK_DECL(smartlist_t *, list_sk_digests_for_authority_id,
           (const char *digest));
 MOCK_DECL(download_status_t *, download_status_for_authority_id_and_sk,
-    (const char *id_digest, const char *sk_digest));
+          (const char *id_digest, const char *sk_digest));
 
 void authcert_free_all(void);
 

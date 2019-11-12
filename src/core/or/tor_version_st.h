@@ -19,18 +19,22 @@
  * See version-spec.txt for the whole business.
  */
 struct tor_version_t {
-  int major;
-  int minor;
-  int micro;
-  /** Release status.  For version in the post-0.1 format, this is always
-   * VER_RELEASE. */
-  enum { VER_PRE=0, VER_RC=1, VER_RELEASE=2, } status;
-  int patchlevel;
-  char status_tag[MAX_STATUS_TAG_LEN];
-  int svn_revision;
+    int major;
+    int minor;
+    int micro;
+    /** Release status.  For version in the post-0.1 format, this is always
+     * VER_RELEASE. */
+    enum {
+        VER_PRE = 0,
+        VER_RC = 1,
+        VER_RELEASE = 2,
+    } status;
+    int patchlevel;
+    char status_tag[MAX_STATUS_TAG_LEN];
+    int svn_revision;
 
-  int git_tag_len;
-  char git_tag[DIGEST_LEN];
+    int git_tag_len;
+    char git_tag[DIGEST_LEN];
 };
 
 #endif /* !defined(TOR_VERSION_ST_H) */

@@ -16,27 +16,27 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include "lib/crypt_ops/crypto_rand.h"
 
 int
 main(int argc, char **argv)
 {
-  uint8_t buf[0x123];
+    uint8_t buf[0x123];
 
-  if (argc != 2 || strcmp(argv[1], "--emit")) {
-    fprintf(stderr, "If you want me to fill stdout with a bunch of random "
-            "bytes, you need to say --emit.\n");
-    return 1;
-  }
+    if (argc != 2 || strcmp(argv[1], "--emit")) {
+        fprintf(stderr, "If you want me to fill stdout with a bunch of random "
+                        "bytes, you need to say --emit.\n");
+        return 1;
+    }
 
-  if (crypto_seed_rng() < 0) {
-    fprintf(stderr, "Can't seed RNG.\n");
-    return 1;
-  }
+    if (crypto_seed_rng() < 0) {
+        fprintf(stderr, "Can't seed RNG.\n");
+        return 1;
+    }
 
 #if 0
   while (1) {
@@ -48,12 +48,12 @@ main(int argc, char **argv)
   }
 #endif /* 0 */
 
-  crypto_fast_rng_t *rng = crypto_fast_rng_new();
-  while (1) {
-    crypto_fast_rng_getbytes(rng, buf, sizeof(buf));
-    if (write(1 /*stdout*/, buf, sizeof(buf)) != sizeof(buf)) {
-      fprintf(stderr, "write() failed: %s\n", strerror(errno));
-      return 1;
+    crypto_fast_rng_t *rng = crypto_fast_rng_new();
+    while (1) {
+        crypto_fast_rng_getbytes(rng, buf, sizeof(buf));
+        if (write(1 /*stdout*/, buf, sizeof(buf)) != sizeof(buf)) {
+            fprintf(stderr, "write() failed: %s\n", strerror(errno));
+            return 1;
+        }
     }
-  }
 }

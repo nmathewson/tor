@@ -39,15 +39,15 @@
 /** A generic lock structure for multithreaded builds. */
 typedef struct tor_mutex_t {
 #if defined(USE_WIN32_THREADS)
-  /** Windows-only: on windows, we implement locks with CRITICAL_SECTIONS. */
-  CRITICAL_SECTION mutex;
+    /** Windows-only: on windows, we implement locks with CRITICAL_SECTIONS. */
+    CRITICAL_SECTION mutex;
 #elif defined(USE_PTHREADS)
-  /** Pthreads-only: with pthreads, we implement locks with
-   * pthread_mutex_t. */
-  pthread_mutex_t mutex;
+    /** Pthreads-only: with pthreads, we implement locks with
+     * pthread_mutex_t. */
+    pthread_mutex_t mutex;
 #else
-  /** No-threads only: Dummy variable so that tor_mutex_t takes up space. */
-  int _unused;
+    /** No-threads only: Dummy variable so that tor_mutex_t takes up space. */
+    int _unused;
 #endif /* defined(USE_WIN32_THREADS) || ... */
 } tor_mutex_t;
 

@@ -17,32 +17,32 @@
 #include "feature/relay/onion_queue.h"
 #include "feature/relay/relay_periodic.h"
 #include "feature/relay/relay_sys.h"
-#include "feature/relay/routerkeys.h"
 #include "feature/relay/router.h"
+#include "feature/relay/routerkeys.h"
 
 #include "lib/subsys/subsys.h"
 
 static int
 subsys_relay_initialize(void)
 {
-  relay_register_periodic_events();
-  return 0;
+    relay_register_periodic_events();
+    return 0;
 }
 
 static void
 subsys_relay_shutdown(void)
 {
-  dns_free_all();
-  ext_orport_free_all();
-  clear_pending_onions();
-  routerkeys_free_all();
-  router_free_all();
+    dns_free_all();
+    ext_orport_free_all();
+    clear_pending_onions();
+    routerkeys_free_all();
+    router_free_all();
 }
 
 const struct subsys_fns_t sys_relay = {
-  .name = "relay",
-  .supported = true,
-  .level = 50,
-  .initialize = subsys_relay_initialize,
-  .shutdown = subsys_relay_shutdown,
+    .name = "relay",
+    .supported = true,
+    .level = 50,
+    .initialize = subsys_relay_initialize,
+    .shutdown = subsys_relay_shutdown,
 };

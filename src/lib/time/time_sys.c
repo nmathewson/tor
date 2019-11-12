@@ -8,21 +8,21 @@
 
 #include "orconfig.h"
 #include "lib/subsys/subsys.h"
-#include "lib/time/time_sys.h"
 #include "lib/time/compat_time.h"
+#include "lib/time/time_sys.h"
 
 static int
 subsys_time_initialize(void)
 {
-  monotime_init();
-  return 0;
+    monotime_init();
+    return 0;
 }
 
 const subsys_fns_t sys_time = {
-  .name = "time",
-  /* Monotonic time depends on logging, and a lot of other modules depend on
-   * monotonic time. */
-  .level = -80,
-  .supported = true,
-  .initialize = subsys_time_initialize,
+    .name = "time",
+    /* Monotonic time depends on logging, and a lot of other modules depend on
+     * monotonic time. */
+    .level = -80,
+    .supported = true,
+    .initialize = subsys_time_initialize,
 };

@@ -19,10 +19,10 @@
 uint32_t
 tor_add_u32_nowrap(uint32_t a, uint32_t b)
 {
-  /* a+b > UINT32_MAX check, without overflow */
-  if (PREDICT_UNLIKELY(a > UINT32_MAX - b)) {
-    return UINT32_MAX;
-  } else {
-    return a+b;
-  }
+    /* a+b > UINT32_MAX check, without overflow */
+    if (PREDICT_UNLIKELY(a > UINT32_MAX - b)) {
+        return UINT32_MAX;
+    } else {
+        return a + b;
+    }
 }

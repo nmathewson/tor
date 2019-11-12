@@ -14,14 +14,14 @@
 
 /** Parsed variable-length onion routing cell. */
 struct var_cell_t {
-  /** Type of the cell: CELL_VERSIONS, etc. */
-  uint8_t command;
-  /** Circuit thich received the cell */
-  circid_t circ_id;
-  /** Number of bytes actually stored in <b>payload</b> */
-  uint16_t payload_len;
-  /** Payload of this cell */
-  uint8_t payload[FLEXIBLE_ARRAY_MEMBER];
+    /** Type of the cell: CELL_VERSIONS, etc. */
+    uint8_t command;
+    /** Circuit thich received the cell */
+    circid_t circ_id;
+    /** Number of bytes actually stored in <b>payload</b> */
+    uint16_t payload_len;
+    /** Payload of this cell */
+    uint8_t payload[FLEXIBLE_ARRAY_MEMBER];
 };
 
 #endif /* !defined(VAR_CELL_ST_H) */

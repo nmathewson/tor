@@ -12,8 +12,8 @@
 #ifndef TOR_INTMATH_BITS_H
 #define TOR_INTMATH_BITS_H
 
-#include "lib/cc/torint.h"
 #include "lib/cc/compat_compiler.h"
+#include "lib/cc/torint.h"
 
 int tor_log2(uint64_t u64) ATTR_CONST;
 uint64_t round_to_power_of_2(uint64_t u64);

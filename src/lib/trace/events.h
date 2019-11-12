@@ -25,8 +25,7 @@
 
 #ifdef TOR_EVENT_TRACING_ENABLED
 /* Map every trace event to a per subsystem macro. */
-#define tor_trace(subsystem, name, ...) \
-  tor_trace_##subsystem(name, __VA_ARGS__)
+#define tor_trace(subsystem, name, ...) tor_trace_##subsystem(name, __VA_ARGS__)
 
 /* Enable event tracing for the debug framework where all trace events are
  * mapped to a log_debug(). */
