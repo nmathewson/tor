@@ -1,0 +1,9 @@
+
+# We prefer BSD KNF style.
+--style=knf
+
+# But we like to have our case statements indented.
+--indent-cases
+
+# We want braces around every block.
+--add-braces
