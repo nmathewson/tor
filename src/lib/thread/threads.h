@@ -153,13 +153,13 @@ atomic_counter_destroy(atomic_counter_t *counter)
 static inline void
 atomic_counter_add(atomic_counter_t *counter, size_t add)
 {
-  (void) atomic_fetch_add(&counter->val, add);
+  (void)atomic_fetch_add(&counter->val, add);
 }
 /** Subtract a value from an atomic counter. */
 static inline void
 atomic_counter_sub(atomic_counter_t *counter, size_t sub)
 {
-  (void) atomic_fetch_sub(&counter->val, sub);
+  (void)atomic_fetch_sub(&counter->val, sub);
 }
 /** Return the current value of an atomic counter */
 static inline size_t

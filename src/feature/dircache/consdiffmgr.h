@@ -26,35 +26,28 @@ typedef struct consdiff_cfg_t {
 
 struct consensus_cache_entry_t; // from conscache.h
 
-int consdiffmgr_add_consensus(const char *consensus,
-                              size_t consensus_len,
+int consdiffmgr_add_consensus(const char *consensus, size_t consensus_len,
                               const networkstatus_t *as_parsed);
 
-consdiff_status_t consdiffmgr_find_consensus(
-                           struct consensus_cache_entry_t **entry_out,
+consdiff_status_t
+consdiffmgr_find_consensus(struct consensus_cache_entry_t **entry_out,
                            consensus_flavor_t flavor,
                            enum compress_method_t method);
 
-consdiff_status_t consdiffmgr_find_diff_from(
-                           struct consensus_cache_entry_t **entry_out,
-                           consensus_flavor_t flavor,
-                           int digest_type,
-                           const uint8_t *digest,
-                           size_t digestlen,
+consdiff_status_t
+consdiffmgr_find_diff_from(struct consensus_cache_entry_t **entry_out,
+                           consensus_flavor_t flavor, int digest_type,
+                           const uint8_t *digest, size_t digestlen,
                            enum compress_method_t method);
 
 int consensus_cache_entry_get_voter_id_digests(
-                                  const struct consensus_cache_entry_t *ent,
-                                  smartlist_t *out);
+    const struct consensus_cache_entry_t *ent, smartlist_t *out);
 int consensus_cache_entry_get_fresh_until(
-                                  const struct consensus_cache_entry_t *ent,
-                                  time_t *out);
+    const struct consensus_cache_entry_t *ent, time_t *out);
 int consensus_cache_entry_get_valid_until(
-                                  const struct consensus_cache_entry_t *ent,
-                                  time_t *out);
+    const struct consensus_cache_entry_t *ent, time_t *out);
 int consensus_cache_entry_get_valid_after(
-                                  const struct consensus_cache_entry_t *ent,
-                                  time_t *out);
+    const struct consensus_cache_entry_t *ent, time_t *out);
 
 void consdiffmgr_rescan(void);
 int consdiffmgr_cleanup(void);
@@ -69,8 +62,8 @@ int consdiffmgr_validate(void);
 STATIC unsigned n_diff_compression_methods(void);
 STATIC unsigned n_consensus_compression_methods(void);
 STATIC consensus_cache_t *cdm_cache_get(void);
-STATIC consensus_cache_entry_t *cdm_cache_lookup_consensus(
-                          consensus_flavor_t flavor, time_t valid_after);
+STATIC consensus_cache_entry_t *
+cdm_cache_lookup_consensus(consensus_flavor_t flavor, time_t valid_after);
 STATIC int cdm_entry_get_sha3_value(uint8_t *digest_out,
                                     consensus_cache_entry_t *ent,
                                     const char *label);

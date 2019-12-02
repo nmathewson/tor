@@ -64,7 +64,8 @@ setup_directory(void)
   static int is_setup = 0;
   int r;
   char rnd[256], rnd32[256];
-  if (is_setup) return;
+  if (is_setup)
+    return;
 
 /* Due to base32 limitation needs to be a multiple of 5. */
 #define RAND_PATH_BYTES 5
@@ -77,21 +78,20 @@ setup_directory(void)
     const char *tmp = buf;
     const char *extra_backslash = "";
     /* If this fails, we're probably screwed anyway */
-    if (!GetTempPathA(sizeof(buf),buf))
+    if (!GetTempPathA(sizeof(buf), buf))
       tmp = "c:\\windows\\temp\\";
     if (strcmpend(tmp, "\\")) {
       /* According to MSDN, it should be impossible for GetTempPath to give us
        * an answer that doesn't end with \.  But let's make sure. */
       extra_backslash = "\\";
     }
-    tor_snprintf(temp_dir, sizeof(temp_dir),
-                 "%s%stor_test_%d_%s", tmp, extra_backslash,
-                 (int)getpid(), rnd32);
+    tor_snprintf(temp_dir, sizeof(temp_dir), "%s%stor_test_%d_%s", tmp,
+                 extra_backslash, (int)getpid(), rnd32);
     r = mkdir(temp_dir);
   }
 #else /* !defined(_WIN32) */
   tor_snprintf(temp_dir, sizeof(temp_dir), "/tmp/tor_test_%d_%s",
-               (int) getpid(), rnd32);
+               (int)getpid(), rnd32);
   r = mkdir(temp_dir, 0700);
   if (!r) {
     /* undo sticky bit so tests don't get confused. */
@@ -117,7 +117,7 @@ get_fname_suffix(const char *name, const char *suffix)
   setup_directory();
   if (!name)
     return temp_dir;
-  tor_snprintf(buf,sizeof(buf),"%s%s%s%s%s", temp_dir, PATH_SEPARATOR, name,
+  tor_snprintf(buf, sizeof(buf), "%s%s%s%s%s", temp_dir, PATH_SEPARATOR, name,
                suffix ? "_" : "", suffix ? suffix : "");
   return buf;
 }
@@ -151,18 +151,20 @@ rm_rf(const char *dir)
 
   elements = tor_listdir(dir);
   if (elements) {
-    SMARTLIST_FOREACH_BEGIN(elements, const char *, cp) {
-         char *tmp = NULL;
-         tor_asprintf(&tmp, "%s"PATH_SEPARATOR"%s", dir, cp);
-         if (0 == stat(tmp,&st) && (st.st_mode & S_IFDIR)) {
-           rm_rf(tmp);
-         } else {
-           if (unlink(tmp)) {
-             fprintf(stderr, "Error removing %s: %s\n", tmp, strerror(errno));
-           }
-         }
-         tor_free(tmp);
-    } SMARTLIST_FOREACH_END(cp);
+    SMARTLIST_FOREACH_BEGIN(elements, const char *, cp)
+    {
+      char *tmp = NULL;
+      tor_asprintf(&tmp, "%s" PATH_SEPARATOR "%s", dir, cp);
+      if (0 == stat(tmp, &st) && (st.st_mode & S_IFDIR)) {
+        rm_rf(tmp);
+      } else {
+        if (unlink(tmp)) {
+          fprintf(stderr, "Error removing %s: %s\n", tmp, strerror(errno));
+        }
+      }
+      tor_free(tmp);
+    }
+    SMARTLIST_FOREACH_END(cp);
     SMARTLIST_FOREACH(elements, char *, cp, tor_free(cp));
     smartlist_free(elements);
   }
@@ -188,7 +190,7 @@ passthrough_test_setup(const struct testcase_t *testcase)
 {
   /* Make sure the passthrough doesn't unintentionally fail or skip tests */
   tor_assert(testcase->setup_data);
-  tor_assert(testcase->setup_data != (void*)TT_SKIP);
+  tor_assert(testcase->setup_data != (void *)TT_SKIP);
   return testcase->setup_data;
 }
 static int
@@ -213,13 +215,11 @@ ed25519_testcase_cleanup(const struct testcase_t *testcase, void *ptr)
   crypto_ed25519_testing_restore_impl();
   return 1;
 }
-const struct testcase_setup_t ed25519_test_setup = {
-  ed25519_testcase_setup, ed25519_testcase_cleanup
-};
+const struct testcase_setup_t ed25519_test_setup = {ed25519_testcase_setup,
+                                                    ed25519_testcase_cleanup};
 
-const struct testcase_setup_t passthrough_setup = {
-  passthrough_test_setup, passthrough_test_cleanup
-};
+const struct testcase_setup_t passthrough_setup = {passthrough_test_setup,
+                                                   passthrough_test_cleanup};
 
 static void
 an_assertion_failed(void)
@@ -327,7 +327,7 @@ main(int c, const char **v)
   options_init(options);
   options->DataDirectory = tor_strdup(temp_dir);
   options->DataDirectory_option = tor_strdup(temp_dir);
-  tor_asprintf(&options->KeyDirectory, "%s"PATH_SEPARATOR"keys",
+  tor_asprintf(&options->KeyDirectory, "%s" PATH_SEPARATOR "keys",
                options->DataDirectory);
   options->CacheDirectory = tor_strdup(temp_dir);
   options->EntryStatistics = 1;

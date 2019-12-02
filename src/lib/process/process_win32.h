@@ -64,29 +64,20 @@ typedef enum process_win32_pipe_type_t {
   PROCESS_WIN32_PIPE_TYPE_WRITER
 } process_win32_pipe_type_t;
 
-STATIC bool process_win32_create_pipe(HANDLE *,
-                                      HANDLE *,
+STATIC bool process_win32_create_pipe(HANDLE *, HANDLE *,
                                       SECURITY_ATTRIBUTES *,
                                       process_win32_pipe_type_t);
 
 STATIC void process_win32_cleanup_handle(process_win32_handle_t *handle);
 
-STATIC VOID WINAPI process_win32_stdout_read_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
-STATIC VOID WINAPI process_win32_stderr_read_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
-STATIC VOID WINAPI process_win32_stdin_write_done(DWORD,
-                                                  DWORD,
-                                                  LPOVERLAPPED);
+STATIC VOID WINAPI process_win32_stdout_read_done(DWORD, DWORD, LPOVERLAPPED);
+STATIC VOID WINAPI process_win32_stderr_read_done(DWORD, DWORD, LPOVERLAPPED);
+STATIC VOID WINAPI process_win32_stdin_write_done(DWORD, DWORD, LPOVERLAPPED);
 
-STATIC int process_win32_read_from_handle(process_win32_handle_t *,
-                                          buf_t *,
+STATIC int process_win32_read_from_handle(process_win32_handle_t *, buf_t *,
                                           LPOVERLAPPED_COMPLETION_ROUTINE);
 STATIC bool process_win32_handle_read_completion(process_win32_handle_t *,
-                                                 DWORD,
-                                                 DWORD);
+                                                 DWORD, DWORD);
 
 STATIC char *format_win_cmdline_argument(const char *arg);
 STATIC char *tor_join_win_cmdline(const char *argv[]);

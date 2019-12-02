@@ -31,25 +31,25 @@ libevent_logging_callback(int severity, const char *msg)
   if (suppress_msg && strstr(msg, suppress_msg))
     return;
   n = strlcpy(buf, msg, sizeof(buf));
-  if (n && n < sizeof(buf) && buf[n-1] == '\n') {
-    buf[n-1] = '\0';
+  if (n && n < sizeof(buf) && buf[n - 1] == '\n') {
+    buf[n - 1] = '\0';
   }
   switch (severity) {
     case _EVENT_LOG_DEBUG:
-      log_debug(LD_NOCB|LD_NET, "Message from libevent: %s", buf);
+      log_debug(LD_NOCB | LD_NET, "Message from libevent: %s", buf);
       break;
     case _EVENT_LOG_MSG:
-      log_info(LD_NOCB|LD_NET, "Message from libevent: %s", buf);
+      log_info(LD_NOCB | LD_NET, "Message from libevent: %s", buf);
       break;
     case _EVENT_LOG_WARN:
-      log_warn(LD_NOCB|LD_GENERAL, "Warning from libevent: %s", buf);
+      log_warn(LD_NOCB | LD_GENERAL, "Warning from libevent: %s", buf);
       break;
     case _EVENT_LOG_ERR:
-      log_err(LD_NOCB|LD_GENERAL, "Error from libevent: %s", buf);
+      log_err(LD_NOCB | LD_GENERAL, "Error from libevent: %s", buf);
       break;
     default:
-      log_warn(LD_NOCB|LD_GENERAL, "Message [%d] from libevent: %s",
-          severity, buf);
+      log_warn(LD_NOCB | LD_GENERAL, "Message [%d] from libevent: %s",
+               severity, buf);
       break;
   }
 }
@@ -167,8 +167,8 @@ tor_libevent_initialize(tor_libevent_cfg_t *torcfg)
     /* LCOV_EXCL_STOP */
   }
 
-  rescan_mainloop_ev = event_new(the_event_base, -1, 0,
-                                 rescan_mainloop_cb, the_event_base);
+  rescan_mainloop_ev =
+      event_new(the_event_base, -1, 0, rescan_mainloop_cb, the_event_base);
   if (!rescan_mainloop_ev) {
     /* LCOV_EXCL_START */
     log_err(LD_GENERAL, "Unable to create rescan event: cannot continue.");
@@ -177,8 +177,8 @@ tor_libevent_initialize(tor_libevent_cfg_t *torcfg)
   }
 
   log_info(LD_GENERAL,
-      "Initialized libevent version %s using method %s. Good.",
-      event_get_version(), tor_libevent_get_method());
+           "Initialized libevent version %s using method %s. Good.",
+           event_get_version(), tor_libevent_get_method());
 }
 
 /**
@@ -192,8 +192,7 @@ tor_libevent_is_initialized(void)
 }
 
 /** Return the current Libevent event base that we're set up to use. */
-MOCK_IMPL(struct event_base *,
-tor_libevent_get_base, (void))
+MOCK_IMPL(struct event_base *, tor_libevent_get_base, (void))
 {
   tor_assert(the_event_base != NULL);
   return the_event_base;
@@ -215,7 +214,7 @@ tor_libevent_get_version_str(void)
 }
 
 /** Return a string representation of the version of Libevent that was used
-* at compilation time. */
+ * at compilation time. */
 const char *
 tor_libevent_get_header_version_str(void)
 {
@@ -237,8 +236,8 @@ static void
 periodic_timer_cb(evutil_socket_t fd, short what, void *arg)
 {
   periodic_timer_t *timer = arg;
-  (void) what;
-  (void) fd;
+  (void)what;
+  (void)fd;
   timer->cb(timer, timer->data);
 }
 
@@ -246,18 +245,16 @@ periodic_timer_cb(evutil_socket_t fd, short what, void *arg)
  * the event loop of <b>base</b>.  When the timer fires, it will
  * run the timer in <b>cb</b> with the user-supplied data in <b>data</b>. */
 periodic_timer_t *
-periodic_timer_new(struct event_base *base,
-                   const struct timeval *tv,
-                   void (*cb)(periodic_timer_t *timer, void *data),
-                   void *data)
+periodic_timer_new(struct event_base *base, const struct timeval *tv,
+                   void (*cb)(periodic_timer_t *timer, void *data), void *data)
 {
   periodic_timer_t *timer;
   tor_assert(base);
   tor_assert(tv);
   tor_assert(cb);
   timer = tor_malloc_zero(sizeof(periodic_timer_t));
-  if (!(timer->ev = tor_event_new(base, -1, EV_PERSIST,
-                                  periodic_timer_cb, timer))) {
+  if (!(timer->ev =
+            tor_event_new(base, -1, EV_PERSIST, periodic_timer_cb, timer))) {
     tor_free(timer);
     return NULL;
   }
@@ -293,7 +290,7 @@ void
 periodic_timer_disable(periodic_timer_t *timer)
 {
   tor_assert(timer);
-  (void) event_del(timer->ev);
+  (void)event_del(timer->ev);
 }
 
 /** Stop and free a periodic timer */
@@ -364,17 +361,16 @@ mainloop_event_postloop_cb(evutil_socket_t fd, short what, void *arg)
  * Helper for mainloop_event_new() and mainloop_event_postloop_new().
  */
 static mainloop_event_t *
-mainloop_event_new_impl(int postloop,
-                        void (*cb)(mainloop_event_t *, void *),
+mainloop_event_new_impl(int postloop, void (*cb)(mainloop_event_t *, void *),
                         void *userdata)
 {
   tor_assert(cb);
 
   struct event_base *base = tor_libevent_get_base();
   mainloop_event_t *mev = tor_malloc_zero(sizeof(mainloop_event_t));
-  mev->ev = tor_event_new(base, -1, 0,
-                  postloop ? mainloop_event_postloop_cb : mainloop_event_cb,
-                  mev);
+  mev->ev = tor_event_new(
+      base, -1, 0, postloop ? mainloop_event_postloop_cb : mainloop_event_cb,
+      mev);
   tor_assert(mev->ev);
   mev->cb = cb;
   mev->userdata = userdata;
@@ -393,8 +389,7 @@ mainloop_event_new_impl(int postloop,
  * or mainloop_event_schedule() to make it run.
  */
 mainloop_event_t *
-mainloop_event_new(void (*cb)(mainloop_event_t *, void *),
-                   void *userdata)
+mainloop_event_new(void (*cb)(mainloop_event_t *, void *), void *userdata)
 {
   return mainloop_event_new_impl(0, cb, userdata);
 }
@@ -459,7 +454,7 @@ mainloop_event_cancel(mainloop_event_t *event)
 {
   if (!event)
     return;
-  (void) event_del(event->ev);
+  (void)event_del(event->ev);
 }
 
 /** Cancel <b>event</b> and release all storage associated with it. */

@@ -48,12 +48,11 @@ tor_log_mallinfo(int severity)
   memset(&mi, 0, sizeof(mi));
   mi = mallinfo();
   tor_log(severity, LD_MM,
-      "mallinfo() said: arena=%d, ordblks=%d, smblks=%d, hblks=%d, "
-      "hblkhd=%d, usmblks=%d, fsmblks=%d, uordblks=%d, fordblks=%d, "
-      "keepcost=%d",
-      mi.arena, mi.ordblks, mi.smblks, mi.hblks,
-      mi.hblkhd, mi.usmblks, mi.fsmblks, mi.uordblks, mi.fordblks,
-      mi.keepcost);
+          "mallinfo() said: arena=%d, ordblks=%d, smblks=%d, hblks=%d, "
+          "hblkhd=%d, usmblks=%d, fsmblks=%d, uordblks=%d, fordblks=%d, "
+          "keepcost=%d",
+          mi.arena, mi.ordblks, mi.smblks, mi.hblks, mi.hblkhd, mi.usmblks,
+          mi.fsmblks, mi.uordblks, mi.fordblks, mi.keepcost);
 #else /* !defined(HAVE_MALLINFO) */
   (void)severity;
 #endif /* defined(HAVE_MALLINFO) */
@@ -78,12 +77,12 @@ get_total_system_memory_impl(void)
 #if defined(__linux__)
   /* On linux, sysctl is deprecated. Because proc is so awesome that you
    * shouldn't _want_ to write portable code, I guess? */
-  unsigned long long result=0;
+  unsigned long long result = 0;
   int fd = -1;
   char *s = NULL;
   const char *cp;
-  size_t file_size=0;
-  if (-1 == (fd = tor_open_cloexec("/proc/meminfo",O_RDONLY,0)))
+  size_t file_size = 0;
+  if (-1 == (fd = tor_open_cloexec("/proc/meminfo", O_RDONLY, 0)))
     return 0;
   s = read_file_to_str_until_eof(fd, 65536, &file_size);
   if (!s)
@@ -100,17 +99,17 @@ get_total_system_memory_impl(void)
   return result * 1024;
 
   /* LCOV_EXCL_START Can't reach this unless proc is broken. */
- err:
+err:
   tor_free(s);
   close(fd);
   return 0;
   /* LCOV_EXCL_STOP */
-#elif defined (_WIN32)
+#elif defined(_WIN32)
   /* Windows has MEMORYSTATUSEX; pretty straightforward. */
   MEMORYSTATUSEX ms;
   memset(&ms, 0, sizeof(ms));
   ms.dwLength = sizeof(ms);
-  if (! GlobalMemoryStatusEx(&ms))
+  if (!GlobalMemoryStatusEx(&ms))
     return 0;
 
   return ms.ullTotalPhys;
@@ -121,7 +120,7 @@ get_total_system_memory_impl(void)
   uint64_t memsize = 0;
   size_t len = sizeof(memsize);
   int mib[2] = {CTL_HW, INT64_HW_MEM};
-  if (sysctl(mib,2,&memsize,&len,NULL,0))
+  if (sysctl(mib, 2, &memsize, &len, NULL, 0))
     return 0;
 
   return memsize;
@@ -129,10 +128,10 @@ get_total_system_memory_impl(void)
 #elif defined(HAVE_SYSCTL) && defined(HW_PHYSMEM)
   /* On some systems (like FreeBSD I hope) you can use a size_t with
    * HW_PHYSMEM. */
-  size_t memsize=0;
+  size_t memsize = 0;
   size_t len = sizeof(memsize);
   int mib[2] = {CTL_HW, HW_PHYSMEM};
-  if (sysctl(mib,2,&memsize,&len,NULL,0))
+  if (sysctl(mib, 2, &memsize, &len, NULL, 0))
     return 0;
 
   return memsize;
@@ -147,10 +146,9 @@ get_total_system_memory_impl(void)
  * Try to find out how much physical memory the system has. On success,
  * return 0 and set *<b>mem_out</b> to that value. On failure, return -1.
  */
-MOCK_IMPL(int,
-get_total_system_memory, (size_t *mem_out))
+MOCK_IMPL(int, get_total_system_memory, (size_t * mem_out))
 {
-  static size_t mem_cached=0;
+  static size_t mem_cached = 0;
   uint64_t m = get_total_system_memory_impl();
   if (0 == m) {
     /* LCOV_EXCL_START -- can't make this happen without mocking. */
@@ -175,7 +173,7 @@ get_total_system_memory, (size_t *mem_out))
   }
 #endif /* SIZE_MAX != UINT64_MAX */
 
-  *mem_out = mem_cached = (size_t) m;
+  *mem_out = mem_cached = (size_t)m;
 
   return 0;
 }

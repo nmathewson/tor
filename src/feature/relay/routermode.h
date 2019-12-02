@@ -27,9 +27,9 @@ void set_server_advertised(int s);
 
 #else /* !defined(HAVE_MODULE_RELAY) */
 
-#define dir_server_mode(options) (((void)(options)),0)
-#define server_mode(options) (((void)(options)),0)
-#define public_server_mode(options) (((void)(options)),0)
+#define dir_server_mode(options) (((void)(options)), 0)
+#define server_mode(options) (((void)(options)), 0)
+#define public_server_mode(options) (((void)(options)), 0)
 #define advertised_server_mode() (0)
 
 /* We shouldn't be publishing descriptors when relay mode is disabled. */

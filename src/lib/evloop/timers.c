@@ -142,8 +142,8 @@ timeout_to_tv(timeout_t t, struct timeval *tv_out)
 static void
 timer_advance_to_cur_time(const monotime_t *now)
 {
-  timeout_t cur_tick = CEIL_DIV(monotime_diff_usec(&start_of_time, now),
-                                USEC_PER_TICK);
+  timeout_t cur_tick =
+      CEIL_DIV(monotime_diff_usec(&start_of_time, now), USEC_PER_TICK);
   timeouts_update(global_timeouts, cur_tick);
 }
 
@@ -262,7 +262,7 @@ timer_new(timer_cb_fn_t cb, void *arg)
 void
 timer_free_(tor_timer_t *t)
 {
-  if (! t)
+  if (!t)
     return;
 
   timeouts_del(global_timeouts, t);
@@ -284,8 +284,7 @@ timer_set_cb(tor_timer_t *t, timer_cb_fn_t cb, void *arg)
  * and *<b>arg_out</b> (if provided) to this timer's callback argument.
  */
 void
-timer_get_cb(const tor_timer_t *t,
-             timer_cb_fn_t *cb_out, void **arg_out)
+timer_get_cb(const tor_timer_t *t, timer_cb_fn_t *cb_out, void **arg_out)
 {
   if (cb_out)
     *cb_out = t->callback.cb;

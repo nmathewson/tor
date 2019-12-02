@@ -53,7 +53,8 @@ compute_num_cpus_impl(void)
     cpus = cpus_onln;
   } else if (cpus_onln > 0 && cpus_conf > 0) {
     if (cpus_onln < cpus_conf) {
-      log_notice(LD_GENERAL, "I think we have %ld CPUS, but only %ld of them "
+      log_notice(LD_GENERAL,
+                 "I think we have %ld CPUS, but only %ld of them "
                  "are available. Telling Tor to only use %ld. You can over"
                  "ride this with the NumCPUs option",
                  cpus_conf, cpus_onln, cpus_onln);
@@ -86,7 +87,8 @@ compute_num_cpus(void)
     tor_assert(num_cpus != -2);
     if (num_cpus > MAX_DETECTABLE_CPUS) {
       /* LCOV_EXCL_START */
-      log_notice(LD_GENERAL, "Wow!  I detected that you have %d CPUs. I "
+      log_notice(LD_GENERAL,
+                 "Wow!  I detected that you have %d CPUs. I "
                  "will not autodetect any more than %d, though.  If you "
                  "want to configure more, set NumCPUs in your torrc",
                  num_cpus, MAX_DETECTABLE_CPUS);

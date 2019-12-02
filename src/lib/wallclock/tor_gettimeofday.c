@@ -38,8 +38,7 @@
 /** Set *timeval to the current time of day.  On error, log and terminate.
  * (Same as gettimeofday(timeval,NULL), but never returns -1.)
  */
-MOCK_IMPL(void,
-tor_gettimeofday, (struct timeval *timeval))
+MOCK_IMPL(void, tor_gettimeofday, (struct timeval * timeval))
 {
 #ifdef _WIN32
   /* Epoch bias copied from perl: number of units between windows epoch and
@@ -60,8 +59,8 @@ tor_gettimeofday, (struct timeval *timeval))
     /* LCOV_EXCL_STOP */
   }
   ft.ft_64 -= EPOCH_BIAS;
-  timeval->tv_sec = (unsigned) (ft.ft_64 / UNITS_PER_SEC);
-  timeval->tv_usec = (unsigned) ((ft.ft_64 / UNITS_PER_USEC) % USEC_PER_SEC);
+  timeval->tv_sec = (unsigned)(ft.ft_64 / UNITS_PER_SEC);
+  timeval->tv_usec = (unsigned)((ft.ft_64 / UNITS_PER_USEC) % USEC_PER_SEC);
 #elif defined(HAVE_GETTIMEOFDAY)
   if (gettimeofday(timeval, NULL)) {
     /* LCOV_EXCL_START */

@@ -40,14 +40,13 @@ void router_get_verbose_nickname(char *buf, const routerinfo_t *router);
  * plus a terminating NUL.
  */
 #define NODE_DESC_BUF_LEN \
-  (MAX_VERBOSE_NICKNAME_LEN+4+IPV4_BUF_LEN_NO_NUL+5+TOR_ADDR_BUF_LEN)
+  (MAX_VERBOSE_NICKNAME_LEN + 4 + IPV4_BUF_LEN_NO_NUL + 5 + TOR_ADDR_BUF_LEN)
 
 #endif /* defined(DESCRIBE_PRIVATE) || defined(TOR_UNIT_TESTS) */
 
 #ifdef TOR_UNIT_TESTS
 
-STATIC const char *format_node_description(char *buf,
-                                           const char *id_digest,
+STATIC const char *format_node_description(char *buf, const char *id_digest,
                                            const char *nickname,
                                            const tor_addr_t *addr,
                                            uint32_t addr32h);

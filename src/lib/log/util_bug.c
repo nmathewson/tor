@@ -66,15 +66,16 @@ tor_set_failed_assertion_callback(void (*fn)(void))
 }
 #else /* !defined(TOR_UNIT_TESTS) */
 #define capturing_bugs() (0)
-#define add_captured_bug(s) do { } while (0)
+#define add_captured_bug(s) \
+  do {                      \
+  } while (0)
 #endif /* defined(TOR_UNIT_TESTS) */
 
 /** Helper for tor_assert: report the assertion failure. */
-void
-CHECK_PRINTF(5, 6)
-tor_assertion_failed_(const char *fname, unsigned int line,
-                      const char *func, const char *expr,
-                      const char *fmt, ...)
+void CHECK_PRINTF(5, 6)
+    tor_assertion_failed_(const char *fname, unsigned int line,
+                          const char *func, const char *expr, const char *fmt,
+                          ...)
 {
   char *buf = NULL;
   char *extra = NULL;
@@ -85,7 +86,7 @@ tor_assertion_failed_(const char *fname, unsigned int line,
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #endif
   if (fmt) {
-    va_start(ap,fmt);
+    va_start(ap, fmt);
     tor_vasprintf(&extra, fmt, ap);
     va_end(ap);
   }
@@ -93,35 +94,32 @@ tor_assertion_failed_(const char *fname, unsigned int line,
 #pragma clang diagnostic pop
 #endif
 
-  log_err(LD_BUG, "%s:%u: %s: Assertion %s failed; aborting.",
-          fname, line, func, expr);
-  tor_asprintf(&buf, "Assertion %s failed in %s at %s:%u: %s",
-               expr, func, fname, line, extra ? extra : "");
+  log_err(LD_BUG, "%s:%u: %s: Assertion %s failed; aborting.", fname, line,
+          func, expr);
+  tor_asprintf(&buf, "Assertion %s failed in %s at %s:%u: %s", expr, func,
+               fname, line, extra ? extra : "");
   tor_free(extra);
   log_backtrace(LOG_ERR, LD_BUG, buf);
   tor_free(buf);
 }
 
 /** Helper for tor_assert_nonfatal: report the assertion failure. */
-void
-CHECK_PRINTF(6, 7)
-tor_bug_occurred_(const char *fname, unsigned int line,
-                  const char *func, const char *expr,
-                  int once, const char *fmt, ...)
+void CHECK_PRINTF(6, 7)
+    tor_bug_occurred_(const char *fname, unsigned int line, const char *func,
+                      const char *expr, int once, const char *fmt, ...)
 {
   char *buf = NULL;
-  const char *once_str = once ?
-    " (Future instances of this warning will be silenced.)": "";
-  if (! expr) {
+  const char *once_str =
+      once ? " (Future instances of this warning will be silenced.)" : "";
+  if (!expr) {
     if (capturing_bugs()) {
       add_captured_bug("This line should not have been reached.");
       return;
     }
     log_warn(LD_BUG, "%s:%u: %s: This line should not have been reached.%s",
              fname, line, func, once_str);
-    tor_asprintf(&buf,
-                 "Line unexpectedly reached at %s at %s:%u",
-                 func, fname, line);
+    tor_asprintf(&buf, "Line unexpectedly reached at %s at %s:%u", func, fname,
+                 line);
   } else {
     if (capturing_bugs()) {
       add_captured_bug(expr);
@@ -136,7 +134,7 @@ tor_bug_occurred_(const char *fname, unsigned int line,
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #endif
     if (fmt) {
-      va_start(ap,fmt);
+      va_start(ap, fmt);
       tor_vasprintf(&extra, fmt, ap);
       va_end(ap);
     }
@@ -144,8 +142,8 @@ tor_bug_occurred_(const char *fname, unsigned int line,
 #pragma clang diagnostic pop
 #endif
 
-    log_warn(LD_BUG, "%s:%u: %s: Non-fatal assertion %s failed.%s",
-             fname, line, func, expr, once_str);
+    log_warn(LD_BUG, "%s:%u: %s: Non-fatal assertion %s failed.%s", fname,
+             line, func, expr, once_str);
     tor_asprintf(&buf, "Non-fatal assertion %s failed in %s at %s:%u%s%s",
                  expr, func, fname, line, fmt ? " : " : "",
                  extra ? extra : "");
@@ -190,11 +188,11 @@ tor_fix_source_file(const char *fname)
   cp1 = strrchr(fname, '/');
   cp2 = strrchr(fname, '\\');
   if (cp1 && cp2) {
-    r = (cp1<cp2)?(cp2+1):(cp1+1);
+    r = (cp1 < cp2) ? (cp2 + 1) : (cp1 + 1);
   } else if (cp1) {
-    r = cp1+1;
+    r = cp1 + 1;
   } else if (cp2) {
-    r = cp2+1;
+    r = cp2 + 1;
   } else {
     r = fname;
   }

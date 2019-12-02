@@ -31,7 +31,7 @@
 #include "test/test_helpers.h"
 
 /* mock ID digest and longname for node that's in nodelist */
-#define HSDIR_EXIST_ID \
+#define HSDIR_EXIST_ID                       \
   "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA" \
   "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA"
 #define STR_HSDIR_EXIST_LONGNAME \
@@ -52,7 +52,7 @@ static char *received_msg = NULL;
 static void
 queue_control_event_string_replacement(uint16_t event, char *msg)
 {
-  (void) event;
+  (void)event;
   tor_free(received_msg);
   received_msg = msg;
 }
@@ -98,11 +98,9 @@ test_hs_desc_event(void *arg)
   routerstatus_t hsdir_rs;
   hs_ident_dir_conn_t ident;
 
-  (void) arg;
-  MOCK(queue_control_event_string,
-       queue_control_event_string_replacement);
-  MOCK(node_describe_longname_by_id,
-       node_describe_longname_by_id_replacement);
+  (void)arg;
+  MOCK(queue_control_event_string, queue_control_event_string_replacement);
+  MOCK(node_describe_longname_by_id, node_describe_longname_by_id_replacement);
   MOCK(node_get_by_id, mock_node_get_by_id);
 
   /* Setup what we need for this test. */
@@ -121,9 +119,9 @@ test_hs_desc_event(void *arg)
   /* HS_DESC REQUESTED ... */
   hs_control_desc_event_requested(&identity_kp.pubkey, base64_blinded_pk,
                                   &hsdir_rs);
-  tor_asprintf(&expected_msg, "650 HS_DESC REQUESTED %s NO_AUTH "
-               STR_HSDIR_EXIST_LONGNAME " %s HSDIR_INDEX="
-               HSDIR_INDEX_FETCH_HEX "\r\n",
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC REQUESTED %s NO_AUTH " STR_HSDIR_EXIST_LONGNAME
+               " %s HSDIR_INDEX=" HSDIR_INDEX_FETCH_HEX "\r\n",
                onion_address, base64_blinded_pk);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
@@ -132,8 +130,9 @@ test_hs_desc_event(void *arg)
 
   /* HS_DESC CREATED... */
   hs_control_desc_event_created(onion_address, &blinded_pk);
-  tor_asprintf(&expected_msg, "650 HS_DESC CREATED %s UNKNOWN "
-                              "UNKNOWN %s\r\n",
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC CREATED %s UNKNOWN "
+               "UNKNOWN %s\r\n",
                onion_address, base64_blinded_pk);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
@@ -143,11 +142,11 @@ test_hs_desc_event(void *arg)
   /* HS_DESC UPLOAD... */
   uint8_t hsdir_index_store[DIGEST256_LEN];
   memset(hsdir_index_store, 'D', sizeof(hsdir_index_store));
-  hs_control_desc_event_upload(onion_address, HSDIR_EXIST_ID,
-                               &blinded_pk, hsdir_index_store);
-  tor_asprintf(&expected_msg, "650 HS_DESC UPLOAD %s UNKNOWN "
-                              STR_HSDIR_EXIST_LONGNAME " %s "
-                              "HSDIR_INDEX=" HSDIR_INDEX_STORE_HEX "\r\n",
+  hs_control_desc_event_upload(onion_address, HSDIR_EXIST_ID, &blinded_pk,
+                               hsdir_index_store);
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC UPLOAD %s UNKNOWN " STR_HSDIR_EXIST_LONGNAME " %s "
+               "HSDIR_INDEX=" HSDIR_INDEX_STORE_HEX "\r\n",
                onion_address, base64_blinded_pk);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
@@ -156,9 +155,9 @@ test_hs_desc_event(void *arg)
 
   /* HS_DESC FAILED... */
   hs_control_desc_event_failed(&ident, HSDIR_EXIST_ID, "BAD_DESC");
-  tor_asprintf(&expected_msg, "650 HS_DESC FAILED %s NO_AUTH "
-                              STR_HSDIR_EXIST_LONGNAME " %s "
-                              "REASON=BAD_DESC\r\n",
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC FAILED %s NO_AUTH " STR_HSDIR_EXIST_LONGNAME " %s "
+               "REASON=BAD_DESC\r\n",
                onion_address, base64_blinded_pk);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
@@ -167,8 +166,9 @@ test_hs_desc_event(void *arg)
 
   /* HS_DESC RECEIVED... */
   hs_control_desc_event_received(&ident, HSDIR_EXIST_ID);
-  tor_asprintf(&expected_msg, "650 HS_DESC RECEIVED %s NO_AUTH "
-                              STR_HSDIR_EXIST_LONGNAME " %s\r\n",
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC RECEIVED %s NO_AUTH " STR_HSDIR_EXIST_LONGNAME
+               " %s\r\n",
                onion_address, base64_blinded_pk);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
@@ -177,15 +177,16 @@ test_hs_desc_event(void *arg)
 
   /* HS_DESC UPLOADED... */
   hs_control_desc_event_uploaded(&ident, HSDIR_EXIST_ID);
-  tor_asprintf(&expected_msg, "650 HS_DESC UPLOADED %s UNKNOWN "
-                              STR_HSDIR_EXIST_LONGNAME "\r\n",
+  tor_asprintf(&expected_msg,
+               "650 HS_DESC UPLOADED %s UNKNOWN " STR_HSDIR_EXIST_LONGNAME
+               "\r\n",
                onion_address);
   tt_assert(received_msg);
   tt_str_op(received_msg, OP_EQ, expected_msg);
   tor_free(received_msg);
   tor_free(expected_msg);
 
- done:
+done:
   UNMOCK(queue_control_event_string);
   UNMOCK(node_describe_longname_by_id);
   UNMOCK(node_get_by_id);
@@ -198,7 +199,7 @@ test_hs_desc_event(void *arg)
 static void
 test_hs_control_good_onion_client_auth_add(void *arg)
 {
-  (void) arg;
+  (void)arg;
 
   MOCK(connection_write_to_buf_impl_, connection_write_to_buf_mock);
 
@@ -217,15 +218,13 @@ test_hs_control_good_onion_client_auth_add(void *arg)
 
   { /* Setup the services */
     retval = hs_parse_address(
-                 "2fvhjskjet3n5syd6yfg5lhvwcs62bojmthr35ko5bllr3iqdb4ctdyd",
-                 &service_identity_pk_2fv,
-                 NULL, NULL);
+        "2fvhjskjet3n5syd6yfg5lhvwcs62bojmthr35ko5bllr3iqdb4ctdyd",
+        &service_identity_pk_2fv, NULL, NULL);
     tt_int_op(retval, OP_EQ, 0);
 
     retval = hs_parse_address(
-                 "jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd",
-                 &service_identity_pk_jt4,
-                 NULL, NULL);
+        "jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd",
+        &service_identity_pk_jt4, NULL, NULL);
     tt_int_op(retval, OP_EQ, 0);
   }
 
@@ -237,7 +236,7 @@ test_hs_control_good_onion_client_auth_add(void *arg)
                     "x25519:iJ1tjKCrMAbiFT2bVrCjhbfMDnE1fpaRbIS5ZHKUvEQ= "
                     "ClientName=bob Flags=Permanent");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
 
   /* Check contents */
@@ -248,10 +247,11 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tor_free(args);
 
   /* Register second service (even with an unrecognized argument) */
-  args = tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd "
-           "x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA= DropSound=No");
+  args = tor_strdup(
+      "jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd "
+      "x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA= DropSound=No");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
 
   /* Check contents */
@@ -264,13 +264,13 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tt_uint_op(digest256map_size(client_auths), OP_EQ, 2);
 
   hs_client_service_authorization_t *client_2fv =
-    digest256map_get(client_auths, service_identity_pk_2fv.pubkey);
+      digest256map_get(client_auths, service_identity_pk_2fv.pubkey);
   tt_assert(client_2fv);
   tt_str_op(client_2fv->nickname, OP_EQ, "bob");
   tt_int_op(client_2fv->flags, OP_EQ, CLIENT_AUTH_FLAG_IS_PERMANENT);
 
   hs_client_service_authorization_t *client_jt4 =
-    digest256map_get(client_auths, service_identity_pk_jt4.pubkey);
+      digest256map_get(client_auths, service_identity_pk_jt4.pubkey);
   tt_assert(client_jt4);
   tt_assert(!client_jt4->nickname);
   tt_int_op(client_jt4->flags, OP_EQ, 0);
@@ -283,13 +283,14 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tor_free(args);
   args = tor_strdup("");
 
-#define VIEW_CORRECT_REPLY_NO_ADDR "250-ONION_CLIENT_AUTH_VIEW\r\n"   \
-  "250-CLIENT x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA=\r\n"\
-  "250-CLIENT x25519:iJ1tjKCrMAbiFT2bVrCjhbfMDnE1fpaRbIS5ZHKUvEQ= "   \
-  "ClientName=bob Flags=Permanent\r\n"                                \
+#define VIEW_CORRECT_REPLY_NO_ADDR                                     \
+  "250-ONION_CLIENT_AUTH_VIEW\r\n"                                     \
+  "250-CLIENT x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA=\r\n" \
+  "250-CLIENT x25519:iJ1tjKCrMAbiFT2bVrCjhbfMDnE1fpaRbIS5ZHKUvEQ= "    \
+  "ClientName=bob Flags=Permanent\r\n"                                 \
   "250 OK\r\n"
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, VIEW_CORRECT_REPLY_NO_ADDR);
@@ -298,14 +299,15 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   /* Now specify an HS addr, and see that we only view those creds */
   tor_free(args);
   args =
-    tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd");
+      tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd");
 
-#define VIEW_CORRECT_REPLY_JT4 "250-ONION_CLIENT_AUTH_VIEW " \
-  "jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd\r\n"   \
-  "250-CLIENT x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA=\r\n"\
+#define VIEW_CORRECT_REPLY_JT4                                         \
+  "250-ONION_CLIENT_AUTH_VIEW "                                        \
+  "jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd\r\n"       \
+  "250-CLIENT x25519:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA=\r\n" \
   "250 OK\r\n"
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, VIEW_CORRECT_REPLY_JT4);
@@ -319,7 +321,7 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tor_free(args);
   args = tor_strdup("thatsok");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, "512 Invalid v3 address \"thatsok\"\r\n");
@@ -330,9 +332,10 @@ test_hs_control_good_onion_client_auth_add(void *arg)
 
   /* Now actually remove them. */
   tor_free(args);
-  args =tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd");
+  args =
+      tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, "250 OK\r\n");
@@ -342,11 +345,13 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tt_assert(!client_jt4);
 
   /* Now try another time (we should get 'already removed' msg) */
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
-  tt_str_op(cp1, OP_EQ, "251 No credentials for "
-           "\"jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd\"\r\n");
+  tt_str_op(
+      cp1, OP_EQ,
+      "251 No credentials for "
+      "\"jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd\"\r\n");
   tor_free(cp1);
 
   client_jt4 = digest256map_get(client_auths, service_identity_pk_jt4.pubkey);
@@ -354,9 +359,10 @@ test_hs_control_good_onion_client_auth_add(void *arg)
 
   /* Now also remove the other one */
   tor_free(args);
-  args =tor_strdup("2fvhjskjet3n5syd6yfg5lhvwcs62bojmthr35ko5bllr3iqdb4ctdyd");
+  args =
+      tor_strdup("2fvhjskjet3n5syd6yfg5lhvwcs62bojmthr35ko5bllr3iqdb4ctdyd");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, "250 OK\r\n");
@@ -370,7 +376,7 @@ test_hs_control_good_onion_client_auth_add(void *arg)
 
 #define VIEW_CORRECT_REPLY_NOTHING "250-ONION_CLIENT_AUTH_VIEW\r\n250 OK\r\n"
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, VIEW_CORRECT_REPLY_NOTHING);
@@ -380,12 +386,12 @@ test_hs_control_good_onion_client_auth_add(void *arg)
   tor_free(args);
   args = tor_strdup("house");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
   cp1 = buf_get_contents(TO_CONN(&conn)->outbuf, &sz);
   tt_str_op(cp1, OP_EQ, "512 Invalid v3 addr \"house\"\r\n");
 
- done:
+done:
   tor_free(args);
   tor_free(cp1);
   buf_free(TO_CONN(&conn)->outbuf);
@@ -397,7 +403,7 @@ test_hs_control_good_onion_client_auth_add(void *arg)
 static void
 test_hs_control_bad_onion_client_auth_add(void *arg)
 {
-  (void) arg;
+  (void)arg;
 
   MOCK(connection_write_to_buf_impl_, connection_write_to_buf_mock);
 
@@ -418,9 +424,9 @@ test_hs_control_bad_onion_client_auth_add(void *arg)
 
   /* Register first service */
   args = tor_strdup(
-                "badaddr x25519:iJ1tjKCrMAbiFT2bVrCjhbfMDnE1fpaRbIS5ZHKUvEQ=");
+      "badaddr x25519:iJ1tjKCrMAbiFT2bVrCjhbfMDnE1fpaRbIS5ZHKUvEQ=");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
 
   /* Check contents */
@@ -434,7 +440,7 @@ test_hs_control_bad_onion_client_auth_add(void *arg)
   args = tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd "
                     "love:eIIdIGoSZwI2Q/lSzpf92akGki5I+PZIDz37MA5BhlA=");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
 
   /* Check contents */
@@ -448,7 +454,7 @@ test_hs_control_bad_onion_client_auth_add(void *arg)
   args = tor_strdup("jt4grrjwzyz3pjkylwfau5xnjaj23vxmhskqaeyfhrfylelw4hvxcuyd "
                     "x25519:QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEK");
 
-  retval = handle_control_command(&conn, (uint32_t) strlen(args), args);
+  retval = handle_control_command(&conn, (uint32_t)strlen(args), args);
   tt_int_op(retval, OP_EQ, 0);
 
   /* Check contents */
@@ -458,7 +464,7 @@ test_hs_control_bad_onion_client_auth_add(void *arg)
   client_auths = get_hs_client_auths_map();
   tt_assert(!client_auths);
 
- done:
+done:
   tor_free(args);
   tor_free(cp1);
   buf_free(TO_CONN(&conn)->outbuf);
@@ -467,14 +473,10 @@ test_hs_control_bad_onion_client_auth_add(void *arg)
 }
 
 struct testcase_t hs_control_tests[] = {
-  { "hs_desc_event", test_hs_desc_event, TT_FORK,
-    NULL, NULL },
-  { "hs_control_good_onion_client_auth_add",
-    test_hs_control_good_onion_client_auth_add, TT_FORK,
-    NULL, NULL },
-  { "hs_control_bad_onion_client_auth_add",
-    test_hs_control_bad_onion_client_auth_add, TT_FORK,
-    NULL, NULL },
+    {"hs_desc_event", test_hs_desc_event, TT_FORK, NULL, NULL},
+    {"hs_control_good_onion_client_auth_add",
+     test_hs_control_good_onion_client_auth_add, TT_FORK, NULL, NULL},
+    {"hs_control_bad_onion_client_auth_add",
+     test_hs_control_bad_onion_client_auth_add, TT_FORK, NULL, NULL},
 
-  END_OF_TESTCASES
-};
+    END_OF_TESTCASES};

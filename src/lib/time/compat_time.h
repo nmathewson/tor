@@ -162,7 +162,7 @@ typedef struct monotime_t {
 #elif defined(HAVE_CLOCK_GETTIME)
   /* It sure would be nice to use clock_gettime(). Posix is a nice thing. */
   struct timespec ts_;
-#elif defined (_WIN32)
+#elif defined(_WIN32)
   /* On Windows, there is a 64-bit counter whose precision we must look up. */
   int64_t pcount_;
 #else
@@ -172,8 +172,7 @@ typedef struct monotime_t {
 #endif /* defined(__APPLE__) || ... */
 } monotime_t;
 
-#if defined(CLOCK_MONOTONIC_COARSE) && \
-  defined(HAVE_CLOCK_GETTIME)
+#if defined(CLOCK_MONOTONIC_COARSE) && defined(HAVE_CLOCK_GETTIME)
 #define MONOTIME_COARSE_FN_IS_DIFFERENT
 #define monotime_coarse_t monotime_t
 #elif defined(_WIN32)
@@ -225,7 +224,7 @@ uint64_t monotime_absolute_nsec(void);
  * The returned value may be equal to zero.
  * Fractional units are truncated, not rounded.
  */
-MOCK_DECL(uint64_t, monotime_absolute_usec,(void));
+MOCK_DECL(uint64_t, monotime_absolute_usec, (void));
 /**
  * Return the number of milliseconds since the timer system was initialized.
  * The returned value may be equal to zero.
@@ -292,11 +291,11 @@ uint32_t monotime_coarse_get_stamp(void);
  * Like monotime_diff_*(), but faster on some platforms.
  */
 int64_t monotime_coarse_diff_nsec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 int64_t monotime_coarse_diff_usec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 int64_t monotime_coarse_diff_msec(const monotime_coarse_t *start,
-    const monotime_coarse_t *end);
+                                  const monotime_coarse_t *end);
 /**
  * Like monotime_*(), but faster on some platforms.
  */
@@ -340,7 +339,7 @@ monotime_coarse_diff_msec32(const monotime_coarse_t *start,
 {
 #if SIZEOF_VOID_P == 8
   // on a 64-bit platform, let's assume 64/64 division is cheap.
-  return (int32_t) monotime_coarse_diff_msec(start, end);
+  return (int32_t)monotime_coarse_diff_msec(start, end);
 #else
 #define USING_32BIT_MSEC_HACK
   return monotime_coarse_diff_msec32_(start, end);

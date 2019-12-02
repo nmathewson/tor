@@ -86,22 +86,27 @@ typedef struct logfile_t {
 } logfile_t;
 
 static void log_free_(logfile_t *victim);
-#define log_free(lg)    \
-  FREE_AND_NULL(logfile_t, log_free_, (lg))
+#define log_free(lg) FREE_AND_NULL(logfile_t, log_free_, (lg))
 
 /** Helper: map a log severity to descriptive string. */
 static inline const char *
 sev_to_string(int severity)
 {
   switch (severity) {
-    case LOG_DEBUG:   return "debug";
-    case LOG_INFO:    return "info";
-    case LOG_NOTICE:  return "notice";
-    case LOG_WARN:    return "warn";
-    case LOG_ERR:     return "err";
-    default:     /* Call raw_assert, not tor_assert, since tor_assert
-                  * calls log on failure. */
-                 raw_assert_unreached(); return "UNKNOWN"; // LCOV_EXCL_LINE
+    case LOG_DEBUG:
+      return "debug";
+    case LOG_INFO:
+      return "info";
+    case LOG_NOTICE:
+      return "notice";
+    case LOG_WARN:
+      return "warn";
+    case LOG_ERR:
+      return "err";
+    default: /* Call raw_assert, not tor_assert, since tor_assert
+              * calls log on failure. */
+      raw_assert_unreached();
+      return "UNKNOWN"; // LCOV_EXCL_LINE
   }
 }
 
@@ -118,11 +123,12 @@ should_log_function_name(log_domain_mask_t domain, int severity)
     case LOG_WARN:
     case LOG_ERR:
       /* We care about places where bugs occur. */
-      return (domain & (LD_BUG|LD_NOFUNCNAME)) == LD_BUG;
+      return (domain & (LD_BUG | LD_NOFUNCNAME)) == LD_BUG;
     default:
       /* Call raw_assert, not tor_assert, since tor_assert calls
        * log on failure. */
-      raw_assert(0); return 0; // LCOV_EXCL_LINE
+      raw_assert(0);
+      return 0; // LCOV_EXCL_LINE
   }
 }
 
@@ -202,17 +208,19 @@ static int pretty_fn_has_parens = 0;
 
 /** Don't store more than this many bytes of messages while waiting for the
  * logs to get configured. */
-#define MAX_STARTUP_MSG_LEN (1<<16)
+#define MAX_STARTUP_MSG_LEN (1 << 16)
 
 /** Lock the log_mutex to prevent others from changing the logfile_t list */
-#define LOCK_LOGS() STMT_BEGIN                                          \
-  raw_assert(log_mutex_initialized);                                    \
-  tor_mutex_acquire(&log_mutex);                                        \
+#define LOCK_LOGS()                    \
+  STMT_BEGIN                           \
+    raw_assert(log_mutex_initialized); \
+    tor_mutex_acquire(&log_mutex);     \
   STMT_END
 /** Unlock the log_mutex */
-#define UNLOCK_LOGS() STMT_BEGIN                                        \
-  raw_assert(log_mutex_initialized);                                    \
-  tor_mutex_release(&log_mutex);                                        \
+#define UNLOCK_LOGS()                  \
+  STMT_BEGIN                           \
+    raw_assert(log_mutex_initialized); \
+    tor_mutex_release(&log_mutex);     \
   STMT_END
 
 /** What's the lowest log level anybody cares about?  Checking this lets us
@@ -223,13 +231,13 @@ static void delete_log(logfile_t *victim);
 static void close_log(logfile_t *victim);
 static void close_log_sigsafe(logfile_t *victim);
 
-static char *domain_to_string(log_domain_mask_t domain,
-                             char *buf, size_t buflen);
+static char *domain_to_string(log_domain_mask_t domain, char *buf,
+                              size_t buflen);
 static inline char *format_msg(char *buf, size_t buf_len,
-           log_domain_mask_t domain, int severity, const char *funcname,
-           const char *suffix,
-           const char *format, va_list ap, size_t *msg_len_out)
-  CHECK_PRINTF(7,0);
+                               log_domain_mask_t domain, int severity,
+                               const char *funcname, const char *suffix,
+                               const char *format, va_list ap,
+                               size_t *msg_len_out) CHECK_PRINTF(7, 0);
 
 /** Name of the application: used to generate the message we write at the
  * start of each new log. */
@@ -254,7 +262,7 @@ log_set_application_name(const char *name)
 int
 log_message_is_interesting(int severity, log_domain_mask_t domain)
 {
-  (void) domain;
+  (void)domain;
   return (severity <= log_global_min_severity_);
 }
 
@@ -265,8 +273,8 @@ log_message_is_interesting(int severity, log_domain_mask_t domain)
  * For use by Rust integration.
  */
 void
-tor_log_string(int severity, log_domain_mask_t domain,
-               const char *function, const char *string)
+tor_log_string(int severity, log_domain_mask_t domain, const char *function,
+               const char *string)
 {
   log_fn_(severity, domain, function, "%s", string);
 }
@@ -276,8 +284,7 @@ static int log_time_granularity = 1;
 
 /** Define log time granularity for all logs to be <b>granularity_msec</b>
  * milliseconds. */
-MOCK_IMPL(void,
-set_log_time_granularity,(int granularity_msec))
+MOCK_IMPL(void, set_log_time_granularity, (int granularity_msec))
 {
   log_time_granularity = granularity_msec;
   tor_log_sigsafe_err_set_granularity(granularity_msec);
@@ -307,13 +314,13 @@ log_prefix_(char *buf, size_t buf_len, int severity)
 
   n = strftime(buf, buf_len, "%b %d %H:%M:%S",
                tor_localtime_r_msg(&t, &tm, NULL));
-  r = tor_snprintf(buf+n, buf_len-n, ".%.3i [%s] ", ms,
+  r = tor_snprintf(buf + n, buf_len - n, ".%.3i [%s] ", ms,
                    sev_to_string(severity));
 
-  if (r<0)
-    return buf_len-1;
+  if (r < 0)
+    return buf_len - 1;
   else
-    return n+r;
+    return n + r;
 }
 
 /** If lf refers to an actual file that we have just opened, and the file
@@ -343,11 +350,11 @@ log_tor_version(logfile_t *lf, int reset)
     return 0;
   n = log_prefix_(buf, sizeof(buf), LOG_NOTICE);
   if (appname) {
-    tor_snprintf(buf+n, sizeof(buf)-n,
-                 "%s opening %slog file.\n", appname, is_new?"new ":"");
+    tor_snprintf(buf + n, sizeof(buf) - n, "%s opening %slog file.\n", appname,
+                 is_new ? "new " : "");
   } else {
-    tor_snprintf(buf+n, sizeof(buf)-n,
-                 "Tor %s opening %slog file.\n", VERSION, is_new?"new ":"");
+    tor_snprintf(buf + n, sizeof(buf) - n, "Tor %s opening %slog file.\n",
+                 VERSION, is_new ? "new " : "");
   }
   if (write_all_to_fd_minimal(lf->fd, buf, strlen(buf)) < 0) /* error */
     return -1; /* failed */
@@ -360,10 +367,9 @@ log_tor_version(logfile_t *lf, int reset)
  * portion of the formatted string.
  */
 static inline char *
-format_msg(char *buf, size_t buf_len,
-           log_domain_mask_t domain, int severity, const char *funcname,
-           const char *suffix,
-           const char *format, va_list ap, size_t *msg_len_out)
+format_msg(char *buf, size_t buf_len, log_domain_mask_t domain, int severity,
+           const char *funcname, const char *suffix, const char *format,
+           va_list ap, size_t *msg_len_out)
 {
   size_t n;
   int r;
@@ -372,54 +378,58 @@ format_msg(char *buf, size_t buf_len,
 
   raw_assert(buf_len >= 16); /* prevent integer underflow and stupidity */
   buf_len -= 2; /* subtract 2 characters so we have room for \n\0 */
-  buf_end = buf+buf_len; /* point *after* the last char we can write to */
+  buf_end = buf + buf_len; /* point *after* the last char we can write to */
 
   n = log_prefix_(buf, buf_len, severity);
-  end_of_prefix = buf+n;
+  end_of_prefix = buf + n;
 
   if (log_domains_are_logged) {
-    char *cp = buf+n;
-    if (cp == buf_end) goto format_msg_no_room_for_domains;
+    char *cp = buf + n;
+    if (cp == buf_end)
+      goto format_msg_no_room_for_domains;
     *cp++ = '{';
-    if (cp == buf_end) goto format_msg_no_room_for_domains;
-    cp = domain_to_string(domain, cp, (buf+buf_len-cp));
-    if (cp == buf_end) goto format_msg_no_room_for_domains;
+    if (cp == buf_end)
+      goto format_msg_no_room_for_domains;
+    cp = domain_to_string(domain, cp, (buf + buf_len - cp));
+    if (cp == buf_end)
+      goto format_msg_no_room_for_domains;
     *cp++ = '}';
-    if (cp == buf_end) goto format_msg_no_room_for_domains;
+    if (cp == buf_end)
+      goto format_msg_no_room_for_domains;
     *cp++ = ' ';
-    if (cp == buf_end) goto format_msg_no_room_for_domains;
+    if (cp == buf_end)
+      goto format_msg_no_room_for_domains;
     end_of_prefix = cp;
-    n = cp-buf;
+    n = cp - buf;
   format_msg_no_room_for_domains:
-    /* This will leave end_of_prefix and n unchanged, and thus cause
-     * whatever log domain string we had written to be clobbered. */
-    ;
+      /* This will leave end_of_prefix and n unchanged, and thus cause
+       * whatever log domain string we had written to be clobbered. */
+      ;
   }
 
   if (funcname && should_log_function_name(domain, severity)) {
-    r = tor_snprintf(buf+n, buf_len-n,
-                     pretty_fn_has_parens ? "%s: " : "%s(): ",
-                     funcname);
-    if (r<0)
+    r = tor_snprintf(buf + n, buf_len - n,
+                     pretty_fn_has_parens ? "%s: " : "%s(): ", funcname);
+    if (r < 0)
       n = strlen(buf);
     else
       n += r;
   }
 
-  if (domain == LD_BUG && buf_len-n > 6) {
-    memcpy(buf+n, "Bug: ", 6);
+  if (domain == LD_BUG && buf_len - n > 6) {
+    memcpy(buf + n, "Bug: ", 6);
     n += 5;
   }
 
-  r = tor_vsnprintf(buf+n,buf_len-n,format,ap);
+  r = tor_vsnprintf(buf + n, buf_len - n, format, ap);
   if (r < 0) {
     /* The message was too long; overwrite the end of the buffer with
      * "[...truncated]" */
     if (buf_len >= TRUNCATED_STR_LEN) {
-      size_t offset = buf_len-TRUNCATED_STR_LEN;
+      size_t offset = buf_len - TRUNCATED_STR_LEN;
       /* We have an extra 2 characters after buf_len to hold the \n\0,
        * so it's safe to add 1 to the size here. */
-      strlcpy(buf+offset, TRUNCATED_STR, buf_len-offset+1);
+      strlcpy(buf + offset, TRUNCATED_STR, buf_len - offset + 1);
     }
     /* Set 'n' to the end of the buffer, where we'll be writing \n\0.
      * Since we already subtracted 2 from buf_len, this is safe.*/
@@ -428,22 +438,21 @@ format_msg(char *buf, size_t buf_len,
     n += r;
     if (suffix) {
       size_t suffix_len = strlen(suffix);
-      if (buf_len-n >= suffix_len) {
-        memcpy(buf+n, suffix, suffix_len);
+      if (buf_len - n >= suffix_len) {
+        memcpy(buf + n, suffix, suffix_len);
         n += suffix_len;
       }
     }
   }
 
-  if (domain == LD_BUG &&
-      buf_len - n > strlen(tor_bug_suffix)+1) {
-    memcpy(buf+n, tor_bug_suffix, strlen(tor_bug_suffix));
+  if (domain == LD_BUG && buf_len - n > strlen(tor_bug_suffix) + 1) {
+    memcpy(buf + n, tor_bug_suffix, strlen(tor_bug_suffix));
     n += strlen(tor_bug_suffix);
   }
 
-  buf[n]='\n';
-  buf[n+1]='\0';
-  *msg_len_out = n+1;
+  buf[n] = '\n';
+  buf[n + 1] = '\0';
+  *msg_len_out = n + 1;
   return end_of_prefix;
 }
 
@@ -491,10 +500,10 @@ static inline int
 logfile_wants_message(const logfile_t *lf, int severity,
                       log_domain_mask_t domain)
 {
-  if (! (lf->severities->masks[SEVERITY_MASK_IDX(severity)] & domain)) {
+  if (!(lf->severities->masks[SEVERITY_MASK_IDX(severity)] & domain)) {
     return 0;
   }
-  if (! (lf->fd >= 0 || logfile_is_external(lf))) {
+  if (!(lf->fd >= 0 || logfile_is_external(lf))) {
     return 0;
   }
   if (lf->seems_dead) {
@@ -515,7 +524,6 @@ logfile_deliver(logfile_t *lf, const char *buf, size_t msg_len,
                 const char *msg_after_prefix, log_domain_mask_t domain,
                 int severity, int *callbacks_deferred)
 {
-
   if (lf->is_syslog) {
 #ifdef HAVE_SYSLOG_H
 #ifdef MAXLINE
@@ -527,7 +535,7 @@ logfile_deliver(logfile_t *lf, const char *buf, size_t msg_len,
 #endif
     char *m = msg_after_prefix;
     if (msg_len >= MAXLINE)
-      m = tor_strndup(msg_after_prefix, MAXLINE-1);
+      m = tor_strndup(msg_after_prefix, MAXLINE - 1);
     syslog(severity, "%s", m);
     if (m != msg_after_prefix) {
       tor_free(m);
@@ -545,8 +553,9 @@ logfile_deliver(logfile_t *lf, const char *buf, size_t msg_len,
   } else if (lf->callback) {
     if (domain & LD_NOCB) {
       if (!*callbacks_deferred && pending_cb_messages) {
-        smartlist_add(pending_cb_messages,
-            pending_log_message_new(severity,domain,NULL,msg_after_prefix));
+        smartlist_add(
+            pending_cb_messages,
+            pending_log_message_new(severity, domain, NULL, msg_after_prefix));
         *callbacks_deferred = 1;
         if (smartlist_len(pending_cb_messages) == 1 && pending_cb_cb) {
           pending_cb_cb();
@@ -568,15 +577,15 @@ logfile_deliver(logfile_t *lf, const char *buf, size_t msg_len,
  * <b>severity</b>.  If provided, <b>funcname</b> is prepended to the
  * message.  The actual message is derived as from tor_snprintf(format,ap).
  */
-MOCK_IMPL(STATIC void,
-logv,(int severity, log_domain_mask_t domain, const char *funcname,
-     const char *suffix, const char *format, va_list ap))
+MOCK_IMPL(STATIC void, logv,
+          (int severity, log_domain_mask_t domain, const char *funcname,
+           const char *suffix, const char *format, va_list ap))
 {
   char buf[10240];
   size_t msg_len = 0;
   int formatted = 0;
   logfile_t *lf;
-  char *end_of_prefix=NULL;
+  char *end_of_prefix = NULL;
   int callbacks_deferred = 0;
 
   /* Call raw_assert, not tor_assert, since tor_assert calls log on failure. */
@@ -587,35 +596,34 @@ logv,(int severity, log_domain_mask_t domain, const char *funcname,
 
   LOCK_LOGS();
 
-  if ((! (domain & LD_NOCB)) && pending_cb_messages
-      && smartlist_len(pending_cb_messages))
+  if ((!(domain & LD_NOCB)) && pending_cb_messages &&
+      smartlist_len(pending_cb_messages))
     flush_pending_log_callbacks();
 
   if (queue_startup_messages &&
       pending_startup_messages_len < MAX_STARTUP_MSG_LEN) {
-    end_of_prefix =
-      format_msg(buf, sizeof(buf), domain, severity, funcname, suffix,
-      format, ap, &msg_len);
+    end_of_prefix = format_msg(buf, sizeof(buf), domain, severity, funcname,
+                               suffix, format, ap, &msg_len);
     formatted = 1;
 
-    smartlist_add(pending_startup_messages,
-      pending_log_message_new(severity,domain,buf,end_of_prefix));
+    smartlist_add(
+        pending_startup_messages,
+        pending_log_message_new(severity, domain, buf, end_of_prefix));
     pending_startup_messages_len += msg_len;
   }
 
   for (lf = logfiles; lf; lf = lf->next) {
-    if (! logfile_wants_message(lf, severity, domain))
+    if (!logfile_wants_message(lf, severity, domain))
       continue;
 
     if (!formatted) {
-      end_of_prefix =
-        format_msg(buf, sizeof(buf), domain, severity, funcname, suffix,
-                   format, ap, &msg_len);
+      end_of_prefix = format_msg(buf, sizeof(buf), domain, severity, funcname,
+                                 suffix, format, ap, &msg_len);
       formatted = 1;
     }
 
     logfile_deliver(lf, buf, msg_len, end_of_prefix, domain, severity,
-      &callbacks_deferred);
+                    &callbacks_deferred);
   }
   UNLOCK_LOGS();
 }
@@ -630,17 +638,17 @@ tor_log(int severity, log_domain_mask_t domain, const char *format, ...)
   va_list ap;
 
   /* check that domain is composed of known domains and flags */
-  raw_assert((domain & (LD_ALL_DOMAINS|LD_ALL_FLAGS)) == domain);
+  raw_assert((domain & (LD_ALL_DOMAINS | LD_ALL_FLAGS)) == domain);
 
   if (severity > log_global_min_severity_)
     return;
-  va_start(ap,format);
+  va_start(ap, format);
 #ifdef TOR_UNIT_TESTS
   if (domain & LD_NO_MOCK)
     logv__real(severity, domain, NULL, NULL, format, ap);
   else
 #endif
-  logv(severity, domain, NULL, NULL, format, ap);
+    logv(severity, domain, NULL, NULL, format, ap);
   va_end(ap);
 }
 
@@ -686,15 +694,15 @@ tor_log_update_sigsafe_err_fds(void)
   n_fds = 1;
 
   for (lf = logfiles; lf; lf = lf->next) {
-     /* Don't try callback to the control port, syslogs, android logs, or any
-      * other non-file descriptor log: We can't call arbitrary functions from a
-      * signal handler.
-      */
-    if (lf->is_temporary || logfile_is_external(lf)
-        || lf->seems_dead || lf->fd < 0)
+    /* Don't try callback to the control port, syslogs, android logs, or any
+     * other non-file descriptor log: We can't call arbitrary functions from a
+     * signal handler.
+     */
+    if (lf->is_temporary || logfile_is_external(lf) || lf->seems_dead ||
+        lf->fd < 0)
       continue;
     if (lf->severities->masks[SEVERITY_MASK_IDX(LOG_ERR)] &
-        (LD_BUG|LD_GENERAL)) {
+        (LD_BUG | LD_GENERAL)) {
       if (lf->fd == STDERR_FILENO)
         found_real_stderr = 1;
       /* Avoid duplicates by checking the log module fd against log_fds */
@@ -766,7 +774,7 @@ log_fn_(int severity, log_domain_mask_t domain, const char *fn,
   va_list ap;
   if (severity > log_global_min_severity_)
     return;
-  va_start(ap,format);
+  va_start(ap, format);
   logv(severity, domain, fn, NULL, format, ap);
   va_end(ap);
 }
@@ -780,7 +788,7 @@ log_fn_ratelim_(ratelim_t *ratelim, int severity, log_domain_mask_t domain,
     return;
   m = rate_limit_log(ratelim, approx_time());
   if (m == NULL)
-      return;
+    return;
   va_start(ap, format);
   logv(severity, domain, fn, m, format, ap);
   va_end(ap);
@@ -822,15 +830,13 @@ logs_free_all(void)
   }
   tor_free(appname);
 
-  SMARTLIST_FOREACH(messages, pending_log_message_t *, msg, {
-      pending_log_message_free(msg);
-    });
+  SMARTLIST_FOREACH(messages, pending_log_message_t *, msg,
+                    { pending_log_message_free(msg); });
   smartlist_free(messages);
 
   if (messages2) {
-    SMARTLIST_FOREACH(messages2, pending_log_message_t *, msg, {
-        pending_log_message_free(msg);
-      });
+    SMARTLIST_FOREACH(messages2, pending_log_message_t *, msg,
+                      { pending_log_message_free(msg); });
     smartlist_free(messages2);
   }
 
@@ -877,9 +883,10 @@ delete_log(logfile_t *victim)
   if (victim == logfiles)
     logfiles = victim->next;
   else {
-    for (tmpl = logfiles; tmpl && tmpl->next != victim; tmpl=tmpl->next) ;
-//    raw_assert(tmpl);
-//    raw_assert(tmpl->next == victim);
+    for (tmpl = logfiles; tmpl && tmpl->next != victim; tmpl = tmpl->next)
+      ;
+    //    raw_assert(tmpl);
+    //    raw_assert(tmpl->next == victim);
     if (!tmpl)
       return;
     tmpl->next = victim->next;
@@ -937,9 +944,8 @@ set_log_severity_config(int loglevelMin, int loglevelMax,
 
 /** Add a log handler named <b>name</b> to send all messages in <b>severity</b>
  * to <b>fd</b>. Copies <b>severity</b>. Helper: does no locking. */
-MOCK_IMPL(STATIC void,
-add_stream_log_impl,(const log_severity_list_t *severity,
-                     const char *name, int fd))
+MOCK_IMPL(STATIC void, add_stream_log_impl,
+          (const log_severity_list_t *severity, const char *name, int fd))
 {
   logfile_t *lf;
   lf = tor_malloc_zero(sizeof(logfile_t));
@@ -1051,8 +1057,7 @@ add_callback_log(const log_severity_list_t *severity, log_callback cb)
 /** Adjust the configured severity of any logs whose callback function is
  * <b>cb</b>. */
 void
-change_callback_log_severity(int loglevelMin, int loglevelMax,
-                             log_callback cb)
+change_callback_log_severity(int loglevelMin, int loglevelMax, log_callback cb)
 {
   logfile_t *lf;
   log_severity_list_t severities;
@@ -1084,18 +1089,20 @@ flush_pending_log_callbacks(void)
   messages = pending_cb_messages;
   pending_cb_messages = smartlist_new();
   do {
-    SMARTLIST_FOREACH_BEGIN(messages, pending_log_message_t *, msg) {
+    SMARTLIST_FOREACH_BEGIN(messages, pending_log_message_t *, msg)
+    {
       const int severity = msg->severity;
       const log_domain_mask_t domain = msg->domain;
       for (lf = logfiles; lf; lf = lf->next) {
-        if (! lf->callback || lf->seems_dead ||
-            ! (lf->severities->masks[SEVERITY_MASK_IDX(severity)] & domain)) {
+        if (!lf->callback || lf->seems_dead ||
+            !(lf->severities->masks[SEVERITY_MASK_IDX(severity)] & domain)) {
           continue;
         }
         lf->callback(severity, domain, msg->msg);
       }
       pending_log_message_free(msg);
-    } SMARTLIST_FOREACH_END(msg);
+    }
+    SMARTLIST_FOREACH_END(msg);
     smartlist_clear(messages);
 
     messages_tmp = pending_cb_messages;
@@ -1119,14 +1126,15 @@ flush_log_messages_from_startup(void)
   LOCK_LOGS();
   queue_startup_messages = 0;
   pending_startup_messages_len = 0;
-  if (! pending_startup_messages)
+  if (!pending_startup_messages)
     goto out;
 
   SMARTLIST_FOREACH_BEGIN(pending_startup_messages, pending_log_message_t *,
-                          msg) {
+                          msg)
+  {
     int callbacks_deferred = 0;
     for (lf = logfiles; lf; lf = lf->next) {
-      if (! logfile_wants_message(lf, msg->severity, msg->domain))
+      if (!logfile_wants_message(lf, msg->severity, msg->domain))
         continue;
 
       /* We configure a temporary startup log that goes to stdout, so we
@@ -1139,11 +1147,12 @@ flush_log_messages_from_startup(void)
                       msg->domain, msg->severity, &callbacks_deferred);
     }
     pending_log_message_free(msg);
-  } SMARTLIST_FOREACH_END(msg);
+  }
+  SMARTLIST_FOREACH_END(msg);
   smartlist_free(pending_startup_messages);
   pending_startup_messages = NULL;
 
- out:
+out:
   UNLOCK_LOGS();
 }
 
@@ -1154,7 +1163,7 @@ close_temp_logs(void)
   logfile_t *lf, **p;
 
   LOCK_LOGS();
-  for (p = &logfiles; *p; ) {
+  for (p = &logfiles; *p;) {
     if ((*p)->is_temporary) {
       lf = *p;
       /* we use *p here to handle the edge case of the head of the list */
@@ -1178,7 +1187,7 @@ rollback_log_changes(void)
   logfile_t *lf;
   LOCK_LOGS();
   for (lf = logfiles; lf; lf = lf->next)
-    lf->is_temporary = ! lf->is_temporary;
+    lf->is_temporary = !lf->is_temporary;
   UNLOCK_LOGS();
   close_temp_logs();
 }
@@ -1199,16 +1208,14 @@ mark_logs_temp(void)
  * opening the logfile failed, -1 is returned and errno is set appropriately
  * (by open(2)).  Takes ownership of fd.
  */
-MOCK_IMPL(int,
-add_file_log,(const log_severity_list_t *severity,
-              const char *filename,
-              int fd))
+MOCK_IMPL(int, add_file_log,
+          (const log_severity_list_t *severity, const char *filename, int fd))
 {
   logfile_t *lf;
 
-  if (fd<0)
+  if (fd < 0)
     return -1;
-  if (tor_fd_seekend(fd)<0) {
+  if (tor_fd_seekend(fd) < 0) {
     close(fd);
     return -1;
   }
@@ -1236,7 +1243,7 @@ add_file_log,(const log_severity_list_t *severity,
  */
 int
 add_syslog_log(const log_severity_list_t *severity,
-               const char* syslog_identity_tag)
+               const char *syslog_identity_tag)
 {
   logfile_t *lf;
   if (syslog_count++ == 0) {
@@ -1270,8 +1277,7 @@ add_syslog_log(const log_severity_list_t *severity,
  * Add a log handler to send messages to the Android platform log facility.
  */
 int
-add_android_log(const log_severity_list_t *severity,
-                const char *android_tag)
+add_android_log(const log_severity_list_t *severity, const char *android_tag)
 {
   logfile_t *lf = NULL;
 
@@ -1329,12 +1335,12 @@ log_level_to_string(int level)
  * Remember to update doc/tor.1.txt if you modify this list.
  * */
 static const char *domain_list[] = {
-  "GENERAL", "CRYPTO", "NET", "CONFIG", "FS", "PROTOCOL", "MM",
-  "HTTP", "APP", "CONTROL", "CIRC", "REND", "BUG", "DIR", "DIRSERV",
-  "OR", "EDGE", "ACCT", "HIST", "HANDSHAKE", "HEARTBEAT", "CHANNEL",
-  "SCHED", "GUARD", "CONSDIFF", "DOS", "PROCESS", "PT", "BTRACK", "MESG",
-  NULL
-};
+    "GENERAL",  "CRYPTO",    "NET",       "CONFIG",  "FS",     "PROTOCOL",
+    "MM",       "HTTP",      "APP",       "CONTROL", "CIRC",   "REND",
+    "BUG",      "DIR",       "DIRSERV",   "OR",      "EDGE",   "ACCT",
+    "HIST",     "HANDSHAKE", "HEARTBEAT", "CHANNEL", "SCHED",  "GUARD",
+    "CONSDIFF", "DOS",       "PROCESS",   "PT",      "BTRACK", "MESG",
+    NULL};
 
 CTASSERT(ARRAY_LENGTH(domain_list) == N_LOGGING_DOMAINS + 1);
 
@@ -1348,9 +1354,9 @@ static log_domain_mask_t
 parse_log_domain(const char *domain)
 {
   int i;
-  for (i=0; domain_list[i]; ++i) {
+  for (i = 0; domain_list[i]; ++i) {
     if (!strcasecmp(domain, domain_list[i]))
-      return (UINT64_C(1)<<i);
+      return (UINT64_C(1) << i);
   }
   return 0;
 }
@@ -1360,30 +1366,30 @@ static char *
 domain_to_string(log_domain_mask_t domain, char *buf, size_t buflen)
 {
   char *cp = buf;
-  char *eos = buf+buflen;
+  char *eos = buf + buflen;
 
   buf[0] = '\0';
-  if (! domain)
+  if (!domain)
     return buf;
   while (1) {
     const char *d;
     int bit = tor_log2(domain);
     size_t n;
-    if ((unsigned)bit >= ARRAY_LENGTH(domain_list)-1 ||
+    if ((unsigned)bit >= ARRAY_LENGTH(domain_list) - 1 ||
         bit >= N_LOGGING_DOMAINS) {
       tor_snprintf(buf, buflen, "<BUG:Unknown domain %lx>", (long)domain);
-      return buf+strlen(buf);
+      return buf + strlen(buf);
     }
     d = domain_list[bit];
-    n = strlcpy(cp, d, eos-cp);
+    n = strlcpy(cp, d, eos - cp);
     if (n >= buflen) {
       tor_snprintf(buf, buflen, "<BUG:Truncating domain %lx>", (long)domain);
-      return buf+strlen(buf);
+      return buf + strlen(buf);
     }
     cp += n;
-    domain &= ~(1<<bit);
+    domain &= ~(1 << bit);
 
-    if (domain == 0 || (eos-cp) < 2)
+    if (domain == 0 || (eos - cp) < 2)
       return cp;
 
     memcpy(cp, ",", 2); /*Nul-terminated ,"*/
@@ -1433,33 +1439,35 @@ parse_log_severity_config(const char **cfg_ptr,
       if (!closebracket)
         return -1;
       domains = 0;
-      domains_str = tor_strndup(cfg+1, closebracket-cfg-1);
+      domains_str = tor_strndup(cfg + 1, closebracket - cfg - 1);
       domains_list = smartlist_new();
       smartlist_split_string(domains_list, domains_str, ",", SPLIT_SKIP_SPACE,
                              -1);
       tor_free(domains_str);
-      SMARTLIST_FOREACH_BEGIN(domains_list, const char *, domain) {
-            if (!strcmp(domain, "*")) {
-              domains = LD_ALL_DOMAINS;
-            } else {
-              log_domain_mask_t d;
-              int negate=0;
-              if (*domain == '~') {
-                negate = 1;
-                ++domain;
-              }
-              d = parse_log_domain(domain);
-              if (!d) {
-                log_warn(LD_CONFIG, "No such logging domain as %s", domain);
-                err = 1;
-              } else {
-                if (negate)
-                  neg_domains |= d;
-                else
-                  domains |= d;
-              }
-            }
-      } SMARTLIST_FOREACH_END(domain);
+      SMARTLIST_FOREACH_BEGIN(domains_list, const char *, domain)
+      {
+        if (!strcmp(domain, "*")) {
+          domains = LD_ALL_DOMAINS;
+        } else {
+          log_domain_mask_t d;
+          int negate = 0;
+          if (*domain == '~') {
+            negate = 1;
+            ++domain;
+          }
+          d = parse_log_domain(domain);
+          if (!d) {
+            log_warn(LD_CONFIG, "No such logging domain as %s", domain);
+            err = 1;
+          } else {
+            if (negate)
+              neg_domains |= d;
+            else
+              domains |= d;
+          }
+        }
+      }
+      SMARTLIST_FOREACH_END(domain);
       SMARTLIST_FOREACH(domains_list, char *, d, tor_free(d));
       smartlist_free(domains_list);
       if (err)
@@ -1468,14 +1476,12 @@ parse_log_severity_config(const char **cfg_ptr,
         domains = ~neg_domains;
       else
         domains &= ~neg_domains;
-      cfg = eat_whitespace(closebracket+1);
+      cfg = eat_whitespace(closebracket + 1);
     } else {
       ++got_an_unqualified_range;
     }
-    if (!strcasecmpstart(cfg, "file") ||
-        !strcasecmpstart(cfg, "stderr") ||
-        !strcasecmpstart(cfg, "stdout") ||
-        !strcasecmpstart(cfg, "syslog") ||
+    if (!strcasecmpstart(cfg, "file") || !strcasecmpstart(cfg, "stderr") ||
+        !strcasecmpstart(cfg, "stdout") || !strcasecmpstart(cfg, "syslog") ||
         !strcasecmpstart(cfg, "android")) {
       goto done;
     }
@@ -1485,10 +1491,10 @@ parse_log_severity_config(const char **cfg_ptr,
     space = find_whitespace(cfg);
     dash = strchr(cfg, '-');
     if (dash && dash < space) {
-      sev_lo = tor_strndup(cfg, dash-cfg);
-      sev_hi = tor_strndup(dash+1, space-(dash+1));
+      sev_lo = tor_strndup(cfg, dash - cfg);
+      sev_hi = tor_strndup(dash + 1, space - (dash + 1));
     } else {
-      sev_lo = tor_strndup(cfg, space-cfg);
+      sev_lo = tor_strndup(cfg, space - cfg);
       sev_hi = tor_strdup("ERR");
     }
     low = parse_log_level(sev_lo);
@@ -1501,13 +1507,13 @@ parse_log_severity_config(const char **cfg_ptr,
       return -1;
 
     got_anything = 1;
-    for (i=low; i >= high; --i)
+    for (i = low; i >= high; --i)
       severity_out->masks[SEVERITY_MASK_IDX(i)] |= domains;
 
     cfg = eat_whitespace(space);
   }
 
- done:
+done:
   *cfg_ptr = cfg;
   return got_anything ? 0 : -1;
 }
@@ -1534,7 +1540,7 @@ switch_logs_debug(void)
   logfile_t *lf;
   int i;
   LOCK_LOGS();
-  for (lf = logfiles; lf; lf=lf->next) {
+  for (lf = logfiles; lf; lf = lf->next) {
     for (i = LOG_DEBUG; i >= LOG_ERR; --i)
       lf->severities->masks[SEVERITY_MASK_IDX(i)] = LD_ALL_DOMAINS;
   }

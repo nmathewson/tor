@@ -31,7 +31,7 @@ setup_cfg(flag_vote_test_cfg_t *c)
 
   c->now = approx_time();
 
-  c->ri.nickname = (char *) "testing100";
+  c->ri.nickname = (char *)"testing100";
   strlcpy(c->expected.nickname, "testing100", sizeof(c->expected.nickname));
 
   memset(c->ri.cache_info.identity_digest, 0xff, DIGEST_LEN);
@@ -74,8 +74,7 @@ check_result(flag_vote_test_cfg_t *c)
   tt_assert(tor_addr_eq(&rs.ipv6_addr, &c->expected.ipv6_addr));
   tt_uint_op(rs.ipv6_orport, OP_EQ, c->expected.ipv6_orport);
 
-#define FLAG(flagname) \
-  tt_uint_op(rs.flagname, OP_EQ, c->expected.flagname)
+#define FLAG(flagname) tt_uint_op(rs.flagname, OP_EQ, c->expected.flagname)
 
   FLAG(is_authority);
   FLAG(is_exit);
@@ -96,7 +95,7 @@ check_result(flag_vote_test_cfg_t *c)
 
   result = true;
 
- done:
+done:
   return result;
 }
 
@@ -104,7 +103,7 @@ static void
 test_voting_flags_minimal(void *arg)
 {
   flag_vote_test_cfg_t *cfg = arg;
-  (void) check_result(cfg);
+  (void)check_result(cfg);
 }
 
 static void
@@ -130,8 +129,7 @@ test_voting_flags_ipv6(void *arg)
   cfg->expected.ipv6_orport = 9091;
   if (!check_result(cfg))
     goto done;
- done:
-  ;
+done:;
 }
 
 static void
@@ -152,8 +150,7 @@ test_voting_flags_staledesc(void *arg)
   if (!check_result(cfg))
     goto done;
 
- done:
-  ;
+done:;
 }
 
 static void *
@@ -175,17 +172,16 @@ teardown_voting_flags_test(const struct testcase_t *testcase, void *arg)
 }
 
 static const struct testcase_setup_t voting_flags_setup = {
-  .setup_fn = setup_voting_flags_test,
-  .cleanup_fn = teardown_voting_flags_test,
+    .setup_fn = setup_voting_flags_test,
+    .cleanup_fn = teardown_voting_flags_test,
 };
 
-#define T(name,flags)                                   \
-  { #name, test_voting_flags_##name, (flags), &voting_flags_setup, NULL }
+#define T(name, flags)                                                  \
+  {                                                                     \
+#name, test_voting_flags_##name, (flags), &voting_flags_setup, NULL \
+  }
 
-struct testcase_t voting_flags_tests[] = {
-  T(minimal, 0),
-  T(ipv6, TT_FORK),
-  // TODO: Add more of these tests.
-  T(staledesc, TT_FORK),
-  END_OF_TESTCASES
-};
+struct testcase_t voting_flags_tests[] = {T(minimal, 0), T(ipv6, TT_FORK),
+                                          // TODO: Add more of these tests.
+                                          T(staledesc, TT_FORK),
+                                          END_OF_TESTCASES};

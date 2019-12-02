@@ -65,7 +65,7 @@ oh_what(int x)
    * tail-call optimization.  Only the first call will actually happen, but
    * telling the compiler to maybe do the second call will prevent it from
    * replacing the first call with a jump. */
-  return crash(x) + crash(x*2);
+  return crash(x) + crash(x * 2);
 }
 
 int
@@ -77,7 +77,7 @@ a_tangled_web(int x)
 int
 we_weave(int x)
 {
-  return a_tangled_web(x) + a_tangled_web(x+1);
+  return a_tangled_web(x) + a_tangled_web(x + 1);
 }
 
 int
@@ -92,14 +92,14 @@ main(int argc, char **argv)
   }
 
 #ifdef HAVE_SYS_RESOURCE_H
-  struct rlimit rlim = { .rlim_cur = 0, .rlim_max = 0 };
+  struct rlimit rlim = {.rlim_cur = 0, .rlim_max = 0};
   setrlimit(RLIMIT_CORE, &rlim);
 #endif
 
 #if !(defined(HAVE_EXECINFO_H) && defined(HAVE_BACKTRACE) && \
-   defined(HAVE_BACKTRACE_SYMBOLS_FD) && defined(HAVE_SIGACTION))
-    puts("Backtrace reporting is not supported on this platform");
-    return 77;
+      defined(HAVE_BACKTRACE_SYMBOLS_FD) && defined(HAVE_SIGACTION))
+  puts("Backtrace reporting is not supported on this platform");
+  return 77;
 #endif
 
   if (!strcmp(argv[1], "assert")) {

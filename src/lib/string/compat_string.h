@@ -22,14 +22,18 @@
  * ourselves if it's missing. */
 #ifndef HAVE_STRNCASECMP
 static inline int strncasecmp(const char *a, const char *b, size_t n);
-static inline int strncasecmp(const char *a, const char *b, size_t n) {
-  return _strnicmp(a,b,n);
+static inline int
+strncasecmp(const char *a, const char *b, size_t n)
+{
+  return _strnicmp(a, b, n);
 }
 #endif /* !defined(HAVE_STRNCASECMP) */
 #ifndef HAVE_STRCASECMP
 static inline int strcasecmp(const char *a, const char *b);
-static inline int strcasecmp(const char *a, const char *b) {
-  return _stricmp(a,b);
+static inline int
+strcasecmp(const char *a, const char *b)
+{
+  return _stricmp(a, b);
 }
 #endif /* !defined(HAVE_STRCASECMP) */
 #endif /* defined(_WIN32) */

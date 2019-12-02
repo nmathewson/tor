@@ -60,13 +60,13 @@
  * end, set those bytes. */
 #define SET_SENTINEL(chunk)                                     \
   STMT_BEGIN                                                    \
-  set_uint32( &(chunk)->U_MEM[chunk->mem_size], SENTINEL_VAL ); \
+    set_uint32(&(chunk)->U_MEM[chunk->mem_size], SENTINEL_VAL); \
   STMT_END
 /** Assert that the sentinel on a memarea is set correctly. */
-#define CHECK_SENTINEL(chunk)                                           \
-  STMT_BEGIN                                                            \
-  uint32_t sent_val = get_uint32(&(chunk)->U_MEM[chunk->mem_size]);     \
-  tor_assert(sent_val == SENTINEL_VAL);                                 \
+#define CHECK_SENTINEL(chunk)                                         \
+  STMT_BEGIN                                                          \
+    uint32_t sent_val = get_uint32(&(chunk)->U_MEM[chunk->mem_size]); \
+    tor_assert(sent_val == SENTINEL_VAL);                             \
   STMT_END
 #else /* !defined(USE_SENTINELS) */
 #define SENTINEL_LEN 0
@@ -79,11 +79,11 @@ static inline void *
 realign_pointer(void *ptr)
 {
   uintptr_t x = (uintptr_t)ptr;
-  x = (x+MEMAREA_ALIGN_MASK) & ~MEMAREA_ALIGN_MASK;
+  x = (x + MEMAREA_ALIGN_MASK) & ~MEMAREA_ALIGN_MASK;
   /* Reinstate this if bug 930 ever reappears
   tor_assert(((void*)x) >= ptr);
   */
-  return (void*)x;
+  return (void *)x;
 }
 
 /** Implements part of a memarea.  New memory is carved off from chunk->mem in
@@ -133,8 +133,8 @@ alloc_chunk(size_t sz)
   res->next_chunk = NULL;
   res->mem_size = chunk_size - CHUNK_HEADER_SIZE - SENTINEL_LEN;
   res->next_mem = res->U_MEM;
-  tor_assert(res->next_mem+res->mem_size+SENTINEL_LEN ==
-             ((char*)res)+chunk_size);
+  tor_assert(res->next_mem + res->mem_size + SENTINEL_LEN ==
+             ((char *)res) + chunk_size);
   tor_assert(realign_pointer(res->next_mem) == res->next_mem);
   SET_SENTINEL(res);
   return res;
@@ -217,12 +217,12 @@ memarea_alloc(memarea_t *area, size_t sz)
     sz = 1;
   tor_assert(chunk->next_mem <= chunk->U_MEM + chunk->mem_size);
   const size_t space_remaining =
-    (chunk->U_MEM + chunk->mem_size) - chunk->next_mem;
+      (chunk->U_MEM + chunk->mem_size) - chunk->next_mem;
   if (sz > space_remaining) {
-    if (sz+CHUNK_HEADER_SIZE >= CHUNK_SIZE) {
+    if (sz + CHUNK_HEADER_SIZE >= CHUNK_SIZE) {
       /* This allocation is too big.  Stick it in a special chunk, and put
        * that chunk second in the list. */
-      memarea_chunk_t *new_chunk = alloc_chunk(sz+CHUNK_HEADER_SIZE);
+      memarea_chunk_t *new_chunk = alloc_chunk(sz + CHUNK_HEADER_SIZE);
       new_chunk->next_chunk = chunk->next_chunk;
       chunk->next_chunk = new_chunk;
       chunk = new_chunk;
@@ -265,7 +265,7 @@ memarea_memdup(memarea_t *area, const void *s, size_t n)
 char *
 memarea_strdup(memarea_t *area, const char *s)
 {
-  return memarea_memdup(area, s, strlen(s)+1);
+  return memarea_memdup(area, s, strlen(s) + 1);
 }
 
 /** As strndup, but returns the memory from <b>area</b>. */
@@ -277,9 +277,9 @@ memarea_strndup(memarea_t *area, const char *s, size_t n)
   tor_assert(n < SIZE_T_CEILING);
   for (ln = 0; ln < n && s[ln]; ++ln)
     ;
-  result = memarea_alloc(area, ln+1);
+  result = memarea_alloc(area, ln + 1);
   memcpy(result, s, ln);
-  result[ln]='\0';
+  result[ln] = '\0';
   return result;
 }
 
@@ -311,7 +311,7 @@ memarea_assert_ok(memarea_t *area)
     CHECK_SENTINEL(chunk);
     tor_assert(chunk->next_mem >= chunk->U_MEM);
     tor_assert(chunk->next_mem <=
-          (char*) realign_pointer(chunk->U_MEM+chunk->mem_size));
+               (char *)realign_pointer(chunk->U_MEM + chunk->mem_size));
   }
 }
 
@@ -374,7 +374,7 @@ char *
 memarea_strdup(memarea_t *area, const char *s)
 {
   size_t n = strlen(s);
-  char *r = memarea_alloc(area, n+1);
+  char *r = memarea_alloc(area, n + 1);
   memcpy(r, s, n);
   r[n] = 0;
   return r;
@@ -383,14 +383,13 @@ char *
 memarea_strndup(memarea_t *area, const char *s, size_t n)
 {
   size_t ln = strnlen(s, n);
-  char *r = memarea_alloc(area, ln+1);
+  char *r = memarea_alloc(area, ln + 1);
   memcpy(r, s, ln);
   r[ln] = 0;
   return r;
 }
 void
-memarea_get_stats(memarea_t *area,
-                  size_t *allocated_out, size_t *used_out)
+memarea_get_stats(memarea_t *area, size_t *allocated_out, size_t *used_out)
 {
   (void)area;
   *allocated_out = *used_out = 128;

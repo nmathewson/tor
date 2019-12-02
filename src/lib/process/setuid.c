@@ -69,8 +69,8 @@ log_credential_status(void)
     return -1;
   } else {
     log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL,
-           "UID is %u (real), %u (effective), %u (saved)",
-           (unsigned)ruid, (unsigned)euid, (unsigned)suid);
+           "UID is %u (real), %u (effective), %u (saved)", (unsigned)ruid,
+           (unsigned)euid, (unsigned)suid);
   }
 #else /* !defined(HAVE_GETRESUID) */
   /* getresuid is not present on MacOS X, so we can't get the saved (E)UID */
@@ -79,8 +79,8 @@ log_credential_status(void)
   (void)suid;
 
   log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL,
-         "UID is %u (real), %u (effective), unknown (saved)",
-         (unsigned)ruid, (unsigned)euid);
+         "UID is %u (real), %u (effective), unknown (saved)", (unsigned)ruid,
+         (unsigned)euid);
 #endif /* defined(HAVE_GETRESUID) */
 
   /* log GIDs */
@@ -90,8 +90,8 @@ log_credential_status(void)
     return -1;
   } else {
     log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL,
-           "GID is %u (real), %u (effective), %u (saved)",
-           (unsigned)rgid, (unsigned)egid, (unsigned)sgid);
+           "GID is %u (real), %u (effective), %u (saved)", (unsigned)rgid,
+           (unsigned)egid, (unsigned)sgid);
   }
 #else /* !defined(HAVE_GETRESGID) */
   /* getresgid is not present on MacOS X, so we can't get the saved (E)GID */
@@ -99,15 +99,14 @@ log_credential_status(void)
   egid = getegid();
   (void)sgid;
   log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL,
-         "GID is %u (real), %u (effective), unknown (saved)",
-         (unsigned)rgid, (unsigned)egid);
+         "GID is %u (real), %u (effective), unknown (saved)", (unsigned)rgid,
+         (unsigned)egid);
 #endif /* defined(HAVE_GETRESGID) */
 
   /* log supplementary groups */
   sup_gids_size = 64;
   sup_gids = tor_calloc(64, sizeof(gid_t));
-  while ((ngids = getgroups(sup_gids_size, sup_gids)) < 0 &&
-         errno == EINVAL &&
+  while ((ngids = getgroups(sup_gids_size, sup_gids)) < 0 && errno == EINVAL &&
          sup_gids_size < NGROUPS_MAX) {
     sup_gids_size *= 2;
     sup_gids = tor_reallocarray(sup_gids, sizeof(gid_t), sup_gids_size);
@@ -123,13 +122,14 @@ log_credential_status(void)
     char *s = NULL;
     smartlist_t *elts = smartlist_new();
 
-    for (i = 0; i<ngids; i++) {
+    for (i = 0; i < ngids; i++) {
       smartlist_add_asprintf(elts, "%u", (unsigned)sup_gids[i]);
     }
 
     s = smartlist_join_strings(elts, " ", 0, NULL);
 
-    log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL, "Supplementary groups are: %s",s);
+    log_fn(CREDENTIAL_LOG_LEVEL, LD_GENERAL, "Supplementary groups are: %s",
+           s);
 
     tor_free(s);
     SMARTLIST_FOREACH(elts, char *, cp, tor_free(cp));
@@ -177,9 +177,7 @@ drop_capabilities(int pre_setuid)
 {
   /* We keep these three capabilities, and these only, as we setuid.
    * After we setuid, we drop all but the first. */
-  const cap_value_t caplist[] = {
-    CAP_NET_BIND_SERVICE, CAP_SETUID, CAP_SETGID
-  };
+  const cap_value_t caplist[] = {CAP_NET_BIND_SERVICE, CAP_SETUID, CAP_SETGID};
   const char *where = pre_setuid ? "pre-setuid" : "post-setuid";
   const int n_effective = pre_setuid ? 3 : 1;
   const int n_permitted = pre_setuid ? 3 : 1;
@@ -188,15 +186,15 @@ drop_capabilities(int pre_setuid)
 
   /* Sets whether we keep capabilities across a setuid. */
   if (prctl(PR_SET_KEEPCAPS, keepcaps) < 0) {
-    log_warn(LD_CONFIG, "Unable to call prctl() %s: %s",
-             where, strerror(errno));
+    log_warn(LD_CONFIG, "Unable to call prctl() %s: %s", where,
+             strerror(errno));
     return -1;
   }
 
   cap_t caps = cap_get_proc();
   if (!caps) {
-    log_warn(LD_CONFIG, "Unable to call cap_get_proc() %s: %s",
-             where, strerror(errno));
+    log_warn(LD_CONFIG, "Unable to call cap_get_proc() %s: %s", where,
+             strerror(errno));
     return -1;
   }
   cap_clear(caps);
@@ -208,8 +206,8 @@ drop_capabilities(int pre_setuid)
   int r = cap_set_proc(caps);
   cap_free(caps);
   if (r < 0) {
-    log_warn(LD_CONFIG, "No permission to set capabilities %s: %s",
-             where, strerror(errno));
+    log_warn(LD_CONFIG, "No permission to set capabilities %s: %s", where,
+             strerror(errno));
     return -1;
   }
 
@@ -260,16 +258,16 @@ switch_id(const char *user, const unsigned flags)
   }
 
 #ifdef HAVE_LINUX_CAPABILITIES
-  (void) warn_if_no_caps;
+  (void)warn_if_no_caps;
   if (keep_bindlow) {
     if (drop_capabilities(1))
       return -1;
   }
 #else /* !defined(HAVE_LINUX_CAPABILITIES) */
-  (void) keep_bindlow;
+  (void)keep_bindlow;
   if (warn_if_no_caps) {
     log_warn(LD_CONFIG, "KeepBindCapabilities set, but no capability support "
-             "on this system.");
+                        "on this system.");
   }
 #endif /* defined(HAVE_LINUX_CAPABILITIES) */
 
@@ -278,39 +276,41 @@ switch_id(const char *user, const unsigned flags)
     log_warn(LD_GENERAL, "Error setting groups to gid %d: \"%s\".",
              (int)pw->pw_gid, strerror(errno));
     if (old_uid == pw->pw_uid) {
-      log_warn(LD_GENERAL, "Tor is already running as %s.  You do not need "
+      log_warn(LD_GENERAL,
+               "Tor is already running as %s.  You do not need "
                "the \"User\" option if you are already running as the user "
                "you want to be.  (If you did not set the User option in your "
                "torrc, check whether it was specified on the command line "
-               "by a startup script.)", user);
+               "by a startup script.)",
+               user);
     } else {
       log_warn(LD_GENERAL, "If you set the \"User\" option, you must start Tor"
-               " as root.");
+                           " as root.");
     }
     return -1;
   }
 
   if (setegid(pw->pw_gid)) {
-    log_warn(LD_GENERAL, "Error setting egid to %d: %s",
-             (int)pw->pw_gid, strerror(errno));
+    log_warn(LD_GENERAL, "Error setting egid to %d: %s", (int)pw->pw_gid,
+             strerror(errno));
     return -1;
   }
 
   if (setgid(pw->pw_gid)) {
-    log_warn(LD_GENERAL, "Error setting gid to %d: %s",
-             (int)pw->pw_gid, strerror(errno));
+    log_warn(LD_GENERAL, "Error setting gid to %d: %s", (int)pw->pw_gid,
+             strerror(errno));
     return -1;
   }
 
   if (setuid(pw->pw_uid)) {
-    log_warn(LD_GENERAL, "Error setting configured uid to %s (%d): %s",
-             user, (int)pw->pw_uid, strerror(errno));
+    log_warn(LD_GENERAL, "Error setting configured uid to %s (%d): %s", user,
+             (int)pw->pw_uid, strerror(errno));
     return -1;
   }
 
   if (seteuid(pw->pw_uid)) {
-    log_warn(LD_GENERAL, "Error setting configured euid to %s (%d): %s",
-             user, (int)pw->pw_uid, strerror(errno));
+    log_warn(LD_GENERAL, "Error setting configured euid to %s (%d): %s", user,
+             (int)pw->pw_uid, strerror(errno));
     return -1;
   }
 
@@ -342,7 +342,8 @@ switch_id(const char *user, const unsigned flags)
     /* Try changing GID/EGID */
     if (pw->pw_gid != old_gid &&
         (setgid(old_gid) != -1 || setegid(old_gid) != -1)) {
-      log_warn(LD_GENERAL, "Was able to restore group credentials even after "
+      log_warn(LD_GENERAL,
+               "Was able to restore group credentials even after "
                "switching GID: this means that the setgid code didn't work.");
       return -1;
     }
@@ -350,7 +351,8 @@ switch_id(const char *user, const unsigned flags)
     /* Try changing UID/EUID */
     if (pw->pw_uid != old_uid &&
         (setuid(old_uid) != -1 || seteuid(old_uid) != -1)) {
-      log_warn(LD_GENERAL, "Was able to restore user credentials even after "
+      log_warn(LD_GENERAL,
+               "Was able to restore user credentials even after "
                "switching UID: this means that the setuid code didn't work.");
       return -1;
     }
@@ -364,13 +366,14 @@ switch_id(const char *user, const unsigned flags)
 
   have_already_switched_id = 1; /* mark success so we never try again */
 
-#if defined(__linux__) && defined(HAVE_SYS_PRCTL_H) && \
-  defined(HAVE_PRCTL) && defined(PR_SET_DUMPABLE)
+#if defined(__linux__) && defined(HAVE_SYS_PRCTL_H) && defined(HAVE_PRCTL) && \
+    defined(PR_SET_DUMPABLE)
   if (pw->pw_uid) {
     /* Re-enable core dumps if we're not running as root. */
     log_info(LD_CONFIG, "Re-enabling coredumps");
     if (prctl(PR_SET_DUMPABLE, 1)) {
-      log_warn(LD_CONFIG, "Unable to re-enable coredumps: %s",strerror(errno));
+      log_warn(LD_CONFIG, "Unable to re-enable coredumps: %s",
+               strerror(errno));
     }
   }
 #endif /* defined(__linux__) && defined(HAVE_SYS_PRCTL_H) && ... */

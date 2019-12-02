@@ -59,7 +59,7 @@ typedef struct pending_connection_t {
  */
 typedef struct cached_resolve_t {
   HT_ENTRY(cached_resolve_t) node;
-  uint32_t magic;  /**< Must be CACHED_RESOLVE_MAGIC */
+  uint32_t magic; /**< Must be CACHED_RESOLVE_MAGIC */
   char address[MAX_ADDRESSLEN]; /**< The hostname to be resolved. */
 
   union {
@@ -99,4 +99,3 @@ typedef struct cached_resolve_t {
 } cached_resolve_t;
 
 #endif /* !defined(TOR_DNS_STRUCTS_H) */
-

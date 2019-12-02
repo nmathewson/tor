@@ -95,8 +95,8 @@ lock_mem(void *mem, size_t sz)
 #elif defined(HAVE_MLOCK)
   return mlock(mem, sz);
 #else
-  (void) mem;
-  (void) sz;
+  (void)mem;
+  (void)sz;
 
   return 0;
 #endif /* defined(_WIN32) || ... */
@@ -117,14 +117,13 @@ nodump_mem(void *mem, size_t sz)
   } else if (errno == ENOSYS || errno == EINVAL) {
     return 0; // syscall not supported, or flag not supported.
   } else {
-    tor_log_err_sigsafe("Unexpected error from madvise: ",
-                        strerror(errno),
+    tor_log_err_sigsafe("Unexpected error from madvise: ", strerror(errno),
                         NULL);
     return -1;
   }
 #else /* !defined(MADV_DONTDUMP) */
-  (void) mem;
-  (void) sz;
+  (void)mem;
+  (void)sz;
   return 0;
 #endif /* defined(MADV_DONTDUMP) */
 }
@@ -165,8 +164,7 @@ noinherit_mem(void *mem, size_t sz, inherit_res_t *inherit_result_out)
     /* Syscall not supported, or flag not supported. */
     return 0;
   } else {
-    tor_log_err_sigsafe("Unexpected error from minherit: ",
-                        strerror(errno),
+    tor_log_err_sigsafe("Unexpected error from minherit: ", strerror(errno),
                         NULL);
     return -1;
   }
@@ -204,30 +202,23 @@ tor_mmap_anonymous(size_t sz, unsigned flags,
                    inherit_res_t *inherit_result_out)
 {
   void *ptr;
-  inherit_res_t itmp=0;
+  inherit_res_t itmp = 0;
   if (inherit_result_out == NULL) {
     inherit_result_out = &itmp;
   }
   *inherit_result_out = INHERIT_RES_KEEP;
 
 #if defined(_WIN32)
-  HANDLE mapping = CreateFileMapping(INVALID_HANDLE_VALUE,
-                                     NULL, /*attributes*/
-                                     PAGE_READWRITE,
-                                     HIGH_SIZE_T_BYTES(sz),
-                                     sz & 0xffffffff,
-                                     NULL /* name */);
+  HANDLE mapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, /*attributes*/
+                                     PAGE_READWRITE, HIGH_SIZE_T_BYTES(sz),
+                                     sz & 0xffffffff, NULL /* name */);
   raw_assert(mapping != NULL);
-  ptr = MapViewOfFile(mapping, FILE_MAP_WRITE,
-                      0, 0, /* Offset */
+  ptr = MapViewOfFile(mapping, FILE_MAP_WRITE, 0, 0, /* Offset */
                       0 /* Extend to end of mapping */);
   raw_assert(ptr);
   CloseHandle(mapping); /* mapped view holds a reference */
 #elif defined(HAVE_SYS_MMAN_H)
-  ptr = mmap(NULL, sz,
-             PROT_READ|PROT_WRITE,
-             MAP_ANON|MAP_PRIVATE,
-             -1, 0);
+  ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
   raw_assert(ptr != MAP_FAILED);
   raw_assert(ptr != NULL);
 #else

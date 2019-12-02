@@ -61,12 +61,12 @@ typedef struct dtbl_entry_t {
  */
 typedef struct dqueue_t {
   /** The queue of messages itself. */
-  TOR_SIMPLEQ_HEAD( , msg_t) queue;
+  TOR_SIMPLEQ_HEAD(, msg_t) queue;
   /** A function to be called when the queue becomes nonempty. */
   dispatch_alertfn_t alert_fn;
   /** An argument for the alert_fn. */
   void *alert_fn_arg;
-} dqueue_t ;
+} dqueue_t;
 
 /**
  * A single dispatcher for cross-module messages.

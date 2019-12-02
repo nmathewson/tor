@@ -36,7 +36,7 @@ typedef struct smartlist_t {
 } smartlist_t;
 
 MOCK_DECL(smartlist_t *, smartlist_new, (void));
-MOCK_DECL(void, smartlist_free_, (smartlist_t *sl));
+MOCK_DECL(void, smartlist_free_, (smartlist_t * sl));
 #define smartlist_free(sl) FREE_AND_NULL(smartlist_t, smartlist_free_, (sl))
 
 void smartlist_clear(smartlist_t *sl);
@@ -58,22 +58,28 @@ int smartlist_contains(const smartlist_t *sl, const void *element);
 /** Return the number of items in sl.
  */
 static inline int smartlist_len(const smartlist_t *sl);
-static inline int smartlist_len(const smartlist_t *sl) {
+static inline int
+smartlist_len(const smartlist_t *sl)
+{
   raw_assert(sl);
   return (sl)->num_used;
 }
 /** Return the <b>idx</b>th element of sl.
  */
 static inline void *smartlist_get(const smartlist_t *sl, int idx);
-static inline void *smartlist_get(const smartlist_t *sl, int idx) {
+static inline void *
+smartlist_get(const smartlist_t *sl, int idx)
+{
   raw_assert(sl);
-  raw_assert(idx>=0);
+  raw_assert(idx >= 0);
   raw_assert(sl->num_used > idx);
   return sl->list[idx];
 }
-static inline void smartlist_set(smartlist_t *sl, int idx, void *val) {
+static inline void
+smartlist_set(smartlist_t *sl, int idx, void *val)
+{
   raw_assert(sl);
-  raw_assert(idx>=0);
+  raw_assert(idx >= 0);
   raw_assert(sl->num_used > idx);
   sl->list[idx] = val;
 }
@@ -85,7 +91,8 @@ static inline void smartlist_set(smartlist_t *sl, int idx, void *val) {
 
 /** Exchange the elements at indices <b>idx1</b> and <b>idx2</b> of the
  * smartlist <b>sl</b>. */
-static inline void smartlist_swap(smartlist_t *sl, int idx1, int idx2)
+static inline void
+smartlist_swap(smartlist_t *sl, int idx1, int idx2)
 {
   if (idx1 != idx2) {
     void *elt = smartlist_get(sl, idx1);

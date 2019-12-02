@@ -25,4 +25,3 @@ void nt_service_set_state(DWORD state);
 #endif /* defined(NT_SERVICE) */
 
 #endif /* !defined(TOR_NTMAIN_H) */
-

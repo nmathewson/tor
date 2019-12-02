@@ -28,11 +28,12 @@ wint_t _getwch(void);
 static inline void
 SecureZeroMemory(PVOID ptr, SIZE_T cnt)
 {
-  volatile char *vcptr = (volatile char*)ptr;
+  volatile char *vcptr = (volatile char *)ptr;
   while (cnt--)
     *vcptr++ = 0;
 }
-#endif /* defined(HAVE_DECL_SECUREZEROMEMORY) && !HAVE_DECL_SECUREZEROMEMORY */
+#endif /* defined(HAVE_DECL_SECUREZEROMEMORY) && !HAVE_DECL_SECUREZEROMEMORY \
+        */
 #elif defined(HAVE_READPASSPHRASE_H)
 #include <readpassphrase.h>
 #else
@@ -88,18 +89,15 @@ tor_getpass(const char *prompt, char *output, size_t buflen)
         break;
     }
   }
- done_reading:
-  ;
+done_reading:;
 
 #ifndef WC_ERR_INVALID_CHARS
 #define WC_ERR_INVALID_CHARS 0x80
 #endif
 
   /* Now convert it to UTF-8 */
-  r = WideCharToMultiByte(CP_UTF8,
-                          WC_NO_BEST_FIT_CHARS|WC_ERR_INVALID_CHARS,
-                          buf, (int)(ptr-buf),
-                          output, (int)(buflen-1),
+  r = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS | WC_ERR_INVALID_CHARS,
+                          buf, (int)(ptr - buf), output, (int)(buflen - 1),
                           NULL, NULL);
   if (r <= 0) {
     r = -1;
@@ -110,8 +108,8 @@ tor_getpass(const char *prompt, char *output, size_t buflen)
 
   output[r] = 0;
 
- done:
-  SecureZeroMemory(buf, sizeof(wchar_t)*buflen);
+done:
+  SecureZeroMemory(buf, sizeof(wchar_t) * buflen);
   tor_free(buf);
   return r;
 #else

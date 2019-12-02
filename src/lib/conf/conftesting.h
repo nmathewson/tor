@@ -65,21 +65,21 @@ typedef union {
  * expression will create a warning unless or_options_t.Address also
  * has type "char *".
  */
-#define CONF_CHECK_VAR_TYPE(tp, conftype, member)       \
-  { . conftype = &tp ## _dummy . member }
+#define CONF_CHECK_VAR_TYPE(tp, conftype, member) \
+  {                                               \
+    .conftype = &tp##_dummy.member                \
+  }
 #define CONF_TEST_MEMBERS(tp, conftype, member) \
-  , .var_ptr_dummy=CONF_CHECK_VAR_TYPE(tp, conftype, member)
-#define DUMMY_CONF_TEST_MEMBERS , .var_ptr_dummy={ .INT=NULL }
-#define DUMMY_TYPECHECK_INSTANCE(tp)            \
-  static tp tp ## _dummy
+  , .var_ptr_dummy = CONF_CHECK_VAR_TYPE(tp, conftype, member)
+#define DUMMY_CONF_TEST_MEMBERS , .var_ptr_dummy = {.INT = NULL}
+#define DUMMY_TYPECHECK_INSTANCE(tp) static tp tp##_dummy
 #endif /* defined(TOR_UNIT_TESTS) */
 #endif /* !defined(COCCI) */
 
 #ifndef USE_CONF_TESTING
 #define CONF_TEST_MEMBERS(tp, conftype, member)
 /* Repeatedly declarable incomplete struct to absorb redundant semicolons */
-#define DUMMY_TYPECHECK_INSTANCE(tp)            \
-  struct tor_semicolon_eater
+#define DUMMY_TYPECHECK_INSTANCE(tp) struct tor_semicolon_eater
 #define DUMMY_CONF_TEST_MEMBERS
 
 #endif /* !defined(USE_CONF_TESTING) */

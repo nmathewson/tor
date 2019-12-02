@@ -65,7 +65,7 @@ tor_sleep_msec(int msec)
   /* Some usleep()s hate sleeping more than 1 sec */
   usleep((msec % 1000) * 1000);
 #elif defined(HAVE_SYS_SELECT_H)
-  struct timeval tv = { msec / 1000, (msec % 1000) * 1000};
+  struct timeval tv = {msec / 1000, (msec % 1000) * 1000};
   select(0, NULL, NULL, NULL, &tv);
 #else
   sleep(CEIL_DIV(msec, 1000));
@@ -73,8 +73,8 @@ tor_sleep_msec(int msec)
 }
 #endif /* defined(TOR_UNIT_TESTS) */
 
-#define ONE_MILLION ((int64_t) (1000 * 1000))
-#define ONE_BILLION ((int64_t) (1000 * 1000 * 1000))
+#define ONE_MILLION ((int64_t)(1000 * 1000))
+#define ONE_BILLION ((int64_t)(1000 * 1000 * 1000))
 
 /** True iff monotime_init has been called. */
 static int monotime_initialized = 0;
@@ -106,12 +106,11 @@ monotime_enable_test_mocking(void)
 
   tor_assert_nonfatal(monotime_mocking_enabled == 0);
   monotime_mocking_enabled = 1;
-  memcpy(&initialized_at_saved,
-         &initialized_at, sizeof(monotime_t));
+  memcpy(&initialized_at_saved, &initialized_at, sizeof(monotime_t));
   memset(&initialized_at, 0, sizeof(monotime_t));
 #ifdef MONOTIME_COARSE_FN_IS_DIFFERENT
-  memcpy(&initialized_at_coarse_saved,
-         &initialized_at_coarse, sizeof(monotime_coarse_t));
+  memcpy(&initialized_at_coarse_saved, &initialized_at_coarse,
+         sizeof(monotime_coarse_t));
   memset(&initialized_at_coarse, 0, sizeof(monotime_coarse_t));
 #endif
 }
@@ -122,11 +121,10 @@ monotime_disable_test_mocking(void)
   tor_assert_nonfatal(monotime_mocking_enabled == 1);
   monotime_mocking_enabled = 0;
 
-  memcpy(&initialized_at,
-         &initialized_at_saved, sizeof(monotime_t));
+  memcpy(&initialized_at, &initialized_at_saved, sizeof(monotime_t));
 #ifdef MONOTIME_COARSE_FN_IS_DIFFERENT
-  memcpy(&initialized_at_coarse,
-         &initialized_at_coarse_saved, sizeof(monotime_coarse_t));
+  memcpy(&initialized_at_coarse, &initialized_at_coarse_saved,
+         sizeof(monotime_coarse_t));
 #endif
 }
 
@@ -197,8 +195,8 @@ ratchet_coarse_performance_counter(const int64_t count_raw)
 #endif /* defined(_WIN32) || defined(TOR_UNIT_TESTS) */
 
 #if defined(MONOTIME_USING_GETTIMEOFDAY) || defined(TOR_UNIT_TESTS)
-static struct timeval last_timeofday = { 0, 0 };
-static struct timeval timeofday_offset = { 0, 0 };
+static struct timeval last_timeofday = {0, 0};
+static struct timeval timeofday_offset = {0, 0};
 
 /** Helper for gettimeofday(): Called with a sequence of times that are
  * supposed to be monotonic; increments them as appropriate so that they
@@ -283,8 +281,8 @@ monotime_get(monotime_t *out)
 {
 #ifdef TOR_UNIT_TESTS
   if (monotime_mocking_enabled) {
-    out->abstime_ = (mock_time_nsec * mach_time_info.denom)
-      / mach_time_info.numer;
+    out->abstime_ =
+        (mock_time_nsec * mach_time_info.denom) / mach_time_info.numer;
     return;
   }
 #endif /* defined(TOR_UNIT_TESTS) */
@@ -297,8 +295,8 @@ monotime_coarse_get(monotime_coarse_t *out)
 {
 #ifdef TOR_UNIT_TESTS
   if (monotime_mocking_enabled) {
-    out->abstime_ = (mock_time_nsec_coarse * mach_time_info.denom)
-      / mach_time_info.numer;
+    out->abstime_ =
+        (mock_time_nsec_coarse * mach_time_info.denom) / mach_time_info.numer;
     return;
   }
 #endif /* defined(TOR_UNIT_TESTS) */
@@ -312,15 +310,14 @@ monotime_coarse_get(monotime_coarse_t *out)
  * The returned value may be equal to zero.
  */
 int64_t
-monotime_diff_nsec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_nsec(const monotime_t *start, const monotime_t *end)
 {
   if (BUG(mach_time_info.denom == 0)) {
     monotime_init();
   }
   const int64_t diff_ticks = end->abstime_ - start->abstime_;
   const int64_t diff_nsec =
-    (diff_ticks * mach_time_info.numer) / mach_time_info.denom;
+      (diff_ticks * mach_time_info.numer) / mach_time_info.denom;
   return diff_nsec;
 }
 
@@ -338,10 +335,10 @@ monotime_coarse_diff_msec32_(const monotime_coarse_t *start,
 
   if (diff_microticks >= mach_time_msec_cvt_threshold) {
     return (diff_microticks / mach_time_info_msec_cvt.denom) *
-      mach_time_info_msec_cvt.numer;
+           mach_time_info_msec_cvt.numer;
   } else {
     return (diff_microticks * mach_time_info_msec_cvt.numer) /
-      mach_time_info_msec_cvt.denom;
+           mach_time_info_msec_cvt.denom;
   }
 }
 
@@ -384,8 +381,10 @@ monotime_init_internal(void)
 #ifdef CLOCK_MONOTONIC_COARSE
   struct timespec ts;
   if (clock_gettime(CLOCK_MONOTONIC_COARSE, &ts) < 0) {
-    log_info(LD_GENERAL, "CLOCK_MONOTONIC_COARSE isn't working (%s); "
-             "falling back to CLOCK_MONOTONIC.", strerror(errno));
+    log_info(LD_GENERAL,
+             "CLOCK_MONOTONIC_COARSE isn't working (%s); "
+             "falling back to CLOCK_MONOTONIC.",
+             strerror(errno));
     clock_monotonic_coarse = CLOCK_MONOTONIC;
   }
 #endif /* defined(CLOCK_MONOTONIC_COARSE) */
@@ -396,8 +395,8 @@ monotime_get(monotime_t *out)
 {
 #ifdef TOR_UNIT_TESTS
   if (monotime_mocking_enabled) {
-    out->ts_.tv_sec = (time_t) (mock_time_nsec / ONE_BILLION);
-    out->ts_.tv_nsec = (int) (mock_time_nsec % ONE_BILLION);
+    out->ts_.tv_sec = (time_t)(mock_time_nsec / ONE_BILLION);
+    out->ts_.tv_nsec = (int)(mock_time_nsec % ONE_BILLION);
     return;
   }
 #endif /* defined(TOR_UNIT_TESTS) */
@@ -411,19 +410,20 @@ monotime_coarse_get(monotime_coarse_t *out)
 {
 #ifdef TOR_UNIT_TESTS
   if (monotime_mocking_enabled) {
-    out->ts_.tv_sec = (time_t) (mock_time_nsec_coarse / ONE_BILLION);
-    out->ts_.tv_nsec = (int) (mock_time_nsec_coarse % ONE_BILLION);
+    out->ts_.tv_sec = (time_t)(mock_time_nsec_coarse / ONE_BILLION);
+    out->ts_.tv_nsec = (int)(mock_time_nsec_coarse % ONE_BILLION);
     return;
   }
 #endif /* defined(TOR_UNIT_TESTS) */
   int r = clock_gettime(clock_monotonic_coarse, &out->ts_);
-  if (PREDICT_UNLIKELY(r < 0) &&
-      errno == EINVAL &&
+  if (PREDICT_UNLIKELY(r < 0) && errno == EINVAL &&
       clock_monotonic_coarse == CLOCK_MONOTONIC_COARSE) {
     /* We should have caught this at startup in monotime_init_internal!
      */
-    log_warn(LD_BUG, "Falling back to non-coarse monotonic time %s initial "
-             "system start?", monotime_initialized?"after":"without");
+    log_warn(LD_BUG,
+             "Falling back to non-coarse monotonic time %s initial "
+             "system start?",
+             monotime_initialized ? "after" : "without");
     clock_monotonic_coarse = CLOCK_MONOTONIC;
     r = clock_gettime(clock_monotonic_coarse, &out->ts_);
   }
@@ -433,12 +433,11 @@ monotime_coarse_get(monotime_coarse_t *out)
 #endif /* defined(CLOCK_MONOTONIC_COARSE) */
 
 int64_t
-monotime_diff_nsec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_nsec(const monotime_t *start, const monotime_t *end)
 {
   const int64_t diff_sec = end->ts_.tv_sec - start->ts_.tv_sec;
-  const int64_t diff_nsec = diff_sec * ONE_BILLION +
-    (end->ts_.tv_nsec - start->ts_.tv_nsec);
+  const int64_t diff_nsec =
+      diff_sec * ONE_BILLION + (end->ts_.tv_nsec - start->ts_.tv_nsec);
 
   return diff_nsec;
 }
@@ -484,7 +483,7 @@ monotime_add_msec(monotime_t *out, const monotime_t *val, uint32_t msec)
 }
 
 /* end of "HAVE_CLOCK_GETTIME" */
-#elif defined (_WIN32)
+#elif defined(_WIN32)
 
 /** Result of QueryPerformanceFrequency, in terms needed to
  * convert ticks to nanoseconds. */
@@ -496,7 +495,7 @@ static CRITICAL_SECTION monotime_lock;
 /** Lock to protect rollover_count and last_tick_count */
 static CRITICAL_SECTION monotime_coarse_lock;
 
-typedef ULONGLONG (WINAPI *GetTickCount64_fn_t)(void);
+typedef ULONGLONG(WINAPI *GetTickCount64_fn_t)(void);
 static GetTickCount64_fn_t GetTickCount64_fn = NULL;
 
 static void
@@ -519,16 +518,16 @@ monotime_init_internal(void)
   tor_assert(n <= INT64_MAX);
   tor_assert(d <= INT64_MAX);
 
-  nsec_per_tick_numer = (int64_t) n;
-  nsec_per_tick_denom = (int64_t) d;
+  nsec_per_tick_numer = (int64_t)n;
+  nsec_per_tick_denom = (int64_t)d;
 
   last_pctr = 0;
   pctr_offset = 0;
 
   HANDLE h = load_windows_system_library(TEXT("kernel32.dll"));
   if (h) {
-    GetTickCount64_fn = (GetTickCount64_fn_t) (void(*)(void))
-      GetProcAddress(h, "GetTickCount64");
+    GetTickCount64_fn = (GetTickCount64_fn_t)(void (*)(void))GetProcAddress(
+        h, "GetTickCount64");
   }
   // We can't call FreeLibrary(h) here, because freeing the handle may
   // unload the library, and cause future calls to GetTickCount64_fn()
@@ -544,8 +543,8 @@ monotime_get(monotime_t *out)
 
 #ifdef TOR_UNIT_TESTS
   if (monotime_mocking_enabled) {
-    out->pcount_ = (mock_time_nsec * nsec_per_tick_denom)
-      / nsec_per_tick_numer;
+    out->pcount_ =
+        (mock_time_nsec * nsec_per_tick_denom) / nsec_per_tick_numer;
     return;
   }
 #endif /* defined(TOR_UNIT_TESTS) */
@@ -585,8 +584,7 @@ monotime_coarse_get(monotime_coarse_t *out)
 }
 
 int64_t
-monotime_diff_nsec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_nsec(const monotime_t *start, const monotime_t *end)
 {
   if (BUG(monotime_initialized == 0)) {
     monotime_init();
@@ -629,7 +627,7 @@ static const uint32_t STAMP_TICKS_PER_SECOND = 1000;
 uint32_t
 monotime_coarse_to_stamp(const monotime_coarse_t *t)
 {
-  return (uint32_t) t->tick_count_;
+  return (uint32_t)t->tick_count_;
 }
 
 int
@@ -687,8 +685,7 @@ monotime_get(monotime_t *out)
 }
 
 int64_t
-monotime_diff_nsec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_nsec(const monotime_t *start, const monotime_t *end)
 {
   struct timeval diff;
   timersub(&end->tv_, &start->tv_, &diff);
@@ -770,16 +767,14 @@ monotime_coarse_zero(monotime_coarse_t *out)
 #endif /* defined(MONOTIME_COARSE_TYPE_IS_DIFFERENT) */
 
 int64_t
-monotime_diff_usec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_usec(const monotime_t *start, const monotime_t *end)
 {
   const int64_t nsec = monotime_diff_nsec(start, end);
   return CEIL_DIV(nsec, 1000);
 }
 
 int64_t
-monotime_diff_msec(const monotime_t *start,
-                   const monotime_t *end)
+monotime_diff_msec(const monotime_t *start, const monotime_t *end)
 {
   const int64_t nsec = monotime_diff_nsec(start, end);
   return CEIL_DIV(nsec, ONE_MILLION);
@@ -797,8 +792,7 @@ monotime_absolute_nsec(void)
   return monotime_diff_nsec(&initialized_at, &now);
 }
 
-MOCK_IMPL(uint64_t,
-monotime_absolute_usec,(void))
+MOCK_IMPL(uint64_t, monotime_absolute_usec, (void))
 {
   return monotime_absolute_nsec() / 1000;
 }
@@ -855,14 +849,14 @@ monotime_coarse_stamp_units_to_approx_msec(uint64_t units)
   /* Recover as much precision as we can. */
   uint64_t abstime_diff = (units << monotime_shift);
   return (abstime_diff * mach_time_info.numer) /
-    (mach_time_info.denom * ONE_MILLION);
+         (mach_time_info.denom * ONE_MILLION);
 }
 uint64_t
 monotime_msec_to_approx_coarse_stamp_units(uint64_t msec)
 {
   uint64_t abstime_val =
-    (((uint64_t)msec) * ONE_MILLION * mach_time_info.denom) /
-    mach_time_info.numer;
+      (((uint64_t)msec) * ONE_MILLION * mach_time_info.denom) /
+      mach_time_info.numer;
   return abstime_val >> monotime_shift;
 }
 #else /* !defined(__APPLE__) */

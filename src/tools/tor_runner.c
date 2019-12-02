@@ -44,7 +44,7 @@
 #endif
 
 static void child(const tor_main_configuration_t *cfg)
-  __attribute__((noreturn));
+    __attribute__((noreturn));
 
 const char *
 tor_api_get_provider_version(void)
@@ -93,7 +93,7 @@ child(const tor_main_configuration_t *cfg)
 {
   /* XXXX Close unused file descriptors. */
 
-  char **args = real_calloc(cfg->argc + cfg->argc_owned+1, sizeof(char *));
+  char **args = real_calloc(cfg->argc + cfg->argc_owned + 1, sizeof(char *));
   memcpy(args, cfg->argv, cfg->argc * sizeof(char *));
   if (cfg->argc_owned)
     memcpy(args + cfg->argc, cfg->argv_owned,

@@ -28,7 +28,7 @@
 #ifndef SIZE_MAX
 #if SIZEOF_SIZE_T == 8
 #define SIZE_MAX UINT64_MAX
-#elif  SIZEOF_SIZE_T == 4
+#elif SIZEOF_SIZE_T == 4
 #define SIZE_MAX UINT32_MAX
 #else
 #error "Can't define SIZE_MAX"
@@ -91,23 +91,23 @@ typedef int32_t ssize_t;
 #endif /* !defined(SIZE_MAX) */
 
 #ifdef _WIN32
-#  ifdef _WIN64
-#    define TOR_PRIuSZ PRIu64
-#  else
-#    define TOR_PRIuSZ PRIu32
-#  endif
+#ifdef _WIN64
+#define TOR_PRIuSZ PRIu64
+#else
+#define TOR_PRIuSZ PRIu32
+#endif
 #else /* !defined(_WIN32) */
-#  define TOR_PRIuSZ "zu"
+#define TOR_PRIuSZ "zu"
 #endif /* defined(_WIN32) */
 
 #ifdef _WIN32
-#  ifdef _WIN64
-#    define TOR_PRIdSZ PRId64
-#  else
-#    define TOR_PRIdSZ PRId32
-#  endif
+#ifdef _WIN64
+#define TOR_PRIdSZ PRId64
+#else
+#define TOR_PRIdSZ PRId32
+#endif
 #else /* !defined(_WIN32) */
-#  define TOR_PRIdSZ "zd"
+#define TOR_PRIdSZ "zd"
 #endif /* defined(_WIN32) */
 
 #ifndef SSIZE_MAX
@@ -121,9 +121,9 @@ typedef int32_t ssize_t;
 #endif /* !defined(SSIZE_MAX) */
 
 /** Any ssize_t larger than this amount is likely to be an underflow. */
-#define SSIZE_T_CEILING ((ssize_t)(SSIZE_MAX-16))
+#define SSIZE_T_CEILING ((ssize_t)(SSIZE_MAX - 16))
 /** Any size_t larger than this amount is likely to be an underflow. */
-#define SIZE_T_CEILING  ((size_t)(SSIZE_MAX-16))
+#define SIZE_T_CEILING ((size_t)(SSIZE_MAX - 16))
 
 #if SIZEOF_INT > SIZEOF_VOID_P
 #error "sizeof(int) > sizeof(void *) - Tor cannot be built on this platform!"

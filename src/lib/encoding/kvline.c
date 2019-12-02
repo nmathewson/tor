@@ -37,8 +37,8 @@ needs_escape(const char *s, bool as_keyless_val)
     return true;
 
   for (; *s; ++s) {
-    if (*s >= 127 || TOR_ISSPACE(*s) || ! TOR_ISPRINT(*s) ||
-        *s == '\'' || *s == '\"') {
+    if (*s >= 127 || TOR_ISSPACE(*s) || !TOR_ISPRINT(*s) || *s == '\'' ||
+        *s == '\"') {
       return true;
     }
   }
@@ -70,20 +70,20 @@ line_has_no_val(const config_line_t *line)
 static bool
 kvline_can_encode_lines(const config_line_t *line, unsigned flags)
 {
-  for ( ; line; line = line->next) {
+  for (; line; line = line->next) {
     const bool keyless = line_has_no_key(line);
     if (keyless) {
-      if (! (flags & KV_OMIT_KEYS)) {
+      if (!(flags & KV_OMIT_KEYS)) {
         /* If KV_OMIT_KEYS is not set, we can't encode a line with no key. */
         return false;
       }
-      if (strchr(line->value, '=') && !( flags & KV_QUOTED)) {
+      if (strchr(line->value, '=') && !(flags & KV_QUOTED)) {
         /* We can't have a keyless value with = without quoting it. */
         return false;
       }
     }
 
-    if (needs_escape(line->value, keyless) && ! (flags & KV_QUOTED)) {
+    if (needs_escape(line->value, keyless) && !(flags & KV_QUOTED)) {
       /* If KV_QUOTED is false, we can't encode a value that needs quotes. */
       return false;
     }
@@ -116,21 +116,19 @@ kvline_can_encode_lines(const config_line_t *line, unsigned flags)
  * KV_QUOTED_QSTRING is not supported.
  */
 char *
-kvline_encode(const config_line_t *line,
-              unsigned flags)
+kvline_encode(const config_line_t *line, unsigned flags)
 {
-  tor_assert(! (flags & KV_QUOTED_QSTRING));
+  tor_assert(!(flags & KV_QUOTED_QSTRING));
 
   if (!kvline_can_encode_lines(line, flags))
     return NULL;
 
-  tor_assert((flags & (KV_OMIT_KEYS|KV_OMIT_VALS)) !=
-             (KV_OMIT_KEYS|KV_OMIT_VALS));
+  tor_assert((flags & (KV_OMIT_KEYS | KV_OMIT_VALS)) !=
+             (KV_OMIT_KEYS | KV_OMIT_VALS));
 
   smartlist_t *elements = smartlist_new();
 
   for (; line; line = line->next) {
-
     const char *k = "";
     const char *eq = "=";
     const char *v = "";
@@ -138,7 +136,7 @@ kvline_encode(const config_line_t *line,
     bool esc = needs_escape(line->value, keyless);
     char *tmp = NULL;
 
-    if (! keyless) {
+    if (!keyless) {
       k = line->key;
     } else {
       eq = "";
@@ -191,13 +189,13 @@ kvline_encode(const config_line_t *line,
 config_line_t *
 kvline_parse(const char *line, unsigned flags)
 {
-  tor_assert((flags & (KV_OMIT_KEYS|KV_OMIT_VALS)) !=
-             (KV_OMIT_KEYS|KV_OMIT_VALS));
+  tor_assert((flags & (KV_OMIT_KEYS | KV_OMIT_VALS)) !=
+             (KV_OMIT_KEYS | KV_OMIT_VALS));
 
   const char *cp = line, *cplast = NULL;
   const bool omit_keys = (flags & KV_OMIT_KEYS) != 0;
   const bool omit_vals = (flags & KV_OMIT_VALS) != 0;
-  const bool quoted = (flags & (KV_QUOTED|KV_QUOTED_QSTRING)) != 0;
+  const bool quoted = (flags & (KV_QUOTED | KV_QUOTED_QSTRING)) != 0;
   const bool c_quoted = (flags & (KV_QUOTED)) != 0;
 
   config_line_t *result = NULL;
@@ -219,7 +217,7 @@ kvline_parse(const char *line, unsigned flags)
       goto err; // LCOV_EXCL_LINE
     }
     cplast = cp;
-    if (! *cp)
+    if (!*cp)
       break; /* End of string; we're done. */
 
     /* Possible formats are K=V, K="V", K, V, and "V", depending on flags. */
@@ -245,7 +243,7 @@ kvline_parse(const char *line, unsigned flags)
       /* The type is "V". */
       if (!quoted)
         goto err;
-      size_t len=0;
+      size_t len = 0;
       if (c_quoted) {
         cp = unescape_string(cp, &val, &len);
       } else {
@@ -274,14 +272,14 @@ kvline_parse(const char *line, unsigned flags)
     key = val = NULL;
   }
 
-  if (! (flags & KV_QUOTED_QSTRING)) {
+  if (!(flags & KV_QUOTED_QSTRING)) {
     if (!kvline_can_encode_lines(result, flags)) {
       goto err;
     }
   }
   return result;
 
- err:
+err:
   tor_free(key);
   tor_free(val);
   config_free_lines(result);

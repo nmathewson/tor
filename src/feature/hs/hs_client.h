@@ -18,19 +18,19 @@
 /** Status code of a descriptor fetch request. */
 typedef enum {
   /** Something internally went wrong. */
-  HS_CLIENT_FETCH_ERROR        = -1,
+  HS_CLIENT_FETCH_ERROR = -1,
   /** The fetch request has been launched successfully. */
-  HS_CLIENT_FETCH_LAUNCHED     = 0,
+  HS_CLIENT_FETCH_LAUNCHED = 0,
   /** We already have a usable descriptor. No fetch. */
-  HS_CLIENT_FETCH_HAVE_DESC    = 1,
+  HS_CLIENT_FETCH_HAVE_DESC = 1,
   /** No more HSDir available to query. */
-  HS_CLIENT_FETCH_NO_HSDIRS    = 2,
+  HS_CLIENT_FETCH_NO_HSDIRS = 2,
   /** The fetch request is not allowed. */
-  HS_CLIENT_FETCH_NOT_ALLOWED  = 3,
+  HS_CLIENT_FETCH_NOT_ALLOWED = 3,
   /** We are missing information to be able to launch a request. */
   HS_CLIENT_FETCH_MISSING_INFO = 4,
   /** There is a pending fetch for the requested service. */
-  HS_CLIENT_FETCH_PENDING      = 5,
+  HS_CLIENT_FETCH_PENDING = 5,
 } hs_client_fetch_status_t;
 
 /* Status code of client auth credential registration */
@@ -58,7 +58,7 @@ typedef enum {
 } hs_client_removal_auth_status_t;
 
 /** Flag to set when a client auth is permanent (saved on disk). */
-#define CLIENT_AUTH_FLAG_IS_PERMANENT (1<<0)
+#define CLIENT_AUTH_FLAG_IS_PERMANENT (1 << 0)
 
 /** Max length of a client auth nickname */
 #define HS_CLIENT_AUTH_MAX_NICKNAME_LENGTH 255
@@ -70,7 +70,7 @@ typedef struct hs_client_service_authorization_t {
   curve25519_secret_key_t enc_seckey;
 
   /** An onion address that is used to connect to the onion service. */
-  char onion_address[HS_SERVICE_ADDR_LEN_BASE32+1];
+  char onion_address[HS_SERVICE_ADDR_LEN_BASE32 + 1];
 
   /* An optional nickname for this client */
   char *nickname;
@@ -87,24 +87,24 @@ hs_client_remove_auth_credentials(const char *hsaddress);
 
 digest256map_t *get_hs_client_auths_map(void);
 
-#define client_service_authorization_free(auth)                      \
-  FREE_AND_NULL(hs_client_service_authorization_t,                   \
+#define client_service_authorization_free(auth)    \
+  FREE_AND_NULL(hs_client_service_authorization_t, \
                 client_service_authorization_free_, (auth))
 
 void
 client_service_authorization_free_(hs_client_service_authorization_t *auth);
 
-void hs_client_note_connection_attempt_succeeded(
-                                       const edge_connection_t *conn);
+void
+hs_client_note_connection_attempt_succeeded(const edge_connection_t *conn);
 
-void hs_client_launch_v3_desc_fetch(
-                               const ed25519_public_key_t *onion_identity_pk,
+void
+hs_client_launch_v3_desc_fetch(const ed25519_public_key_t *onion_identity_pk,
                                const smartlist_t *hsdirs);
 
-hs_desc_decode_status_t hs_client_decode_descriptor(
-                     const char *desc_str,
-                     const ed25519_public_key_t *service_identity_pk,
-                     hs_descriptor_t **desc);
+hs_desc_decode_status_t
+hs_client_decode_descriptor(const char *desc_str,
+                            const ed25519_public_key_t *service_identity_pk,
+                            hs_descriptor_t **desc);
 int hs_client_any_intro_points_usable(const ed25519_public_key_t *service_pk,
                                       const hs_descriptor_t *desc);
 int hs_client_refetch_hsdesc(const ed25519_public_key_t *identity_pk);
@@ -123,14 +123,13 @@ int hs_client_receive_introduce_ack(origin_circuit_t *circ,
                                     const uint8_t *payload,
                                     size_t payload_len);
 int hs_client_receive_rendezvous2(origin_circuit_t *circ,
-                                  const uint8_t *payload,
-                                  size_t payload_len);
+                                  const uint8_t *payload, size_t payload_len);
 
 void hs_client_dir_fetch_done(dir_connection_t *dir_conn, const char *reason,
                               const char *body, const int status_code);
 
-extend_info_t *hs_client_get_random_intro_from_edge(
-                                          const edge_connection_t *edge_conn);
+extend_info_t *
+hs_client_get_random_intro_from_edge(const edge_connection_t *edge_conn);
 
 int hs_config_client_authorization(const or_options_t *options,
                                    int validate_only);
@@ -161,8 +160,8 @@ desc_intro_point_to_extend_info(const hs_desc_intro_point_t *ip);
 STATIC int handle_rendezvous2(origin_circuit_t *circ, const uint8_t *payload,
                               size_t payload_len);
 
-MOCK_DECL(STATIC hs_client_fetch_status_t,
-          fetch_v3_desc, (const ed25519_public_key_t *onion_identity_pk));
+MOCK_DECL(STATIC hs_client_fetch_status_t, fetch_v3_desc,
+          (const ed25519_public_key_t *onion_identity_pk));
 
 STATIC void retry_all_socks_conn_waiting_for_desc(void);
 

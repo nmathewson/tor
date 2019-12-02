@@ -29,7 +29,7 @@ main(int argc, char **argv)
 
   if (argc != 2 || strcmp(argv[1], "--emit")) {
     fprintf(stderr, "If you want me to fill stdout with a bunch of random "
-            "bytes, you need to say --emit.\n");
+                    "bytes, you need to say --emit.\n");
     return 1;
   }
 

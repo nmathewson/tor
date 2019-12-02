@@ -48,9 +48,9 @@ off_t
 tor_fd_getpos(int fd)
 {
 #ifdef _WIN32
-  return (off_t) _lseek(fd, 0, SEEK_CUR);
+  return (off_t)_lseek(fd, 0, SEEK_CUR);
 #else
-  return (off_t) lseek(fd, 0, SEEK_CUR);
+  return (off_t)lseek(fd, 0, SEEK_CUR);
 #endif
 }
 
@@ -111,8 +111,8 @@ write_all_to_fd_minimal(int fd, const char *buf, size_t count)
   raw_assert(count < SSIZE_MAX);
 
   while (written < count) {
-    ssize_t result = write(fd, buf+written, count-written);
-    if (result<0)
+    ssize_t result = write(fd, buf + written, count - written);
+    if (result < 0)
       return -1;
     written += result;
   }

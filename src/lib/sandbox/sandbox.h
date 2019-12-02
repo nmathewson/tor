@@ -90,7 +90,7 @@ struct sandbox_cfg_elem_t {
 
 /** Function pointer defining the prototype of a filter function.*/
 typedef int (*sandbox_filter_func_t)(scmp_filter_ctx ctx,
-    sandbox_cfg_t *filter);
+                                     sandbox_cfg_t *filter);
 
 /** Type that will be used in step 3 in order to manage multiple sandboxes.*/
 typedef struct {
@@ -107,13 +107,13 @@ typedef struct {
 /** Returns a registered protected string used with the sandbox, given that
  * it matches the parameter.
  */
-const char* sandbox_intern_string(const char *param);
+const char *sandbox_intern_string(const char *param);
 #else /* !defined(USE_LIBSECCOMP) */
 #define sandbox_intern_string(s) (s)
 #endif /* defined(USE_LIBSECCOMP) */
 
 /** Creates an empty sandbox configuration file.*/
-sandbox_cfg_t * sandbox_cfg_new(void);
+sandbox_cfg_t *sandbox_cfg_new(void);
 
 /**
  * Function used to add a open allowed filename to a supplied configuration.
@@ -142,7 +142,7 @@ int sandbox_cfg_allow_openat_filename(sandbox_cfg_t **cfg, char *file);
 int sandbox_cfg_allow_stat_filename(sandbox_cfg_t **cfg, char *file);
 
 /** Function used to initialise a sandbox configuration.*/
-int sandbox_init(sandbox_cfg_t* cfg);
+int sandbox_init(sandbox_cfg_t *cfg);
 
 /** Return true iff the sandbox is turned on. */
 int sandbox_is_active(void);

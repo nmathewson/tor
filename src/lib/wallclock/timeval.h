@@ -25,26 +25,26 @@
  * branches, to make coverage consistent. */
 #undef timeradd
 #undef timersub
-#define timeradd(tv1,tv2,tvout) \
-  do {                          \
+#define timeradd(tv1, tv2, tvout)                       \
+  do {                                                  \
     (tvout)->tv_sec = (tv1)->tv_sec + (tv2)->tv_sec;    \
     (tvout)->tv_usec = (tv1)->tv_usec + (tv2)->tv_usec; \
     (tvout)->tv_sec += (tvout)->tv_usec / 1000000;      \
     (tvout)->tv_usec %= 1000000;                        \
   } while (0)
-#define timersub(tv1,tv2,tvout) \
-  do {                          \
-    (tvout)->tv_sec = (tv1)->tv_sec - (tv2)->tv_sec - 1;            \
-    (tvout)->tv_usec = (tv1)->tv_usec - (tv2)->tv_usec + 1000000;   \
-    (tvout)->tv_sec += (tvout)->tv_usec / 1000000;                  \
-    (tvout)->tv_usec %= 1000000;                                    \
+#define timersub(tv1, tv2, tvout)                                 \
+  do {                                                            \
+    (tvout)->tv_sec = (tv1)->tv_sec - (tv2)->tv_sec - 1;          \
+    (tvout)->tv_usec = (tv1)->tv_usec - (tv2)->tv_usec + 1000000; \
+    (tvout)->tv_sec += (tvout)->tv_usec / 1000000;                \
+    (tvout)->tv_usec %= 1000000;                                  \
   } while (0)
 #endif /* defined(TOR_COVERAGE) */
 
 #ifndef timeradd
 /** Replacement for timeradd on platforms that do not have it: sets tvout to
  * the sum of tv1 and tv2. */
-#define timeradd(tv1,tv2,tvout) \
+#define timeradd(tv1, tv2, tvout)                       \
   do {                                                  \
     (tvout)->tv_sec = (tv1)->tv_sec + (tv2)->tv_sec;    \
     (tvout)->tv_usec = (tv1)->tv_usec + (tv2)->tv_usec; \
@@ -58,7 +58,7 @@
 #ifndef timersub
 /** Replacement for timersub on platforms that do not have it: sets tvout to
  * tv1 minus tv2. */
-#define timersub(tv1,tv2,tvout) \
+#define timersub(tv1, tv2, tvout)                       \
   do {                                                  \
     (tvout)->tv_sec = (tv1)->tv_sec - (tv2)->tv_sec;    \
     (tvout)->tv_usec = (tv1)->tv_usec - (tv2)->tv_usec; \
@@ -78,10 +78,9 @@
  * platforms' native timercmp definitions do not support >=, <=, or ==.  So
  * don't use those.
  */
-#define timercmp(tv1,tv2,op)                    \
-  (((tv1)->tv_sec == (tv2)->tv_sec) ?           \
-   ((tv1)->tv_usec op (tv2)->tv_usec) :         \
-   ((tv1)->tv_sec op (tv2)->tv_sec))
+#define timercmp(tv1, tv2, op)                                          \
+  (((tv1)->tv_sec == (tv2)->tv_sec) ? ((tv1)->tv_usec op(tv2)->tv_usec) \
+                                    : ((tv1)->tv_sec op(tv2)->tv_sec))
 #endif /* !defined(timercmp) */
 #endif /* !defined(COCCI) */
 

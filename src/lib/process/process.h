@@ -19,7 +19,7 @@
 #define PROCESS_MAX_WRITE (1024)
 
 /** Maximum number of bytes to read from a process' stdout/stderr. */
-#define PROCESS_MAX_READ  (1024)
+#define PROCESS_MAX_READ (1024)
 
 typedef enum {
   /** The process is not running. */
@@ -55,11 +55,8 @@ typedef struct process_t process_t;
 typedef uint64_t process_exit_code_t;
 typedef uint64_t process_pid_t;
 
-typedef void (*process_read_callback_t)(process_t *,
-                                        const char *,
-                                        size_t);
-typedef bool
-(*process_exit_callback_t)(process_t *, process_exit_code_t);
+typedef void (*process_read_callback_t)(process_t *, const char *, size_t);
+typedef bool (*process_exit_callback_t)(process_t *, process_exit_code_t);
 
 void process_init(void);
 void process_free_all(void);
@@ -74,12 +71,9 @@ bool process_terminate(process_t *process);
 
 process_pid_t process_get_pid(process_t *process);
 
-void process_set_stdout_read_callback(process_t *,
-                                      process_read_callback_t);
-void process_set_stderr_read_callback(process_t *,
-                                      process_read_callback_t);
-void process_set_exit_callback(process_t *,
-                               process_exit_callback_t);
+void process_set_stdout_read_callback(process_t *, process_read_callback_t);
+void process_set_stderr_read_callback(process_t *, process_read_callback_t);
+void process_set_exit_callback(process_t *, process_exit_callback_t);
 
 const char *process_get_command(const process_t *process);
 
@@ -89,8 +83,7 @@ char **process_get_argv(const process_t *process);
 
 void process_reset_environment(process_t *process,
                                const struct smartlist_t *env);
-void process_set_environment(process_t *process,
-                             const char *key,
+void process_set_environment(process_t *process, const char *key,
                              const char *value);
 
 struct process_environment_t;
@@ -113,32 +106,27 @@ struct process_win32_t;
 struct process_win32_t *process_get_win32_process(const process_t *process);
 #endif /* !defined(_WIN32) */
 
-void process_write(process_t *process,
-                   const uint8_t *data, size_t size);
-void process_vprintf(process_t *process,
-                     const char *format, va_list args) CHECK_PRINTF(2, 0);
-void process_printf(process_t *process,
-                    const char *format, ...) CHECK_PRINTF(2, 3);
+void process_write(process_t *process, const uint8_t *data, size_t size);
+void process_vprintf(process_t *process, const char *format, va_list args)
+    CHECK_PRINTF(2, 0);
+void process_printf(process_t *process, const char *format, ...)
+    CHECK_PRINTF(2, 3);
 
 void process_notify_event_stdout(process_t *process);
 void process_notify_event_stderr(process_t *process);
 void process_notify_event_stdin(process_t *process);
-void process_notify_event_exit(process_t *process,
-                               process_exit_code_t);
+void process_notify_event_exit(process_t *process, process_exit_code_t);
 
 #ifdef PROCESS_PRIVATE
 MOCK_DECL(STATIC int, process_read_stdout, (process_t *, buf_t *));
 MOCK_DECL(STATIC int, process_read_stderr, (process_t *, buf_t *));
 MOCK_DECL(STATIC void, process_write_stdin, (process_t *, buf_t *));
 
-STATIC void process_read_data(process_t *process,
-                              buf_t *buffer,
+STATIC void process_read_data(process_t *process, buf_t *buffer,
                               process_read_callback_t callback);
-STATIC void process_read_buffer(process_t *process,
-                                buf_t *buffer,
+STATIC void process_read_buffer(process_t *process, buf_t *buffer,
                                 process_read_callback_t callback);
-STATIC void process_read_lines(process_t *process,
-                               buf_t *buffer,
+STATIC void process_read_lines(process_t *process, buf_t *buffer,
                                process_read_callback_t callback);
 #endif /* defined(PROCESS_PRIVATE) */
 

@@ -39,9 +39,9 @@ subsys_winprocess_initialize(void)
      and failure is not dangerous. */
   HMODULE hMod = GetModuleHandleA("Kernel32.dll");
   if (hMod) {
-    typedef BOOL (WINAPI *PSETDEP)(DWORD);
-    PSETDEP setdeppolicy = (PSETDEP)GetProcAddress(hMod,
-                           "SetProcessDEPPolicy");
+    typedef BOOL(WINAPI * PSETDEP)(DWORD);
+    PSETDEP setdeppolicy =
+        (PSETDEP)GetProcAddress(hMod, "SetProcessDEPPolicy");
     if (setdeppolicy) {
       /* PROCESS_DEP_ENABLE | PROCESS_DEP_DISABLE_ATL_THUNK_EMULATION */
       setdeppolicy(3);
@@ -57,10 +57,10 @@ subsys_winprocess_initialize(void)
 #endif /* defined(_WIN32) */
 
 const subsys_fns_t sys_winprocess = {
-  .name = "winprocess",
-  /* HeapEnableTerminationOnCorruption and setdeppolicy() are security
-   * features, we want them to run first. */
-  .level = -100,
-  .supported = WINPROCESS_SYS_ENABLED,
-  .initialize = subsys_winprocess_initialize,
+    .name = "winprocess",
+    /* HeapEnableTerminationOnCorruption and setdeppolicy() are security
+     * features, we want them to run first. */
+    .level = -100,
+    .supported = WINPROCESS_SYS_ENABLED,
+    .initialize = subsys_winprocess_initialize,
 };

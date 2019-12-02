@@ -17,17 +17,13 @@ extern const struct control_cmd_syntax_t onion_client_auth_add_syntax;
 extern const struct control_cmd_syntax_t onion_client_auth_remove_syntax;
 extern const struct control_cmd_syntax_t onion_client_auth_view_syntax;
 
-int
-handle_control_onion_client_auth_add(control_connection_t *conn,
-                                     const control_cmd_args_t *args);
+int handle_control_onion_client_auth_add(control_connection_t *conn,
+                                         const control_cmd_args_t *args);
 
-int
-handle_control_onion_client_auth_remove(control_connection_t *conn,
-                                        const control_cmd_args_t *args);
+int handle_control_onion_client_auth_remove(control_connection_t *conn,
+                                            const control_cmd_args_t *args);
 
-int
-handle_control_onion_client_auth_view(control_connection_t *conn,
-                                      const control_cmd_args_t *args);
+int handle_control_onion_client_auth_view(control_connection_t *conn,
+                                          const control_cmd_args_t *args);
 
 #endif
-

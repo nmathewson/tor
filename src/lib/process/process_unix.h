@@ -55,10 +55,8 @@ STATIC void process_unix_waitpid_callback(int status, void *data);
 
 STATIC void process_unix_setup_handle(process_t *process,
                                       process_unix_handle_t *handle,
-                                      short flags,
-                                      event_callback_fn callback);
-STATIC int process_unix_read_handle(process_t *,
-                                    process_unix_handle_t *,
+                                      short flags, event_callback_fn callback);
+STATIC int process_unix_read_handle(process_t *, process_unix_handle_t *,
                                     buf_t *);
 STATIC bool process_unix_close_file_descriptors(process_unix_t *);
 #endif /* defined(PROCESS_UNIX_PRIVATE) */
