@@ -13,6 +13,10 @@ BasedOnStyle:    LLVM
 ## OVERRIDE FOR COMPARISON
 IndentWidth:     2
 
+## OVERRIDE FOR COMPARISON
+## for now i'm not sorting includes, since that makes every file get touched.
+SortIncludes: false
+
 # We prefer 79; llvm likes 80.
 ColumnLimit: 79
 
@@ -78,7 +82,10 @@ ForEachMacros:
 # This explains how to sort our headers.
 #
 # This is more complex than it truly should be, but I've edited this till
-# compilation still passes.
+# compilation still mostly passes.
+#
+# I'm disabling this, however, since it's a distraction from the other
+# formatting issues. See SortIncludes above.
 #
 IncludeCategories:
   - Regex:           '^"orconfig.h'
