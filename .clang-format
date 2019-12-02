@@ -10,7 +10,8 @@ BasedOnStyle:    LLVM
 ################
 
 # We prefer an indentation width of 4 columns; LLVM likes 2.
-IndentWidth:     4
+## OVERRIDE FOR COMPARISON
+IndentWidth:     2
 
 # We prefer 79; llvm likes 80.
 ColumnLimit: 79
