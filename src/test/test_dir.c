@@ -2984,21 +2984,21 @@ test_dir_param_voting_lookup(void *arg)
   tt_int_op(-100, OP_EQ,
             dirvote_get_intermediate_param_value(lst, "jack", -100));
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
-  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(! ok)");
+  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(!ok)");
   tor_end_capture_bugs_();
   /* electricity and opa aren't integers. */
   tor_capture_bugs_(1);
   tt_int_op(-100, OP_EQ,
             dirvote_get_intermediate_param_value(lst, "electricity", -100));
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
-  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(! ok)");
+  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(!ok)");
   tor_end_capture_bugs_();
 
   tor_capture_bugs_(1);
   tt_int_op(-100, OP_EQ,
             dirvote_get_intermediate_param_value(lst, "opa", -100));
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
-  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(! ok)");
+  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ, "!(!ok)");
   tor_end_capture_bugs_();
 
 done:
