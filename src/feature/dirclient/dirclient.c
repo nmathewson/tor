@@ -21,6 +21,7 @@
 #include "feature/client/entrynodes.h"
 #include "feature/control/control_events.h"
 #include "feature/dirauth/authmode.h"
+#include "feature/dirclient/dirclient.h"
 #include "feature/dirauth/dirvote.h"
 #include "feature/dirauth/shared_random.h"
 #include "feature/dircache/dirserv.h"
@@ -1974,6 +1975,27 @@ dir_client_decompress_response_body(char **bodyp, size_t *bodylenp,
 }
 
 static uint64_t total_dl[DIR_PURPOSE_MAX_][2];
+
+void
+dump_total_dls(void)
+{
+  log_notice(LD_NET,
+             "While bootstrapping, fetched this many bytes: ");
+  for (int i=0; i < DIR_PURPOSE_MAX_; ++i) {
+    uint64_t n = total_dl[i][0];
+    if (n) {
+      log_notice(LD_NET, "    %zu (%s)", n, dir_conn_purpose_to_string(i));
+    }
+  }
+  log_notice(LD_NET,
+             "While not bootsrapping, fetched this many bytes: ");
+  for (int i=0; i < DIR_PURPOSE_MAX_; ++i) {
+    uint64_t n = total_dl[i][1];
+    if (n) {
+      log_notice(LD_NET, "    %zu (%s)", n, dir_conn_purpose_to_string(i));
+    }
+  }
+}
 
 /** We are a client, and we've finished reading the server's
  * response. Parse it and act appropriately.
