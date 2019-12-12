@@ -3861,14 +3861,6 @@ options_validate_cb(const void *old_options_, void *options_, char **msg)
     options->CircuitStreamTimeout = MIN_CIRCUIT_STREAM_TIMEOUT;
   }
 
-  if (options->HeartbeatPeriod &&
-      options->HeartbeatPeriod < MIN_HEARTBEAT_PERIOD &&
-      !options->TestingTorNetwork) {
-    log_warn(LD_CONFIG, "HeartbeatPeriod option is too short; "
-             "raising to %d seconds.", MIN_HEARTBEAT_PERIOD);
-    options->HeartbeatPeriod = MIN_HEARTBEAT_PERIOD;
-  }
-
   if (options->KeepalivePeriod < 1)
     REJECT("KeepalivePeriod option must be positive.");
 
