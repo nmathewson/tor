@@ -1973,6 +1973,8 @@ dir_client_decompress_response_body(char **bodyp, size_t *bodylenp,
   return rv;
 }
 
+static uint64_t total_dl[DIR_PURPOSE_MAX_][2];
+
 /** We are a client, and we've finished reading the server's
  * response. Parse it and act appropriately.
  *
@@ -2005,6 +2007,16 @@ connection_dir_client_reached_eof(dir_connection_t *conn)
                             conn->requested_resource);
 
   received_bytes = connection_get_inbuf_len(TO_CONN(conn));
+
+  log_notice(LD_GENERAL, "EX: Downloaded %zu bytes on connection of purpose "
+             "%s; bootstrap %d%%",
+             received_bytes,
+             dir_conn_purpose_to_string(conn->base_.purpose),
+             control_get_bootstrap_percent());
+  {
+    int bootstrapped = control_get_bootstrap_percent() == 100;
+    total_dl[conn->base_.purpose][bootstrapped] += received_bytes;
+  }
 
   switch (connection_fetch_from_buf_http(TO_CONN(conn),
                               &headers, MAX_HEADERS_SIZE,
