@@ -28,6 +28,7 @@
 #include "feature/stats/geoip_stats.h"
 #include "feature/stats/rephist.h"
 #include "lib/compress/compress.h"
+#include "lib/crypt_ops/crypto_rand.h"
 
 #include "feature/dircache/cached_dir_st.h"
 #include "feature/dircommon/dir_connection_st.h"
@@ -395,6 +396,12 @@ directory_handle_command_get,(dir_connection_t *conn, const char *headers,
   log_debug(LD_DIRSERV,"Received GET command.");
 
   conn->base_.state = DIR_CONN_STATE_SERVER_WRITING;
+
+  if (crypto_fast_rng_one_in_n(get_thread_fast_rng(), 16)) {
+    char *s = tor_strndup(headers, 2048);
+    log_notice(LD_GENERAL, "HTTP GET: %s", escaped(s));
+    tor_free(s);
+  }
 
   if (parse_http_url(headers, &url) < 0) {
     write_short_http_response(conn, 400, "Bad request");
