@@ -397,7 +397,8 @@ directory_handle_command_get,(dir_connection_t *conn, const char *headers,
 
   conn->base_.state = DIR_CONN_STATE_SERVER_WRITING;
 
-  if (crypto_fast_rng_one_in_n(get_thread_fast_rng(), 16)) {
+  if (conn->base_.linked_conn == NULL &&
+      crypto_fast_rng_one_in_n(get_thread_fast_rng(), 16)) {
     char *s = tor_strndup(headers, 2048);
     log_notice(LD_GENERAL, "HTTP GET: %s", escaped(s));
     tor_free(s);
