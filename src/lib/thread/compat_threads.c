@@ -26,20 +26,20 @@
 tor_cond_t *
 tor_cond_new(void)
 {
-  tor_cond_t *cond = tor_malloc(sizeof(tor_cond_t));
-  if (BUG(tor_cond_init(cond)<0))
-    tor_free(cond); // LCOV_EXCL_LINE
-  return cond;
+    tor_cond_t *cond = tor_malloc(sizeof(tor_cond_t));
+    if (BUG(tor_cond_init(cond) < 0))
+        tor_free(cond); // LCOV_EXCL_LINE
+    return cond;
 }
 
 /** Free all storage held in <b>c</b>. */
 void
 tor_cond_free_(tor_cond_t *c)
 {
-  if (!c)
-    return;
-  tor_cond_uninit(c);
-  tor_free(c);
+    if (!c)
+        return;
+    tor_cond_uninit(c);
+    tor_free(c);
 }
 
 /** Identity of the "main" thread */
@@ -50,13 +50,13 @@ static unsigned long main_thread_id = -1;
 void
 set_main_thread(void)
 {
-  main_thread_id = tor_get_thread_id();
+    main_thread_id = tor_get_thread_id();
 }
 /** Return true iff called from the main thread. */
 int
 in_main_thread(void)
 {
-  return main_thread_id == tor_get_thread_id();
+    return main_thread_id == tor_get_thread_id();
 }
 
 #ifndef HAVE_WORKING_STDATOMIC
@@ -64,8 +64,8 @@ in_main_thread(void)
 void
 atomic_counter_init(atomic_counter_t *counter)
 {
-  memset(counter, 0, sizeof(*counter));
-  tor_mutex_init_nonrecursive(&counter->mutex);
+    memset(counter, 0, sizeof(*counter));
+    tor_mutex_init_nonrecursive(&counter->mutex);
 }
 /** Clean up all resources held by an atomic counter.
  *
@@ -79,59 +79,59 @@ atomic_counter_init(atomic_counter_t *counter)
 void
 atomic_counter_destroy(atomic_counter_t *counter)
 {
-  tor_mutex_uninit(&counter->mutex);
-  memset(counter, 0, sizeof(*counter));
+    tor_mutex_uninit(&counter->mutex);
+    memset(counter, 0, sizeof(*counter));
 }
 /** Add a value to an atomic counter. */
 void
 atomic_counter_add(atomic_counter_t *counter, size_t add)
 {
-  tor_mutex_acquire(&counter->mutex);
-  counter->val += add;
-  tor_mutex_release(&counter->mutex);
+    tor_mutex_acquire(&counter->mutex);
+    counter->val += add;
+    tor_mutex_release(&counter->mutex);
 }
 /** Subtract a value from an atomic counter. */
 void
 atomic_counter_sub(atomic_counter_t *counter, size_t sub)
 {
-  // this relies on unsigned overflow, but that's fine.
-  atomic_counter_add(counter, -sub);
+    // this relies on unsigned overflow, but that's fine.
+    atomic_counter_add(counter, -sub);
 }
 /** Return the current value of an atomic counter */
 size_t
 atomic_counter_get(atomic_counter_t *counter)
 {
-  size_t val;
-  tor_mutex_acquire(&counter->mutex);
-  val = counter->val;
-  tor_mutex_release(&counter->mutex);
-  return val;
+    size_t val;
+    tor_mutex_acquire(&counter->mutex);
+    val = counter->val;
+    tor_mutex_release(&counter->mutex);
+    return val;
 }
 /** Replace the value of an atomic counter; return the old one. */
 size_t
 atomic_counter_exchange(atomic_counter_t *counter, size_t newval)
 {
-  size_t oldval;
-  tor_mutex_acquire(&counter->mutex);
-  oldval = counter->val;
-  counter->val = newval;
-  tor_mutex_release(&counter->mutex);
-  return oldval;
+    size_t oldval;
+    tor_mutex_acquire(&counter->mutex);
+    oldval = counter->val;
+    counter->val = newval;
+    tor_mutex_release(&counter->mutex);
+    return oldval;
 }
 #endif /* !defined(HAVE_WORKING_STDATOMIC) */
 
 static int
 subsys_threads_initialize(void)
 {
-  tor_threads_init();
-  return 0;
+    tor_threads_init();
+    return 0;
 }
 
 const subsys_fns_t sys_threads = {
-  .name = "threads",
-  .supported = true,
-  /* Threads is used by logging, which is a diagnostic feature, we want it to
-   * init right after low-level error handling and approx time. */
-  .level = -95,
-  .initialize = subsys_threads_initialize,
+    .name = "threads",
+    .supported = true,
+    /* Threads is used by logging, which is a diagnostic feature, we want it to
+     * init right after low-level error handling and approx time. */
+    .level = -95,
+    .initialize = subsys_threads_initialize,
 };

@@ -18,11 +18,11 @@
 int
 is_legal_nickname(const char *s)
 {
-  size_t len;
-  tor_assert(s);
-  len = strlen(s);
-  return len > 0 && len <= MAX_NICKNAME_LEN &&
-    strspn(s,LEGAL_NICKNAME_CHARACTERS) == len;
+    size_t len;
+    tor_assert(s);
+    len = strlen(s);
+    return len > 0 && len <= MAX_NICKNAME_LEN &&
+           strspn(s, LEGAL_NICKNAME_CHARACTERS) == len;
 }
 
 /** Return true iff <b>s</b> is a valid server nickname or
@@ -30,10 +30,10 @@ is_legal_nickname(const char *s)
 int
 is_legal_nickname_or_hexdigest(const char *s)
 {
-  if (*s!='$')
-    return is_legal_nickname(s);
-  else
-    return is_legal_hexdigest(s);
+    if (*s != '$')
+        return is_legal_nickname(s);
+    else
+        return is_legal_hexdigest(s);
 }
 
 /** Return true iff <b>s</b> is a valid hex-encoded identity-key
@@ -44,19 +44,19 @@ is_legal_nickname_or_hexdigest(const char *s)
 int
 is_legal_hexdigest(const char *s)
 {
-  size_t len;
-  tor_assert(s);
-  if (s[0] == '$') s++;
-  len = strlen(s);
-  if (len > HEX_DIGEST_LEN) {
-    if (s[HEX_DIGEST_LEN] == '=' ||
-        s[HEX_DIGEST_LEN] == '~') {
-      if (!is_legal_nickname(s+HEX_DIGEST_LEN+1))
-        return 0;
-    } else {
-      return 0;
+    size_t len;
+    tor_assert(s);
+    if (s[0] == '$')
+        s++;
+    len = strlen(s);
+    if (len > HEX_DIGEST_LEN) {
+        if (s[HEX_DIGEST_LEN] == '=' || s[HEX_DIGEST_LEN] == '~') {
+            if (!is_legal_nickname(s + HEX_DIGEST_LEN + 1))
+                return 0;
+        } else {
+            return 0;
+        }
     }
-  }
-  return (len >= HEX_DIGEST_LEN &&
-          strspn(s,HEX_CHARACTERS)==HEX_DIGEST_LEN);
+    return (len >= HEX_DIGEST_LEN &&
+            strspn(s, HEX_CHARACTERS) == HEX_DIGEST_LEN);
 }

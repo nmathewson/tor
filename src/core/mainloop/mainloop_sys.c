@@ -22,14 +22,14 @@
 static int
 subsys_mainloop_initialize(void)
 {
-  initialize_periodic_events();
-  return 0;
+    initialize_periodic_events();
+    return 0;
 }
 
 static void
 subsys_mainloop_shutdown(void)
 {
-  tor_mainloop_free_all();
+    tor_mainloop_free_all();
 }
 
 /** Declare a list of state variables for mainloop state. */
@@ -44,12 +44,10 @@ subsys_mainloop_shutdown(void)
  * Format object for mainloop state.
  **/
 static config_format_t mainloop_state_fmt = {
-  .size = sizeof(mainloop_state_t),
-  .magic = { "mainloop_state",
-             MAINLOOP_STATE_MAGIC,
-             offsetof(mainloop_state_t, magic)
-            },
-  .vars = mainloop_state_t_vars,
+    .size = sizeof(mainloop_state_t),
+    .magic = {"mainloop_state", MAINLOOP_STATE_MAGIC,
+              offsetof(mainloop_state_t, magic)},
+    .vars = mainloop_state_t_vars,
 };
 
 /**
@@ -57,33 +55,33 @@ static config_format_t mainloop_state_fmt = {
 static int
 mainloop_set_state(void *arg)
 {
-  const mainloop_state_t *state = arg;
-  tor_assert(state->magic == MAINLOOP_STATE_MAGIC);
+    const mainloop_state_t *state = arg;
+    tor_assert(state->magic == MAINLOOP_STATE_MAGIC);
 
-  netstatus_load_from_state(state, approx_time());
+    netstatus_load_from_state(state, approx_time());
 
-  return 0;
+    return 0;
 }
 
 static int
 mainloop_flush_state(void *arg)
 {
-  mainloop_state_t *state = arg;
-  tor_assert(state->magic == MAINLOOP_STATE_MAGIC);
+    mainloop_state_t *state = arg;
+    tor_assert(state->magic == MAINLOOP_STATE_MAGIC);
 
-  netstatus_flush_to_state(state, approx_time());
+    netstatus_flush_to_state(state, approx_time());
 
-  return 0;
+    return 0;
 }
 
 const struct subsys_fns_t sys_mainloop = {
-  .name = "mainloop",
-  .supported = true,
-  .level = 5,
-  .initialize = subsys_mainloop_initialize,
-  .shutdown = subsys_mainloop_shutdown,
+    .name = "mainloop",
+    .supported = true,
+    .level = 5,
+    .initialize = subsys_mainloop_initialize,
+    .shutdown = subsys_mainloop_shutdown,
 
-  .state_format = &mainloop_state_fmt,
-  .set_state = mainloop_set_state,
-  .flush_state = mainloop_flush_state,
+    .state_format = &mainloop_state_fmt,
+    .set_state = mainloop_set_state,
+    .flush_state = mainloop_flush_state,
 };

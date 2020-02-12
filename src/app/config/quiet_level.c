@@ -23,16 +23,16 @@ quiet_level_t quiet_level = 0;
 void
 add_default_log_for_quiet_level(quiet_level_t quiet)
 {
-  switch (quiet) {
+    switch (quiet) {
     case QUIET_SILENT:
-      /* --quiet: no initial logging */
-      return;
+        /* --quiet: no initial logging */
+        return;
     case QUIET_HUSH:
-    /* --hush: log at warning or higher. */
-      add_default_log(LOG_WARN);
-      break;
+        /* --hush: log at warning or higher. */
+        add_default_log(LOG_WARN);
+        break;
     case QUIET_NONE: /* fall through */
     default:
-      add_default_log(LOG_NOTICE);
-  }
+        add_default_log(LOG_NOTICE);
+    }
 }

@@ -14,22 +14,22 @@
  * return; "maxval" is the largest possible value of "type"; and "fill_stmt"
  * is a code snippet that fills an object named "val" with random bits.
  **/
-#define IMPLEMENT_RAND_UNSIGNED(type, maxval, limit, fill_stmt)         \
-  do {                                                                  \
-    type val;                                                           \
-    type cutoff;                                                        \
-    tor_assert((limit) > 0);                                            \
-                                                                        \
-    /* We ignore any values that are >= 'cutoff,' to avoid biasing */   \
-    /* the distribution with clipping at the upper end of the type's */ \
-    /* range. */                                                        \
-    cutoff = (maxval) - ((maxval)%(limit));                             \
-    while (1) {                                                         \
-      fill_stmt;                                                        \
-      if (val < cutoff)                                                 \
-        return val % (limit);                                           \
-    }                                                                   \
-  } while (0)
+#define IMPLEMENT_RAND_UNSIGNED(type, maxval, limit, fill_stmt)             \
+    do {                                                                    \
+        type val;                                                           \
+        type cutoff;                                                        \
+        tor_assert((limit) > 0);                                            \
+                                                                            \
+        /* We ignore any values that are >= 'cutoff,' to avoid biasing */   \
+        /* the distribution with clipping at the upper end of the type's */ \
+        /* range. */                                                        \
+        cutoff = (maxval) - ((maxval) % (limit));                           \
+        while (1) {                                                         \
+            fill_stmt;                                                      \
+            if (val < cutoff)                                               \
+                return val % (limit);                                       \
+        }                                                                   \
+    } while (0)
 
 /**
  * Return a pseudorandom integer chosen uniformly from the values between 0
@@ -38,9 +38,9 @@
 unsigned
 crypto_rand_uint(unsigned limit)
 {
-  tor_assert(limit < UINT_MAX);
-  IMPLEMENT_RAND_UNSIGNED(unsigned, UINT_MAX, limit,
-                          crypto_rand((char*)&val, sizeof(val)));
+    tor_assert(limit < UINT_MAX);
+    IMPLEMENT_RAND_UNSIGNED(unsigned, UINT_MAX, limit,
+                            crypto_rand((char *)&val, sizeof(val)));
 }
 
 /**
@@ -51,13 +51,13 @@ crypto_rand_uint(unsigned limit)
 int
 crypto_rand_int(unsigned int max)
 {
-  /* We can't use IMPLEMENT_RAND_UNSIGNED directly, since we're trying
-   * to return a signed type. Instead we make sure that the range is
-   * reasonable for a nonnegative int, use crypto_rand_uint(), and cast.
-   */
-  tor_assert(max <= ((unsigned int)INT_MAX)+1);
+    /* We can't use IMPLEMENT_RAND_UNSIGNED directly, since we're trying
+     * to return a signed type. Instead we make sure that the range is
+     * reasonable for a nonnegative int, use crypto_rand_uint(), and cast.
+     */
+    tor_assert(max <= ((unsigned int)INT_MAX) + 1);
 
-  return (int)crypto_rand_uint(max);
+    return (int)crypto_rand_uint(max);
 }
 
 /**
@@ -70,12 +70,12 @@ crypto_rand_int(unsigned int max)
 int
 crypto_rand_int_range(unsigned int min, unsigned int max)
 {
-  tor_assert(min < max);
-  tor_assert(max <= INT_MAX);
+    tor_assert(min < max);
+    tor_assert(max <= INT_MAX);
 
-  /* The overflow is avoided here because crypto_rand_int() returns a value
-   * between 0 and (max - min) inclusive. */
-  return min + crypto_rand_int(max - min);
+    /* The overflow is avoided here because crypto_rand_int() returns a value
+     * between 0 and (max - min) inclusive. */
+    return min + crypto_rand_int(max - min);
 }
 
 /**
@@ -84,8 +84,8 @@ crypto_rand_int_range(unsigned int min, unsigned int max)
 uint64_t
 crypto_rand_uint64_range(uint64_t min, uint64_t max)
 {
-  tor_assert(min < max);
-  return min + crypto_rand_uint64(max - min);
+    tor_assert(min < max);
+    return min + crypto_rand_uint64(max - min);
 }
 
 /**
@@ -94,8 +94,8 @@ crypto_rand_uint64_range(uint64_t min, uint64_t max)
 time_t
 crypto_rand_time_range(time_t min, time_t max)
 {
-  tor_assert(min < max);
-  return min + (time_t)crypto_rand_uint64(max - min);
+    tor_assert(min < max);
+    return min + (time_t)crypto_rand_uint64(max - min);
 }
 
 /**
@@ -105,17 +105,17 @@ crypto_rand_time_range(time_t min, time_t max)
 uint64_t
 crypto_rand_uint64(uint64_t max)
 {
-  tor_assert(max < UINT64_MAX);
-  IMPLEMENT_RAND_UNSIGNED(uint64_t, UINT64_MAX, max,
-                          crypto_rand((char*)&val, sizeof(val)));
+    tor_assert(max < UINT64_MAX);
+    IMPLEMENT_RAND_UNSIGNED(uint64_t, UINT64_MAX, max,
+                            crypto_rand((char *)&val, sizeof(val)));
 }
 
 #if SIZEOF_INT == 4
-#define UINT_MAX_AS_DOUBLE 4294967296.0
+#    define UINT_MAX_AS_DOUBLE 4294967296.0
 #elif SIZEOF_INT == 8
-#define UINT_MAX_AS_DOUBLE 1.8446744073709552e+19
+#    define UINT_MAX_AS_DOUBLE 1.8446744073709552e+19
 #else
-#error SIZEOF_INT is neither 4 nor 8
+#    error SIZEOF_INT is neither 4 nor 8
 #endif /* SIZEOF_INT == 4 || ... */
 
 /**
@@ -125,11 +125,11 @@ crypto_rand_uint64(uint64_t max)
 double
 crypto_rand_double(void)
 {
-  /* We just use an unsigned int here; we don't really care about getting
-   * more than 32 bits of resolution */
-  unsigned int u;
-  crypto_rand((char*)&u, sizeof(u));
-  return ((double)u) / UINT_MAX_AS_DOUBLE;
+    /* We just use an unsigned int here; we don't really care about getting
+     * more than 32 bits of resolution */
+    unsigned int u;
+    crypto_rand((char *)&u, sizeof(u));
+    return ((double)u) / UINT_MAX_AS_DOUBLE;
 }
 
 /**
@@ -138,9 +138,10 @@ crypto_rand_double(void)
 unsigned
 crypto_fast_rng_get_uint(crypto_fast_rng_t *rng, unsigned limit)
 {
-  tor_assert(limit < UINT_MAX);
-  IMPLEMENT_RAND_UNSIGNED(unsigned, UINT_MAX, limit,
-                  crypto_fast_rng_getbytes(rng, (void*)&val, sizeof(val)));
+    tor_assert(limit < UINT_MAX);
+    IMPLEMENT_RAND_UNSIGNED(
+        unsigned, UINT_MAX, limit,
+        crypto_fast_rng_getbytes(rng, (void *)&val, sizeof(val)));
 }
 
 /**
@@ -149,9 +150,10 @@ crypto_fast_rng_get_uint(crypto_fast_rng_t *rng, unsigned limit)
 uint64_t
 crypto_fast_rng_get_uint64(crypto_fast_rng_t *rng, uint64_t limit)
 {
-  tor_assert(limit < UINT64_MAX);
-  IMPLEMENT_RAND_UNSIGNED(uint64_t, UINT64_MAX, limit,
-                  crypto_fast_rng_getbytes(rng, (void*)&val, sizeof(val)));
+    tor_assert(limit < UINT64_MAX);
+    IMPLEMENT_RAND_UNSIGNED(
+        uint64_t, UINT64_MAX, limit,
+        crypto_fast_rng_getbytes(rng, (void *)&val, sizeof(val)));
 }
 
 /**
@@ -160,9 +162,9 @@ crypto_fast_rng_get_uint64(crypto_fast_rng_t *rng, uint64_t limit)
 uint32_t
 crypto_fast_rng_get_u32(crypto_fast_rng_t *rng)
 {
-  uint32_t val;
-  crypto_fast_rng_getbytes(rng, (void*)&val, sizeof(val));
-  return val;
+    uint32_t val;
+    crypto_fast_rng_getbytes(rng, (void *)&val, sizeof(val));
+    return val;
 }
 
 /**
@@ -170,15 +172,15 @@ crypto_fast_rng_get_u32(crypto_fast_rng_t *rng)
  * crypto_fast_rng_t.
  */
 uint64_t
-crypto_fast_rng_uint64_range(crypto_fast_rng_t *rng,
-                             uint64_t min, uint64_t max)
+crypto_fast_rng_uint64_range(crypto_fast_rng_t *rng, uint64_t min,
+                             uint64_t max)
 {
-  /* Handle corrupted input */
-  if (BUG(min >= max)) {
-    return min;
-  }
+    /* Handle corrupted input */
+    if (BUG(min >= max)) {
+        return min;
+    }
 
-  return min + crypto_fast_rng_get_uint64(rng, max - min);
+    return min + crypto_fast_rng_get_uint64(rng, max - min);
 }
 
 /**
@@ -187,8 +189,7 @@ crypto_fast_rng_uint64_range(crypto_fast_rng_t *rng,
 double
 crypto_fast_rng_get_double(crypto_fast_rng_t *rng)
 {
-  unsigned int u;
-  crypto_fast_rng_getbytes(rng, (void*)&u, sizeof(u));
-  return ((double)u) / UINT_MAX_AS_DOUBLE;
+    unsigned int u;
+    crypto_fast_rng_getbytes(rng, (void *)&u, sizeof(u));
+    return ((double)u) / UINT_MAX_AS_DOUBLE;
 }
-

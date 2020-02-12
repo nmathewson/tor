@@ -19,25 +19,25 @@
 /** This data structure contains data that we need to build an INTRODUCE1 cell
  * used by the INTRODUCE1 build function. */
 typedef struct hs_cell_introduce1_data_t {
-  /** Is this a legacy introduction point? */
-  unsigned int is_legacy : 1;
-  /** (Legacy only) The encryption key for a legacy intro point. Only set if
-   * is_legacy is true. */
-  const crypto_pk_t *legacy_key;
-  /** Introduction point authentication public key. */
-  const ed25519_public_key_t *auth_pk;
-  /** Introduction point encryption public key. */
-  const curve25519_public_key_t *enc_pk;
-  /** Subcredentials of the service. */
-  const uint8_t *subcredential;
-  /** Onion public key for the ntor handshake. */
-  const curve25519_public_key_t *onion_pk;
-  /** Rendezvous cookie. */
-  const uint8_t *rendezvous_cookie;
-  /** Public key put before the encrypted data (CLIENT_PK). */
-  const curve25519_keypair_t *client_kp;
-  /** Rendezvous point link specifiers. */
-  smartlist_t *link_specifiers;
+    /** Is this a legacy introduction point? */
+    unsigned int is_legacy : 1;
+    /** (Legacy only) The encryption key for a legacy intro point. Only set if
+     * is_legacy is true. */
+    const crypto_pk_t *legacy_key;
+    /** Introduction point authentication public key. */
+    const ed25519_public_key_t *auth_pk;
+    /** Introduction point encryption public key. */
+    const curve25519_public_key_t *enc_pk;
+    /** Subcredentials of the service. */
+    const uint8_t *subcredential;
+    /** Onion public key for the ntor handshake. */
+    const curve25519_public_key_t *onion_pk;
+    /** Rendezvous cookie. */
+    const uint8_t *rendezvous_cookie;
+    /** Public key put before the encrypted data (CLIENT_PK). */
+    const curve25519_keypair_t *client_kp;
+    /** Rendezvous point link specifiers. */
+    smartlist_t *link_specifiers;
 } hs_cell_introduce1_data_t;
 
 /** This data structure contains data that we need to parse an INTRODUCE2 cell
@@ -46,35 +46,36 @@ typedef struct hs_cell_introduce1_data_t {
  * computed key material from the cell data. This structure is only used during
  * INTRO2 parsing and discarded after that. */
 typedef struct hs_cell_introduce2_data_t {
-  /*** Immutable Section: Set on structure init. ***/
+    /*** Immutable Section: Set on structure init. ***/
 
-  /** Introduction point authentication public key. Pointer owned by the
-     introduction point object through which we received the INTRO2 cell. */
-  const ed25519_public_key_t *auth_pk;
-  /** Introduction point encryption keypair for the ntor handshake. Pointer
-     owned by the introduction point object through which we received the
-     INTRO2 cell*/
-  const curve25519_keypair_t *enc_kp;
-  /** Subcredentials of the service. Pointer owned by the descriptor that owns
-     the introduction point through which we received the INTRO2 cell. */
-  const uint8_t *subcredential;
-  /** Payload of the received encoded cell. */
-  const uint8_t *payload;
-  /** Size of the payload of the received encoded cell. */
-  size_t payload_len;
+    /** Introduction point authentication public key. Pointer owned by the
+       introduction point object through which we received the INTRO2 cell. */
+    const ed25519_public_key_t *auth_pk;
+    /** Introduction point encryption keypair for the ntor handshake. Pointer
+       owned by the introduction point object through which we received the
+       INTRO2 cell*/
+    const curve25519_keypair_t *enc_kp;
+    /** Subcredentials of the service. Pointer owned by the descriptor that
+       owns the introduction point through which we received the INTRO2 cell.
+     */
+    const uint8_t *subcredential;
+    /** Payload of the received encoded cell. */
+    const uint8_t *payload;
+    /** Size of the payload of the received encoded cell. */
+    size_t payload_len;
 
-  /*** Mutable Section: Set upon parsing INTRODUCE2 cell. ***/
+    /*** Mutable Section: Set upon parsing INTRODUCE2 cell. ***/
 
-  /** Onion public key computed using the INTRODUCE2 encrypted section. */
-  curve25519_public_key_t onion_pk;
-  /** Rendezvous cookie taken from the INTRODUCE2 encrypted section. */
-  uint8_t rendezvous_cookie[REND_COOKIE_LEN];
-  /** Client public key from the INTRODUCE2 encrypted section. */
-  curve25519_public_key_t client_pk;
-  /** Link specifiers of the rendezvous point. Contains link_specifier_t. */
-  smartlist_t *link_specifiers;
-  /** Replay cache of the introduction point. */
-  replaycache_t *replay_cache;
+    /** Onion public key computed using the INTRODUCE2 encrypted section. */
+    curve25519_public_key_t onion_pk;
+    /** Rendezvous cookie taken from the INTRODUCE2 encrypted section. */
+    uint8_t rendezvous_cookie[REND_COOKIE_LEN];
+    /** Client public key from the INTRODUCE2 encrypted section. */
+    curve25519_public_key_t client_pk;
+    /** Link specifiers of the rendezvous point. Contains link_specifier_t. */
+    smartlist_t *link_specifiers;
+    /** Replay cache of the introduction point. */
+    replaycache_t *replay_cache;
 } hs_cell_introduce2_data_t;
 
 /* Build cell API. */
@@ -108,7 +109,7 @@ void hs_cell_introduce1_data_clear(hs_cell_introduce1_data_t *data);
 
 #ifdef TOR_UNIT_TESTS
 
-#include "trunnel/hs/cell_common.h"
+#    include "trunnel/hs/cell_common.h"
 
 STATIC trn_cell_extension_t *
 build_establish_intro_extensions(const hs_service_config_t *service_config,

@@ -15,52 +15,51 @@
 static void
 test_format_proxy_header_line(void *arg)
 {
-  tor_addr_t addr;
-  tor_addr_port_t *addr_port = NULL;
-  char *output = NULL;
+    tor_addr_t addr;
+    tor_addr_port_t *addr_port = NULL;
+    char *output = NULL;
 
-  (void) arg;
+    (void)arg;
 
-  /* IPv4 address. */
-  tor_addr_parse(&addr, "192.168.1.2");
-  addr_port = tor_addr_port_new(&addr, 8000);
-  output = haproxy_format_proxy_header_line(addr_port);
+    /* IPv4 address. */
+    tor_addr_parse(&addr, "192.168.1.2");
+    addr_port = tor_addr_port_new(&addr, 8000);
+    output = haproxy_format_proxy_header_line(addr_port);
 
-  tt_str_op(output, OP_EQ, "PROXY TCP4 0.0.0.0 192.168.1.2 0 8000\r\n");
+    tt_str_op(output, OP_EQ, "PROXY TCP4 0.0.0.0 192.168.1.2 0 8000\r\n");
 
-  tor_free(addr_port);
-  tor_free(output);
+    tor_free(addr_port);
+    tor_free(output);
 
-  /* IPv6 address. */
-  tor_addr_parse(&addr, "123:45:6789::5005:11");
-  addr_port = tor_addr_port_new(&addr, 8000);
-  output = haproxy_format_proxy_header_line(addr_port);
+    /* IPv6 address. */
+    tor_addr_parse(&addr, "123:45:6789::5005:11");
+    addr_port = tor_addr_port_new(&addr, 8000);
+    output = haproxy_format_proxy_header_line(addr_port);
 
-  tt_str_op(output, OP_EQ, "PROXY TCP6 :: 123:45:6789::5005:11 0 8000\r\n");
+    tt_str_op(output, OP_EQ, "PROXY TCP6 :: 123:45:6789::5005:11 0 8000\r\n");
 
-  tor_free(addr_port);
-  tor_free(output);
+    tor_free(addr_port);
+    tor_free(output);
 
-  /* UNIX socket address. */
-  memset(&addr, 0, sizeof(addr));
-  addr.family = AF_UNIX;
-  addr_port = tor_addr_port_new(&addr, 8000);
-  output = haproxy_format_proxy_header_line(addr_port);
+    /* UNIX socket address. */
+    memset(&addr, 0, sizeof(addr));
+    addr.family = AF_UNIX;
+    addr_port = tor_addr_port_new(&addr, 8000);
+    output = haproxy_format_proxy_header_line(addr_port);
 
-  /* If it's not an IPv4 or IPv6 address, haproxy_format_proxy_header_line
-   * must return NULL. */
-  tt_ptr_op(output, OP_EQ, NULL);
+    /* If it's not an IPv4 or IPv6 address, haproxy_format_proxy_header_line
+     * must return NULL. */
+    tt_ptr_op(output, OP_EQ, NULL);
 
-  tor_free(addr_port);
-  tor_free(output);
+    tor_free(addr_port);
+    tor_free(output);
 
- done:
-  tor_free(addr_port);
-  tor_free(output);
+done:
+    tor_free(addr_port);
+    tor_free(output);
 }
 
 struct testcase_t proto_haproxy_tests[] = {
-  { "format_proxy_header_line", test_format_proxy_header_line, 0, NULL, NULL },
+    {"format_proxy_header_line", test_format_proxy_header_line, 0, NULL, NULL},
 
-  END_OF_TESTCASES
-};
+    END_OF_TESTCASES};

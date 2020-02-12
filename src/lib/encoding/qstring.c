@@ -19,37 +19,36 @@
  * QuotedString, return the length of that
  * string (as encoded, including quotes).  Otherwise return -1. */
 static inline int
-get_qstring_length(const char *start, size_t in_len_max,
-                          int *chars_out)
+get_qstring_length(const char *start, size_t in_len_max, int *chars_out)
 {
-  const char *cp, *end;
-  int chars = 0;
+    const char *cp, *end;
+    int chars = 0;
 
-  if (*start != '\"')
-    return -1;
+    if (*start != '\"')
+        return -1;
 
-  cp = start+1;
-  end = start+in_len_max;
+    cp = start + 1;
+    end = start + in_len_max;
 
-  /* Calculate length. */
-  while (1) {
-    if (cp >= end) {
-      return -1; /* Too long. */
-    } else if (*cp == '\\') {
-      if (++cp == end)
-        return -1; /* Can't escape EOS. */
-      ++cp;
-      ++chars;
-    } else if (*cp == '\"') {
-      break;
-    } else {
-      ++cp;
-      ++chars;
+    /* Calculate length. */
+    while (1) {
+        if (cp >= end) {
+            return -1; /* Too long. */
+        } else if (*cp == '\\') {
+            if (++cp == end)
+                return -1; /* Can't escape EOS. */
+            ++cp;
+            ++chars;
+        } else if (*cp == '\"') {
+            break;
+        } else {
+            ++cp;
+            ++chars;
+        }
     }
-  }
-  if (chars_out)
-    *chars_out = chars;
-  return (int)(cp - start+1);
+    if (chars_out)
+        *chars_out = chars;
+    return (int)(cp - start + 1);
 }
 
 /** Given a pointer to a string starting at <b>start</b> containing
@@ -61,30 +60,30 @@ get_qstring_length(const char *start, size_t in_len_max,
  * character immediately following the escaped string.  On failure, return
  * NULL. */
 const char *
-decode_qstring(const char *start, size_t in_len_max,
-               char **out, size_t *out_len)
+decode_qstring(const char *start, size_t in_len_max, char **out,
+               size_t *out_len)
 {
-  const char *cp, *end;
-  char *outp;
-  int len, n_chars = 0;
+    const char *cp, *end;
+    char *outp;
+    int len, n_chars = 0;
 
-  len = get_qstring_length(start, in_len_max, &n_chars);
-  if (len<0)
-    return NULL;
+    len = get_qstring_length(start, in_len_max, &n_chars);
+    if (len < 0)
+        return NULL;
 
-  end = start+len-1; /* Index of last quote. */
-  tor_assert(*end == '\"');
-  outp = *out = tor_malloc(len+1);
-  *out_len = n_chars;
+    end = start + len - 1; /* Index of last quote. */
+    tor_assert(*end == '\"');
+    outp = *out = tor_malloc(len + 1);
+    *out_len = n_chars;
 
-  cp = start+1;
-  while (cp < end) {
-    if (*cp == '\\')
-      ++cp;
-    *outp++ = *cp++;
-  }
-  *outp = '\0';
-  tor_assert((outp - *out) == (int)*out_len);
+    cp = start + 1;
+    while (cp < end) {
+        if (*cp == '\\')
+            ++cp;
+        *outp++ = *cp++;
+    }
+    *outp = '\0';
+    tor_assert((outp - *out) == (int)*out_len);
 
-  return end+1;
+    return end + 1;
 }

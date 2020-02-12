@@ -29,9 +29,9 @@ static extend_info_t dummy_ei;
 static int
 mock_count_acceptable_nodes(const smartlist_t *nodes, int direct)
 {
-  (void)nodes;
+    (void)nodes;
 
-  return direct ? 1 : DEFAULT_ROUTE_LEN + 1;
+    return direct ? 1 : DEFAULT_ROUTE_LEN + 1;
 }
 
 /* Test route lengths when the caller of new_route_len() doesn't
@@ -39,22 +39,23 @@ mock_count_acceptable_nodes(const smartlist_t *nodes, int direct)
 static void
 test_new_route_len_noexit(void *arg)
 {
-  int r;
+    int r;
 
-  (void)arg;
-  MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
+    (void)arg;
+    MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
 
-  r = new_route_len(CIRCUIT_PURPOSE_C_GENERAL, NULL, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
+    r = new_route_len(CIRCUIT_PURPOSE_C_GENERAL, NULL, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
-  r = new_route_len(CIRCUIT_PURPOSE_C_INTRODUCE_ACK_WAIT, NULL, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
+    r = new_route_len(CIRCUIT_PURPOSE_C_INTRODUCE_ACK_WAIT, NULL,
+                      &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
-  r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, NULL, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
+    r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, NULL, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
- done:
-  UNMOCK(count_acceptable_nodes);
+done:
+    UNMOCK(count_acceptable_nodes);
 }
 
 /* Test route lengths where someone else chose the "exit" node, which
@@ -62,25 +63,25 @@ test_new_route_len_noexit(void *arg)
 static void
 test_new_route_len_unsafe_exit(void *arg)
 {
-  int r;
+    int r;
 
-  (void)arg;
-  MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
+    (void)arg;
+    MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
 
-  /* connecting to hidden service directory */
-  r = new_route_len(CIRCUIT_PURPOSE_C_GENERAL, &dummy_ei, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
+    /* connecting to hidden service directory */
+    r = new_route_len(CIRCUIT_PURPOSE_C_GENERAL, &dummy_ei, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
 
-  /* client connecting to introduction point */
-  r = new_route_len(CIRCUIT_PURPOSE_C_INTRODUCING, &dummy_ei, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
+    /* client connecting to introduction point */
+    r = new_route_len(CIRCUIT_PURPOSE_C_INTRODUCING, &dummy_ei, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
 
-  /* hidden service connecting to rendezvous point */
-  r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, &dummy_ei, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
+    /* hidden service connecting to rendezvous point */
+    r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, &dummy_ei, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
 
- done:
-  UNMOCK(count_acceptable_nodes);
+done:
+    UNMOCK(count_acceptable_nodes);
 }
 
 /* Test route lengths where we chose the "exit" node, which don't
@@ -88,22 +89,22 @@ test_new_route_len_unsafe_exit(void *arg)
 static void
 test_new_route_len_safe_exit(void *arg)
 {
-  int r;
+    int r;
 
-  (void)arg;
-  MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
+    (void)arg;
+    MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
 
-  /* hidden service connecting to introduction point */
-  r = new_route_len(CIRCUIT_PURPOSE_S_ESTABLISH_INTRO, &dummy_ei,
-                    &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
+    /* hidden service connecting to introduction point */
+    r = new_route_len(CIRCUIT_PURPOSE_S_ESTABLISH_INTRO, &dummy_ei,
+                      &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
-  /* router testing its own reachability */
-  r = new_route_len(CIRCUIT_PURPOSE_TESTING, &dummy_ei, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
+    /* router testing its own reachability */
+    r = new_route_len(CIRCUIT_PURPOSE_TESTING, &dummy_ei, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
- done:
-  UNMOCK(count_acceptable_nodes);
+done:
+    UNMOCK(count_acceptable_nodes);
 }
 
 /* Make sure a non-fatal assertion fails when new_route_len() gets an
@@ -111,73 +112,71 @@ test_new_route_len_safe_exit(void *arg)
 static void
 test_new_route_len_unhandled_exit(void *arg)
 {
-  int r;
+    int r;
 
-  (void)arg;
-  MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
+    (void)arg;
+    MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
 
-  tor_capture_bugs_(1);
-  setup_full_capture_of_logs(LOG_WARN);
-  r = new_route_len(CIRCUIT_PURPOSE_CONTROLLER, &dummy_ei, &dummy_nodes);
-  tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
-  tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
-  tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
-            "!(exit_ei && !known_purpose)");
-  expect_single_log_msg_containing("Unhandled purpose");
-  expect_single_log_msg_containing("with a chosen exit; assuming routelen");
-  teardown_capture_of_logs();
-  tor_end_capture_bugs_();
+    tor_capture_bugs_(1);
+    setup_full_capture_of_logs(LOG_WARN);
+    r = new_route_len(CIRCUIT_PURPOSE_CONTROLLER, &dummy_ei, &dummy_nodes);
+    tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
+    tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
+    tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
+              "!(exit_ei && !known_purpose)");
+    expect_single_log_msg_containing("Unhandled purpose");
+    expect_single_log_msg_containing("with a chosen exit; assuming routelen");
+    teardown_capture_of_logs();
+    tor_end_capture_bugs_();
 
- done:
-  UNMOCK(count_acceptable_nodes);
+done:
+    UNMOCK(count_acceptable_nodes);
 }
 
 static void
 test_upgrade_from_guard_wait(void *arg)
 {
-  circuit_t *circ = NULL;
-  origin_circuit_t *orig_circ = NULL;
-  entry_guard_t *guard = NULL;
-  smartlist_t *list = NULL;
+    circuit_t *circ = NULL;
+    origin_circuit_t *orig_circ = NULL;
+    entry_guard_t *guard = NULL;
+    smartlist_t *list = NULL;
 
-  (void) arg;
+    (void)arg;
 
-  circ = dummy_origin_circuit_new(0);
-  orig_circ = TO_ORIGIN_CIRCUIT(circ);
-  tt_assert(orig_circ);
+    circ = dummy_origin_circuit_new(0);
+    orig_circ = TO_ORIGIN_CIRCUIT(circ);
+    tt_assert(orig_circ);
 
-  orig_circ->build_state = tor_malloc_zero(sizeof(cpath_build_state_t));
+    orig_circ->build_state = tor_malloc_zero(sizeof(cpath_build_state_t));
 
-  circuit_set_state(circ, CIRCUIT_STATE_GUARD_WAIT);
+    circuit_set_state(circ, CIRCUIT_STATE_GUARD_WAIT);
 
-  /* Put it in guard wait state. */
-  guard = tor_malloc_zero(sizeof(*guard));
-  guard->in_selection = get_guard_selection_info();
+    /* Put it in guard wait state. */
+    guard = tor_malloc_zero(sizeof(*guard));
+    guard->in_selection = get_guard_selection_info();
 
-  orig_circ->guard_state =
-    circuit_guard_state_new(guard, GUARD_CIRC_STATE_WAITING_FOR_BETTER_GUARD,
-                            NULL);
+    orig_circ->guard_state = circuit_guard_state_new(
+        guard, GUARD_CIRC_STATE_WAITING_FOR_BETTER_GUARD, NULL);
 
-  /* Mark the circuit for close. */
-  circuit_mark_for_close(circ, END_CIRC_REASON_TORPROTOCOL);
-  tt_int_op(circ->marked_for_close, OP_NE, 0);
+    /* Mark the circuit for close. */
+    circuit_mark_for_close(circ, END_CIRC_REASON_TORPROTOCOL);
+    tt_int_op(circ->marked_for_close, OP_NE, 0);
 
-  /* We shouldn't pick the mark for close circuit. */
-  list = circuit_find_circuits_to_upgrade_from_guard_wait();
-  tt_assert(!list);
+    /* We shouldn't pick the mark for close circuit. */
+    list = circuit_find_circuits_to_upgrade_from_guard_wait();
+    tt_assert(!list);
 
- done:
-  smartlist_free(list);
-  circuit_free(circ);
-  entry_guard_free_(guard);
+done:
+    smartlist_free(list);
+    circuit_free(circ);
+    entry_guard_free_(guard);
 }
 
 struct testcase_t circuitbuild_tests[] = {
-  { "noexit", test_new_route_len_noexit, 0, NULL, NULL },
-  { "safe_exit", test_new_route_len_safe_exit, 0, NULL, NULL },
-  { "unsafe_exit", test_new_route_len_unsafe_exit, 0, NULL, NULL },
-  { "unhandled_exit", test_new_route_len_unhandled_exit, 0, NULL, NULL },
-  { "upgrade_from_guard_wait", test_upgrade_from_guard_wait, TT_FORK,
-    &helper_pubsub_setup, NULL },
-  END_OF_TESTCASES
-};
+    {"noexit", test_new_route_len_noexit, 0, NULL, NULL},
+    {"safe_exit", test_new_route_len_safe_exit, 0, NULL, NULL},
+    {"unsafe_exit", test_new_route_len_unsafe_exit, 0, NULL, NULL},
+    {"unhandled_exit", test_new_route_len_unhandled_exit, 0, NULL, NULL},
+    {"upgrade_from_guard_wait", test_upgrade_from_guard_wait, TT_FORK,
+     &helper_pubsub_setup, NULL},
+    END_OF_TESTCASES};

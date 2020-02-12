@@ -14,20 +14,18 @@
 static int
 subsys_process_initialize(void)
 {
-  process_init();
-  return 0;
+    process_init();
+    return 0;
 }
 
 static void
 subsys_process_shutdown(void)
 {
-  process_free_all();
+    process_free_all();
 }
 
-const subsys_fns_t sys_process = {
-  .name = "process",
-  .level = -35,
-  .supported = true,
-  .initialize = subsys_process_initialize,
-  .shutdown = subsys_process_shutdown
-};
+const subsys_fns_t sys_process = {.name = "process",
+                                  .level = -35,
+                                  .supported = true,
+                                  .initialize = subsys_process_initialize,
+                                  .shutdown = subsys_process_shutdown};

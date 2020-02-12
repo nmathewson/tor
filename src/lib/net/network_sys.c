@@ -13,34 +13,35 @@
 #include "lib/net/socket.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
+#    include <winsock2.h>
+#    include <windows.h>
 #endif
 
 static int
 subsys_network_initialize(void)
 {
-  if (network_init() < 0)
-    return -1;
+    if (network_init() < 0)
+        return -1;
 
-  return 0;
+    return 0;
 }
 
 static void
 subsys_network_shutdown(void)
 {
 #ifdef _WIN32
-  WSACleanup();
+    WSACleanup();
 #endif
-  tor_free_getaddrinfo_cache();
+    tor_free_getaddrinfo_cache();
 }
 
 const subsys_fns_t sys_network = {
-  .name = "network",
-  /* Network depends on logging, and a lot of other modules depend on network.
-   */
-  .level = -80,
-  .supported = true,
-  .initialize = subsys_network_initialize,
-  .shutdown = subsys_network_shutdown,
+    .name = "network",
+    /* Network depends on logging, and a lot of other modules depend on
+     * network.
+     */
+    .level = -80,
+    .supported = true,
+    .initialize = subsys_network_initialize,
+    .shutdown = subsys_network_shutdown,
 };

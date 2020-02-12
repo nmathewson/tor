@@ -11,7 +11,7 @@ BasedOnStyle:    LLVM
 
 # We prefer an indentation width of 4 columns; LLVM likes 2.
 ## OVERRIDE FOR COMPARISON
-IndentWidth:     2
+IndentWidth:     4
 
 ## OVERRIDE FOR COMPARISON
 ## for now i'm not sorting includes, since that makes every file get touched.

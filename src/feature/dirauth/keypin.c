@@ -33,14 +33,14 @@
 #include "siphash.h"
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+#    include <fcntl.h>
 #endif
 
 #ifdef _WIN32
-#include <io.h>
+#    include <io.h>
 #endif
 
 #include <errno.h>
@@ -80,8 +80,7 @@ static int keypin_journal_append_entry(const uint8_t *rsa_id_digest,
                                        const uint8_t *ed25519_id_key);
 static int keypin_check_and_add_impl(const uint8_t *rsa_id_digest,
                                      const uint8_t *ed25519_id_key,
-                                     const int do_not_add,
-                                     const int replace);
+                                     const int do_not_add, const int replace);
 static int keypin_add_or_replace_entry_in_map(keypin_ent_t *ent);
 
 static HT_HEAD(rsamap, keypin_ent_st) the_rsa_map = HT_INITIALIZER();
@@ -92,14 +91,14 @@ static HT_HEAD(edmap, keypin_ent_st) the_ed_map = HT_INITIALIZER();
 static inline int
 keypin_ents_eq_rsa(const keypin_ent_t *a, const keypin_ent_t *b)
 {
-  return tor_memeq(a->rsa_id, b->rsa_id, sizeof(a->rsa_id));
+    return tor_memeq(a->rsa_id, b->rsa_id, sizeof(a->rsa_id));
 }
 
 /** Hashtable helper: hash a keypin table entries based on its RSA key ID */
 static inline unsigned
 keypin_ent_hash_rsa(const keypin_ent_t *a)
 {
-return (unsigned) siphash24g(a->rsa_id, sizeof(a->rsa_id));
+    return (unsigned)siphash24g(a->rsa_id, sizeof(a->rsa_id));
 }
 
 /** Hashtable helper: compare two keypin table entries and return true iff
@@ -107,14 +106,14 @@ return (unsigned) siphash24g(a->rsa_id, sizeof(a->rsa_id));
 static inline int
 keypin_ents_eq_ed(const keypin_ent_t *a, const keypin_ent_t *b)
 {
-  return tor_memeq(a->ed25519_key, b->ed25519_key, sizeof(a->ed25519_key));
+    return tor_memeq(a->ed25519_key, b->ed25519_key, sizeof(a->ed25519_key));
 }
 
 /** Hashtable helper: hash a keypin table entries based on its ed25519 key */
 static inline unsigned
 keypin_ent_hash_ed(const keypin_ent_t *a)
 {
-return (unsigned) siphash24g(a->ed25519_key, sizeof(a->ed25519_key));
+    return (unsigned)siphash24g(a->ed25519_key, sizeof(a->ed25519_key));
 }
 
 HT_PROTOTYPE(rsamap, keypin_ent_st, rsamap_node, keypin_ent_hash_rsa,
@@ -143,8 +142,8 @@ keypin_check_and_add(const uint8_t *rsa_id_digest,
                      const uint8_t *ed25519_id_key,
                      const int replace_existing_entry)
 {
-  return keypin_check_and_add_impl(rsa_id_digest, ed25519_id_key, 0,
-                                   replace_existing_entry);
+    return keypin_check_and_add_impl(rsa_id_digest, ed25519_id_key, 0,
+                                     replace_existing_entry);
 }
 
 /**
@@ -152,10 +151,9 @@ keypin_check_and_add(const uint8_t *rsa_id_digest,
  * we would add.
  */
 int
-keypin_check(const uint8_t *rsa_id_digest,
-             const uint8_t *ed25519_id_key)
+keypin_check(const uint8_t *rsa_id_digest, const uint8_t *ed25519_id_key)
 {
-  return keypin_check_and_add_impl(rsa_id_digest, ed25519_id_key, 1, 0);
+    return keypin_check_and_add_impl(rsa_id_digest, ed25519_id_key, 1, 0);
 }
 
 /**
@@ -163,62 +161,64 @@ keypin_check(const uint8_t *rsa_id_digest,
  */
 static int
 keypin_check_and_add_impl(const uint8_t *rsa_id_digest,
-                          const uint8_t *ed25519_id_key,
-                          const int do_not_add,
+                          const uint8_t *ed25519_id_key, const int do_not_add,
                           const int replace)
 {
-  keypin_ent_t search, *ent;
-  memset(&search, 0, sizeof(search));
-  memcpy(search.rsa_id, rsa_id_digest, sizeof(search.rsa_id));
-  memcpy(search.ed25519_key, ed25519_id_key, sizeof(search.ed25519_key));
+    keypin_ent_t search, *ent;
+    memset(&search, 0, sizeof(search));
+    memcpy(search.rsa_id, rsa_id_digest, sizeof(search.rsa_id));
+    memcpy(search.ed25519_key, ed25519_id_key, sizeof(search.ed25519_key));
 
-  /* Search by RSA key digest first */
-  ent = HT_FIND(rsamap, &the_rsa_map, &search);
-  if (ent) {
-    tor_assert(fast_memeq(ent->rsa_id, rsa_id_digest, sizeof(ent->rsa_id)));
-    if (tor_memeq(ent->ed25519_key, ed25519_id_key,sizeof(ent->ed25519_key))) {
-      return KEYPIN_FOUND; /* Match on both keys. Great. */
-    } else {
-      if (!replace)
-        return KEYPIN_MISMATCH; /* Found RSA with different Ed key */
-    }
-  }
-
-  /* See if we know a different RSA key for this ed key */
-  if (! replace) {
-    ent = HT_FIND(edmap, &the_ed_map, &search);
+    /* Search by RSA key digest first */
+    ent = HT_FIND(rsamap, &the_rsa_map, &search);
     if (ent) {
-      /* If we got here, then the ed key matches and the RSA doesn't */
-      tor_assert(fast_memeq(ent->ed25519_key, ed25519_id_key,
-                            sizeof(ent->ed25519_key)));
-      tor_assert(fast_memneq(ent->rsa_id, rsa_id_digest, sizeof(ent->rsa_id)));
-      return KEYPIN_MISMATCH;
+        tor_assert(
+            fast_memeq(ent->rsa_id, rsa_id_digest, sizeof(ent->rsa_id)));
+        if (tor_memeq(ent->ed25519_key, ed25519_id_key,
+                      sizeof(ent->ed25519_key))) {
+            return KEYPIN_FOUND; /* Match on both keys. Great. */
+        } else {
+            if (!replace)
+                return KEYPIN_MISMATCH; /* Found RSA with different Ed key */
+        }
     }
-  }
 
-  /* Okay, this one is new to us. */
-  if (do_not_add)
-    return KEYPIN_NOT_FOUND;
+    /* See if we know a different RSA key for this ed key */
+    if (!replace) {
+        ent = HT_FIND(edmap, &the_ed_map, &search);
+        if (ent) {
+            /* If we got here, then the ed key matches and the RSA doesn't */
+            tor_assert(fast_memeq(ent->ed25519_key, ed25519_id_key,
+                                  sizeof(ent->ed25519_key)));
+            tor_assert(
+                fast_memneq(ent->rsa_id, rsa_id_digest, sizeof(ent->rsa_id)));
+            return KEYPIN_MISMATCH;
+        }
+    }
 
-  ent = tor_memdup(&search, sizeof(search));
-  int r = keypin_add_or_replace_entry_in_map(ent);
-  if (! replace) {
-    tor_assert(r == 1);
-  } else {
-    tor_assert(r != 0);
-  }
-  keypin_journal_append_entry(rsa_id_digest, ed25519_id_key);
-  return KEYPIN_ADDED;
+    /* Okay, this one is new to us. */
+    if (do_not_add)
+        return KEYPIN_NOT_FOUND;
+
+    ent = tor_memdup(&search, sizeof(search));
+    int r = keypin_add_or_replace_entry_in_map(ent);
+    if (!replace) {
+        tor_assert(r == 1);
+    } else {
+        tor_assert(r != 0);
+    }
+    keypin_journal_append_entry(rsa_id_digest, ed25519_id_key);
+    return KEYPIN_ADDED;
 }
 
 /**
  * Helper: add <b>ent</b> to the hash tables.
  */
 MOCK_IMPL(STATIC void,
-keypin_add_entry_to_map, (keypin_ent_t *ent))
+keypin_add_entry_to_map, (keypin_ent_t * ent))
 {
-  HT_INSERT(rsamap, &the_rsa_map, ent);
-  HT_INSERT(edmap, &the_ed_map, ent);
+    HT_INSERT(rsamap, &the_rsa_map, ent);
+    HT_INSERT(edmap, &the_ed_map, ent);
 }
 
 /**
@@ -231,45 +231,45 @@ keypin_add_entry_to_map, (keypin_ent_t *ent))
 static int
 keypin_add_or_replace_entry_in_map(keypin_ent_t *ent)
 {
-  int r = 1;
-  keypin_ent_t *ent2 = HT_FIND(rsamap, &the_rsa_map, ent);
-  keypin_ent_t *ent3 = HT_FIND(edmap, &the_ed_map, ent);
-  if (ent2 &&
-      fast_memeq(ent2->ed25519_key, ent->ed25519_key, DIGEST256_LEN)) {
-    /* We already have this mapping stored. Ignore it. */
-    tor_free(ent);
-    return 0;
-  } else if (ent2 || ent3) {
-    /* We have a conflict. (If we had no entry, we would have ent2 == ent3
-     * == NULL. If we had a non-conflicting duplicate, we would have found
-     * it above.)
-     *
-     * We respond by having this entry (ent) supersede all entries that it
-     * contradicts (ent2 and/or ent3). In other words, if we receive
-     * <rsa,ed>, we remove all <rsa,ed'> and all <rsa',ed>, for rsa'!=rsa
-     * and ed'!= ed.
-     */
-    const keypin_ent_t *t;
-    if (ent2) {
-      t = HT_REMOVE(rsamap, &the_rsa_map, ent2);
-      tor_assert(ent2 == t);
-      t = HT_REMOVE(edmap, &the_ed_map, ent2);
-      tor_assert(ent2 == t);
+    int r = 1;
+    keypin_ent_t *ent2 = HT_FIND(rsamap, &the_rsa_map, ent);
+    keypin_ent_t *ent3 = HT_FIND(edmap, &the_ed_map, ent);
+    if (ent2 &&
+        fast_memeq(ent2->ed25519_key, ent->ed25519_key, DIGEST256_LEN)) {
+        /* We already have this mapping stored. Ignore it. */
+        tor_free(ent);
+        return 0;
+    } else if (ent2 || ent3) {
+        /* We have a conflict. (If we had no entry, we would have ent2 == ent3
+         * == NULL. If we had a non-conflicting duplicate, we would have found
+         * it above.)
+         *
+         * We respond by having this entry (ent) supersede all entries that it
+         * contradicts (ent2 and/or ent3). In other words, if we receive
+         * <rsa,ed>, we remove all <rsa,ed'> and all <rsa',ed>, for rsa'!=rsa
+         * and ed'!= ed.
+         */
+        const keypin_ent_t *t;
+        if (ent2) {
+            t = HT_REMOVE(rsamap, &the_rsa_map, ent2);
+            tor_assert(ent2 == t);
+            t = HT_REMOVE(edmap, &the_ed_map, ent2);
+            tor_assert(ent2 == t);
+        }
+        if (ent3 && ent2 != ent3) {
+            t = HT_REMOVE(rsamap, &the_rsa_map, ent3);
+            tor_assert(ent3 == t);
+            t = HT_REMOVE(edmap, &the_ed_map, ent3);
+            tor_assert(ent3 == t);
+            tor_free(ent3);
+        }
+        tor_free(ent2);
+        r = -1;
+        /* Fall through */
     }
-    if (ent3 && ent2 != ent3) {
-      t = HT_REMOVE(rsamap, &the_rsa_map, ent3);
-      tor_assert(ent3 == t);
-      t = HT_REMOVE(edmap, &the_ed_map, ent3);
-      tor_assert(ent3 == t);
-      tor_free(ent3);
-    }
-    tor_free(ent2);
-    r = -1;
-    /* Fall through */
-  }
 
-  keypin_add_entry_to_map(ent);
-  return r;
+    keypin_add_entry_to_map(ent);
+    return r;
 }
 
 /**
@@ -281,17 +281,17 @@ keypin_add_or_replace_entry_in_map(keypin_ent_t *ent)
 int
 keypin_check_lone_rsa(const uint8_t *rsa_id_digest)
 {
-  keypin_ent_t search, *ent;
-  memset(&search, 0, sizeof(search));
-  memcpy(search.rsa_id, rsa_id_digest, sizeof(search.rsa_id));
+    keypin_ent_t search, *ent;
+    memset(&search, 0, sizeof(search));
+    memcpy(search.rsa_id, rsa_id_digest, sizeof(search.rsa_id));
 
-  /* Search by RSA key digest first */
-  ent = HT_FIND(rsamap, &the_rsa_map, &search);
-  if (ent) {
-    return KEYPIN_MISMATCH;
-  } else {
-    return KEYPIN_NOT_FOUND;
-  }
+    /* Search by RSA key digest first */
+    ent = HT_FIND(rsamap, &the_rsa_map, &search);
+    if (ent) {
+        return KEYPIN_MISMATCH;
+    } else {
+        return KEYPIN_NOT_FOUND;
+    }
 }
 
 /** Open fd to the keypinning journal file. */
@@ -303,43 +303,44 @@ int
 keypin_open_journal(const char *fname)
 {
 #ifndef O_SYNC
-#define O_SYNC 0
+#    define O_SYNC 0
 #endif
-  int fd = tor_open_cloexec(fname, O_WRONLY|O_CREAT|O_BINARY|O_SYNC, 0600);
-  if (fd < 0)
-    goto err;
+    int fd =
+        tor_open_cloexec(fname, O_WRONLY | O_CREAT | O_BINARY | O_SYNC, 0600);
+    if (fd < 0)
+        goto err;
 
-  if (tor_fd_seekend(fd) < 0)
-    goto err;
+    if (tor_fd_seekend(fd) < 0)
+        goto err;
 
-  /* Add a newline in case the last line was only partially written */
-  if (write(fd, "\n", 1) < 1)
-    goto err;
+    /* Add a newline in case the last line was only partially written */
+    if (write(fd, "\n", 1) < 1)
+        goto err;
 
-  /* Add something about when we opened this file. */
-  char buf[80];
-  char tbuf[ISO_TIME_LEN+1];
-  format_iso_time(tbuf, approx_time());
-  tor_snprintf(buf, sizeof(buf), "@opened-at %s\n", tbuf);
-  if (write_all_to_fd(fd, buf, strlen(buf)) < 0)
-    goto err;
+    /* Add something about when we opened this file. */
+    char buf[80];
+    char tbuf[ISO_TIME_LEN + 1];
+    format_iso_time(tbuf, approx_time());
+    tor_snprintf(buf, sizeof(buf), "@opened-at %s\n", tbuf);
+    if (write_all_to_fd(fd, buf, strlen(buf)) < 0)
+        goto err;
 
-  keypin_journal_fd = fd;
-  return 0;
- err:
-  if (fd >= 0)
-    close(fd);
-  return -1;
+    keypin_journal_fd = fd;
+    return 0;
+err:
+    if (fd >= 0)
+        close(fd);
+    return -1;
 }
 
 /** Close the keypinning journal file. */
 int
 keypin_close_journal(void)
 {
-  if (keypin_journal_fd >= 0)
-    close(keypin_journal_fd);
-  keypin_journal_fd = -1;
-  return 0;
+    if (keypin_journal_fd >= 0)
+        close(keypin_journal_fd);
+    keypin_journal_fd = -1;
+    return 0;
 }
 
 /** Length of a keypinning journal line, including terminating newline. */
@@ -351,23 +352,25 @@ static int
 keypin_journal_append_entry(const uint8_t *rsa_id_digest,
                             const uint8_t *ed25519_id_key)
 {
-  if (keypin_journal_fd == -1)
-    return -1;
-  char line[JOURNAL_LINE_LEN];
-  digest_to_base64(line, (const char*)rsa_id_digest);
-  line[BASE64_DIGEST_LEN] = ' ';
-  digest256_to_base64(line + BASE64_DIGEST_LEN + 1,
-                      (const char*)ed25519_id_key);
-  line[BASE64_DIGEST_LEN+1+BASE64_DIGEST256_LEN] = '\n';
+    if (keypin_journal_fd == -1)
+        return -1;
+    char line[JOURNAL_LINE_LEN];
+    digest_to_base64(line, (const char *)rsa_id_digest);
+    line[BASE64_DIGEST_LEN] = ' ';
+    digest256_to_base64(line + BASE64_DIGEST_LEN + 1,
+                        (const char *)ed25519_id_key);
+    line[BASE64_DIGEST_LEN + 1 + BASE64_DIGEST256_LEN] = '\n';
 
-  if (write_all_to_fd(keypin_journal_fd, line, JOURNAL_LINE_LEN)<0) {
-    log_warn(LD_DIRSERV, "Error while adding a line to the key-pinning "
-             "journal: %s", strerror(errno));
-    keypin_close_journal();
-    return -1;
-  }
+    if (write_all_to_fd(keypin_journal_fd, line, JOURNAL_LINE_LEN) < 0) {
+        log_warn(LD_DIRSERV,
+                 "Error while adding a line to the key-pinning "
+                 "journal: %s",
+                 strerror(errno));
+        keypin_close_journal();
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 /** Load a journal from the <b>size</b>-byte region at <b>data</b>.  Return 0
@@ -375,71 +378,71 @@ keypin_journal_append_entry(const uint8_t *rsa_id_digest,
 STATIC int
 keypin_load_journal_impl(const char *data, size_t size)
 {
-  const char *start = data, *end = data + size, *next;
+    const char *start = data, *end = data + size, *next;
 
-  int n_corrupt_lines = 0;
-  int n_entries = 0;
-  int n_duplicates = 0;
-  int n_conflicts = 0;
+    int n_corrupt_lines = 0;
+    int n_entries = 0;
+    int n_duplicates = 0;
+    int n_conflicts = 0;
 
-  for (const char *cp = start; cp < end; cp = next) {
-    const char *eol = memchr(cp, '\n', end-cp);
-    const char *eos = eol ? eol : end;
-    const size_t len = eos - cp;
+    for (const char *cp = start; cp < end; cp = next) {
+        const char *eol = memchr(cp, '\n', end - cp);
+        const char *eos = eol ? eol : end;
+        const size_t len = eos - cp;
 
-    next = eol ? eol + 1 : end;
+        next = eol ? eol + 1 : end;
 
-    if (len == 0) {
-      continue;
-    }
-
-    if (*cp == '@') {
-      /* Lines that start with @ are reserved. Ignore for now. */
-      continue;
-    }
-    if (*cp == '#') {
-      /* Lines that start with # are comments. */
-      continue;
-    }
-
-    /* Is it the right length?  (The -1 here is for the newline.) */
-    if (len != JOURNAL_LINE_LEN - 1) {
-      /* Lines with a bad length are corrupt unless they are empty.
-       * Ignore them either way */
-      for (const char *s = cp; s < eos; ++s) {
-        if (! TOR_ISSPACE(*s)) {
-          ++n_corrupt_lines;
-          break;
+        if (len == 0) {
+            continue;
         }
-      }
-      continue;
+
+        if (*cp == '@') {
+            /* Lines that start with @ are reserved. Ignore for now. */
+            continue;
+        }
+        if (*cp == '#') {
+            /* Lines that start with # are comments. */
+            continue;
+        }
+
+        /* Is it the right length?  (The -1 here is for the newline.) */
+        if (len != JOURNAL_LINE_LEN - 1) {
+            /* Lines with a bad length are corrupt unless they are empty.
+             * Ignore them either way */
+            for (const char *s = cp; s < eos; ++s) {
+                if (!TOR_ISSPACE(*s)) {
+                    ++n_corrupt_lines;
+                    break;
+                }
+            }
+            continue;
+        }
+
+        keypin_ent_t *ent = keypin_parse_journal_line(cp);
+
+        if (ent == NULL) {
+            ++n_corrupt_lines;
+            continue;
+        }
+
+        const int r = keypin_add_or_replace_entry_in_map(ent);
+        if (r == 0) {
+            ++n_duplicates;
+        } else if (r == -1) {
+            ++n_conflicts;
+        }
+
+        ++n_entries;
     }
 
-    keypin_ent_t *ent = keypin_parse_journal_line(cp);
+    int severity = (n_corrupt_lines || n_duplicates) ? LOG_NOTICE : LOG_INFO;
+    tor_log(severity, LD_DIRSERV,
+            "Loaded %d entries from keypin journal. "
+            "Found %d corrupt lines (ignored), %d duplicates (harmless), "
+            "and %d conflicts (resolved in favor of more recent entry).",
+            n_entries, n_corrupt_lines, n_duplicates, n_conflicts);
 
-    if (ent == NULL) {
-      ++n_corrupt_lines;
-      continue;
-    }
-
-    const int r = keypin_add_or_replace_entry_in_map(ent);
-    if (r == 0) {
-      ++n_duplicates;
-    } else if (r == -1) {
-      ++n_conflicts;
-    }
-
-    ++n_entries;
-  }
-
-  int severity = (n_corrupt_lines || n_duplicates) ? LOG_NOTICE : LOG_INFO;
-  tor_log(severity, LD_DIRSERV,
-          "Loaded %d entries from keypin journal. "
-          "Found %d corrupt lines (ignored), %d duplicates (harmless), "
-          "and %d conflicts (resolved in favor of more recent entry).",
-          n_entries, n_corrupt_lines, n_duplicates, n_conflicts);
-
-  return 0;
+    return 0;
 }
 
 /**
@@ -449,16 +452,16 @@ keypin_load_journal_impl(const char *data, size_t size)
 int
 keypin_load_journal(const char *fname)
 {
-  tor_mmap_t *map = tor_mmap_file(fname);
-  if (!map) {
-    if (errno == ENOENT)
-      return 0;
-    else
-      return -1;
-  }
-  int r = keypin_load_journal_impl(map->data, map->size);
-  tor_munmap_file(map);
-  return r;
+    tor_mmap_t *map = tor_mmap_file(fname);
+    if (!map) {
+        if (errno == ENOENT)
+            return 0;
+        else
+            return -1;
+    }
+    int r = keypin_load_journal_impl(map->data, map->size);
+    tor_munmap_file(map);
+    return r;
 }
 
 /** Parse a single keypinning journal line entry from <b>cp</b>.  The input
@@ -469,45 +472,46 @@ keypin_load_journal(const char *fname)
 STATIC keypin_ent_t *
 keypin_parse_journal_line(const char *cp)
 {
-  /* XXXX assumes !USE_OPENSSL_BASE64 */
-  keypin_ent_t *ent = tor_malloc_zero(sizeof(keypin_ent_t));
+    /* XXXX assumes !USE_OPENSSL_BASE64 */
+    keypin_ent_t *ent = tor_malloc_zero(sizeof(keypin_ent_t));
 
-  if (base64_decode((char*)ent->rsa_id, sizeof(ent->rsa_id),
-             cp, BASE64_DIGEST_LEN) != DIGEST_LEN ||
-      cp[BASE64_DIGEST_LEN] != ' ' ||
-      base64_decode((char*)ent->ed25519_key, sizeof(ent->ed25519_key),
-             cp+BASE64_DIGEST_LEN+1, BASE64_DIGEST256_LEN) != DIGEST256_LEN) {
-    tor_free(ent);
-    return NULL;
-  } else {
-    return ent;
-  }
+    if (base64_decode((char *)ent->rsa_id, sizeof(ent->rsa_id), cp,
+                      BASE64_DIGEST_LEN) != DIGEST_LEN ||
+        cp[BASE64_DIGEST_LEN] != ' ' ||
+        base64_decode((char *)ent->ed25519_key, sizeof(ent->ed25519_key),
+                      cp + BASE64_DIGEST_LEN + 1,
+                      BASE64_DIGEST256_LEN) != DIGEST256_LEN) {
+        tor_free(ent);
+        return NULL;
+    } else {
+        return ent;
+    }
 }
 
 /** Remove all entries from the keypinning table.*/
 void
 keypin_clear(void)
 {
-  int bad_entries = 0;
-  {
-    keypin_ent_t **ent, **next, *this;
-    for (ent = HT_START(rsamap, &the_rsa_map); ent != NULL; ent = next) {
-      this = *ent;
-      next = HT_NEXT_RMV(rsamap, &the_rsa_map, ent);
+    int bad_entries = 0;
+    {
+        keypin_ent_t **ent, **next, *this;
+        for (ent = HT_START(rsamap, &the_rsa_map); ent != NULL; ent = next) {
+            this = *ent;
+            next = HT_NEXT_RMV(rsamap, &the_rsa_map, ent);
 
-      keypin_ent_t *other_ent = HT_REMOVE(edmap, &the_ed_map, this);
-      bad_entries += (other_ent != this);
+            keypin_ent_t *other_ent = HT_REMOVE(edmap, &the_ed_map, this);
+            bad_entries += (other_ent != this);
 
-      tor_free(this);
+            tor_free(this);
+        }
     }
-  }
-  bad_entries += HT_SIZE(&the_ed_map);
+    bad_entries += HT_SIZE(&the_ed_map);
 
-  HT_CLEAR(edmap,&the_ed_map);
-  HT_CLEAR(rsamap,&the_rsa_map);
+    HT_CLEAR(edmap, &the_ed_map);
+    HT_CLEAR(rsamap, &the_rsa_map);
 
-  if (bad_entries) {
-    log_warn(LD_BUG, "Found %d discrepencies in the keypin database.",
-             bad_entries);
-  }
+    if (bad_entries) {
+        log_warn(LD_BUG, "Found %d discrepencies in the keypin database.",
+                 bad_entries);
+    }
 }

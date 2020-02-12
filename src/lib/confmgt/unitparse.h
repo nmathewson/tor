@@ -17,8 +17,8 @@
 /** Mapping from a unit name to a multiplier for converting that unit into a
  * base unit.  Used by config_parse_unit. */
 typedef struct unit_table_t {
-  const char *unit; /**< The name of the unit */
-  uint64_t multiplier; /**< How many of the base unit appear in this unit */
+    const char *unit; /**< The name of the unit */
+    uint64_t multiplier; /**< How many of the base unit appear in this unit */
 } unit_table_t;
 
 extern const unit_table_t memory_units[];

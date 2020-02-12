@@ -40,30 +40,30 @@
 #include "lib/time/compat_time.h"
 
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+#    include <sys/time.h>
 #endif
 
 #ifdef _WIN32
 // For struct timeval.
-#include <winsock2.h>
+#    include <winsock2.h>
 #endif
 
 struct timeout_cb_t {
-  timer_cb_fn_t cb;
-  void *arg;
+    timer_cb_fn_t cb;
+    void *arg;
 };
 
 /*
  * These definitions are for timeouts.c  and timeouts.h.
  */
 #ifdef COCCI
-#define TIMEOUT_PUBLIC
+#    define TIMEOUT_PUBLIC
 #elif defined(__GNUC__)
 /* We're not exposing any of the functions outside this file. */
-#define TIMEOUT_PUBLIC __attribute__((__unused__)) static
+#    define TIMEOUT_PUBLIC __attribute__((__unused__)) static
 #else
 /* We're not exposing any of the functions outside this file. */
-#define TIMEOUT_PUBLIC static
+#    define TIMEOUT_PUBLIC static
 #endif /* defined(COCCI) || ... */
 /* We're not using periodic events. */
 #define TIMEOUT_DISABLE_INTERVALS
@@ -80,7 +80,7 @@ struct timeout_cb_t {
 #if SIZEOF_VOID_P == 4
 /* On 32-bit platforms, we want to override wheel_bit, so that timeout.c will
  * use 32-bit math. */
-#define WHEEL_BIT 5
+#    define WHEEL_BIT 5
 #endif
 
 #include "ext/timeouts/timeout.c"
@@ -108,7 +108,7 @@ static monotime_t start_of_time;
 
 /** Check at least once every N ticks. */
 #define MIN_CHECK_TICKS \
-  (((timeout_t)MIN_CHECK_SECONDS) * (1000000 / USEC_PER_TICK))
+    (((timeout_t)MIN_CHECK_SECONDS) * (1000000 / USEC_PER_TICK))
 
 /**
  * Convert the timeval in <b>tv</b> to a timeout_t, and return it.
@@ -119,9 +119,9 @@ static monotime_t start_of_time;
 static timeout_t
 tv_to_timeout(const struct timeval *tv)
 {
-  uint64_t usec = tv->tv_usec;
-  usec += ((uint64_t)USEC_PER_SEC) * tv->tv_sec;
-  return usec / USEC_PER_TICK;
+    uint64_t usec = tv->tv_usec;
+    usec += ((uint64_t)USEC_PER_SEC) * tv->tv_sec;
+    return usec / USEC_PER_TICK;
 }
 
 /**
@@ -131,9 +131,9 @@ tv_to_timeout(const struct timeval *tv)
 static void
 timeout_to_tv(timeout_t t, struct timeval *tv_out)
 {
-  t *= USEC_PER_TICK;
-  tv_out->tv_usec = (int)(t % USEC_PER_SEC);
-  tv_out->tv_sec = (time_t)(t / USEC_PER_SEC);
+    t *= USEC_PER_TICK;
+    tv_out->tv_usec = (int)(t % USEC_PER_SEC);
+    tv_out->tv_sec = (time_t)(t / USEC_PER_SEC);
 }
 
 /**
@@ -142,9 +142,9 @@ timeout_to_tv(timeout_t t, struct timeval *tv_out)
 static void
 timer_advance_to_cur_time(const monotime_t *now)
 {
-  timeout_t cur_tick = CEIL_DIV(monotime_diff_usec(&start_of_time, now),
-                                USEC_PER_TICK);
-  timeouts_update(global_timeouts, cur_tick);
+    timeout_t cur_tick =
+        CEIL_DIV(monotime_diff_usec(&start_of_time, now), USEC_PER_TICK);
+    timeouts_update(global_timeouts, cur_tick);
 }
 
 /**
@@ -154,17 +154,17 @@ timer_advance_to_cur_time(const monotime_t *now)
 static void
 libevent_timer_reschedule(void)
 {
-  monotime_t now;
-  monotime_get(&now);
-  timer_advance_to_cur_time(&now);
+    monotime_t now;
+    monotime_get(&now);
+    timer_advance_to_cur_time(&now);
 
-  timeout_t delay = timeouts_timeout(global_timeouts);
+    timeout_t delay = timeouts_timeout(global_timeouts);
 
-  struct timeval d;
-  if (delay > MIN_CHECK_TICKS)
-    delay = MIN_CHECK_TICKS;
-  timeout_to_tv(delay, &d);
-  mainloop_event_schedule(global_timer_event, &d);
+    struct timeval d;
+    if (delay > MIN_CHECK_TICKS)
+        delay = MIN_CHECK_TICKS;
+    timeout_to_tv(delay, &d);
+    mainloop_event_schedule(global_timer_event, &d);
 }
 
 /** Run the callback of every timer that has expired, based on the current
@@ -172,14 +172,14 @@ libevent_timer_reschedule(void)
 STATIC void
 timers_run_pending(void)
 {
-  monotime_t now;
-  monotime_get(&now);
-  timer_advance_to_cur_time(&now);
+    monotime_t now;
+    monotime_get(&now);
+    timer_advance_to_cur_time(&now);
 
-  tor_timer_t *t;
-  while ((t = timeouts_get(global_timeouts))) {
-    t->callback.cb(t, t->callback.arg, &now);
-  }
+    tor_timer_t *t;
+    while ((t = timeouts_get(global_timeouts))) {
+        t->callback.cb(t, t->callback.arg, &now);
+    }
 }
 
 /**
@@ -189,12 +189,12 @@ timers_run_pending(void)
 static void
 libevent_timer_callback(mainloop_event_t *ev, void *arg)
 {
-  (void)ev;
-  (void)arg;
+    (void)ev;
+    (void)arg;
 
-  timers_run_pending();
+    timers_run_pending();
 
-  libevent_timer_reschedule();
+    libevent_timer_reschedule();
 }
 
 /**
@@ -204,27 +204,27 @@ libevent_timer_callback(mainloop_event_t *ev, void *arg)
 void
 timers_initialize(void)
 {
-  if (BUG(global_timeouts))
-    return; // LCOV_EXCL_LINE
+    if (BUG(global_timeouts))
+        return; // LCOV_EXCL_LINE
 
-  timeout_error_t err = 0;
-  global_timeouts = timeouts_open(0, &err);
-  if (!global_timeouts) {
-    // LCOV_EXCL_START -- this can only fail on malloc failure.
-    log_err(LD_BUG, "Unable to open timer backend: %s", strerror(err));
-    tor_assert(0);
-    // LCOV_EXCL_STOP
-  }
+    timeout_error_t err = 0;
+    global_timeouts = timeouts_open(0, &err);
+    if (!global_timeouts) {
+        // LCOV_EXCL_START -- this can only fail on malloc failure.
+        log_err(LD_BUG, "Unable to open timer backend: %s", strerror(err));
+        tor_assert(0);
+        // LCOV_EXCL_STOP
+    }
 
-  monotime_init();
-  monotime_get(&start_of_time);
+    monotime_init();
+    monotime_get(&start_of_time);
 
-  mainloop_event_t *timer_event;
-  timer_event = mainloop_event_new(libevent_timer_callback, NULL);
-  tor_assert(timer_event);
-  global_timer_event = timer_event;
+    mainloop_event_t *timer_event;
+    timer_event = mainloop_event_new(libevent_timer_callback, NULL);
+    tor_assert(timer_event);
+    global_timer_event = timer_event;
 
-  libevent_timer_reschedule();
+    libevent_timer_reschedule();
 }
 
 /**
@@ -233,14 +233,14 @@ timers_initialize(void)
 void
 timers_shutdown(void)
 {
-  if (global_timer_event) {
-    mainloop_event_free(global_timer_event);
-    global_timer_event = NULL;
-  }
-  if (global_timeouts) {
-    timeouts_close(global_timeouts);
-    global_timeouts = NULL;
-  }
+    if (global_timer_event) {
+        mainloop_event_free(global_timer_event);
+        global_timer_event = NULL;
+    }
+    if (global_timeouts) {
+        timeouts_close(global_timeouts);
+        global_timeouts = NULL;
+    }
 }
 
 /**
@@ -249,10 +249,10 @@ timers_shutdown(void)
 tor_timer_t *
 timer_new(timer_cb_fn_t cb, void *arg)
 {
-  tor_timer_t *t = tor_malloc(sizeof(tor_timer_t));
-  timeout_init(t, 0);
-  timer_set_cb(t, cb, arg);
-  return t;
+    tor_timer_t *t = tor_malloc(sizeof(tor_timer_t));
+    timeout_init(t, 0);
+    timer_set_cb(t, cb, arg);
+    return t;
 }
 
 /**
@@ -262,11 +262,11 @@ timer_new(timer_cb_fn_t cb, void *arg)
 void
 timer_free_(tor_timer_t *t)
 {
-  if (! t)
-    return;
+    if (!t)
+        return;
 
-  timeouts_del(global_timeouts, t);
-  tor_free(t);
+    timeouts_del(global_timeouts, t);
+    tor_free(t);
 }
 
 /**
@@ -275,8 +275,8 @@ timer_free_(tor_timer_t *t)
 void
 timer_set_cb(tor_timer_t *t, timer_cb_fn_t cb, void *arg)
 {
-  t->callback.cb = cb;
-  t->callback.arg = arg;
+    t->callback.cb = cb;
+    t->callback.arg = arg;
 }
 
 /**
@@ -284,13 +284,12 @@ timer_set_cb(tor_timer_t *t, timer_cb_fn_t cb, void *arg)
  * and *<b>arg_out</b> (if provided) to this timer's callback argument.
  */
 void
-timer_get_cb(const tor_timer_t *t,
-             timer_cb_fn_t *cb_out, void **arg_out)
+timer_get_cb(const tor_timer_t *t, timer_cb_fn_t *cb_out, void **arg_out)
 {
-  if (cb_out)
-    *cb_out = t->callback.cb;
-  if (arg_out)
-    *arg_out = t->callback.arg;
+    if (cb_out)
+        *cb_out = t->callback.cb;
+    if (arg_out)
+        *arg_out = t->callback.arg;
 }
 
 /**
@@ -300,22 +299,23 @@ timer_get_cb(const tor_timer_t *t,
 void
 timer_schedule(tor_timer_t *t, const struct timeval *tv)
 {
-  const timeout_t delay = tv_to_timeout(tv);
+    const timeout_t delay = tv_to_timeout(tv);
 
-  monotime_t now;
-  monotime_get(&now);
-  timer_advance_to_cur_time(&now);
+    monotime_t now;
+    monotime_get(&now);
+    timer_advance_to_cur_time(&now);
 
-  /* Take the old timeout value. */
-  timeout_t to = timeouts_timeout(global_timeouts);
+    /* Take the old timeout value. */
+    timeout_t to = timeouts_timeout(global_timeouts);
 
-  timeouts_add(global_timeouts, t, delay);
+    timeouts_add(global_timeouts, t, delay);
 
-  /* Should we update the libevent timer? */
-  if (to <= delay) {
-    return; /* we're already going to fire before this timer would trigger. */
-  }
-  libevent_timer_reschedule();
+    /* Should we update the libevent timer? */
+    if (to <= delay) {
+        return; /* we're already going to fire before this timer would trigger.
+                 */
+    }
+    libevent_timer_reschedule();
 }
 
 /**
@@ -325,7 +325,7 @@ timer_schedule(tor_timer_t *t, const struct timeval *tv)
 void
 timer_disable(tor_timer_t *t)
 {
-  timeouts_del(global_timeouts, t);
-  /* We don't reschedule the libevent timer here, since it's okay if it fires
-   * early. */
+    timeouts_del(global_timeouts, t);
+    /* We don't reschedule the libevent timer here, since it's okay if it fires
+     * early. */
 }

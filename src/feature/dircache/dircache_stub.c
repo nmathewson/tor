@@ -17,25 +17,25 @@
 int
 directory_handle_command(dir_connection_t *conn)
 {
-  (void) conn;
-  tor_assert_nonfatal_unreached_once();
-  return -1;
+    (void)conn;
+    tor_assert_nonfatal_unreached_once();
+    return -1;
 }
 
 int
 connection_dirserv_flushed_some(dir_connection_t *conn)
 {
-  (void) conn;
-  tor_assert_nonfatal_unreached_once();
-  return -1;
+    (void)conn;
+    tor_assert_nonfatal_unreached_once();
+    return -1;
 }
 
 void
 dir_conn_clear_spool(dir_connection_t *conn)
 {
-  if (!conn)
-    return;
-  tor_assert_nonfatal_once(conn->spool == NULL);
+    if (!conn)
+        return;
+    tor_assert_nonfatal_once(conn->spool == NULL);
 }
 
 void
@@ -44,27 +44,26 @@ consdiffmgr_enable_background_compression(void)
 }
 
 int
-consdiffmgr_add_consensus(const char *consensus,
-                          size_t consensus_len,
+consdiffmgr_add_consensus(const char *consensus, size_t consensus_len,
                           const networkstatus_t *as_parsed)
 {
-  (void)consensus;
-  (void)consensus_len;
-  (void)as_parsed;
-  return 0;
+    (void)consensus;
+    (void)consensus_len;
+    (void)as_parsed;
+    return 0;
 }
 
 int
 consdiffmgr_register_with_sandbox(struct sandbox_cfg_elem_t **cfg)
 {
-  (void)cfg;
-  return 0;
+    (void)cfg;
+    return 0;
 }
 
 int
 consdiffmgr_cleanup(void)
 {
-  return 0;
+    return 0;
 }
 
 void

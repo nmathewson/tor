@@ -17,18 +17,18 @@
 /* The contents of this type are private; don't mess with them from outside
  * Tor. */
 struct tor_main_configuration_t {
-  /** As in main() */
-  int argc;
-  /** As in main(). This pointer is owned by the caller */
-  char **argv;
+    /** As in main() */
+    int argc;
+    /** As in main(). This pointer is owned by the caller */
+    char **argv;
 
-  /** As argc, but describes the number of elements in argv_owned */
-  int argc_owned;
-  /** As argv, but is owned by the tor_main_configuration_t object. */
-  char **argv_owned;
+    /** As argc, but describes the number of elements in argv_owned */
+    int argc_owned;
+    /** As argv, but is owned by the tor_main_configuration_t object. */
+    char **argv_owned;
 
-  /** Socket that Tor will use as an owning control socket. Owned. */
-  tor_socket_t owning_controller_socket;
+    /** Socket that Tor will use as an owning control socket. Owned. */
+    tor_socket_t owning_controller_socket;
 };
 
 #endif /* !defined(TOR_API_INTERNAL_H) */

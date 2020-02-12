@@ -35,20 +35,19 @@
  * Return TOR_COMPRESS_ERROR if the stream is corrupt.
  */
 tor_compress_output_t
-tor_cnone_compress_process(char **out, size_t *out_len,
-                           const char **in, size_t *in_len,
-                           int finish)
+tor_cnone_compress_process(char **out, size_t *out_len, const char **in,
+                           size_t *in_len, int finish)
 {
-  size_t n_to_copy = MIN(*in_len, *out_len);
+    size_t n_to_copy = MIN(*in_len, *out_len);
 
-  memcpy(*out, *in, n_to_copy);
-  *out += n_to_copy;
-  *in += n_to_copy;
-  *out_len -= n_to_copy;
-  *in_len -= n_to_copy;
-  if (*in_len == 0) {
-    return finish ? TOR_COMPRESS_DONE : TOR_COMPRESS_OK;
-  } else {
-    return TOR_COMPRESS_BUFFER_FULL;
-  }
+    memcpy(*out, *in, n_to_copy);
+    *out += n_to_copy;
+    *in += n_to_copy;
+    *out_len -= n_to_copy;
+    *in_len -= n_to_copy;
+    if (*in_len == 0) {
+        return finish ? TOR_COMPRESS_DONE : TOR_COMPRESS_OK;
+    } else {
+        return TOR_COMPRESS_BUFFER_FULL;
+    }
 }

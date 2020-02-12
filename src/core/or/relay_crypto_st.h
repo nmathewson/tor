@@ -17,21 +17,21 @@ struct crypto_cipher_t;
 struct crypto_digest_t;
 
 struct relay_crypto_t {
-  /* crypto environments */
-  /** Encryption key and counter for cells heading towards the OR at this
-   * step. */
-  struct crypto_cipher_t *f_crypto;
-  /** Encryption key and counter for cells heading back from the OR at this
-   * step. */
-  struct crypto_cipher_t *b_crypto;
+    /* crypto environments */
+    /** Encryption key and counter for cells heading towards the OR at this
+     * step. */
+    struct crypto_cipher_t *f_crypto;
+    /** Encryption key and counter for cells heading back from the OR at this
+     * step. */
+    struct crypto_cipher_t *b_crypto;
 
-  /** Digest state for cells heading towards the OR at this step. */
-  struct crypto_digest_t *f_digest; /* for integrity checking */
-  /** Digest state for cells heading away from the OR at this step. */
-  struct crypto_digest_t *b_digest;
+    /** Digest state for cells heading towards the OR at this step. */
+    struct crypto_digest_t *f_digest; /* for integrity checking */
+    /** Digest state for cells heading away from the OR at this step. */
+    struct crypto_digest_t *b_digest;
 
-  /** Digest used for the next SENDME cell if any. */
-  uint8_t sendme_digest[DIGEST_LEN];
+    /** Digest used for the next SENDME cell if any. */
+    uint8_t sendme_digest[DIGEST_LEN];
 };
 #undef crypto_cipher_t
 

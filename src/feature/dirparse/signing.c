@@ -19,53 +19,52 @@
  * and return the new signature on success or NULL on failure.
  */
 char *
-router_get_dirobj_signature(const char *digest,
-                            size_t digest_len,
+router_get_dirobj_signature(const char *digest, size_t digest_len,
                             const crypto_pk_t *private_key)
 {
-  char *signature;
-  size_t i, keysize;
-  int siglen;
-  char *buf = NULL;
-  size_t buf_len;
-  /* overestimate of BEGIN/END lines total len. */
+    char *signature;
+    size_t i, keysize;
+    int siglen;
+    char *buf = NULL;
+    size_t buf_len;
+    /* overestimate of BEGIN/END lines total len. */
 #define BEGIN_END_OVERHEAD_LEN 64
 
-  keysize = crypto_pk_keysize(private_key);
-  signature = tor_malloc(keysize);
-  siglen = crypto_pk_private_sign(private_key, signature, keysize,
-                                  digest, digest_len);
-  if (siglen < 0) {
-    log_warn(LD_BUG,"Couldn't sign digest.");
-    goto err;
-  }
+    keysize = crypto_pk_keysize(private_key);
+    signature = tor_malloc(keysize);
+    siglen = crypto_pk_private_sign(private_key, signature, keysize, digest,
+                                    digest_len);
+    if (siglen < 0) {
+        log_warn(LD_BUG, "Couldn't sign digest.");
+        goto err;
+    }
 
-  /* The *2 here is a ridiculous overestimate of base-64 overhead. */
-  buf_len = (siglen * 2) + BEGIN_END_OVERHEAD_LEN;
-  buf = tor_malloc(buf_len);
+    /* The *2 here is a ridiculous overestimate of base-64 overhead. */
+    buf_len = (siglen * 2) + BEGIN_END_OVERHEAD_LEN;
+    buf = tor_malloc(buf_len);
 
-  if (strlcpy(buf, "-----BEGIN SIGNATURE-----\n", buf_len) >= buf_len)
-    goto truncated;
+    if (strlcpy(buf, "-----BEGIN SIGNATURE-----\n", buf_len) >= buf_len)
+        goto truncated;
 
-  i = strlen(buf);
-  if (base64_encode(buf+i, buf_len-i, signature, siglen,
-                    BASE64_ENCODE_MULTILINE) < 0) {
-    log_warn(LD_BUG,"couldn't base64-encode signature");
-    goto err;
-  }
+    i = strlen(buf);
+    if (base64_encode(buf + i, buf_len - i, signature, siglen,
+                      BASE64_ENCODE_MULTILINE) < 0) {
+        log_warn(LD_BUG, "couldn't base64-encode signature");
+        goto err;
+    }
 
-  if (strlcat(buf, "-----END SIGNATURE-----\n", buf_len) >= buf_len)
-    goto truncated;
+    if (strlcat(buf, "-----END SIGNATURE-----\n", buf_len) >= buf_len)
+        goto truncated;
 
-  tor_free(signature);
-  return buf;
+    tor_free(signature);
+    return buf;
 
- truncated:
-  log_warn(LD_BUG,"tried to exceed string length.");
- err:
-  tor_free(signature);
-  tor_free(buf);
-  return NULL;
+truncated:
+    log_warn(LD_BUG, "tried to exceed string length.");
+err:
+    tor_free(signature);
+    tor_free(buf);
+    return NULL;
 }
 
 /** Helper: used to generate signatures for routers, directories and
@@ -79,20 +78,20 @@ int
 router_append_dirobj_signature(char *buf, size_t buf_len, const char *digest,
                                size_t digest_len, crypto_pk_t *private_key)
 {
-  size_t sig_len, s_len;
-  char *sig = router_get_dirobj_signature(digest, digest_len, private_key);
-  if (!sig) {
-    log_warn(LD_BUG, "No signature generated");
-    return -1;
-  }
-  sig_len = strlen(sig);
-  s_len = strlen(buf);
-  if (sig_len + s_len + 1 > buf_len) {
-    log_warn(LD_BUG, "Not enough room for signature");
+    size_t sig_len, s_len;
+    char *sig = router_get_dirobj_signature(digest, digest_len, private_key);
+    if (!sig) {
+        log_warn(LD_BUG, "No signature generated");
+        return -1;
+    }
+    sig_len = strlen(sig);
+    s_len = strlen(buf);
+    if (sig_len + s_len + 1 > buf_len) {
+        log_warn(LD_BUG, "Not enough room for signature");
+        tor_free(sig);
+        return -1;
+    }
+    memcpy(buf + s_len, sig, sig_len + 1);
     tor_free(sig);
-    return -1;
-  }
-  memcpy(buf+s_len, sig, sig_len+1);
-  tor_free(sig);
-  return 0;
+    return 0;
 }

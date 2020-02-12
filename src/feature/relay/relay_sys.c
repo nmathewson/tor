@@ -25,24 +25,24 @@
 static int
 subsys_relay_initialize(void)
 {
-  relay_register_periodic_events();
-  return 0;
+    relay_register_periodic_events();
+    return 0;
 }
 
 static void
 subsys_relay_shutdown(void)
 {
-  dns_free_all();
-  ext_orport_free_all();
-  clear_pending_onions();
-  routerkeys_free_all();
-  router_free_all();
+    dns_free_all();
+    ext_orport_free_all();
+    clear_pending_onions();
+    routerkeys_free_all();
+    router_free_all();
 }
 
 const struct subsys_fns_t sys_relay = {
-  .name = "relay",
-  .supported = true,
-  .level = RELAY_SUBSYS_LEVEL,
-  .initialize = subsys_relay_initialize,
-  .shutdown = subsys_relay_shutdown,
+    .name = "relay",
+    .supported = true,
+    .level = RELAY_SUBSYS_LEVEL,
+    .initialize = subsys_relay_initialize,
+    .shutdown = subsys_relay_shutdown,
 };

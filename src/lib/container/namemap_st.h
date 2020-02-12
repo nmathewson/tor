@@ -21,21 +21,24 @@ struct smartlist_t;
 
 /** An entry inside a namemap_t. Maps a string to a numeric identifier. */
 typedef struct mapped_name_t {
-  HT_ENTRY(mapped_name_t) node;
-  unsigned intval;
-  char name[FLEXIBLE_ARRAY_MEMBER];
+    HT_ENTRY(mapped_name_t) node;
+    unsigned intval;
+    char name[FLEXIBLE_ARRAY_MEMBER];
 } mapped_name_t;
 
 /** A structure that allocates small numeric identifiers for names and maps
  * back and forth between them.  */
 struct namemap_t {
-  HT_HEAD(namemap_ht, mapped_name_t) ht;
-  struct smartlist_t *names;
+    HT_HEAD(namemap_ht, mapped_name_t) ht;
+    struct smartlist_t *names;
 };
 
 #ifndef COCCI
 /** Macro to initialize a namemap. */
-#define NAMEMAP_INIT() { HT_INITIALIZER(), NULL }
+#    define NAMEMAP_INIT()         \
+        {                          \
+            HT_INITIALIZER(), NULL \
+        }
 #endif
 
 #endif /* !defined(NAMEMAP_ST_H) */

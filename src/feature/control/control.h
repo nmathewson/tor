@@ -29,11 +29,10 @@ void control_ports_write_to_file(void);
  *
  * LOG_FN_CONN(conn, (LOG_DEBUG, "Socket %d wants to write", conn->s));
  **/
-#define LOG_FN_CONN(conn, args)                 \
-  CONN_LOG_PROTECT(conn, log_fn args)
+#define LOG_FN_CONN(conn, args) CONN_LOG_PROTECT(conn, log_fn args)
 
-#define CC_LOCAL_FD_IS_OWNER (1u<<0)
-#define CC_LOCAL_FD_IS_AUTHENTICATED (1u<<1)
+#define CC_LOCAL_FD_IS_OWNER (1u << 0)
+#define CC_LOCAL_FD_IS_AUTHENTICATED (1u << 1)
 int control_connection_add_local_fd(tor_socket_t sock, unsigned flags);
 
 int connection_control_finished_flushing(control_connection_t *conn);
@@ -52,8 +51,8 @@ void control_free_all(void);
 
 #ifdef CONTROL_MODULE_PRIVATE
 struct signal_name_t {
-  int sig;
-  const char *signal_name;
+    int sig;
+    const char *signal_name;
 };
 extern const struct signal_name_t signal_table[];
 int get_cached_network_liveness(void);
