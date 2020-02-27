@@ -6,10 +6,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import io
+import getopt
 import os
 import re
 import sys
 import time
+
 
 def P(path):
     """
@@ -25,6 +27,18 @@ def warn(msg):
     Print an warning message.
     """
     print("WARNING: {}".format(msg), file=sys.stderr)
+
+def err(msg):
+    """
+    Print an warning message.
+    """
+    print("ERROR: {}".format(msg), file=sys.stderr)
+
+verbose = True
+def note(msg):
+    """Print a notice message if we're running verbosely."""
+    if verbose:
+        print(msg)
 
 def find_version(infile):
     """
@@ -75,10 +89,10 @@ def replace_on_change(fname, change):
     delete fname.tmp.  Log what we're doing to stderr.
     """
     if not change:
-        print("No change in {}".format(fname))
+        note("No change in {}".format(fname))
         os.unlink(fname+".tmp")
     else:
-        print("Updating {}".format(fname))
+        note("Updating {}".format(fname))
         os.rename(fname+".tmp", fname)
 
 
@@ -97,16 +111,49 @@ def update_file(fname,
 
     replace_on_change(fname, have_changed)
 
+def usage():
+    print("""\
+{} [-h|--help] [-q|--quiet]
+
+Update the version number in various scripts from the configure.ac file.
+
+Environment:
+   abs_top_srcdir: The location of the Tor working tree.
+
+Options.
+   -h, --help: print this message
+   -q, --quiet: only output warnings or errors.
+""".format(sys.argv[0]))
+
+try:
+    opts, rest = getopt.getopt(sys.argv[1:], "qh", ["quiet", "help"])
+except getopt.GetoptError as e:
+    err(str(e))
+    usage()
+    sys.exit(1)
+
+if rest:
+    print
+    usage()
+    sys.exit(1)
+
+for opt,arg in opts:
+    if opt in ["-q", "--quiet"]:
+        verbose = False
+    elif opt in ["-h", "--help"]:
+        usage()
+        sys.exit(0)
+
 # Find out our version
 with open(P("configure.ac")) as f:
     version = find_version(f)
 
 # If we have no version, we can't proceed.
 if version == None:
-    print("No version found in configure.ac", file=sys.stderr())
+    err("No version found in configure.ac")
     sys.exit(1)
 
-print("The version is {}".format(version))
+note("The version is {}".format(version))
 
 today = time.strftime("%Y-%m-%d", time.gmtime())
 
