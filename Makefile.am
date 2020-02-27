@@ -653,9 +653,9 @@ version:
 autostyle-ifdefs:
 	$(PYTHON) $(top_srcdir)/scripts/maint/annotate_ifdef_directives.py $(OWNED_TOR_C_FILES)
 
-.PHONY: autostyle-ifdefs
+.PHONY: autostyle-operators
 autostyle-operators:
-	$(PERL) $(top_srcdir)/scripts/coccinelle/test-operator-cleanup $(OWNED_TOR_C_FILES)
+	$(PERL) $(top_srcdir)/scripts/maint/test-operator-cleanup.pl $(OWNED_TOR_C_FILES)
 
 .PHONY: rectify-includes
 rectify-includes:
@@ -666,7 +666,7 @@ update-copyright:
 	$(PERL) $(top_srcdir)/scripts/maint/updateCopyright.pl $(OWNED_TOR_C_FILES)
 
 .PHONY: autostyle
-autostyle: update-versions rustfmt autostyle-ifdefs rectify-includes
+autostyle: update-versions rustfmt autostyle-ifdefs autostyle-operators rectify-includes
 
 mostlyclean-local:
 	rm -f $(top_builddir)/src/*/*.gc{da,no} $(top_builddir)/src/*/*/*.gc{da,no}

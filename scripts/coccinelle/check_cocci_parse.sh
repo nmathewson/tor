@@ -91,7 +91,7 @@ fi
 if test "$exitcode" != 0 ; then
     echo "Please fix these $PURPOSE errors in the above files"
     echo "Set VERBOSE=1 for more details"
-    echo "Try running test-operator-cleanup or 'make autostyle-operators'"
+    echo "Try running test-operator-cleanup.pl or 'make autostyle-operators'"
     echo "As a last resort, you can modify scripts/coccinelle/exceptions.txt"
 fi
 
