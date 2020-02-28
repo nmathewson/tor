@@ -164,6 +164,12 @@ abs_top_srcdir="${SRCDIR}" "${PYTHON}" "${SCRIPTDIR}/update_versions.py" \
               --quiet
 
 # ======================================================================
+# 1.2. Update copyrights.
+
+note "Updating copyrights"
+"${PERL}" "${SCRIPTDIR}/updateCopyright.pl" "${OWNED_TOR_C_FILES[@]}"
+
+# ======================================================================
 # 2. rustfmt.
 
 if [[ -x $(command -v "${CARGO_FMT}") ]]; then
