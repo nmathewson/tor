@@ -19,11 +19,11 @@ subsys_time_initialize(void)
 }
 
 const subsys_fns_t sys_time = {
-  .name = "time",
-  SUBSYS_DECLARE_LOCATION(),
-  /* Monotonic time depends on logging, and a lot of other modules depend on
-   * monotonic time. */
-  .level = -80,
-  .supported = true,
-  .initialize = subsys_time_initialize,
+    .name = "time",
+    SUBSYS_DECLARE_LOCATION(),
+    /* Monotonic time depends on logging, and a lot of other modules depend on
+     * monotonic time. */
+    .level = -80,
+    .supported = true,
+    .initialize = subsys_time_initialize,
 };

@@ -85,21 +85,21 @@ reset_last_resolved_addr(void)
  */
 int
 resolve_my_address(int warn_severity, const or_options_t *options,
-                   uint32_t *addr_out,
-                   const char **method_out, char **hostname_out)
+                   uint32_t *addr_out, const char **method_out,
+                   char **hostname_out)
 {
   struct in_addr in;
   uint32_t addr; /* host order */
   char hostname[256];
   const char *method_used;
   const char *hostname_used;
-  int explicit_ip=1;
-  int explicit_hostname=1;
-  int from_interface=0;
+  int explicit_ip = 1;
+  int explicit_hostname = 1;
+  int from_interface = 0;
   char *addr_string = NULL;
   const char *address = options->Address;
-  int notice_severity = warn_severity <= LOG_NOTICE ?
-    LOG_NOTICE : warn_severity;
+  int notice_severity =
+      warn_severity <= LOG_NOTICE ? LOG_NOTICE : warn_severity;
 
   tor_addr_t myaddr;
   tor_assert(addr_out);
@@ -115,7 +115,7 @@ resolve_my_address(int warn_severity, const or_options_t *options,
     explicit_hostname = 0; /* it's implicit */
 
     if (tor_gethostname(hostname, sizeof(hostname)) < 0) {
-      log_fn(warn_severity, LD_NET,"Error obtaining local hostname");
+      log_fn(warn_severity, LD_NET, "Error obtaining local hostname");
       return -1;
     }
     log_debug(LD_CONFIG, "Guessed local host name as '%s'", hostname);
@@ -140,7 +140,8 @@ resolve_my_address(int warn_severity, const or_options_t *options,
       }
       log_fn(notice_severity, LD_CONFIG,
              "Could not resolve guessed local hostname '%s'. "
-             "Trying something else.", hostname);
+             "Trying something else.",
+             hostname);
       if (get_interface_address(warn_severity, &interface_ip)) {
         log_fn(warn_severity, LD_CONFIG,
                "Could not get local interface IP address. Failing.");
@@ -148,33 +149,39 @@ resolve_my_address(int warn_severity, const or_options_t *options,
       }
       from_interface = 1;
       addr = interface_ip;
-      log_fn(notice_severity, LD_CONFIG, "Learned IP address '%s' for "
-             "local interface. Using that.", fmt_addr32(addr));
+      log_fn(notice_severity, LD_CONFIG,
+             "Learned IP address '%s' for "
+             "local interface. Using that.",
+             fmt_addr32(addr));
       strlcpy(hostname, "<guessed from interfaces>", sizeof(hostname));
     } else { /* resolved hostname into addr */
       tor_addr_from_ipv4h(&myaddr, addr);
 
-      if (!explicit_hostname &&
-          tor_addr_is_internal(&myaddr, 0)) {
+      if (!explicit_hostname && tor_addr_is_internal(&myaddr, 0)) {
         tor_addr_t interface_ip;
 
-        log_fn(notice_severity, LD_CONFIG, "Guessed local hostname '%s' "
+        log_fn(notice_severity, LD_CONFIG,
+               "Guessed local hostname '%s' "
                "resolves to a private IP address (%s). Trying something "
-               "else.", hostname, fmt_addr32(addr));
+               "else.",
+               hostname, fmt_addr32(addr));
 
-        if (get_interface_address6(warn_severity, AF_INET, &interface_ip)<0) {
+        if (get_interface_address6(warn_severity, AF_INET, &interface_ip) <
+            0) {
           log_fn(warn_severity, LD_CONFIG,
                  "Could not get local interface IP address. Too bad.");
         } else if (tor_addr_is_internal(&interface_ip, 0)) {
           log_fn(notice_severity, LD_CONFIG,
                  "Interface IP address '%s' is a private address too. "
-                 "Ignoring.", fmt_addr(&interface_ip));
+                 "Ignoring.",
+                 fmt_addr(&interface_ip));
         } else {
           from_interface = 1;
           addr = tor_addr_to_ipv4h(&interface_ip);
           log_fn(notice_severity, LD_CONFIG,
                  "Learned IP address '%s' for local interface."
-                 " Using that.", fmt_addr32(addr));
+                 " Using that.",
+                 fmt_addr32(addr));
           strlcpy(hostname, "<guessed from interfaces>", sizeof(hostname));
         }
       }
@@ -189,7 +196,7 @@ resolve_my_address(int warn_severity, const or_options_t *options,
    * out if it is and we don't want that.
    */
 
-  tor_addr_from_ipv4h(&myaddr,addr);
+  tor_addr_from_ipv4h(&myaddr, addr);
 
   addr_string = tor_dup_ip(addr);
   if (tor_addr_is_internal(&myaddr, 0)) {
@@ -201,16 +208,19 @@ resolve_my_address(int warn_severity, const or_options_t *options,
       log_fn(warn_severity, LD_CONFIG,
              "Address '%s' resolves to private IP address '%s'. "
              "Tor servers that use the default DirAuthorities must have "
-             "public IP addresses.", hostname, addr_string);
+             "public IP addresses.",
+             hostname, addr_string);
       tor_free(addr_string);
       return -1;
     }
     if (!explicit_ip) {
       /* even if they've set their own authorities, require an explicit IP if
        * they're using an internal address. */
-      log_fn(warn_severity, LD_CONFIG, "Address '%s' resolves to private "
+      log_fn(warn_severity, LD_CONFIG,
+             "Address '%s' resolves to private "
              "IP address '%s'. Please set the Address config option to be "
-             "the IP address you want to use.", hostname, addr_string);
+             "the IP address you want to use.",
+             hostname, addr_string);
       tor_free(addr_string);
       return -1;
     }
@@ -256,18 +266,16 @@ resolve_my_address(int warn_severity, const or_options_t *options,
     log_notice(LD_NET,
                "Your IP address seems to have changed to %s "
                "(METHOD=%s%s%s). Updating.",
-               addr_string, method_used,
-               hostname_used ? " HOSTNAME=" : "",
+               addr_string, method_used, hostname_used ? " HOSTNAME=" : "",
                hostname_used ? hostname_used : "");
     ip_address_changed(0);
   }
 
   if (last_resolved_addr != *addr_out) {
-    control_event_server_status(LOG_NOTICE,
-                                "EXTERNAL_ADDRESS ADDRESS=%s METHOD=%s%s%s",
-                                addr_string, method_used,
-                                hostname_used ? " HOSTNAME=" : "",
-                                hostname_used ? hostname_used : "");
+    control_event_server_status(
+        LOG_NOTICE, "EXTERNAL_ADDRESS ADDRESS=%s METHOD=%s%s%s", addr_string,
+        method_used, hostname_used ? " HOSTNAME=" : "",
+        hostname_used ? hostname_used : "");
   }
   last_resolved_addr = *addr_out;
 
@@ -300,8 +308,8 @@ is_local_addr, (const tor_addr_t *addr))
      * the same /24 as last_resolved_addr will be the same as checking whether
      * it was on net 0, which is already done by tor_addr_is_internal.
      */
-    if ((last_resolved_addr & (uint32_t)0xffffff00ul)
-        == (ip & (uint32_t)0xffffff00ul))
+    if ((last_resolved_addr & (uint32_t)0xffffff00ul) ==
+        (ip & (uint32_t)0xffffff00ul))
       return 1;
   }
   return 0;

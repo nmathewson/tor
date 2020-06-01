@@ -24,11 +24,9 @@ subsys_process_shutdown(void)
   process_free_all();
 }
 
-const subsys_fns_t sys_process = {
-  .name = "process",
-  SUBSYS_DECLARE_LOCATION(),
-  .level = -18,
-  .supported = true,
-  .initialize = subsys_process_initialize,
-  .shutdown = subsys_process_shutdown
-};
+const subsys_fns_t sys_process = {.name = "process",
+                                  SUBSYS_DECLARE_LOCATION(),
+                                  .level = -18,
+                                  .supported = true,
+                                  .initialize = subsys_process_initialize,
+                                  .shutdown = subsys_process_shutdown};

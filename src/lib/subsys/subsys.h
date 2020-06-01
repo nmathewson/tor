@@ -196,8 +196,7 @@ typedef struct subsys_fns_t {
 /**
  * Macro to declare a subsystem's location.
  **/
-#define SUBSYS_DECLARE_LOCATION() \
-  .location = __FILE__
+#  define SUBSYS_DECLARE_LOCATION() .location = __FILE__
 #endif /* !defined(COCCI) */
 
 /**

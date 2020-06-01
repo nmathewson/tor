@@ -91,8 +91,8 @@ struct ewma_policy_circ_data_t {
   circuit_t *circ;
 };
 
-#define EWMA_POL_DATA_MAGIC 0x2fd8b16aU
-#define EWMA_POL_CIRC_DATA_MAGIC 0x761e7747U
+#  define EWMA_POL_DATA_MAGIC 0x2fd8b16aU
+#  define EWMA_POL_CIRC_DATA_MAGIC 0x761e7747U
 
 /*** Downcasts for the above types ***/
 
@@ -104,11 +104,12 @@ struct ewma_policy_circ_data_t {
 static inline ewma_policy_data_t *
 TO_EWMA_POL_DATA(circuitmux_policy_data_t *pol)
 {
-  if (!pol) return NULL;
+  if (!pol)
+    return NULL;
   else {
     tor_assertf(pol->magic == EWMA_POL_DATA_MAGIC,
-                "Mismatch: %"PRIu32" != %"PRIu32,
-                pol->magic, EWMA_POL_DATA_MAGIC);
+                "Mismatch: %" PRIu32 " != %" PRIu32, pol->magic,
+                EWMA_POL_DATA_MAGIC);
     return DOWNCAST(ewma_policy_data_t, pol);
   }
 }
@@ -121,11 +122,12 @@ TO_EWMA_POL_DATA(circuitmux_policy_data_t *pol)
 static inline ewma_policy_circ_data_t *
 TO_EWMA_POL_CIRC_DATA(circuitmux_policy_circ_data_t *pol)
 {
-  if (!pol) return NULL;
+  if (!pol)
+    return NULL;
   else {
     tor_assertf(pol->magic == EWMA_POL_CIRC_DATA_MAGIC,
-                "Mismatch: %"PRIu32" != %"PRIu32,
-                pol->magic, EWMA_POL_CIRC_DATA_MAGIC);
+                "Mismatch: %" PRIu32 " != %" PRIu32, pol->magic,
+                EWMA_POL_CIRC_DATA_MAGIC);
     return DOWNCAST(ewma_policy_circ_data_t, pol);
   }
 }

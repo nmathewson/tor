@@ -27,12 +27,12 @@ subsys_logging_shutdown(void)
 }
 
 const subsys_fns_t sys_logging = {
-  .name = "log",
-  SUBSYS_DECLARE_LOCATION(),
-  .supported = true,
-  /* Logging depends on threads, approx time, raw logging, and security.
-   * Most other lib modules depend on logging. */
-  .level = -90,
-  .initialize = subsys_logging_initialize,
-  .shutdown = subsys_logging_shutdown,
+    .name = "log",
+    SUBSYS_DECLARE_LOCATION(),
+    .supported = true,
+    /* Logging depends on threads, approx time, raw logging, and security.
+     * Most other lib modules depend on logging. */
+    .level = -90,
+    .initialize = subsys_logging_initialize,
+    .shutdown = subsys_logging_shutdown,
 };

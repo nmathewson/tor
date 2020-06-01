@@ -67,7 +67,7 @@ test_new_route_len_noexit(void *arg)
   r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, NULL, &dummy_nodes);
   tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
- done:
+done:
   UNMOCK(count_acceptable_nodes);
 }
 
@@ -93,7 +93,7 @@ test_new_route_len_unsafe_exit(void *arg)
   r = new_route_len(CIRCUIT_PURPOSE_S_CONNECT_REND, &dummy_ei, &dummy_nodes);
   tt_int_op(DEFAULT_ROUTE_LEN + 1, OP_EQ, r);
 
- done:
+done:
   UNMOCK(count_acceptable_nodes);
 }
 
@@ -116,7 +116,7 @@ test_new_route_len_safe_exit(void *arg)
   r = new_route_len(CIRCUIT_PURPOSE_TESTING, &dummy_ei, &dummy_nodes);
   tt_int_op(DEFAULT_ROUTE_LEN, OP_EQ, r);
 
- done:
+done:
   UNMOCK(count_acceptable_nodes);
 }
 
@@ -131,9 +131,9 @@ test_new_route_len_unhandled_exit(void *arg)
 #ifdef ALL_BUGS_ARE_FATAL
   /* Coverity (and maybe clang analyser) complain that the code following
    * tt_skip() is unconditionally unreachable. */
-#if !defined(__COVERITY__) && !defined(__clang_analyzer__)
+#  if !defined(__COVERITY__) && !defined(__clang_analyzer__)
   tt_skip();
-#endif
+#  endif
 #endif /* defined(ALL_BUGS_ARE_FATAL) */
 
   MOCK(count_acceptable_nodes, mock_count_acceptable_nodes);
@@ -148,7 +148,7 @@ test_new_route_len_unhandled_exit(void *arg)
   expect_single_log_msg_containing("Unhandled purpose");
   expect_single_log_msg_containing("with a chosen exit; assuming routelen");
 
- done:
+done:
   teardown_capture_of_logs();
   tor_end_capture_bugs_();
   UNMOCK(count_acceptable_nodes);
@@ -162,7 +162,7 @@ test_upgrade_from_guard_wait(void *arg)
   entry_guard_t *guard = NULL;
   smartlist_t *list = NULL;
 
-  (void) arg;
+  (void)arg;
 
   circ = dummy_origin_circuit_new(0);
   orig_circ = TO_ORIGIN_CIRCUIT(circ);
@@ -176,9 +176,8 @@ test_upgrade_from_guard_wait(void *arg)
   guard = tor_malloc_zero(sizeof(*guard));
   guard->in_selection = get_guard_selection_info();
 
-  orig_circ->guard_state =
-    circuit_guard_state_new(guard, GUARD_CIRC_STATE_WAITING_FOR_BETTER_GUARD,
-                            NULL);
+  orig_circ->guard_state = circuit_guard_state_new(
+      guard, GUARD_CIRC_STATE_WAITING_FOR_BETTER_GUARD, NULL);
 
   /* Mark the circuit for close. */
   circuit_mark_for_close(circ, END_CIRC_REASON_TORPROTOCOL);
@@ -188,7 +187,7 @@ test_upgrade_from_guard_wait(void *arg)
   list = circuit_find_circuits_to_upgrade_from_guard_wait();
   tt_assert(!list);
 
- done:
+done:
   smartlist_free(list);
   circuit_free(circ);
   entry_guard_free_(guard);
@@ -259,7 +258,7 @@ test_circuit_extend_state_valid(void *arg)
   mock_clean_saved_logs();
   tor_free(circ->n_hop);
 
- done:
+done:
   tor_end_capture_bugs_();
   teardown_capture_of_logs();
 
@@ -282,14 +281,14 @@ mock_node_get_by_id(const char *identity_digest)
 static int mocked_supports_ed25519_link_authentication = 0;
 static int
 mock_node_supports_ed25519_link_authentication(const node_t *node,
-                                                int compatible_with_us)
+                                               int compatible_with_us)
 {
   (void)node;
   (void)compatible_with_us;
   return mocked_supports_ed25519_link_authentication;
 }
 
-static ed25519_public_key_t * mocked_ed25519_id = NULL;
+static ed25519_public_key_t *mocked_ed25519_id = NULL;
 static const ed25519_public_key_t *
 mock_node_get_ed25519_id(const node_t *node)
 {
@@ -332,7 +331,7 @@ test_circuit_extend_add_ed25519(void *arg)
   memcpy(old_ec, ec, sizeof(extend_cell_t));
   tt_int_op(circuit_extend_add_ed25519_helper(ec), OP_EQ, -1);
   expect_log_msg(
-    "Client asked me to extend without specifying an id_digest.\n");
+      "Client asked me to extend without specifying an id_digest.\n");
   /* And nothing should have changed */
   tt_mem_op(ec, OP_EQ, old_ec, sizeof(extend_cell_t));
   mock_clean_saved_logs();
@@ -453,7 +452,7 @@ test_circuit_extend_add_ed25519(void *arg)
   mocked_ed25519_id = NULL;
   memset(fake_ed25519_id, 0x00, sizeof(ed25519_public_key_t));
 
- done:
+done:
   UNMOCK(node_get_by_id);
   UNMOCK(node_supports_ed25519_link_authentication);
   UNMOCK(node_get_ed25519_id);
@@ -476,13 +475,13 @@ mock_get_options(void)
   return mocked_options;
 }
 
-#define PUBLIC_IPV4   "1.2.3.4"
+#define PUBLIC_IPV4 "1.2.3.4"
 #define INTERNAL_IPV4 "0.0.0.1"
 
-#define PUBLIC_IPV6   "1234::cdef"
+#define PUBLIC_IPV6 "1234::cdef"
 #define INTERNAL_IPV6 "::1"
 
-#define VALID_PORT    0x1234
+#define VALID_PORT 0x1234
 
 /* Test the different cases in circuit_extend_lspec_valid_helper(). */
 static void
@@ -808,7 +807,7 @@ test_circuit_extend_lspec_valid(void *arg)
   ec->orport_ipv4.port = 0;
   or_circ->p_chan = NULL;
 
- done:
+done:
   tor_end_capture_bugs_();
   teardown_capture_of_logs();
 
@@ -849,8 +848,7 @@ test_circuit_choose_ip_ap_for_extend(void *arg)
   MOCK(get_options, mock_get_options);
   mocked_options = fake_options;
 
-  MOCK(router_can_extend_over_ipv6,
-       mock_router_can_extend_over_ipv6);
+  MOCK(router_can_extend_over_ipv6, mock_router_can_extend_over_ipv6);
   can_extend_over_ipv6_result = true;
   mock_router_can_extend_over_ipv6_calls = 0;
 
@@ -898,11 +896,11 @@ test_circuit_choose_ip_ap_for_extend(void *arg)
 
   can_extend_over_ipv6_result = false;
   mock_router_can_extend_over_ipv6_calls = 0;
-  tt_ptr_op(circuit_choose_ip_ap_for_extend(&ipv4_ap, &ipv6_ap),
-            OP_EQ, &ipv4_ap);
+  tt_ptr_op(circuit_choose_ip_ap_for_extend(&ipv4_ap, &ipv6_ap), OP_EQ,
+            &ipv4_ap);
   tt_int_op(mock_router_can_extend_over_ipv6_calls, OP_EQ, 1);
 
- done:
+done:
   UNMOCK(get_options);
   or_options_free(fake_options);
   mocked_options = NULL;
@@ -914,8 +912,8 @@ test_circuit_choose_ip_ap_for_extend(void *arg)
 
 static int mock_circuit_close_calls = 0;
 static void
-mock_circuit_mark_for_close_(circuit_t *circ, int reason,
-                             int line, const char *cfile)
+mock_circuit_mark_for_close_(circuit_t *circ, int reason, int line,
+                             const char *cfile)
 {
   (void)circ;
   (void)reason;
@@ -927,8 +925,7 @@ mock_circuit_mark_for_close_(circuit_t *circ, int reason,
 static int mock_channel_connect_calls = 0;
 static channel_t *mock_channel_connect_nchan = NULL;
 static channel_t *
-mock_channel_connect_for_circuit(const tor_addr_t *addr,
-                                 uint16_t port,
+mock_channel_connect_for_circuit(const tor_addr_t *addr, uint16_t port,
                                  const char *id_digest,
                                  const struct ed25519_public_key_t *ed_id)
 {
@@ -968,8 +965,7 @@ test_circuit_open_connection_for_extend(void *arg)
   mock_channel_connect_calls = 0;
   mock_channel_connect_nchan = NULL;
 
-  MOCK(router_can_extend_over_ipv6,
-       mock_router_can_extend_over_ipv6);
+  MOCK(router_can_extend_over_ipv6, mock_router_can_extend_over_ipv6);
   can_extend_over_ipv6_result = true;
 
   setup_full_capture_of_logs(LOG_INFO);
@@ -1097,7 +1093,7 @@ test_circuit_open_connection_for_extend(void *arg)
   circ->state = 0;
   mock_channel_connect_nchan = NULL;
 
- done:
+done:
   tor_end_capture_bugs_();
   teardown_capture_of_logs();
 
@@ -1125,18 +1121,15 @@ static int mock_extend_cell_parse_result = 0;
 static int mock_extend_cell_parse_calls = 0;
 
 static int
-mock_extend_cell_parse(extend_cell_t *cell_out,
-                       const uint8_t command,
-                       const uint8_t *payload_in,
-                       size_t payload_len)
+mock_extend_cell_parse(extend_cell_t *cell_out, const uint8_t command,
+                       const uint8_t *payload_in, size_t payload_len)
 {
   (void)command;
   (void)payload_in;
   (void)payload_len;
 
   mock_extend_cell_parse_calls++;
-  memcpy(cell_out, &mock_extend_cell_parse_cell_out,
-         sizeof(extend_cell_t));
+  memcpy(cell_out, &mock_extend_cell_parse_cell_out, sizeof(extend_cell_t));
   return mock_extend_cell_parse_result;
 }
 
@@ -1148,8 +1141,7 @@ mock_channel_get_for_extend(const char *rsa_id_digest,
                             const ed25519_public_key_t *ed_id,
                             const tor_addr_t *target_ipv4_addr,
                             const tor_addr_t *target_ipv6_addr,
-                            const char **msg_out,
-                            int *launch_out)
+                            const char **msg_out, int *launch_out)
 {
   (void)rsa_id_digest;
   (void)ed_id;
@@ -1165,7 +1157,7 @@ mock_channel_get_for_extend(const char *rsa_id_digest,
   *launch_out = mock_channel_get_for_extend_launch_out;
   return mock_channel_get_for_extend_nchan;
 
- done:
+done:
   return NULL;
 }
 
@@ -1196,7 +1188,7 @@ mock_circuit_deliver_create_cell(circuit_t *circ,
   mock_circuit_deliver_create_cell_calls++;
   return mock_circuit_deliver_create_cell_result;
 
- done:
+done:
   return -1;
 }
 
@@ -1266,20 +1258,20 @@ test_circuit_extend(void *arg)
 
   /* And make parsing succeed, but fail on adding ed25519 */
   memset(&mock_extend_cell_parse_cell_out, 0,
-             sizeof(mock_extend_cell_parse_cell_out));
+         sizeof(mock_extend_cell_parse_cell_out));
   mock_extend_cell_parse_result = 0;
   mock_extend_cell_parse_calls = 0;
 
   tt_int_op(circuit_extend(cell, circ), OP_EQ, -1);
   tt_int_op(mock_extend_cell_parse_calls, OP_EQ, 1);
   expect_log_msg(
-    "Client asked me to extend without specifying an id_digest.\n");
+      "Client asked me to extend without specifying an id_digest.\n");
   mock_clean_saved_logs();
   mock_extend_cell_parse_calls = 0;
 
   /* Now add a node_id. Fail the lspec check because IPv4 and port are zero. */
   memset(&mock_extend_cell_parse_cell_out.node_id, 0xAA,
-             sizeof(mock_extend_cell_parse_cell_out.node_id));
+         sizeof(mock_extend_cell_parse_cell_out.node_id));
 
   tt_int_op(circuit_extend(cell, circ), OP_EQ, -1);
   tt_int_op(mock_extend_cell_parse_calls, OP_EQ, 1);
@@ -1400,7 +1392,7 @@ test_circuit_extend(void *arg)
   tor_free(circ->n_hop);
   tor_free(circ->n_chan_create_cell);
 
- done:
+done:
   tor_end_capture_bugs_();
   teardown_capture_of_logs();
 
@@ -1452,9 +1444,9 @@ test_onionskin_answer(void *arg)
 #ifndef ALL_BUGS_ARE_FATAL
   /* Circuit must be non-NULL */
   tor_capture_bugs_(1);
-  tt_int_op(onionskin_answer(NULL, created_cell,
-                             keys, CPATH_KEY_MATERIAL_LEN,
-                             rend_circ_nonce), OP_EQ, -1);
+  tt_int_op(onionskin_answer(NULL, created_cell, keys, CPATH_KEY_MATERIAL_LEN,
+                             rend_circ_nonce),
+            OP_EQ, -1);
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
   tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
             "!(ASSERT_PREDICT_UNLIKELY_(!circ))");
@@ -1463,9 +1455,9 @@ test_onionskin_answer(void *arg)
 
   /* Created cell must be non-NULL */
   tor_capture_bugs_(1);
-  tt_int_op(onionskin_answer(or_circ, NULL,
-                             keys, CPATH_KEY_MATERIAL_LEN,
-                             rend_circ_nonce), OP_EQ, -1);
+  tt_int_op(onionskin_answer(or_circ, NULL, keys, CPATH_KEY_MATERIAL_LEN,
+                             rend_circ_nonce),
+            OP_EQ, -1);
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
   tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
             "!(ASSERT_PREDICT_UNLIKELY_(!created_cell))");
@@ -1474,9 +1466,9 @@ test_onionskin_answer(void *arg)
 
   /* Keys must be non-NULL */
   tor_capture_bugs_(1);
-  tt_int_op(onionskin_answer(or_circ, created_cell,
-                             NULL, CPATH_KEY_MATERIAL_LEN,
-                             rend_circ_nonce), OP_EQ, -1);
+  tt_int_op(onionskin_answer(or_circ, created_cell, NULL,
+                             CPATH_KEY_MATERIAL_LEN, rend_circ_nonce),
+            OP_EQ, -1);
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
   tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
             "!(ASSERT_PREDICT_UNLIKELY_(!keys))");
@@ -1485,9 +1477,9 @@ test_onionskin_answer(void *arg)
 
   /* The rend circuit nonce must be non-NULL */
   tor_capture_bugs_(1);
-  tt_int_op(onionskin_answer(or_circ, created_cell,
-                             keys, CPATH_KEY_MATERIAL_LEN,
-                             NULL), OP_EQ, -1);
+  tt_int_op(onionskin_answer(or_circ, created_cell, keys,
+                             CPATH_KEY_MATERIAL_LEN, NULL),
+            OP_EQ, -1);
   tt_int_op(smartlist_len(tor_get_captured_bug_log_()), OP_EQ, 1);
   tt_str_op(smartlist_get(tor_get_captured_bug_log_(), 0), OP_EQ,
             "!(ASSERT_PREDICT_UNLIKELY_(!rend_circ_nonce))");
@@ -1499,16 +1491,16 @@ test_onionskin_answer(void *arg)
    * asserts in unit tests. */
 
   /* Fail when formatting the created cell */
-  tt_int_op(onionskin_answer(or_circ, created_cell,
-                             keys, CPATH_KEY_MATERIAL_LEN,
-                             rend_circ_nonce), OP_EQ, -1);
+  tt_int_op(onionskin_answer(or_circ, created_cell, keys,
+                             CPATH_KEY_MATERIAL_LEN, rend_circ_nonce),
+            OP_EQ, -1);
   expect_log_msg("couldn't format created cell (type=0, len=0).\n");
   mock_clean_saved_logs();
 
   /* TODO: test the rest of onionskin_answer(), see #33860 */
   /* TODO: mock created_cell_format for the next test  */
 
- done:
+done:
   tor_end_capture_bugs_();
   teardown_capture_of_logs();
 
@@ -1516,39 +1508,47 @@ test_onionskin_answer(void *arg)
   tor_free(or_circ);
 }
 
-#define TEST(name, flags, setup, cleanup) \
-  { #name, test_ ## name, flags, setup, cleanup }
+#define TEST(name, flags, setup, cleanup)     \
+  {                                           \
+#    name, test_##name, flags, setup, cleanup \
+  }
 
-#define TEST_NEW_ROUTE_LEN(name, flags) \
-  { #name, test_new_route_len_ ## name, flags, NULL, NULL }
+#define TEST_NEW_ROUTE_LEN(name, flags)                 \
+  {                                                     \
+#    name, test_new_route_len_##name, flags, NULL, NULL \
+  }
 
-#define TEST_CIRCUIT(name, flags) \
-  { #name, test_circuit_ ## name, flags, NULL, NULL }
+#define TEST_CIRCUIT(name, flags)                 \
+  {                                               \
+#    name, test_circuit_##name, flags, NULL, NULL \
+  }
 
 #ifndef COCCI
-#define TEST_CIRCUIT_PASSTHROUGH(name, flags, arg) \
-  { #name "/" arg, test_circuit_ ## name, flags, \
-    &passthrough_setup, (void *)(arg) }
+#  define TEST_CIRCUIT_PASSTHROUGH(name, flags, arg)                 \
+    {                                                                \
+#      name "/" arg, test_circuit_##name, flags, &passthrough_setup, \
+          (void *)(arg)                                              \
+    }
 #endif
 
 struct testcase_t circuitbuild_tests[] = {
-  TEST_NEW_ROUTE_LEN(noexit, 0),
-  TEST_NEW_ROUTE_LEN(safe_exit, 0),
-  TEST_NEW_ROUTE_LEN(unsafe_exit, 0),
-  TEST_NEW_ROUTE_LEN(unhandled_exit, 0),
+    TEST_NEW_ROUTE_LEN(noexit, 0),
+    TEST_NEW_ROUTE_LEN(safe_exit, 0),
+    TEST_NEW_ROUTE_LEN(unsafe_exit, 0),
+    TEST_NEW_ROUTE_LEN(unhandled_exit, 0),
 
-  TEST(upgrade_from_guard_wait, TT_FORK, &helper_pubsub_setup, NULL),
+    TEST(upgrade_from_guard_wait, TT_FORK, &helper_pubsub_setup, NULL),
 
-  TEST_CIRCUIT(extend_state_valid, TT_FORK),
-  TEST_CIRCUIT(extend_add_ed25519, TT_FORK),
-  TEST_CIRCUIT(extend_lspec_valid, TT_FORK),
-  TEST_CIRCUIT(choose_ip_ap_for_extend, 0),
-  TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK, "4"),
-  TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK, "6"),
-  TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK, "dual-stack"),
-  TEST_CIRCUIT(extend, TT_FORK),
+    TEST_CIRCUIT(extend_state_valid, TT_FORK),
+    TEST_CIRCUIT(extend_add_ed25519, TT_FORK),
+    TEST_CIRCUIT(extend_lspec_valid, TT_FORK),
+    TEST_CIRCUIT(choose_ip_ap_for_extend, 0),
+    TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK, "4"),
+    TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK, "6"),
+    TEST_CIRCUIT_PASSTHROUGH(open_connection_for_extend, TT_FORK,
+                             "dual-stack"),
+    TEST_CIRCUIT(extend, TT_FORK),
 
-  TEST(onionskin_answer, TT_FORK, NULL, NULL),
+    TEST(onionskin_answer, TT_FORK, NULL, NULL),
 
-  END_OF_TESTCASES
-};
+    END_OF_TESTCASES};

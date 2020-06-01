@@ -36,7 +36,7 @@ create_voting_schedule(const or_options_t *options, time_t now, int severity)
   consensus = networkstatus_get_live_consensus(now);
 
   if (consensus) {
-    interval = (int)( consensus->fresh_until - consensus->valid_after );
+    interval = (int)(consensus->fresh_until - consensus->valid_after);
     vote_delay = consensus->vote_seconds;
     dist_delay = consensus->dist_seconds;
 
@@ -52,29 +52,30 @@ create_voting_schedule(const or_options_t *options, time_t now, int severity)
   tor_assert(interval > 0);
   new_voting_schedule->interval = interval;
 
-  if (vote_delay + dist_delay > interval/2)
+  if (vote_delay + dist_delay > interval / 2)
     vote_delay = dist_delay = interval / 4;
 
   start = new_voting_schedule->interval_starts =
-    voting_sched_get_start_of_interval_after(now,interval,
-                                      options->TestingV3AuthVotingStartOffset);
-  end = voting_sched_get_start_of_interval_after(start+1, interval,
-                                      options->TestingV3AuthVotingStartOffset);
+      voting_sched_get_start_of_interval_after(
+          now, interval, options->TestingV3AuthVotingStartOffset);
+  end = voting_sched_get_start_of_interval_after(
+      start + 1, interval, options->TestingV3AuthVotingStartOffset);
 
   tor_assert(end > start);
 
-  new_voting_schedule->fetch_missing_signatures = start - (dist_delay/2);
+  new_voting_schedule->fetch_missing_signatures = start - (dist_delay / 2);
   new_voting_schedule->voting_ends = start - dist_delay;
   new_voting_schedule->fetch_missing_votes =
-    start - dist_delay - (vote_delay/2);
+      start - dist_delay - (vote_delay / 2);
   new_voting_schedule->voting_starts = start - dist_delay - vote_delay;
 
   {
-    char tbuf[ISO_TIME_LEN+1];
+    char tbuf[ISO_TIME_LEN + 1];
     format_iso_time(tbuf, new_voting_schedule->interval_starts);
-    tor_log(severity, LD_DIR,"Choosing expected valid-after time as %s: "
+    tor_log(severity, LD_DIR,
+            "Choosing expected valid-after time as %s: "
             "consensus_set=%d, interval=%d",
-            tbuf, consensus?1:0, interval);
+            tbuf, consensus ? 1 : 0, interval);
   }
 
   return new_voting_schedule;
@@ -109,8 +110,8 @@ dirauth_get_voting_schedule(void)
   /* This is a safe guard in order to make sure that the voting schedule
    * static object is at least initialized. Using this function with a zeroed
    * voting schedule can lead to bugs. */
-  if (fast_mem_is_zero((const char *) &voting_schedule,
-                      sizeof(voting_schedule))) {
+  if (fast_mem_is_zero((const char *)&voting_schedule,
+                       sizeof(voting_schedule))) {
     need_to_recalculate_voting_schedule = true;
     goto done; /* no need for next check if we have to recalculate anyway */
   }
@@ -120,12 +121,12 @@ dirauth_get_voting_schedule(void)
   const networkstatus_t *ns = networkstatus_get_live_consensus(now);
   if (ns && ns->valid_after != voting_schedule.live_consensus_valid_after) {
     log_info(LD_DIR, "Voting schedule is outdated: recalculating (%d/%d)",
-             (int) ns->valid_after,
-             (int) voting_schedule.live_consensus_valid_after);
+             (int)ns->valid_after,
+             (int)voting_schedule.live_consensus_valid_after);
     need_to_recalculate_voting_schedule = true;
   }
 
- done:
+done:
   if (need_to_recalculate_voting_schedule) {
     dirauth_sched_recalculate_timing(get_options(), approx_time());
     voting_schedule.created_on_demand = 1;
@@ -157,8 +158,7 @@ dirauth_sched_get_cur_valid_after_time(void)
   int interval = sched->interval;
   int offset = get_options()->TestingV3AuthVotingStartOffset;
   return voting_sched_get_start_of_interval_after(next_start - interval - 1,
-                                                  interval,
-                                                  offset);
+                                                  interval, offset);
 }
 
 /** Return the voting interval that we are configured to use.

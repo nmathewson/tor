@@ -22,9 +22,9 @@
 #define OB_OPTIONS_MAGIC 0x631DE7EA
 
 /* Helper macros. */
-#define VAR(varname, conftype, member, initvalue)                          \
+#define VAR(varname, conftype, member, initvalue) \
   CONFIG_VAR_ETYPE(ob_options_t, varname, conftype, member, 0, initvalue)
-#define V(member,conftype,initvalue)        \
+#define V(member, conftype, initvalue) \
   VAR(#member, conftype, member, initvalue)
 
 /* Dummy instance of ob_options_t, used for type-checking its members with
@@ -33,29 +33,29 @@ DUMMY_TYPECHECK_INSTANCE(ob_options_t);
 
 /* Array of variables for the config file options. */
 static const config_var_t config_vars[] = {
-  V(MasterOnionAddress, LINELIST, NULL),
+    V(MasterOnionAddress, LINELIST, NULL),
 
-  END_OF_CONFIG_VARS
-};
+    END_OF_CONFIG_VARS};
 
 /* "Extra" variable in the state that receives lines we can't parse. This
  * lets us preserve options from versions of Tor newer than us. */
 static const struct_member_t config_extra_vars = {
-  .name = "__extra",
-  .type = CONFIG_TYPE_LINELIST,
-  .offset = offsetof(ob_options_t, ExtraLines),
+    .name = "__extra",
+    .type = CONFIG_TYPE_LINELIST,
+    .offset = offsetof(ob_options_t, ExtraLines),
 };
 
 /* Configuration format of ob_options_t. */
 static const config_format_t config_format = {
-  .size = sizeof(ob_options_t),
-  .magic = {
-     "ob_options_t",
-     OB_OPTIONS_MAGIC,
-     offsetof(ob_options_t, magic_),
-  },
-  .vars = config_vars,
-  .extra = &config_extra_vars,
+    .size = sizeof(ob_options_t),
+    .magic =
+        {
+            "ob_options_t",
+            OB_OPTIONS_MAGIC,
+            offsetof(ob_options_t, magic_),
+        },
+    .vars = config_vars,
+    .extra = &config_extra_vars,
 };
 
 /* Global configuration manager for the config file. */
@@ -72,8 +72,7 @@ get_config_options_mgr(void)
   return config_options_mgr;
 }
 
-#define ob_option_free(val) \
-  FREE_AND_NULL(ob_options_t, ob_option_free_, (val))
+#define ob_option_free(val) FREE_AND_NULL(ob_options_t, ob_option_free_, (val))
 
 /** Helper: Free a config options object. */
 static void
@@ -113,8 +112,7 @@ get_onion_public_key(const char *value, ed25519_public_key_t *pkey_out)
   }
 
   /* Length validation. The -1 is because sizeof() counts the NUL byte. */
-  if (strlen(value) >
-      (HS_SERVICE_ADDR_LEN_BASE32 + sizeof(".onion") - 1)) {
+  if (strlen(value) > (HS_SERVICE_ADDR_LEN_BASE32 + sizeof(".onion") - 1)) {
     /* Too long, bad format. */
     return false;
   }
@@ -165,7 +163,7 @@ ob_option_parse(hs_service_config_t *config, const ob_options_t *opts)
   /* Success. */
   ret = 1;
 
- end:
+end:
   /* No keys added, we free the list since no list means no onion balance
    * support for this tor instance. */
   if (smartlist_len(config->ob_master_pubkeys) == 0) {
@@ -245,8 +243,7 @@ hs_ob_parse_config_file(hs_service_config_t *config)
   options = ob_option_new();
   config_assign(get_config_options_mgr(), options, lines, 0, &errmsg);
   if (errmsg) {
-    log_warn(LD_REND, "OnionBalance: Unable to parse config file: %s",
-             errmsg);
+    log_warn(LD_REND, "OnionBalance: Unable to parse config file: %s", errmsg);
     tor_free(errmsg);
     goto end;
   }
@@ -254,7 +251,7 @@ hs_ob_parse_config_file(hs_service_config_t *config)
   /* Parse the options and set the service config object with the details. */
   ret = ob_option_parse(config, options);
 
- end:
+end:
   config_free_lines(lines);
   ob_option_free(options);
   tor_free(content);
@@ -325,15 +322,15 @@ compute_subcredentials(const hs_service_t *service,
    * key, we allocate 3 subcredential slots. Then in the end we also add two
    * subcredentials for this instance's active descriptors. */
   subcreds =
-    tor_calloc((num_steps * num_pkeys) + 2, sizeof(hs_subcredential_t));
+      tor_calloc((num_steps * num_pkeys) + 2, sizeof(hs_subcredential_t));
 
   /* For each master pubkey we add 3 subcredentials: */
   for (unsigned int i = 0; i < num_steps; i++) {
-    SMARTLIST_FOREACH_BEGIN(service->config.ob_master_pubkeys,
-                            const ed25519_public_key_t *, pkey) {
+    SMARTLIST_FOREACH_BEGIN (service->config.ob_master_pubkeys,
+                             const ed25519_public_key_t *, pkey) {
       build_subcredential(pkey, tp + steps[i], &subcreds[idx]);
       idx++;
-    } SMARTLIST_FOREACH_END(pkey);
+    } SMARTLIST_FOREACH_END (pkey);
   }
 
   /* And then in the end we add the two subcredentials of the current active
@@ -343,8 +340,7 @@ compute_subcredentials(const hs_service_t *service,
   memcpy(&subcreds[idx++], &service->desc_next->desc->subcredential,
          sizeof(hs_subcredential_t));
 
-  log_info(LD_REND, "Refreshing %u onionbalance keys (TP #%d).",
-             idx, (int)tp);
+  log_info(LD_REND, "Refreshing %u onionbalance keys (TP #%d).", idx, (int)tp);
 
   *subcredentials_out = subcreds;
   return idx;

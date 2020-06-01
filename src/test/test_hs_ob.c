@@ -36,7 +36,7 @@ helper_tor_config(const char *conf)
   or_options_t *options = helper_parse_options(conf);
   tt_assert(options);
   ret = hs_config_service_all(options, 0);
- done:
+done:
   or_options_free(options);
   return ret;
 }
@@ -46,7 +46,7 @@ static networkstatus_t mock_ns;
 static networkstatus_t *
 mock_networkstatus_get_live_consensus(time_t now)
 {
-  (void) now;
+  (void)now;
   return &mock_ns;
 }
 
@@ -55,14 +55,15 @@ mock_read_file_to_str(const char *filename, int flags, struct stat *stat_out)
 {
   char *ret = NULL;
 
-  (void) flags;
-  (void) stat_out;
+  (void)flags;
+  (void)stat_out;
 
   if (!strcmp(filename, get_fname("hs3" PATH_SEPARATOR "ob_config"))) {
     if (config_is_good) {
-      tor_asprintf(&ret, "MasterOnionAddress %s.onion\n"
-                         "MasterOnionAddress %s.onion\n",
-                         onion_addr_1, onion_addr_2);
+      tor_asprintf(&ret,
+                   "MasterOnionAddress %s.onion\n"
+                   "MasterOnionAddress %s.onion\n",
+                   onion_addr_1, onion_addr_2);
     } else {
       tor_asprintf(&ret, "MasterOnionAddress JUNKJUNKJUNK.onion\n"
                          "UnknownOption BLAH\n");
@@ -70,7 +71,7 @@ mock_read_file_to_str(const char *filename, int flags, struct stat *stat_out)
     goto done;
   }
 
- done:
+done:
   return ret;
 }
 
@@ -81,15 +82,15 @@ test_parse_config_file(void *arg)
   char *conf = NULL;
   const ed25519_public_key_t *pkey;
 
-  (void) arg;
+  (void)arg;
 
   hs_init();
 
   MOCK(read_file_to_str, mock_read_file_to_str);
 
-#define fmt_conf            \
-  "HiddenServiceDir %s\n"   \
-  "HiddenServicePort 22\n"  \
+#define fmt_conf           \
+  "HiddenServiceDir %s\n"  \
+  "HiddenServicePort 22\n" \
   "HiddenServiceOnionBalanceInstance 1\n"
   tor_asprintf(&conf, fmt_conf, get_fname("hs3"));
 #undef fmt_conf
@@ -121,7 +122,7 @@ test_parse_config_file(void *arg)
   pkey = smartlist_get(s->config.ob_master_pubkeys, 1);
   tt_mem_op(&onion_addr_kp_2.pubkey, OP_EQ, pkey, ED25519_PUBKEY_LEN);
 
- done:
+done:
   hs_free_all();
 
   UNMOCK(read_file_to_str);
@@ -133,7 +134,7 @@ test_parse_config_file_bad(void *arg)
   int ret;
   char *conf = NULL;
 
-  (void) arg;
+  (void)arg;
 
   hs_init();
 
@@ -142,9 +143,9 @@ test_parse_config_file_bad(void *arg)
   /* Indicate mock_read_file_to_str() to use the bad config. */
   config_is_good = false;
 
-#define fmt_conf            \
-  "HiddenServiceDir %s\n"   \
-  "HiddenServicePort 22\n"  \
+#define fmt_conf           \
+  "HiddenServiceDir %s\n"  \
+  "HiddenServicePort 22\n" \
   "HiddenServiceOnionBalanceInstance 1\n"
   tor_asprintf(&conf, fmt_conf, get_fname("hs3"));
 #undef fmt_conf
@@ -159,7 +160,7 @@ test_parse_config_file_bad(void *arg)
                             "saving it.");
   teardown_capture_of_logs();
 
- done:
+done:
   hs_free_all();
 
   UNMOCK(read_file_to_str);
@@ -173,7 +174,7 @@ test_get_subcredentials(void *arg)
   hs_service_config_t config;
   hs_subcredential_t *subcreds = NULL;
 
-  (void) arg;
+  (void)arg;
 
   MOCK(networkstatus_get_live_consensus,
        mock_networkstatus_get_live_consensus);
@@ -198,7 +199,7 @@ test_get_subcredentials(void *arg)
 
   /* First try to compute subcredentials but with no OB keys. Make sure that
    * subcreds get NULLed. To do this check we first poison subcreds. */
-  subcreds = (void*)999;
+  subcreds = (void *)999;
   tt_ptr_op(subcreds, OP_NE, NULL);
   size_t num = compute_subcredentials(service, &subcreds);
   tt_ptr_op(subcreds, OP_EQ, NULL);
@@ -236,14 +237,13 @@ test_get_subcredentials(void *arg)
                             &blinded_pubkey);
     hs_get_subcredential(&onion_addr_kp_1.pubkey, &blinded_pubkey,
                          &subcredential);
-    tt_mem_op(subcreds[i].subcred, OP_EQ, subcredential.subcred,
-              SUBCRED_LEN);
+    tt_mem_op(subcreds[i].subcred, OP_EQ, subcredential.subcred, SUBCRED_LEN);
   }
 
   tt_mem_op(subcreds[i++].subcred, OP_EQ, current_subcred, SUBCRED_LEN);
   tt_mem_op(subcreds[i++].subcred, OP_EQ, next_subcred, SUBCRED_LEN);
 
- done:
+done:
   tor_free(subcreds);
 
   smartlist_free(config.ob_master_pubkeys);
@@ -256,13 +256,9 @@ test_get_subcredentials(void *arg)
 }
 
 struct testcase_t hs_ob_tests[] = {
-  { "parse_config_file", test_parse_config_file, TT_FORK,
-    NULL, NULL },
-  { "parse_config_file_bad", test_parse_config_file_bad, TT_FORK,
-    NULL, NULL },
+    {"parse_config_file", test_parse_config_file, TT_FORK, NULL, NULL},
+    {"parse_config_file_bad", test_parse_config_file_bad, TT_FORK, NULL, NULL},
 
-  { "get_subcredentials", test_get_subcredentials, TT_FORK,
-    NULL, NULL },
+    {"get_subcredentials", test_get_subcredentials, TT_FORK, NULL, NULL},
 
-  END_OF_TESTCASES
-};
+    END_OF_TESTCASES};

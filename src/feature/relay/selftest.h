@@ -29,10 +29,8 @@ void router_reset_reachability(void);
 
 #else /* !defined(HAVE_MODULE_RELAY) */
 
-#define check_whether_orport_reachable(opts) \
-  ((void)(opts), 0)
-#define check_whether_dirport_reachable(opts) \
-  ((void)(opts), 0)
+#  define check_whether_orport_reachable(opts) ((void)(opts), 0)
+#  define check_whether_dirport_reachable(opts) ((void)(opts), 0)
 
 static inline void
 router_do_reachability_checks(int test_or, int test_dir)
@@ -55,13 +53,10 @@ inform_testing_reachability(void)
   return 0;
 }
 
-#define router_orport_found_reachable() \
-  STMT_NIL
-#define router_dirport_found_reachable() \
-  STMT_NIL
+#  define router_orport_found_reachable() STMT_NIL
+#  define router_dirport_found_reachable() STMT_NIL
 
-#define router_reset_reachability() \
-  STMT_NIL
+#  define router_reset_reachability() STMT_NIL
 
 #endif /* defined(HAVE_MODULE_RELAY) */
 

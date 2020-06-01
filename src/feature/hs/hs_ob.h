@@ -23,8 +23,8 @@ void hs_ob_refresh_keys(hs_service_t *service);
 
 #ifdef HS_OB_PRIVATE
 
-STATIC size_t compute_subcredentials(const hs_service_t *service,
-                                   struct hs_subcredential_t **subcredentials);
+STATIC size_t compute_subcredentials(
+    const hs_service_t *service, struct hs_subcredential_t **subcredentials);
 
 typedef struct ob_options_t {
   /** Magic number to identify the structure in memory. */

@@ -16,19 +16,17 @@ struct or_options_t;
 
 #ifdef HAVE_MODULE_DIRAUTH
 
-#include "lib/cc/torint.h"
+#  include "lib/cc/torint.h"
 
 int options_validate_dirauth_mode(const struct or_options_t *old_options,
-                                  struct or_options_t *options,
-                                  char **msg);
+                                  struct or_options_t *options, char **msg);
 
 int options_validate_dirauth_schedule(const struct or_options_t *old_options,
                                       struct or_options_t *options,
                                       char **msg);
 
 int options_validate_dirauth_testing(const struct or_options_t *old_options,
-                                     struct or_options_t *options,
-                                     char **msg);
+                                     struct or_options_t *options, char **msg);
 
 int options_act_dirauth(const struct or_options_t *old_options);
 int options_act_dirauth_mtbf(const struct or_options_t *old_options);
@@ -48,8 +46,7 @@ extern const struct config_format_t dirauth_options_fmt;
  * is set in options. Otherwise returns 0. */
 static inline int
 options_validate_dirauth_mode(const struct or_options_t *old_options,
-                              struct or_options_t *options,
-                              char **msg)
+                              struct or_options_t *options, char **msg)
 {
   (void)old_options;
 
@@ -65,15 +62,13 @@ options_validate_dirauth_mode(const struct or_options_t *old_options,
   return 0;
 }
 
-#define options_validate_dirauth_schedule(old_options, options, msg) \
-  (((void)(old_options)),((void)(options)),((void)(msg)),0)
-#define options_validate_dirauth_testing(old_options, options, msg) \
-  (((void)(old_options)),((void)(options)),((void)(msg)),0)
+#  define options_validate_dirauth_schedule(old_options, options, msg) \
+    (((void)(old_options)), ((void)(options)), ((void)(msg)), 0)
+#  define options_validate_dirauth_testing(old_options, options, msg) \
+    (((void)(old_options)), ((void)(options)), ((void)(msg)), 0)
 
-#define options_act_dirauth(old_options) \
-  (((void)(old_options)),0)
-#define options_act_dirauth_mtbf(old_options) \
-  (((void)(old_options)),0)
+#  define options_act_dirauth(old_options) (((void)(old_options)), 0)
+#  define options_act_dirauth_mtbf(old_options) (((void)(old_options)), 0)
 
 static inline int
 options_act_dirauth_stats(const struct or_options_t *old_options,
@@ -84,7 +79,7 @@ options_act_dirauth_stats(const struct or_options_t *old_options,
   return 0;
 }
 
-#define dirauth_should_reject_requests_under_load() (false)
+#  define dirauth_should_reject_requests_under_load() (false)
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
 

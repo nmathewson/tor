@@ -36,8 +36,7 @@ ENABLE_GCC_WARNING("-Wredundant-decls")
 #include <stdbool.h>
 
 /** Declaration for crypto_pk_t structure. */
-struct crypto_pk_t
-{
+struct crypto_pk_t {
   int refs; /**< reference count, so we don't have to copy keys */
   RSA *key; /**< The key itself */
 };
@@ -84,7 +83,8 @@ crypto_pk_get_openssl_rsa_(crypto_pk_t *env)
  * private is set, include the private-key portion of the key. Return a valid
  * pointer on success, and NULL on failure. */
 MOCK_IMPL(EVP_PKEY *,
-crypto_pk_get_openssl_evp_pkey_,(crypto_pk_t *env, int private))
+crypto_pk_get_openssl_evp_pkey_,
+          (crypto_pk_t * env, int private))
 {
   RSA *key = NULL;
   EVP_PKEY *pkey = NULL;
@@ -101,7 +101,7 @@ crypto_pk_get_openssl_evp_pkey_,(crypto_pk_t *env, int private))
   if (!(EVP_PKEY_assign_RSA(pkey, key)))
     goto error;
   return pkey;
- error:
+error:
   if (pkey)
     EVP_PKEY_free(pkey);
   if (key)
@@ -113,7 +113,7 @@ crypto_pk_get_openssl_evp_pkey_,(crypto_pk_t *env, int private))
  * be set.
  */
 MOCK_IMPL(crypto_pk_t *,
-crypto_pk_new,(void))
+crypto_pk_new, (void))
 {
   RSA *rsa;
 
@@ -145,7 +145,7 @@ crypto_pk_free_(crypto_pk_t *env)
  * Return 0 on success, -1 on failure.
  */
 MOCK_IMPL(int,
-crypto_pk_generate_key_with_bits,(crypto_pk_t *env, int bits))
+crypto_pk_generate_key_with_bits, (crypto_pk_t * env, int bits))
 {
   tor_assert(env);
 
@@ -159,7 +159,7 @@ crypto_pk_generate_key_with_bits,(crypto_pk_t *env, int bits))
     RSA *r = NULL;
     if (!e)
       goto done;
-    if (! BN_set_word(e, TOR_RSA_EXPONENT))
+    if (!BN_set_word(e, TOR_RSA_EXPONENT))
       goto done;
     r = RSA_new();
     if (!r)
@@ -194,7 +194,7 @@ crypto_pk_is_valid_private_key(const crypto_pk_t *env)
 
   r = RSA_check_key(env->key);
   if (r <= 0) {
-    crypto_openssl_log_errors(LOG_WARN,"checking RSA key");
+    crypto_openssl_log_errors(LOG_WARN, "checking RSA key");
     return 0;
   } else {
     return 1;
@@ -269,7 +269,7 @@ crypto_pk_keysize(const crypto_pk_t *env)
   tor_assert(env);
   tor_assert(env->key);
 
-  return (size_t) RSA_size((RSA*)env->key);
+  return (size_t)RSA_size((RSA *)env->key);
 }
 
 /** Return the size of the public key modulus of <b>env</b>, in bits. */
@@ -354,10 +354,10 @@ crypto_pk_copy_full(crypto_pk_t *env)
      * We can't cause RSA*Key_dup() to fail, so we can't really test this.
      */
     log_err(LD_CRYPTO, "Unable to duplicate a %s key: openssl failed.",
-            privatekey?"private":"public");
-    crypto_openssl_log_errors(LOG_ERR,
-                      privatekey ? "Duplicating a private key" :
-                      "Duplicating a public key");
+            privatekey ? "private" : "public");
+    crypto_openssl_log_errors(LOG_ERR, privatekey
+                                           ? "Duplicating a private key"
+                                           : "Duplicating a public key");
     tor_fragile_assert();
     return NULL;
     /* LCOV_EXCL_STOP */
@@ -382,13 +382,13 @@ crypto_pk_public_encrypt(crypto_pk_t *env, char *to, size_t tolen,
   tor_assert(env);
   tor_assert(from);
   tor_assert(to);
-  tor_assert(fromlen<INT_MAX);
+  tor_assert(fromlen < INT_MAX);
   tor_assert(tolen >= crypto_pk_keysize(env));
 
-  r = RSA_public_encrypt((int)fromlen,
-                         (unsigned char*)from, (unsigned char*)to,
-                         env->key, crypto_get_rsa_padding(padding));
-  if (r<0) {
+  r = RSA_public_encrypt((int)fromlen, (unsigned char *)from,
+                         (unsigned char *)to, env->key,
+                         crypto_get_rsa_padding(padding));
+  if (r < 0) {
     crypto_openssl_log_errors(LOG_WARN, "performing RSA encryption");
     return -1;
   }
@@ -404,29 +404,28 @@ crypto_pk_public_encrypt(crypto_pk_t *env, char *to, size_t tolen,
  * at least the length of the modulus of <b>env</b>.
  */
 int
-crypto_pk_private_decrypt(crypto_pk_t *env, char *to,
-                          size_t tolen,
-                          const char *from, size_t fromlen,
-                          int padding, int warnOnFailure)
+crypto_pk_private_decrypt(crypto_pk_t *env, char *to, size_t tolen,
+                          const char *from, size_t fromlen, int padding,
+                          int warnOnFailure)
 {
   int r;
   tor_assert(env);
   tor_assert(from);
   tor_assert(to);
   tor_assert(env->key);
-  tor_assert(fromlen<INT_MAX);
+  tor_assert(fromlen < INT_MAX);
   tor_assert(tolen >= crypto_pk_keysize(env));
   if (!crypto_pk_key_is_private(env))
     /* Not a private key */
     return -1;
 
-  r = RSA_private_decrypt((int)fromlen,
-                          (unsigned char*)from, (unsigned char*)to,
-                          env->key, crypto_get_rsa_padding(padding));
+  r = RSA_private_decrypt((int)fromlen, (unsigned char *)from,
+                          (unsigned char *)to, env->key,
+                          crypto_get_rsa_padding(padding));
 
-  if (r<0) {
-    crypto_openssl_log_errors(warnOnFailure?LOG_WARN:LOG_DEBUG,
-                      "performing RSA decryption");
+  if (r < 0) {
+    crypto_openssl_log_errors(warnOnFailure ? LOG_WARN : LOG_DEBUG,
+                              "performing RSA decryption");
     return -1;
   }
   return r;
@@ -441,9 +440,9 @@ crypto_pk_private_decrypt(crypto_pk_t *env, char *to,
  * at least the length of the modulus of <b>env</b>.
  */
 MOCK_IMPL(int,
-crypto_pk_public_checksig,(const crypto_pk_t *env, char *to,
-                           size_t tolen,
-                           const char *from, size_t fromlen))
+crypto_pk_public_checksig,
+          (const crypto_pk_t *env, char *to, size_t tolen, const char *from,
+           size_t fromlen))
 {
   int r;
   tor_assert(env);
@@ -451,11 +450,10 @@ crypto_pk_public_checksig,(const crypto_pk_t *env, char *to,
   tor_assert(to);
   tor_assert(fromlen < INT_MAX);
   tor_assert(tolen >= crypto_pk_keysize(env));
-  r = RSA_public_decrypt((int)fromlen,
-                         (unsigned char*)from, (unsigned char*)to,
-                         env->key, RSA_PKCS1_PADDING);
+  r = RSA_public_decrypt((int)fromlen, (unsigned char *)from,
+                         (unsigned char *)to, env->key, RSA_PKCS1_PADDING);
 
-  if (r<0) {
+  if (r < 0) {
     crypto_openssl_log_errors(LOG_INFO, "checking RSA signature");
     return -1;
   }
@@ -484,10 +482,10 @@ crypto_pk_private_sign(const crypto_pk_t *env, char *to, size_t tolen,
     /* Not a private key */
     return -1;
 
-  r = RSA_private_encrypt((int)fromlen,
-                          (unsigned char*)from, (unsigned char*)to,
-                          (RSA*)env->key, RSA_PKCS1_PADDING);
-  if (r<0) {
+  r = RSA_private_encrypt((int)fromlen, (unsigned char *)from,
+                          (unsigned char *)to, (RSA *)env->key,
+                          RSA_PKCS1_PADDING);
+  if (r < 0) {
     crypto_openssl_log_errors(LOG_WARN, "generating RSA signature");
     return -1;
   }
@@ -514,7 +512,7 @@ crypto_pk_asn1_encode(const crypto_pk_t *pk, char *dest, size_t dest_len)
   /* We don't encode directly into 'dest', because that would be illegal
    * type-punning.  (C99 is smarter than me, C99 is smarter than me...)
    */
-  memcpy(dest,buf,len);
+  memcpy(dest, buf, len);
   OPENSSL_free(buf);
   return len;
 }
@@ -529,11 +527,11 @@ crypto_pk_asn1_decode(const char *str, size_t len)
   unsigned char *buf;
   const unsigned char *cp;
   cp = buf = tor_malloc(len);
-  memcpy(buf,str,len);
+  memcpy(buf, str, len);
   rsa = d2i_RSAPublicKey(NULL, &cp, len);
   tor_free(buf);
   if (!rsa) {
-    crypto_openssl_log_errors(LOG_WARN,"decoding public key");
+    crypto_openssl_log_errors(LOG_WARN, "decoding public key");
     return NULL;
   }
   return crypto_new_pk_from_openssl_rsa_(rsa);
@@ -560,7 +558,7 @@ crypto_pk_asn1_encode_private(const crypto_pk_t *pk, char *dest,
   /* We don't encode directly into 'dest', because that would be illegal
    * type-punning.  (C99 is smarter than me, C99 is smarter than me...)
    */
-  memcpy(dest,buf,len);
+  memcpy(dest, buf, len);
   OPENSSL_free(buf);
   return len;
 }
@@ -574,7 +572,7 @@ rsa_private_key_too_long(RSA *rsa, int max_bits)
   const BIGNUM *n, *e, *p, *q, *d, *dmp1, *dmq1, *iqmp;
 #ifdef OPENSSL_1_1_API
 
-#if OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,1,1)
+#  if OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1, 1, 1)
   n = RSA_get0_n(rsa);
   e = RSA_get0_e(rsa);
   p = RSA_get0_p(rsa);
@@ -583,11 +581,11 @@ rsa_private_key_too_long(RSA *rsa, int max_bits)
   dmp1 = RSA_get0_dmp1(rsa);
   dmq1 = RSA_get0_dmq1(rsa);
   iqmp = RSA_get0_iqmp(rsa);
-#else /* !(OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,1,1)) */
+#  else /* !(OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,1,1)) */
   /* The accessors above did not exist in openssl 1.1.0. */
   p = q = dmp1 = dmq1 = iqmp = NULL;
   RSA_get0_key(rsa, &n, &e, &d);
-#endif /* OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,1,1) */
+#  endif /* OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,1,1) */
 
   if (RSA_bits(rsa) > max_bits)
     return true;
@@ -635,11 +633,11 @@ crypto_pk_asn1_decode_private(const char *str, size_t len, int max_bits)
   unsigned char *buf;
   const unsigned char *cp;
   cp = buf = tor_malloc(len);
-  memcpy(buf,str,len);
+  memcpy(buf, str, len);
   rsa = d2i_RSAPrivateKey(NULL, &cp, len);
   tor_free(buf);
   if (!rsa) {
-    crypto_openssl_log_errors(LOG_WARN,"decoding private key");
+    crypto_openssl_log_errors(LOG_WARN, "decoding private key");
     return NULL;
   }
   if (max_bits >= 0 && rsa_private_key_too_long(rsa, max_bits)) {
@@ -648,7 +646,7 @@ crypto_pk_asn1_decode_private(const char *str, size_t len, int max_bits)
     return NULL;
   }
   crypto_pk_t *result = crypto_new_pk_from_openssl_rsa_(rsa);
-  if (! crypto_pk_is_valid_private_key(result)) {
+  if (!crypto_pk_is_valid_private_key(result)) {
     crypto_pk_free(result);
     return NULL;
   }

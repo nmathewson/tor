@@ -69,33 +69,28 @@ connection_ext_or_process_inbuf(or_connection_t *conn)
   tor_assert_nonfatal_unreached();
   return -1;
 }
-#define connection_or_set_ext_or_identifier(conn) \
-  ((void)(conn))
-#define connection_or_remove_from_ext_or_id_map(conn) \
-  ((void)(conn))
-#define connection_or_clear_ext_or_id_map() \
-  STMT_NIL
+#  define connection_or_set_ext_or_identifier(conn) ((void)(conn))
+#  define connection_or_remove_from_ext_or_id_map(conn) ((void)(conn))
+#  define connection_or_clear_ext_or_id_map() STMT_NIL
 
-#define get_ext_or_auth_cookie_file_name() \
-  (NULL)
+#  define get_ext_or_auth_cookie_file_name() (NULL)
 
 #endif /* defined(HAVE_MODULE_RELAY) */
 
 #ifdef EXT_ORPORT_PRIVATE
 STATIC int connection_write_ext_or_command(connection_t *conn,
-                                           uint16_t command,
-                                           const char *body,
+                                           uint16_t command, const char *body,
                                            size_t bodylen);
 STATIC int handle_client_auth_nonce(const char *client_nonce,
-                         size_t client_nonce_len,
-                         char **client_hash_out,
-                         char **reply_out, size_t *reply_len_out);
+                                    size_t client_nonce_len,
+                                    char **client_hash_out, char **reply_out,
+                                    size_t *reply_len_out);
 
-#ifdef TOR_UNIT_TESTS
+#  ifdef TOR_UNIT_TESTS
 extern uint8_t *ext_or_auth_cookie;
 extern int ext_or_auth_cookie_is_set;
 or_connection_t *connection_or_get_by_ext_or_id(const char *id);
-#endif
+#  endif
 #endif /* defined(EXT_ORPORT_PRIVATE) */
 
 #endif /* !defined(EXT_ORPORT_H) */

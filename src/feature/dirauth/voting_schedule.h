@@ -58,8 +58,7 @@ typedef struct {
 
 extern voting_schedule_t voting_schedule;
 
-void dirauth_sched_recalculate_timing(const or_options_t *options,
-                                        time_t now);
+void dirauth_sched_recalculate_timing(const or_options_t *options, time_t now);
 
 time_t dirauth_sched_get_next_valid_after_time(void);
 time_t dirauth_sched_get_cur_valid_after_time(void);
@@ -67,8 +66,7 @@ int dirauth_sched_get_configured_interval(void);
 
 #else /* !defined(HAVE_MODULE_DIRAUTH) */
 
-#define dirauth_sched_recalculate_timing(opt,now) \
-  ((void)(opt), (void)(now))
+#  define dirauth_sched_recalculate_timing(opt, now) ((void)(opt), (void)(now))
 
 static inline time_t
 dirauth_sched_get_next_valid_after_time(void)

@@ -27,7 +27,7 @@ tor_cond_t *
 tor_cond_new(void)
 {
   tor_cond_t *cond = tor_malloc(sizeof(tor_cond_t));
-  if (BUG(tor_cond_init(cond)<0))
+  if (BUG(tor_cond_init(cond) < 0))
     tor_free(cond); // LCOV_EXCL_LINE
   return cond;
 }
@@ -128,9 +128,9 @@ subsys_threads_initialize(void)
 }
 
 const subsys_fns_t sys_threads = {
-  .name = "threads",
-  SUBSYS_DECLARE_LOCATION(),
-  .supported = true,
-  .level = -89,
-  .initialize = subsys_threads_initialize,
+    .name = "threads",
+    SUBSYS_DECLARE_LOCATION(),
+    .supported = true,
+    .level = -89,
+    .initialize = subsys_threads_initialize,
 };

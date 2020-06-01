@@ -26,7 +26,7 @@ int fetch_ext_or_command_from_buf(struct buf_t *buf,
 
 ext_or_cmd_t *ext_or_cmd_new(uint16_t len);
 
-#define ext_or_cmd_free(cmd)                            \
+#define ext_or_cmd_free(cmd) \
   FREE_AND_NULL(ext_or_cmd_t, ext_or_cmd_free_, (cmd))
 
 void ext_or_cmd_free_(ext_or_cmd_t *cmd);

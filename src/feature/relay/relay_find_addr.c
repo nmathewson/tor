@@ -46,7 +46,7 @@ router_new_address_suggestion(const char *suggestion,
                               const dir_connection_t *d_conn)
 {
   tor_addr_t addr;
-  uint32_t cur = 0;             /* Current IPv4 address.  */
+  uint32_t cur = 0; /* Current IPv4 address.  */
   const or_options_t *options = get_options();
 
   /* first, learn what the IP address actually is */
@@ -65,8 +65,7 @@ router_new_address_suggestion(const char *suggestion,
 
   /* XXXX ipv6 */
   cur = get_last_resolved_addr();
-  if (cur ||
-      resolve_my_address(LOG_INFO, options, &cur, NULL, NULL) >= 0) {
+  if (cur || resolve_my_address(LOG_INFO, options, &cur, NULL, NULL) >= 0) {
     /* We're all set -- we already know our address. Great. */
     tor_addr_from_ipv4h(&last_guessed_ip, cur); /* store it in case we
                                                    need it later */
@@ -78,7 +77,8 @@ router_new_address_suggestion(const char *suggestion,
   }
   if (tor_addr_eq(&d_conn->base_.addr, &addr)) {
     /* Don't believe anybody who says our IP is their IP. */
-    log_debug(LD_DIR, "A directory server told us our IP address is %s, "
+    log_debug(LD_DIR,
+              "A directory server told us our IP address is %s, "
               "but they are just reporting their own IP address. Ignoring.",
               suggestion);
     return;
@@ -88,9 +88,8 @@ router_new_address_suggestion(const char *suggestion,
    * us an answer different from what we had the last time we managed to
    * resolve it. */
   if (!tor_addr_eq(&last_guessed_ip, &addr)) {
-    control_event_server_status(LOG_NOTICE,
-                                "EXTERNAL_ADDRESS ADDRESS=%s METHOD=DIRSERV",
-                                suggestion);
+    control_event_server_status(
+        LOG_NOTICE, "EXTERNAL_ADDRESS ADDRESS=%s METHOD=DIRSERV", suggestion);
     log_addr_has_changed(LOG_NOTICE, &last_guessed_ip, &addr,
                          d_conn->base_.address);
     ip_address_changed(0);
@@ -108,8 +107,8 @@ router_new_address_suggestion(const char *suggestion,
  * don't try to get any new answers.
  */
 MOCK_IMPL(int,
-router_pick_published_address, (const or_options_t *options, uint32_t *addr,
-                                int cache_only))
+router_pick_published_address,
+          (const or_options_t *options, uint32_t *addr, int cache_only))
 {
   /* First, check the cached output from resolve_my_address(). */
   *addr = get_last_resolved_addr();
@@ -119,7 +118,7 @@ router_pick_published_address, (const or_options_t *options, uint32_t *addr,
   /* Second, consider doing a resolve attempt right here. */
   if (!cache_only) {
     if (resolve_my_address(LOG_INFO, options, addr, NULL, NULL) >= 0) {
-      log_info(LD_CONFIG,"Success: chose address '%s'.", fmt_addr32(*addr));
+      log_info(LD_CONFIG, "Success: chose address '%s'.", fmt_addr32(*addr));
       return 0;
     }
   }

@@ -34,25 +34,22 @@ void dns_launch_correctness_checks(void);
 
 #else /* !defined(HAVE_MODULE_RELAY) */
 
-#define dns_init() (0)
-#define dns_seems_to_be_broken() (0)
-#define has_dns_init_failed() (0)
-#define dns_cache_total_allocation() (0)
+#  define dns_init() (0)
+#  define dns_seems_to_be_broken() (0)
+#  define has_dns_init_failed() (0)
+#  define dns_cache_total_allocation() (0)
 
-#define dns_reset_correctness_checks() STMT_NIL
+#  define dns_reset_correctness_checks() STMT_NIL
 
-#define assert_connection_edge_not_dns_pending(conn) \
-  ((void)(conn))
-#define dump_dns_mem_usage(severity)\
-  ((void)(severity))
-#define dns_cache_handle_oom(now, bytes) \
-  ((void)(now), (void)(bytes), 0)
+#  define assert_connection_edge_not_dns_pending(conn) ((void)(conn))
+#  define dump_dns_mem_usage(severity) ((void)(severity))
+#  define dns_cache_handle_oom(now, bytes) ((void)(now), (void)(bytes), 0)
 
-#define connection_dns_remove(conn) \
-  STMT_BEGIN                        \
-  (void)(conn);                     \
-  tor_assert_nonfatal_unreached();  \
-  STMT_END
+#  define connection_dns_remove(conn)  \
+    STMT_BEGIN(void)                   \
+      (conn);                          \
+      tor_assert_nonfatal_unreached(); \
+    STMT_END
 
 static inline int
 dns_reset(void)
@@ -70,34 +67,34 @@ dns_resolve(edge_connection_t *exitconn)
 #endif /* defined(HAVE_MODULE_RELAY) */
 
 #ifdef DNS_PRIVATE
-#include "feature/relay/dns_structs.h"
+#  include "feature/relay/dns_structs.h"
 
 size_t number_of_configured_nameservers(void);
-#ifdef HAVE_EVDNS_BASE_GET_NAMESERVER_ADDR
+#  ifdef HAVE_EVDNS_BASE_GET_NAMESERVER_ADDR
 tor_addr_t *configured_nameserver_address(const size_t idx);
-#endif
+#  endif
 
-MOCK_DECL(STATIC void,dns_cancel_pending_resolve,(const char *question));
-MOCK_DECL(STATIC int,dns_resolve_impl,(edge_connection_t *exitconn,
-int is_resolve,or_circuit_t *oncirc, char **hostname_out,
-int *made_connection_pending_out, cached_resolve_t **resolve_out));
+MOCK_DECL(STATIC void, dns_cancel_pending_resolve, (const char *question));
+MOCK_DECL(STATIC int, dns_resolve_impl,
+          (edge_connection_t * exitconn, int is_resolve, or_circuit_t *oncirc,
+           char **hostname_out, int *made_connection_pending_out,
+           cached_resolve_t **resolve_out));
 
-MOCK_DECL(STATIC void,send_resolved_cell,(edge_connection_t *conn,
-uint8_t answer_type,const cached_resolve_t *resolved));
+MOCK_DECL(STATIC void, send_resolved_cell,
+          (edge_connection_t * conn, uint8_t answer_type,
+           const cached_resolve_t *resolved));
 
-MOCK_DECL(STATIC void,send_resolved_hostname_cell,(edge_connection_t *conn,
-const char *hostname));
+MOCK_DECL(STATIC void, send_resolved_hostname_cell,
+          (edge_connection_t * conn, const char *hostname));
 
 cached_resolve_t *dns_get_cache_entry(cached_resolve_t *query);
 void dns_insert_cache_entry(cached_resolve_t *new_entry);
 
-MOCK_DECL(STATIC int,
-set_exitconn_info_from_resolve,(edge_connection_t *exitconn,
-                                const cached_resolve_t *resolve,
-                                char **hostname_out));
+MOCK_DECL(STATIC int, set_exitconn_info_from_resolve,
+          (edge_connection_t * exitconn, const cached_resolve_t *resolve,
+           char **hostname_out));
 
-MOCK_DECL(STATIC int,
-launch_resolve,(cached_resolve_t *resolve));
+MOCK_DECL(STATIC int, launch_resolve, (cached_resolve_t * resolve));
 
 #endif /* defined(DNS_PRIVATE) */
 
