@@ -31,7 +31,7 @@ static time_t cached_approx_time = 0;
 time_t
 approx_time(void)
 {
-  return cached_approx_time;
+    return cached_approx_time;
 }
 
 /** Update the cached estimate of the current time.  This function SHOULD be
@@ -40,7 +40,7 @@ approx_time(void)
 void
 update_approx_time(time_t now)
 {
-  cached_approx_time = now;
+    cached_approx_time = now;
 }
 #endif /* !defined(TIME_IS_FAST) */
 
@@ -50,19 +50,19 @@ update_approx_time(time_t now)
 static int
 subsys_wallclock_initialize(void)
 {
-  update_approx_time(time(NULL));
-  return 0;
+    update_approx_time(time(NULL));
+    return 0;
 }
 
 /**
  * Subsystem function table describing the "wallclock" subsystem.
  **/
 const subsys_fns_t sys_wallclock = {
-  .name = "wallclock",
-  SUBSYS_DECLARE_LOCATION(),
-  .supported = true,
-  /* Approximate time is a diagnostic feature, we want it to init right after
-   * low-level error handling. */
-  .level = -98,
-  .initialize = subsys_wallclock_initialize,
+    .name = "wallclock",
+    SUBSYS_DECLARE_LOCATION(),
+    .supported = true,
+    /* Approximate time is a diagnostic feature, we want it to init right after
+     * low-level error handling. */
+    .level = -98,
+    .initialize = subsys_wallclock_initialize,
 };

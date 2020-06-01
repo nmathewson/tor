@@ -26,38 +26,38 @@
 static int
 replacement_host_lookup(const char *name, uint16_t family, tor_addr_t *addr)
 {
-  static const struct lookup_table_ent {
-    const char *name;
-    const char *ipv4;
-    const char *ipv6;
-  } entries[] = {
-    { "localhost", "127.0.0.1", "::1" },
-    { "torproject.org", "198.51.100.6", "2001:DB8::700" },
-    { NULL, NULL, NULL },
-  };
+    static const struct lookup_table_ent {
+        const char *name;
+        const char *ipv4;
+        const char *ipv6;
+    } entries[] = {
+        {"localhost", "127.0.0.1", "::1"},
+        {"torproject.org", "198.51.100.6", "2001:DB8::700"},
+        {NULL, NULL, NULL},
+    };
 
-  int r = -1;
+    int r = -1;
 
-  for (unsigned i = 0; entries[i].name != NULL; ++i) {
-    if (!strcasecmp(name, entries[i].name)) {
-      if (family == AF_INET6) {
-        int s = tor_addr_parse(addr, entries[i].ipv6);
-        tt_int_op(s, OP_EQ, AF_INET6);
-      } else {
-        int s = tor_addr_parse(addr, entries[i].ipv4);
-        tt_int_op(s, OP_EQ, AF_INET);
-      }
-      r = 0;
-      break;
+    for (unsigned i = 0; entries[i].name != NULL; ++i) {
+        if (!strcasecmp(name, entries[i].name)) {
+            if (family == AF_INET6) {
+                int s = tor_addr_parse(addr, entries[i].ipv6);
+                tt_int_op(s, OP_EQ, AF_INET6);
+            } else {
+                int s = tor_addr_parse(addr, entries[i].ipv4);
+                tt_int_op(s, OP_EQ, AF_INET);
+            }
+            r = 0;
+            break;
+        }
     }
-  }
 
-  log_debug(LD_GENERAL, "resolve(%s,%d) => %s",
-            name, family, r == 0 ? fmt_addr(addr) : "-1");
+    log_debug(LD_GENERAL, "resolve(%s,%d) => %s", name, family,
+              r == 0 ? fmt_addr(addr) : "-1");
 
-  return r;
- done:
-  return -1;
+    return r;
+done:
+    return -1;
 }
 
 /**
@@ -72,7 +72,7 @@ replacement_host_lookup(const char *name, uint16_t family, tor_addr_t *addr)
 void
 mock_hostname_resolver(void)
 {
-  MOCK(tor_addr_lookup_host_impl, replacement_host_lookup);
+    MOCK(tor_addr_lookup_host_impl, replacement_host_lookup);
 }
 
 /**
@@ -81,5 +81,5 @@ mock_hostname_resolver(void)
 void
 unmock_hostname_resolver(void)
 {
-  UNMOCK(tor_addr_lookup_host_impl);
+    UNMOCK(tor_addr_lookup_host_impl);
 }

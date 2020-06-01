@@ -20,12 +20,12 @@
 unsigned
 round_to_next_multiple_of(unsigned number, unsigned divisor)
 {
-  raw_assert(divisor > 0);
-  if (UINT_MAX - divisor + 1 < number)
-    return UINT_MAX;
-  number += divisor - 1;
-  number -= number % divisor;
-  return number;
+    raw_assert(divisor > 0);
+    if (UINT_MAX - divisor + 1 < number)
+        return UINT_MAX;
+    number += divisor - 1;
+    number -= number % divisor;
+    return number;
 }
 
 /** Return the lowest x such that x is at least <b>number</b>, and x modulo
@@ -34,13 +34,13 @@ round_to_next_multiple_of(unsigned number, unsigned divisor)
 uint32_t
 round_uint32_to_next_multiple_of(uint32_t number, uint32_t divisor)
 {
-  raw_assert(divisor > 0);
-  if (UINT32_MAX - divisor + 1 < number)
-    return UINT32_MAX;
+    raw_assert(divisor > 0);
+    if (UINT32_MAX - divisor + 1 < number)
+        return UINT32_MAX;
 
-  number += divisor - 1;
-  number -= number % divisor;
-  return number;
+    number += divisor - 1;
+    number -= number % divisor;
+    return number;
 }
 
 /** Return the lowest x such that x is at least <b>number</b>, and x modulo
@@ -49,24 +49,24 @@ round_uint32_to_next_multiple_of(uint32_t number, uint32_t divisor)
 uint64_t
 round_uint64_to_next_multiple_of(uint64_t number, uint64_t divisor)
 {
-  raw_assert(divisor > 0);
-  if (UINT64_MAX - divisor + 1 < number)
-    return UINT64_MAX;
-  number += divisor - 1;
-  number -= number % divisor;
-  return number;
+    raw_assert(divisor > 0);
+    if (UINT64_MAX - divisor + 1 < number)
+        return UINT64_MAX;
+    number += divisor - 1;
+    number -= number % divisor;
+    return number;
 }
 
 /* Helper: return greatest common divisor of a,b */
 static uint64_t
 gcd64(uint64_t a, uint64_t b)
 {
-  while (b) {
-    uint64_t t = b;
-    b = a % b;
-    a = t;
-  }
-  return a;
+    while (b) {
+        uint64_t t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
 }
 
 /** Return the unsigned integer product of <b>a</b> and <b>b</b>. If overflow
@@ -74,13 +74,13 @@ gcd64(uint64_t a, uint64_t b)
 uint64_t
 tor_mul_u64_nowrap(uint64_t a, uint64_t b)
 {
-  if (a == 0 || b == 0) {
-    return 0;
-  } else if (PREDICT_UNLIKELY(UINT64_MAX / a < b)) {
-    return UINT64_MAX;
-  } else {
-    return a*b;
-  }
+    if (a == 0 || b == 0) {
+        return 0;
+    } else if (PREDICT_UNLIKELY(UINT64_MAX / a < b)) {
+        return UINT64_MAX;
+    } else {
+        return a * b;
+    }
 }
 
 /* Given a fraction *<b>numer</b> / *<b>denom</b>, simplify it.
@@ -88,8 +88,8 @@ tor_mul_u64_nowrap(uint64_t a, uint64_t b)
 void
 simplify_fraction64(uint64_t *numer, uint64_t *denom)
 {
-  raw_assert(denom);
-  uint64_t gcd = gcd64(*numer, *denom);
-  *numer /= gcd;
-  *denom /= gcd;
+    raw_assert(denom);
+    uint64_t gcd = gcd64(*numer, *denom);
+    *numer /= gcd;
+    *denom /= gcd;
 }

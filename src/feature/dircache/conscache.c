@@ -21,7 +21,7 @@
  * That forces us to be less aggressive about unlinking files, and causes other
  * changes throughout our logic.
  */
-#define MUST_UNMAP_TO_UNLINK
+#    define MUST_UNMAP_TO_UNLINK
 #endif /* defined(_WIN32) */
 
 /**
@@ -30,45 +30,45 @@
  * depending whether it's currently in use.
  */
 struct consensus_cache_entry_t {
-  uint32_t magic; /**< Must be set to CCE_MAGIC */
-  HANDLE_ENTRY(consensus_cache_entry, consensus_cache_entry_t);
-  int32_t refcnt; /**< Reference count. */
-  unsigned can_remove : 1; /**< If true, we want to delete this file. */
-  /** If true, we intend to unmap this file as soon as we're done with it. */
-  unsigned release_aggressively : 1;
+    uint32_t magic; /**< Must be set to CCE_MAGIC */
+    HANDLE_ENTRY(consensus_cache_entry, consensus_cache_entry_t);
+    int32_t refcnt; /**< Reference count. */
+    unsigned can_remove : 1; /**< If true, we want to delete this file. */
+    /** If true, we intend to unmap this file as soon as we're done with it. */
+    unsigned release_aggressively : 1;
 
-  /** Filename for this object within the storage_dir_t */
-  char *fname;
-  /** Labels associated with this object. Immutable once the object
-   * is created. */
-  config_line_t *labels;
-  /** Pointer to the cache that includes this entry (if any). */
-  consensus_cache_t *in_cache;
+    /** Filename for this object within the storage_dir_t */
+    char *fname;
+    /** Labels associated with this object. Immutable once the object
+     * is created. */
+    config_line_t *labels;
+    /** Pointer to the cache that includes this entry (if any). */
+    consensus_cache_t *in_cache;
 
-  /** Since what time has this object been mapped into RAM, but with the cache
-   * being the only having a reference to it? */
-  time_t unused_since;
-  /** mmaped contents of the underlying file.  May be NULL */
-  tor_mmap_t *map;
-  /** Length of the body within <b>map</b>. */
-  size_t bodylen;
-  /** Pointer to the body within <b>map</b>. */
-  const uint8_t *body;
+    /** Since what time has this object been mapped into RAM, but with the
+     * cache being the only having a reference to it? */
+    time_t unused_since;
+    /** mmaped contents of the underlying file.  May be NULL */
+    tor_mmap_t *map;
+    /** Length of the body within <b>map</b>. */
+    size_t bodylen;
+    /** Pointer to the body within <b>map</b>. */
+    const uint8_t *body;
 };
 
 /**
  * A consensus_cache_t holds a directory full of labeled items.
  */
 struct consensus_cache_t {
-  /** Underling storage_dir_t to handle persistence */
-  storage_dir_t *dir;
-  /** List of all the entries in the directory. */
-  smartlist_t *entries;
+    /** Underling storage_dir_t to handle persistence */
+    storage_dir_t *dir;
+    /** List of all the entries in the directory. */
+    smartlist_t *entries;
 
-  /** The maximum number of entries that we'd like to allow in this cache.
-   * This is the same as the storagedir limit when MUST_UNMAP_TO_UNLINK is
-   * not defined. */
-  unsigned max_entries;
+    /** The maximum number of entries that we'd like to allow in this cache.
+     * This is the same as the storagedir limit when MUST_UNMAP_TO_UNLINK is
+     * not defined. */
+    unsigned max_entries;
 };
 
 static void consensus_cache_clear(consensus_cache_t *cache);
@@ -84,34 +84,34 @@ static void consensus_cache_entry_unmap(consensus_cache_entry_t *ent);
 consensus_cache_t *
 consensus_cache_open(const char *subdir, int max_entries)
 {
-  int storagedir_max_entries;
-  consensus_cache_t *cache = tor_malloc_zero(sizeof(consensus_cache_t));
-  char *directory = get_cachedir_fname(subdir);
-  cache->max_entries = max_entries;
+    int storagedir_max_entries;
+    consensus_cache_t *cache = tor_malloc_zero(sizeof(consensus_cache_t));
+    char *directory = get_cachedir_fname(subdir);
+    cache->max_entries = max_entries;
 
 #ifdef MUST_UNMAP_TO_UNLINK
-  /* If we can't unlink the files that we're still using, then we need to
-   * tell the storagedir backend to allow far more files than this consensus
-   * cache actually wants, so that it can hold files which, from this cache's
-   * perspective, have become useless.
-   */
-#define VERY_LARGE_STORAGEDIR_LIMIT (1000*1000)
-  storagedir_max_entries = VERY_LARGE_STORAGEDIR_LIMIT;
+    /* If we can't unlink the files that we're still using, then we need to
+     * tell the storagedir backend to allow far more files than this consensus
+     * cache actually wants, so that it can hold files which, from this cache's
+     * perspective, have become useless.
+     */
+#    define VERY_LARGE_STORAGEDIR_LIMIT (1000 * 1000)
+    storagedir_max_entries = VERY_LARGE_STORAGEDIR_LIMIT;
 #else /* !defined(MUST_UNMAP_TO_UNLINK) */
-  /* Otherwise, we can just tell the storagedir to use the same limits
-   * as this cache. */
-  storagedir_max_entries = max_entries;
+    /* Otherwise, we can just tell the storagedir to use the same limits
+     * as this cache. */
+    storagedir_max_entries = max_entries;
 #endif /* defined(MUST_UNMAP_TO_UNLINK) */
 
-  cache->dir = storage_dir_new(directory, storagedir_max_entries);
-  tor_free(directory);
-  if (!cache->dir) {
-    tor_free(cache);
-    return NULL;
-  }
+    cache->dir = storage_dir_new(directory, storagedir_max_entries);
+    tor_free(directory);
+    if (!cache->dir) {
+        tor_free(cache);
+        return NULL;
+    }
 
-  consensus_cache_rescan(cache);
-  return cache;
+    consensus_cache_rescan(cache);
+    return cache;
 }
 
 /** Return true if it's okay to put more entries in this cache than
@@ -124,21 +124,21 @@ consensus_cache_open(const char *subdir, int max_entries)
 int
 consensus_cache_may_overallocate(consensus_cache_t *cache)
 {
-  (void) cache;
+    (void)cache;
 #ifdef MUST_UNMAP_TO_UNLINK
-  return 1;
+    return 1;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
 // HACK: GCC on Appveyor hates that we may assert before returning. Work around
 // the error.
 #ifdef _WIN32
-#ifndef COCCI
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsuggest-attribute=noreturn"
-#endif
+#    ifndef COCCI
+#        pragma GCC diagnostic push
+#        pragma GCC diagnostic ignored "-Wsuggest-attribute=noreturn"
+#    endif
 #endif /* defined(_WIN32) */
 
 /**
@@ -150,25 +150,25 @@ consensus_cache_register_with_sandbox(consensus_cache_t *cache,
                                       struct sandbox_cfg_elem_t **cfg)
 {
 #ifdef MUST_UNMAP_TO_UNLINK
-  /* Our Linux sandbox doesn't support huge file lists like the one that would
-   * be generated by using VERY_LARGE_STORAGEDIR_LIMIT above in
-   * consensus_cache_open().  Since the Linux sandbox is the only one we have
-   * right now, we just assert that we never reach this point when we've had
-   * to use VERY_LARGE_STORAGEDIR_LIMIT.
-   *
-   * If at some point in the future we have a different sandbox mechanism that
-   * can handle huge file lists, we can remove this assertion or make it
-   * conditional.
-   */
-  tor_assert_nonfatal_unreached();
+    /* Our Linux sandbox doesn't support huge file lists like the one that
+     * would be generated by using VERY_LARGE_STORAGEDIR_LIMIT above in
+     * consensus_cache_open().  Since the Linux sandbox is the only one we have
+     * right now, we just assert that we never reach this point when we've had
+     * to use VERY_LARGE_STORAGEDIR_LIMIT.
+     *
+     * If at some point in the future we have a different sandbox mechanism
+     * that can handle huge file lists, we can remove this assertion or make it
+     * conditional.
+     */
+    tor_assert_nonfatal_unreached();
 #endif /* defined(MUST_UNMAP_TO_UNLINK) */
-  return storage_dir_register_with_sandbox(cache->dir, cfg);
+    return storage_dir_register_with_sandbox(cache->dir, cfg);
 }
 
 #ifdef _WIN32
-#ifndef COCCI
-#pragma GCC diagnostic pop
-#endif
+#    ifndef COCCI
+#        pragma GCC diagnostic pop
+#    endif
 #endif
 
 /**
@@ -178,14 +178,14 @@ consensus_cache_register_with_sandbox(consensus_cache_t *cache,
 static void
 consensus_cache_clear(consensus_cache_t *cache)
 {
-  consensus_cache_delete_pending(cache, 0);
+    consensus_cache_delete_pending(cache, 0);
 
-  SMARTLIST_FOREACH_BEGIN(cache->entries, consensus_cache_entry_t *, ent) {
-    ent->in_cache = NULL;
-    consensus_cache_entry_decref(ent);
-  } SMARTLIST_FOREACH_END(ent);
-  smartlist_free(cache->entries);
-  cache->entries = NULL;
+    SMARTLIST_FOREACH_BEGIN (cache->entries, consensus_cache_entry_t *, ent) {
+        ent->in_cache = NULL;
+        consensus_cache_entry_decref(ent);
+    } SMARTLIST_FOREACH_END (ent);
+    smartlist_free(cache->entries);
+    cache->entries = NULL;
 }
 
 /**
@@ -194,14 +194,14 @@ consensus_cache_clear(consensus_cache_t *cache)
 void
 consensus_cache_free_(consensus_cache_t *cache)
 {
-  if (! cache)
-    return;
+    if (!cache)
+        return;
 
-  if (cache->entries) {
-    consensus_cache_clear(cache);
-  }
-  storage_dir_free(cache->dir);
-  tor_free(cache);
+    if (cache->entries) {
+        consensus_cache_clear(cache);
+    }
+    storage_dir_free(cache->dir);
+    tor_free(cache);
 }
 
 /**
@@ -218,31 +218,29 @@ consensus_cache_free_(consensus_cache_t *cache)
  * will be considered.
  */
 consensus_cache_entry_t *
-consensus_cache_add(consensus_cache_t *cache,
-                    const config_line_t *labels,
-                    const uint8_t *data,
-                    size_t datalen)
+consensus_cache_add(consensus_cache_t *cache, const config_line_t *labels,
+                    const uint8_t *data, size_t datalen)
 {
-  char *fname = NULL;
-  int r = storage_dir_save_labeled_to_file(cache->dir,
-                                            labels, data, datalen, &fname);
-  if (r < 0 || fname == NULL) {
-    return NULL;
-  }
-  consensus_cache_entry_t *ent =
-    tor_malloc_zero(sizeof(consensus_cache_entry_t));
-  ent->magic = CCE_MAGIC;
-  ent->fname = fname;
-  ent->labels = config_lines_dup(labels);
-  ent->in_cache = cache;
-  ent->unused_since = TIME_MAX;
-  smartlist_add(cache->entries, ent);
-  /* Start the reference count at 2: the caller owns one copy, and the
-   * cache owns another.
-   */
-  ent->refcnt = 2;
+    char *fname = NULL;
+    int r = storage_dir_save_labeled_to_file(cache->dir, labels, data, datalen,
+                                             &fname);
+    if (r < 0 || fname == NULL) {
+        return NULL;
+    }
+    consensus_cache_entry_t *ent =
+        tor_malloc_zero(sizeof(consensus_cache_entry_t));
+    ent->magic = CCE_MAGIC;
+    ent->fname = fname;
+    ent->labels = config_lines_dup(labels);
+    ent->in_cache = cache;
+    ent->unused_since = TIME_MAX;
+    smartlist_add(cache->entries, ent);
+    /* Start the reference count at 2: the caller owns one copy, and the
+     * cache owns another.
+     */
+    ent->refcnt = 2;
 
-  return ent;
+    return ent;
 }
 
 /**
@@ -252,17 +250,16 @@ consensus_cache_add(consensus_cache_t *cache,
  * Does not adjust reference counts.
  */
 consensus_cache_entry_t *
-consensus_cache_find_first(consensus_cache_t *cache,
-                           const char *key,
+consensus_cache_find_first(consensus_cache_t *cache, const char *key,
                            const char *value)
 {
-  smartlist_t *tmp = smartlist_new();
-  consensus_cache_find_all(tmp, cache, key, value);
-  consensus_cache_entry_t *ent = NULL;
-  if (smartlist_len(tmp))
-    ent = smartlist_get(tmp, 0);
-  smartlist_free(tmp);
-  return ent;
+    smartlist_t *tmp = smartlist_new();
+    consensus_cache_find_all(tmp, cache, key, value);
+    consensus_cache_entry_t *ent = NULL;
+    if (smartlist_len(tmp))
+        ent = smartlist_get(tmp, 0);
+    smartlist_free(tmp);
+    return ent;
 }
 
 /**
@@ -274,25 +271,23 @@ consensus_cache_find_first(consensus_cache_t *cache,
  * Does not adjust reference counts.
  */
 void
-consensus_cache_find_all(smartlist_t *out,
-                         consensus_cache_t *cache,
-                         const char *key,
-                         const char *value)
+consensus_cache_find_all(smartlist_t *out, consensus_cache_t *cache,
+                         const char *key, const char *value)
 {
-  SMARTLIST_FOREACH_BEGIN(cache->entries, consensus_cache_entry_t *, ent) {
-    if (ent->can_remove == 1) {
-      /* We want to delete this; pretend it isn't there. */
-      continue;
-    }
-    if (! key) {
-      smartlist_add(out, ent);
-      continue;
-    }
-    const char *found_val = consensus_cache_entry_get_value(ent, key);
-    if (found_val && !strcmp(value, found_val)) {
-      smartlist_add(out, ent);
-    }
-  } SMARTLIST_FOREACH_END(ent);
+    SMARTLIST_FOREACH_BEGIN (cache->entries, consensus_cache_entry_t *, ent) {
+        if (ent->can_remove == 1) {
+            /* We want to delete this; pretend it isn't there. */
+            continue;
+        }
+        if (!key) {
+            smartlist_add(out, ent);
+            continue;
+        }
+        const char *found_val = consensus_cache_entry_get_value(ent, key);
+        if (found_val && !strcmp(value, found_val)) {
+            smartlist_add(out, ent);
+        }
+    } SMARTLIST_FOREACH_END (ent);
 }
 
 /**
@@ -302,20 +297,19 @@ consensus_cache_find_all(smartlist_t *out,
  * Does not adjust reference counts.
  */
 void
-consensus_cache_filter_list(smartlist_t *lst,
-                            const char *key,
+consensus_cache_filter_list(smartlist_t *lst, const char *key,
                             const char *value)
 {
-  if (BUG(lst == NULL))
-    return; // LCOV_EXCL_LINE
-  if (key == NULL)
-    return;
-  SMARTLIST_FOREACH_BEGIN(lst, consensus_cache_entry_t *, ent) {
-    const char *found_val = consensus_cache_entry_get_value(ent, key);
-    if (! found_val || strcmp(value, found_val)) {
-      SMARTLIST_DEL_CURRENT(lst, ent);
-    }
-  } SMARTLIST_FOREACH_END(ent);
+    if (BUG(lst == NULL))
+        return; // LCOV_EXCL_LINE
+    if (key == NULL)
+        return;
+    SMARTLIST_FOREACH_BEGIN (lst, consensus_cache_entry_t *, ent) {
+        const char *found_val = consensus_cache_entry_get_value(ent, key);
+        if (!found_val || strcmp(value, found_val)) {
+            SMARTLIST_DEL_CURRENT(lst, ent);
+        }
+    } SMARTLIST_FOREACH_END (ent);
 }
 
 /**
@@ -329,11 +323,11 @@ const char *
 consensus_cache_entry_get_value(const consensus_cache_entry_t *ent,
                                 const char *key)
 {
-  const config_line_t *match = config_line_find(ent->labels, key);
-  if (match)
-    return match->value;
-  else
-    return NULL;
+    const config_line_t *match = config_line_find(ent->labels, key);
+    if (match)
+        return match->value;
+    else
+        return NULL;
 }
 
 /**
@@ -345,7 +339,7 @@ consensus_cache_entry_get_value(const consensus_cache_entry_t *ent,
 const config_line_t *
 consensus_cache_entry_get_labels(const consensus_cache_entry_t *ent)
 {
-  return ent->labels;
+    return ent->labels;
 }
 
 /**
@@ -354,10 +348,10 @@ consensus_cache_entry_get_labels(const consensus_cache_entry_t *ent)
 void
 consensus_cache_entry_incref(consensus_cache_entry_t *ent)
 {
-  if (BUG(ent->magic != CCE_MAGIC))
-    return; // LCOV_EXCL_LINE
-  ++ent->refcnt;
-  ent->unused_since = TIME_MAX;
+    if (BUG(ent->magic != CCE_MAGIC))
+        return; // LCOV_EXCL_LINE
+    ++ent->refcnt;
+    ent->unused_since = TIME_MAX;
 }
 
 /**
@@ -369,40 +363,40 @@ consensus_cache_entry_incref(consensus_cache_entry_t *ent)
 void
 consensus_cache_entry_decref(consensus_cache_entry_t *ent)
 {
-  if (! ent)
-    return;
-  if (BUG(ent->refcnt <= 0))
-    return; // LCOV_EXCL_LINE
-  if (BUG(ent->magic != CCE_MAGIC))
-    return; // LCOV_EXCL_LINE
+    if (!ent)
+        return;
+    if (BUG(ent->refcnt <= 0))
+        return; // LCOV_EXCL_LINE
+    if (BUG(ent->magic != CCE_MAGIC))
+        return; // LCOV_EXCL_LINE
 
-  --ent->refcnt;
+    --ent->refcnt;
 
-  if (ent->refcnt == 1 && ent->in_cache) {
-    /* Only the cache has a reference: we don't need to keep the file
-     * mapped */
-    if (ent->map) {
-      if (ent->release_aggressively) {
-        consensus_cache_entry_unmap(ent);
-      } else {
-        ent->unused_since = approx_time();
-      }
+    if (ent->refcnt == 1 && ent->in_cache) {
+        /* Only the cache has a reference: we don't need to keep the file
+         * mapped */
+        if (ent->map) {
+            if (ent->release_aggressively) {
+                consensus_cache_entry_unmap(ent);
+            } else {
+                ent->unused_since = approx_time();
+            }
+        }
+        return;
     }
-    return;
-  }
 
-  if (ent->refcnt > 0)
-    return;
+    if (ent->refcnt > 0)
+        return;
 
-  /* Refcount is zero; we can free it. */
-  if (ent->map) {
-    consensus_cache_entry_unmap(ent);
-  }
-  tor_free(ent->fname);
-  config_free_lines(ent->labels);
-  consensus_cache_entry_handles_clear(ent);
-  memwipe(ent, 0, sizeof(consensus_cache_entry_t));
-  tor_free(ent);
+    /* Refcount is zero; we can free it. */
+    if (ent->map) {
+        consensus_cache_entry_unmap(ent);
+    }
+    tor_free(ent->fname);
+    config_free_lines(ent->labels);
+    consensus_cache_entry_handles_clear(ent);
+    memwipe(ent, 0, sizeof(consensus_cache_entry_t));
+    tor_free(ent);
 }
 
 /**
@@ -412,7 +406,7 @@ consensus_cache_entry_decref(consensus_cache_entry_t *ent)
 void
 consensus_cache_entry_mark_for_removal(consensus_cache_entry_t *ent)
 {
-  ent->can_remove = 1;
+    ent->can_remove = 1;
 }
 
 /**
@@ -422,7 +416,7 @@ consensus_cache_entry_mark_for_removal(consensus_cache_entry_t *ent)
 void
 consensus_cache_entry_mark_for_aggressive_release(consensus_cache_entry_t *ent)
 {
-  ent->release_aggressively = 1;
+    ent->release_aggressively = 1;
 }
 
 /**
@@ -435,26 +429,25 @@ consensus_cache_entry_mark_for_aggressive_release(consensus_cache_entry_t *ent)
  */
 int
 consensus_cache_entry_get_body(const consensus_cache_entry_t *ent,
-                               const uint8_t **body_out,
-                               size_t *sz_out)
+                               const uint8_t **body_out, size_t *sz_out)
 {
-  if (BUG(ent->magic != CCE_MAGIC))
-    return -1; // LCOV_EXCL_LINE
+    if (BUG(ent->magic != CCE_MAGIC))
+        return -1; // LCOV_EXCL_LINE
 
-  if (! ent->map) {
-    if (! ent->in_cache)
-      return -1;
+    if (!ent->map) {
+        if (!ent->in_cache)
+            return -1;
 
-    consensus_cache_entry_map((consensus_cache_t *)ent->in_cache,
-                              (consensus_cache_entry_t *)ent);
-    if (! ent->map) {
-      return -1;
+        consensus_cache_entry_map((consensus_cache_t *)ent->in_cache,
+                                  (consensus_cache_entry_t *)ent);
+        if (!ent->map) {
+            return -1;
+        }
     }
-  }
 
-  *body_out = ent->body;
-  *sz_out = ent->bodylen;
-  return 0;
+    *body_out = ent->body;
+    *sz_out = ent->bodylen;
+    return 0;
 }
 
 /**
@@ -464,22 +457,22 @@ consensus_cache_entry_get_body(const consensus_cache_entry_t *ent,
 void
 consensus_cache_unmap_lazy(consensus_cache_t *cache, time_t cutoff)
 {
-  SMARTLIST_FOREACH_BEGIN(cache->entries, consensus_cache_entry_t *, ent) {
-    tor_assert_nonfatal(ent->in_cache == cache);
-    if (ent->refcnt > 1 || BUG(ent->in_cache == NULL)) {
-      /* Somebody is using this entry right now */
-      continue;
-    }
-    if (ent->unused_since > cutoff) {
-      /* Has been unused only for a little while */
-      continue;
-    }
-    if (ent->map == NULL) {
-      /* Not actually mapped. */
-      continue;
-    }
-    consensus_cache_entry_unmap(ent);
-  } SMARTLIST_FOREACH_END(ent);
+    SMARTLIST_FOREACH_BEGIN (cache->entries, consensus_cache_entry_t *, ent) {
+        tor_assert_nonfatal(ent->in_cache == cache);
+        if (ent->refcnt > 1 || BUG(ent->in_cache == NULL)) {
+            /* Somebody is using this entry right now */
+            continue;
+        }
+        if (ent->unused_since > cutoff) {
+            /* Has been unused only for a little while */
+            continue;
+        }
+        if (ent->map == NULL) {
+            /* Not actually mapped. */
+            continue;
+        }
+        consensus_cache_entry_unmap(ent);
+    } SMARTLIST_FOREACH_END (ent);
 }
 
 /**
@@ -488,16 +481,16 @@ consensus_cache_unmap_lazy(consensus_cache_t *cache, time_t cutoff)
 int
 consensus_cache_get_n_filenames_available(consensus_cache_t *cache)
 {
-  tor_assert(cache);
-  int max = cache->max_entries;
-  int used = smartlist_len(storage_dir_list(cache->dir));
+    tor_assert(cache);
+    int max = cache->max_entries;
+    int used = smartlist_len(storage_dir_list(cache->dir));
 #ifdef MUST_UNMAP_TO_UNLINK
-  if (used > max)
-    return 0;
+    if (used > max)
+        return 0;
 #else
-  tor_assert_nonfatal(max >= used);
+    tor_assert_nonfatal(max >= used);
 #endif /* defined(MUST_UNMAP_TO_UNLINK) */
-  return max - used;
+    return max - used;
 }
 
 /**
@@ -508,37 +501,37 @@ consensus_cache_get_n_filenames_available(consensus_cache_t *cache)
 void
 consensus_cache_delete_pending(consensus_cache_t *cache, int force)
 {
-  SMARTLIST_FOREACH_BEGIN(cache->entries, consensus_cache_entry_t *, ent) {
-    tor_assert_nonfatal(ent->in_cache == cache);
-    int force_ent = force;
+    SMARTLIST_FOREACH_BEGIN (cache->entries, consensus_cache_entry_t *, ent) {
+        tor_assert_nonfatal(ent->in_cache == cache);
+        int force_ent = force;
 #ifdef MUST_UNMAP_TO_UNLINK
-    /* We cannot delete anything with an active mmap on win32, so no
-     * force-deletion. */
-    if (ent->map) {
-      force_ent = 0;
-    }
+        /* We cannot delete anything with an active mmap on win32, so no
+         * force-deletion. */
+        if (ent->map) {
+            force_ent = 0;
+        }
 #endif /* defined(MUST_UNMAP_TO_UNLINK) */
-    if (! force_ent) {
-      if (ent->refcnt > 1 || BUG(ent->in_cache == NULL)) {
-        /* Somebody is using this entry right now */
-        continue;
-      }
-    }
-    if (ent->can_remove == 0) {
-      /* Don't want to delete this. */
-      continue;
-    }
-    if (BUG(ent->refcnt <= 0)) {
-      continue; // LCOV_EXCL_LINE
-    }
+        if (!force_ent) {
+            if (ent->refcnt > 1 || BUG(ent->in_cache == NULL)) {
+                /* Somebody is using this entry right now */
+                continue;
+            }
+        }
+        if (ent->can_remove == 0) {
+            /* Don't want to delete this. */
+            continue;
+        }
+        if (BUG(ent->refcnt <= 0)) {
+            continue; // LCOV_EXCL_LINE
+        }
 
-    SMARTLIST_DEL_CURRENT(cache->entries, ent);
-    ent->in_cache = NULL;
-    char *fname = tor_strdup(ent->fname); /* save a copy */
-    consensus_cache_entry_decref(ent);
-    storage_dir_remove_file(cache->dir, fname);
-    tor_free(fname);
-  } SMARTLIST_FOREACH_END(ent);
+        SMARTLIST_DEL_CURRENT(cache->entries, ent);
+        ent->in_cache = NULL;
+        char *fname = tor_strdup(ent->fname); /* save a copy */
+        consensus_cache_entry_decref(ent);
+        storage_dir_remove_file(cache->dir, fname);
+        tor_free(fname);
+    } SMARTLIST_FOREACH_END (ent);
 }
 
 /**
@@ -547,47 +540,50 @@ consensus_cache_delete_pending(consensus_cache_t *cache, int force)
 static void
 consensus_cache_rescan(consensus_cache_t *cache)
 {
-  if (cache->entries) {
-    consensus_cache_clear(cache);
-  }
-
-  cache->entries = smartlist_new();
-  const smartlist_t *fnames = storage_dir_list(cache->dir);
-  SMARTLIST_FOREACH_BEGIN(fnames, const char *, fname) {
-    tor_mmap_t *map = NULL;
-    config_line_t *labels = NULL;
-    const uint8_t *body;
-    size_t bodylen;
-    map = storage_dir_map_labeled(cache->dir, fname,
-                                  &labels, &body, &bodylen);
-    if (! map) {
-      /* The ERANGE error might come from tor_mmap_file() -- it means the file
-       * was empty. EINVAL might come from ..map_labeled() -- it means the
-       * file was misformatted. In both cases, we should just delete it.
-       */
-      if (errno == ERANGE || errno == EINVAL) {
-        log_warn(LD_FS, "Found %s file %s in consensus cache; removing it.",
-                 errno == ERANGE ? "empty" : "misformatted",
-                 escaped(fname));
-        storage_dir_remove_file(cache->dir, fname);
-      } else {
-        /* Can't load this; continue */
-        log_warn(LD_FS, "Unable to map file %s from consensus cache: %s",
-                 escaped(fname), strerror(errno));
-      }
-      continue;
+    if (cache->entries) {
+        consensus_cache_clear(cache);
     }
-    consensus_cache_entry_t *ent =
-      tor_malloc_zero(sizeof(consensus_cache_entry_t));
-    ent->magic = CCE_MAGIC;
-    ent->fname = tor_strdup(fname);
-    ent->labels = labels;
-    ent->refcnt = 1;
-    ent->in_cache = cache;
-    ent->unused_since = TIME_MAX;
-    smartlist_add(cache->entries, ent);
-    tor_munmap_file(map); /* don't actually need to keep this around */
-  } SMARTLIST_FOREACH_END(fname);
+
+    cache->entries = smartlist_new();
+    const smartlist_t *fnames = storage_dir_list(cache->dir);
+    SMARTLIST_FOREACH_BEGIN (fnames, const char *, fname) {
+        tor_mmap_t *map = NULL;
+        config_line_t *labels = NULL;
+        const uint8_t *body;
+        size_t bodylen;
+        map = storage_dir_map_labeled(cache->dir, fname, &labels, &body,
+                                      &bodylen);
+        if (!map) {
+            /* The ERANGE error might come from tor_mmap_file() -- it means the
+             * file was empty. EINVAL might come from ..map_labeled() -- it
+             * means the file was misformatted. In both cases, we should just
+             * delete it.
+             */
+            if (errno == ERANGE || errno == EINVAL) {
+                log_warn(LD_FS,
+                         "Found %s file %s in consensus cache; removing it.",
+                         errno == ERANGE ? "empty" : "misformatted",
+                         escaped(fname));
+                storage_dir_remove_file(cache->dir, fname);
+            } else {
+                /* Can't load this; continue */
+                log_warn(LD_FS,
+                         "Unable to map file %s from consensus cache: %s",
+                         escaped(fname), strerror(errno));
+            }
+            continue;
+        }
+        consensus_cache_entry_t *ent =
+            tor_malloc_zero(sizeof(consensus_cache_entry_t));
+        ent->magic = CCE_MAGIC;
+        ent->fname = tor_strdup(fname);
+        ent->labels = labels;
+        ent->refcnt = 1;
+        ent->in_cache = cache;
+        ent->unused_since = TIME_MAX;
+        smartlist_add(cache->entries, ent);
+        tor_munmap_file(map); /* don't actually need to keep this around */
+    } SMARTLIST_FOREACH_END (fname);
 }
 
 /**
@@ -597,12 +593,12 @@ static void
 consensus_cache_entry_map(consensus_cache_t *cache,
                           consensus_cache_entry_t *ent)
 {
-  if (ent->map)
-    return;
+    if (ent->map)
+        return;
 
-  ent->map = storage_dir_map_labeled(cache->dir, ent->fname,
-                                     NULL, &ent->body, &ent->bodylen);
-  ent->unused_since = TIME_MAX;
+    ent->map = storage_dir_map_labeled(cache->dir, ent->fname, NULL,
+                                       &ent->body, &ent->bodylen);
+    ent->unused_since = TIME_MAX;
 }
 
 /**
@@ -614,15 +610,15 @@ consensus_cache_entry_map(consensus_cache_t *cache,
 static void
 consensus_cache_entry_unmap(consensus_cache_entry_t *ent)
 {
-  ent->unused_since = TIME_MAX;
-  if (!ent->map)
-    return;
+    ent->unused_since = TIME_MAX;
+    if (!ent->map)
+        return;
 
-  tor_munmap_file(ent->map);
-  ent->map = NULL;
-  ent->body = NULL;
-  ent->bodylen = 0;
-  ent->unused_since = TIME_MAX;
+    tor_munmap_file(ent->map);
+    ent->map = NULL;
+    ent->body = NULL;
+    ent->bodylen = 0;
+    ent->unused_since = TIME_MAX;
 }
 
 HANDLE_IMPL(consensus_cache_entry, consensus_cache_entry_t, )
@@ -636,12 +632,12 @@ HANDLE_IMPL(consensus_cache_entry, consensus_cache_entry_t, )
 int
 consensus_cache_entry_is_mapped(consensus_cache_entry_t *ent)
 {
-  if (ent->map) {
-    tor_assert(ent->body);
-    return 1;
-  } else {
-    tor_assert(!ent->body);
-    return 0;
-  }
+    if (ent->map) {
+        tor_assert(ent->body);
+        return 1;
+    } else {
+        tor_assert(!ent->body);
+        return 0;
+    }
 }
 #endif /* defined(TOR_UNIT_TESTS) */

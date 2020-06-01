@@ -37,10 +37,10 @@
 void
 fast_handshake_state_free_(fast_handshake_state_t *victim)
 {
-  if (! victim)
-    return;
-  memwipe(victim, 0, sizeof(fast_handshake_state_t));
-  tor_free(victim);
+    if (!victim)
+        return;
+    memwipe(victim, 0, sizeof(fast_handshake_state_t));
+    tor_free(victim);
 }
 
 /** Create the state needed to perform a CREATE_FAST handshake. Return 0
@@ -49,11 +49,11 @@ int
 fast_onionskin_create(fast_handshake_state_t **handshake_state_out,
                       uint8_t *handshake_out)
 {
-  fast_handshake_state_t *s;
-  *handshake_state_out = s = tor_malloc(sizeof(fast_handshake_state_t));
-  crypto_rand((char*)s->state, sizeof(s->state));
-  memcpy(handshake_out, s->state, DIGEST_LEN);
-  return 0;
+    fast_handshake_state_t *s;
+    *handshake_state_out = s = tor_malloc(sizeof(fast_handshake_state_t));
+    crypto_rand((char *)s->state, sizeof(s->state));
+    memcpy(handshake_out, s->state, DIGEST_LEN);
+    return 0;
 }
 
 /** Implement the server side of the CREATE_FAST abbreviated handshake.  The
@@ -66,31 +66,30 @@ fast_onionskin_create(fast_handshake_state_t **handshake_state_out,
 int
 fast_server_handshake(const uint8_t *key_in, /* DIGEST_LEN bytes */
                       uint8_t *handshake_reply_out, /* DIGEST_LEN*2 bytes */
-                      uint8_t *key_out,
-                      size_t key_out_len)
+                      uint8_t *key_out, size_t key_out_len)
 {
-  uint8_t tmp[DIGEST_LEN+DIGEST_LEN];
-  uint8_t *out = NULL;
-  size_t out_len;
-  int r = -1;
+    uint8_t tmp[DIGEST_LEN + DIGEST_LEN];
+    uint8_t *out = NULL;
+    size_t out_len;
+    int r = -1;
 
-  crypto_rand((char*)handshake_reply_out, DIGEST_LEN);
+    crypto_rand((char *)handshake_reply_out, DIGEST_LEN);
 
-  memcpy(tmp, key_in, DIGEST_LEN);
-  memcpy(tmp+DIGEST_LEN, handshake_reply_out, DIGEST_LEN);
-  out_len = key_out_len+DIGEST_LEN;
-  out = tor_malloc(out_len);
-  if (BUG(crypto_expand_key_material_TAP(tmp, sizeof(tmp), out, out_len))) {
-    goto done; // LCOV_EXCL_LINE
-  }
-  memcpy(handshake_reply_out+DIGEST_LEN, out, DIGEST_LEN);
-  memcpy(key_out, out+DIGEST_LEN, key_out_len);
-  r = 0;
- done:
-  memwipe(tmp, 0, sizeof(tmp));
-  memwipe(out, 0, out_len);
-  tor_free(out);
-  return r;
+    memcpy(tmp, key_in, DIGEST_LEN);
+    memcpy(tmp + DIGEST_LEN, handshake_reply_out, DIGEST_LEN);
+    out_len = key_out_len + DIGEST_LEN;
+    out = tor_malloc(out_len);
+    if (BUG(crypto_expand_key_material_TAP(tmp, sizeof(tmp), out, out_len))) {
+        goto done; // LCOV_EXCL_LINE
+    }
+    memcpy(handshake_reply_out + DIGEST_LEN, out, DIGEST_LEN);
+    memcpy(key_out, out + DIGEST_LEN, key_out_len);
+    r = 0;
+done:
+    memwipe(tmp, 0, sizeof(tmp));
+    memwipe(out, 0, out_len);
+    tor_free(out);
+    return r;
 }
 
 /** Implement the second half of the client side of the CREATE_FAST handshake.
@@ -106,39 +105,39 @@ fast_server_handshake(const uint8_t *key_in, /* DIGEST_LEN bytes */
  * and protected by TLS).
  */
 int
-fast_client_handshake(const fast_handshake_state_t *handshake_state,
-                      const uint8_t *handshake_reply_out,/*DIGEST_LEN*2 bytes*/
-                      uint8_t *key_out,
-                      size_t key_out_len,
-                      const char **msg_out)
+fast_client_handshake(
+    const fast_handshake_state_t *handshake_state,
+    const uint8_t *handshake_reply_out, /*DIGEST_LEN*2 bytes*/
+    uint8_t *key_out, size_t key_out_len, const char **msg_out)
 {
-  uint8_t tmp[DIGEST_LEN+DIGEST_LEN];
-  uint8_t *out;
-  size_t out_len;
-  int r = -1;
+    uint8_t tmp[DIGEST_LEN + DIGEST_LEN];
+    uint8_t *out;
+    size_t out_len;
+    int r = -1;
 
-  memcpy(tmp, handshake_state->state, DIGEST_LEN);
-  memcpy(tmp+DIGEST_LEN, handshake_reply_out, DIGEST_LEN);
-  out_len = key_out_len+DIGEST_LEN;
-  out = tor_malloc(out_len);
-  if (BUG(crypto_expand_key_material_TAP(tmp, sizeof(tmp), out, out_len))) {
-    /* LCOV_EXCL_START */
-    if (msg_out)
-      *msg_out = "Failed to expand key material";
-    goto done;
-    /* LCOV_EXCL_STOP */
-  }
-  if (tor_memneq(out, handshake_reply_out+DIGEST_LEN, DIGEST_LEN)) {
-    /* H(K) does *not* match. Something fishy. */
-    if (msg_out)
-      *msg_out = "Digest DOES NOT MATCH on fast handshake. Bug or attack.";
-    goto done;
-  }
-  memcpy(key_out, out+DIGEST_LEN, key_out_len);
-  r = 0;
- done:
-  memwipe(tmp, 0, sizeof(tmp));
-  memwipe(out, 0, out_len);
-  tor_free(out);
-  return r;
+    memcpy(tmp, handshake_state->state, DIGEST_LEN);
+    memcpy(tmp + DIGEST_LEN, handshake_reply_out, DIGEST_LEN);
+    out_len = key_out_len + DIGEST_LEN;
+    out = tor_malloc(out_len);
+    if (BUG(crypto_expand_key_material_TAP(tmp, sizeof(tmp), out, out_len))) {
+        /* LCOV_EXCL_START */
+        if (msg_out)
+            *msg_out = "Failed to expand key material";
+        goto done;
+        /* LCOV_EXCL_STOP */
+    }
+    if (tor_memneq(out, handshake_reply_out + DIGEST_LEN, DIGEST_LEN)) {
+        /* H(K) does *not* match. Something fishy. */
+        if (msg_out)
+            *msg_out =
+                "Digest DOES NOT MATCH on fast handshake. Bug or attack.";
+        goto done;
+    }
+    memcpy(key_out, out + DIGEST_LEN, key_out_len);
+    r = 0;
+done:
+    memwipe(tmp, 0, sizeof(tmp));
+    memwipe(out, 0, out_len);
+    tor_free(out);
+    return r;
 }

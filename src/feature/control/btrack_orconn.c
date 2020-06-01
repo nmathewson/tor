@@ -53,14 +53,14 @@ DECLARE_SUBSCRIBE(ocirc_chan, bto_chan_rcvr);
 
 /** Pair of a best ORCONN GID and with its state */
 typedef struct bto_best_t {
-  uint64_t gid;
-  int state;
+    uint64_t gid;
+    int state;
 } bto_best_t;
 
 /** GID and state of the best ORCONN we've seen so far */
-static bto_best_t best_any = { 0, -1 };
+static bto_best_t best_any = {0, -1};
 /** GID and state of the best application circuit ORCONN we've seen so far */
-static bto_best_t best_ap = { 0, -1 };
+static bto_best_t best_ap = {0, -1};
 
 /**
  * Update a cached state of a best ORCONN progress we've seen so far.
@@ -70,19 +70,19 @@ static bto_best_t best_ap = { 0, -1 };
 static bool
 bto_update_best(const bt_orconn_t *bto, bto_best_t *best, const char *type)
 {
-  if (bto->state < best->state)
+    if (bto->state < best->state)
+        return false;
+    /* Update even if we won't change best->state, because it's more
+     * recent information that a particular connection transitioned to
+     * that state. */
+    best->gid = bto->gid;
+    if (bto->state > best->state) {
+        log_info(LD_BTRACK, "ORCONN BEST_%s state %d->%d gid=%" PRIu64, type,
+                 best->state, bto->state, bto->gid);
+        best->state = bto->state;
+        return true;
+    }
     return false;
-  /* Update even if we won't change best->state, because it's more
-   * recent information that a particular connection transitioned to
-   * that state. */
-  best->gid = bto->gid;
-  if (bto->state > best->state) {
-    log_info(LD_BTRACK, "ORCONN BEST_%s state %d->%d gid=%"PRIu64, type,
-             best->state, bto->state, bto->gid);
-    best->state = bto->state;
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -94,20 +94,20 @@ bto_update_best(const bt_orconn_t *bto, bto_best_t *best, const char *type)
 static void
 bto_update_bests(const bt_orconn_t *bto)
 {
-  tor_assert(bto->is_orig);
+    tor_assert(bto->is_orig);
 
-  if (bto_update_best(bto, &best_any, "ANY"))
-    bto_cevent_anyconn(bto);
-  if (!bto->is_onehop && bto_update_best(bto, &best_ap, "AP"))
-    bto_cevent_apconn(bto);
+    if (bto_update_best(bto, &best_any, "ANY"))
+        bto_cevent_anyconn(bto);
+    if (!bto->is_onehop && bto_update_best(bto, &best_ap, "AP"))
+        bto_cevent_apconn(bto);
 }
 
 /** Reset cached "best" values */
 static void
 bto_reset_bests(void)
 {
-  best_any.gid = best_ap.gid = 0;
-  best_any.state = best_ap.state = -1;
+    best_any.gid = best_ap.gid = 0;
+    best_any.state = best_ap.state = -1;
 }
 
 /**
@@ -117,17 +117,17 @@ bto_reset_bests(void)
 static void
 bto_state_rcvr(const msg_t *msg, const orconn_state_msg_t *arg)
 {
-  bt_orconn_t *bto;
+    bt_orconn_t *bto;
 
-  (void)msg;
-  bto = bto_find_or_new(arg->gid, arg->chan);
-  log_debug(LD_BTRACK, "ORCONN gid=%"PRIu64" chan=%"PRIu64
-            " proxy_type=%d state=%d",
-            arg->gid, arg->chan, arg->proxy_type, arg->state);
-  bto->proxy_type = arg->proxy_type;
-  bto->state = arg->state;
-  if (bto->is_orig)
-    bto_update_bests(bto);
+    (void)msg;
+    bto = bto_find_or_new(arg->gid, arg->chan);
+    log_debug(LD_BTRACK,
+              "ORCONN gid=%" PRIu64 " chan=%" PRIu64 " proxy_type=%d state=%d",
+              arg->gid, arg->chan, arg->proxy_type, arg->state);
+    bto->proxy_type = arg->proxy_type;
+    bto->state = arg->state;
+    if (bto->is_orig)
+        bto_update_bests(bto);
 }
 
 /**
@@ -138,16 +138,17 @@ bto_state_rcvr(const msg_t *msg, const orconn_state_msg_t *arg)
 static void
 bto_status_rcvr(const msg_t *msg, const orconn_status_msg_t *arg)
 {
-  (void)msg;
-  switch (arg->status) {
-  case OR_CONN_EVENT_FAILED:
-  case OR_CONN_EVENT_CLOSED:
-    log_info(LD_BTRACK, "ORCONN DELETE gid=%"PRIu64" status=%d reason=%d",
-             arg->gid, arg->status, arg->reason);
-    return bto_delete(arg->gid);
-  default:
-    break;
-  }
+    (void)msg;
+    switch (arg->status) {
+    case OR_CONN_EVENT_FAILED:
+    case OR_CONN_EVENT_CLOSED:
+        log_info(LD_BTRACK,
+                 "ORCONN DELETE gid=%" PRIu64 " status=%d reason=%d", arg->gid,
+                 arg->status, arg->reason);
+        return bto_delete(arg->gid);
+    default:
+        break;
+    }
 }
 
 /**
@@ -158,18 +159,18 @@ bto_status_rcvr(const msg_t *msg, const orconn_status_msg_t *arg)
 static void
 bto_chan_rcvr(const msg_t *msg, const ocirc_chan_msg_t *arg)
 {
-  bt_orconn_t *bto;
+    bt_orconn_t *bto;
 
-  (void)msg;
-  bto = bto_find_or_new(0, arg->chan);
-  if (!bto->is_orig || (bto->is_onehop && !arg->onehop)) {
-    log_debug(LD_BTRACK, "ORCONN LAUNCH chan=%"PRIu64" onehop=%d",
-              arg->chan, arg->onehop);
-  }
-  bto->is_orig = true;
-  if (!arg->onehop)
-    bto->is_onehop = false;
-  bto_update_bests(bto);
+    (void)msg;
+    bto = bto_find_or_new(0, arg->chan);
+    if (!bto->is_orig || (bto->is_onehop && !arg->onehop)) {
+        log_debug(LD_BTRACK, "ORCONN LAUNCH chan=%" PRIu64 " onehop=%d",
+                  arg->chan, arg->onehop);
+    }
+    bto->is_orig = true;
+    if (!arg->onehop)
+        bto->is_onehop = false;
+    bto_update_bests(bto);
 }
 
 /**
@@ -179,28 +180,28 @@ bto_chan_rcvr(const msg_t *msg, const ocirc_chan_msg_t *arg)
 int
 btrack_orconn_init(void)
 {
-  bto_init_maps();
+    bto_init_maps();
 
-  return 0;
+    return 0;
 }
 
 int
 btrack_orconn_add_pubsub(pubsub_connector_t *connector)
 {
-  if (DISPATCH_ADD_SUB(connector, orconn, orconn_state))
-    return -1;
-  if (DISPATCH_ADD_SUB(connector, orconn, orconn_status))
-    return -1;
-  if (DISPATCH_ADD_SUB(connector, ocirc, ocirc_chan))
-    return -1;
-  return 0;
+    if (DISPATCH_ADD_SUB(connector, orconn, orconn_state))
+        return -1;
+    if (DISPATCH_ADD_SUB(connector, orconn, orconn_status))
+        return -1;
+    if (DISPATCH_ADD_SUB(connector, ocirc, ocirc_chan))
+        return -1;
+    return 0;
 }
 
 /** Clear the hash maps and reset the "best" states */
 void
 btrack_orconn_fini(void)
 {
-  bto_clear_maps();
-  bto_reset_bests();
-  bto_cevent_reset();
+    bto_clear_maps();
+    bto_reset_bests();
+    bto_cevent_reset();
 }

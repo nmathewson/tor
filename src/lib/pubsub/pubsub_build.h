@@ -48,7 +48,7 @@ int pubsub_builder_check(pubsub_builder_t *);
  * we have decided not to construct a dispatcher for some reason.
  */
 #define pubsub_builder_free(db) \
-  FREE_AND_NULL(pubsub_builder_t, pubsub_builder_free_, (db))
+    FREE_AND_NULL(pubsub_builder_t, pubsub_builder_free_, (db))
 
 /** Internal implementation of pubsub_builder_free(). */
 void pubsub_builder_free_(pubsub_builder_t *);
@@ -65,7 +65,7 @@ struct pubsub_connector_t *pubsub_connector_for_subsystem(pubsub_builder_t *,
  * The main-init code does this after subsystem initialization.
  */
 #define pubsub_connector_free(c) \
-  FREE_AND_NULL(struct pubsub_connector_t, pubsub_connector_free_, (c))
+    FREE_AND_NULL(struct pubsub_connector_t, pubsub_connector_free_, (c))
 
 void pubsub_connector_free_(struct pubsub_connector_t *);
 
@@ -91,7 +91,7 @@ void pubsub_items_clear_bindings(pubsub_items_t *items);
  * Additionally, set the pointer <b>cfg</b> to NULL.
  **/
 #define pubsub_items_free(cfg) \
-  FREE_AND_NULL(pubsub_items_t, pubsub_items_free_, (cfg))
+    FREE_AND_NULL(pubsub_items_t, pubsub_items_free_, (cfg))
 void pubsub_items_free_(pubsub_items_t *cfg);
 
 #endif /* !defined(TOR_PUBSUB_BUILD_H) */

@@ -21,7 +21,7 @@
 #include "lib/thread/threads.h"
 
 #ifdef HAVE_LZMA
-#include <lzma.h>
+#    include <lzma.h>
 #endif
 
 /** The maximum amount of memory we allow the LZMA decoder to use, in bytes. */
@@ -35,47 +35,50 @@ static atomic_counter_t total_lzma_allocation;
 static int
 memory_level(compression_level_t level)
 {
-  switch (level) {
+    switch (level) {
     default:
     case BEST_COMPRESSION:
-    case HIGH_COMPRESSION: return 6;
-    case MEDIUM_COMPRESSION: return 4;
-    case LOW_COMPRESSION: return 2;
-  }
+    case HIGH_COMPRESSION:
+        return 6;
+    case MEDIUM_COMPRESSION:
+        return 4;
+    case LOW_COMPRESSION:
+        return 2;
+    }
 }
 
 /** Convert a given <b>error</b> to a human readable error string. */
 static const char *
 lzma_error_str(lzma_ret error)
 {
-  switch (error) {
+    switch (error) {
     case LZMA_OK:
-      return "Operation completed successfully";
+        return "Operation completed successfully";
     case LZMA_STREAM_END:
-      return "End of stream";
+        return "End of stream";
     case LZMA_NO_CHECK:
-      return "Input stream lacks integrity check";
+        return "Input stream lacks integrity check";
     case LZMA_UNSUPPORTED_CHECK:
-      return "Unable to calculate integrity check";
+        return "Unable to calculate integrity check";
     case LZMA_GET_CHECK:
-      return "Integrity check available";
+        return "Integrity check available";
     case LZMA_MEM_ERROR:
-      return "Unable to allocate memory";
+        return "Unable to allocate memory";
     case LZMA_MEMLIMIT_ERROR:
-      return "Memory limit reached";
+        return "Memory limit reached";
     case LZMA_FORMAT_ERROR:
-      return "Unknown file format";
+        return "Unknown file format";
     case LZMA_OPTIONS_ERROR:
-      return "Unsupported options";
+        return "Unsupported options";
     case LZMA_DATA_ERROR:
-      return "Corrupt input data";
+        return "Corrupt input data";
     case LZMA_BUF_ERROR:
-      return "Unable to progress";
+        return "Unable to progress";
     case LZMA_PROG_ERROR:
-      return "Programming error";
+        return "Programming error";
     default:
-      return "Unknown LZMA error";
-  }
+        return "Unknown LZMA error";
+    }
 }
 #endif /* defined(HAVE_LZMA) */
 
@@ -84,9 +87,9 @@ int
 tor_lzma_method_supported(void)
 {
 #ifdef HAVE_LZMA
-  return 1;
+    return 1;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
@@ -96,9 +99,9 @@ const char *
 tor_lzma_get_version_str(void)
 {
 #ifdef HAVE_LZMA
-  return lzma_version_string();
+    return lzma_version_string();
 #else
-  return NULL;
+    return NULL;
 #endif
 }
 
@@ -108,9 +111,9 @@ const char *
 tor_lzma_get_header_version_str(void)
 {
 #ifdef HAVE_LZMA
-  return LZMA_VERSION_STRING;
+    return LZMA_VERSION_STRING;
 #else
-  return NULL;
+    return NULL;
 #endif
 }
 
@@ -118,18 +121,18 @@ tor_lzma_get_header_version_str(void)
  * The body of this struct is not exposed. */
 struct tor_lzma_compress_state_t {
 #ifdef HAVE_LZMA
-  lzma_stream stream; /**< The LZMA stream. */
+    lzma_stream stream; /**< The LZMA stream. */
 #endif
 
-  int compress; /**< True if we are compressing; false if we are inflating */
+    int compress; /**< True if we are compressing; false if we are inflating */
 
-  /** Number of bytes read so far.  Used to detect compression bombs. */
-  size_t input_so_far;
-  /** Number of bytes written so far.  Used to detect compression bombs. */
-  size_t output_so_far;
+    /** Number of bytes read so far.  Used to detect compression bombs. */
+    size_t input_so_far;
+    /** Number of bytes written so far.  Used to detect compression bombs. */
+    size_t output_so_far;
 
-  /** Approximate number of bytes allocated for this object. */
-  size_t allocation;
+    /** Approximate number of bytes allocated for this object. */
+    size_t allocation;
 };
 
 #ifdef HAVE_LZMA
@@ -138,32 +141,32 @@ struct tor_lzma_compress_state_t {
 static size_t
 tor_lzma_state_size_precalc(int compress, compression_level_t level)
 {
-  uint64_t memory_usage;
+    uint64_t memory_usage;
 
-  if (compress)
-    memory_usage = lzma_easy_encoder_memusage(memory_level(level));
-  else
-    memory_usage = lzma_easy_decoder_memusage(memory_level(level));
+    if (compress)
+        memory_usage = lzma_easy_encoder_memusage(memory_level(level));
+    else
+        memory_usage = lzma_easy_decoder_memusage(memory_level(level));
 
-  if (memory_usage == UINT64_MAX) {
-    // LCOV_EXCL_START
-    log_warn(LD_GENERAL, "Unsupported compression level passed to LZMA %s",
-                         compress ? "encoder" : "decoder");
-    goto err;
+    if (memory_usage == UINT64_MAX) {
+        // LCOV_EXCL_START
+        log_warn(LD_GENERAL, "Unsupported compression level passed to LZMA %s",
+                 compress ? "encoder" : "decoder");
+        goto err;
+        // LCOV_EXCL_STOP
+    }
+
+    if (memory_usage + sizeof(tor_lzma_compress_state_t) > SIZE_MAX)
+        memory_usage = SIZE_MAX;
+    else
+        memory_usage += sizeof(tor_lzma_compress_state_t);
+
+    return (size_t)memory_usage;
+
+// LCOV_EXCL_START
+err:
+    return 0;
     // LCOV_EXCL_STOP
-  }
-
-  if (memory_usage + sizeof(tor_lzma_compress_state_t) > SIZE_MAX)
-    memory_usage = SIZE_MAX;
-  else
-    memory_usage += sizeof(tor_lzma_compress_state_t);
-
-  return (size_t)memory_usage;
-
- // LCOV_EXCL_START
- err:
-  return 0;
- // LCOV_EXCL_STOP
 }
 #endif /* defined(HAVE_LZMA) */
 
@@ -171,62 +174,61 @@ tor_lzma_state_size_precalc(int compress, compression_level_t level)
  * <b>method</b>. If <b>compress</b>, it's for compression; otherwise it's for
  * decompression. */
 tor_lzma_compress_state_t *
-tor_lzma_compress_new(int compress,
-                      compress_method_t method,
+tor_lzma_compress_new(int compress, compress_method_t method,
                       compression_level_t level)
 {
-  tor_assert(method == LZMA_METHOD);
+    tor_assert(method == LZMA_METHOD);
 
 #ifdef HAVE_LZMA
-  tor_lzma_compress_state_t *result;
-  lzma_ret retval;
-  lzma_options_lzma stream_options;
+    tor_lzma_compress_state_t *result;
+    lzma_ret retval;
+    lzma_options_lzma stream_options;
 
-  // Note that we do not explicitly initialize the lzma_stream object here,
-  // since the LZMA_STREAM_INIT "just" initializes all members to 0, which is
-  // also what `tor_malloc_zero()` does.
-  result = tor_malloc_zero(sizeof(tor_lzma_compress_state_t));
-  result->compress = compress;
-  result->allocation = tor_lzma_state_size_precalc(compress, level);
+    // Note that we do not explicitly initialize the lzma_stream object here,
+    // since the LZMA_STREAM_INIT "just" initializes all members to 0, which is
+    // also what `tor_malloc_zero()` does.
+    result = tor_malloc_zero(sizeof(tor_lzma_compress_state_t));
+    result->compress = compress;
+    result->allocation = tor_lzma_state_size_precalc(compress, level);
 
-  if (compress) {
-    lzma_lzma_preset(&stream_options, memory_level(level));
+    if (compress) {
+        lzma_lzma_preset(&stream_options, memory_level(level));
 
-    retval = lzma_alone_encoder(&result->stream, &stream_options);
+        retval = lzma_alone_encoder(&result->stream, &stream_options);
 
-    if (retval != LZMA_OK) {
-      // LCOV_EXCL_START
-      log_warn(LD_GENERAL, "Error from LZMA encoder: %s (%u).",
-               lzma_error_str(retval), retval);
-      goto err;
-      // LCOV_EXCL_STOP
+        if (retval != LZMA_OK) {
+            // LCOV_EXCL_START
+            log_warn(LD_GENERAL, "Error from LZMA encoder: %s (%u).",
+                     lzma_error_str(retval), retval);
+            goto err;
+            // LCOV_EXCL_STOP
+        }
+    } else {
+        retval = lzma_alone_decoder(&result->stream, MEMORY_LIMIT);
+
+        if (retval != LZMA_OK) {
+            // LCOV_EXCL_START
+            log_warn(LD_GENERAL, "Error from LZMA decoder: %s (%u).",
+                     lzma_error_str(retval), retval);
+            goto err;
+            // LCOV_EXCL_STOP
+        }
     }
-  } else {
-    retval = lzma_alone_decoder(&result->stream, MEMORY_LIMIT);
 
-    if (retval != LZMA_OK) {
-      // LCOV_EXCL_START
-      log_warn(LD_GENERAL, "Error from LZMA decoder: %s (%u).",
-               lzma_error_str(retval), retval);
-      goto err;
-      // LCOV_EXCL_STOP
-    }
-  }
+    atomic_counter_add(&total_lzma_allocation, result->allocation);
+    return result;
 
-  atomic_counter_add(&total_lzma_allocation, result->allocation);
-  return result;
-
- /* LCOV_EXCL_START */
- err:
-  tor_free(result);
-  return NULL;
- /* LCOV_EXCL_STOP */
+/* LCOV_EXCL_START */
+err:
+    tor_free(result);
+    return NULL;
+    /* LCOV_EXCL_STOP */
 #else /* !defined(HAVE_LZMA) */
-  (void)compress;
-  (void)method;
-  (void)level;
+    (void)compress;
+    (void)method;
+    (void)level;
 
-  return NULL;
+    return NULL;
 #endif /* defined(HAVE_LZMA) */
 }
 
@@ -242,58 +244,56 @@ tor_lzma_compress_new(int compress,
  * Return TOR_COMPRESS_ERROR if the stream is corrupt.
  */
 tor_compress_output_t
-tor_lzma_compress_process(tor_lzma_compress_state_t *state,
-                          char **out, size_t *out_len,
-                          const char **in, size_t *in_len,
+tor_lzma_compress_process(tor_lzma_compress_state_t *state, char **out,
+                          size_t *out_len, const char **in, size_t *in_len,
                           int finish)
 {
 #ifdef HAVE_LZMA
-  lzma_ret retval;
-  lzma_action action;
+    lzma_ret retval;
+    lzma_action action;
 
-  tor_assert(state != NULL);
-  tor_assert(*in_len <= UINT_MAX);
-  tor_assert(*out_len <= UINT_MAX);
+    tor_assert(state != NULL);
+    tor_assert(*in_len <= UINT_MAX);
+    tor_assert(*out_len <= UINT_MAX);
 
-  state->stream.next_in = (unsigned char *)*in;
-  state->stream.avail_in = *in_len;
-  state->stream.next_out = (unsigned char *)*out;
-  state->stream.avail_out = *out_len;
+    state->stream.next_in = (unsigned char *)*in;
+    state->stream.avail_in = *in_len;
+    state->stream.next_out = (unsigned char *)*out;
+    state->stream.avail_out = *out_len;
 
-  action = finish ? LZMA_FINISH : LZMA_RUN;
+    action = finish ? LZMA_FINISH : LZMA_RUN;
 
-  retval = lzma_code(&state->stream, action);
+    retval = lzma_code(&state->stream, action);
 
-  state->input_so_far += state->stream.next_in - ((unsigned char *)*in);
-  state->output_so_far += state->stream.next_out - ((unsigned char *)*out);
+    state->input_so_far += state->stream.next_in - ((unsigned char *)*in);
+    state->output_so_far += state->stream.next_out - ((unsigned char *)*out);
 
-  *out = (char *)state->stream.next_out;
-  *out_len = state->stream.avail_out;
-  *in = (const char *)state->stream.next_in;
-  *in_len = state->stream.avail_in;
+    *out = (char *)state->stream.next_out;
+    *out_len = state->stream.avail_out;
+    *in = (const char *)state->stream.next_in;
+    *in_len = state->stream.avail_in;
 
-  if (! state->compress &&
-      tor_compress_is_compression_bomb(state->input_so_far,
-                                       state->output_so_far)) {
-    log_warn(LD_DIR, "Possible compression bomb; abandoning stream.");
-    return TOR_COMPRESS_ERROR;
-  }
+    if (!state->compress && tor_compress_is_compression_bomb(
+                                state->input_so_far, state->output_so_far)) {
+        log_warn(LD_DIR, "Possible compression bomb; abandoning stream.");
+        return TOR_COMPRESS_ERROR;
+    }
 
-  switch (retval) {
+    switch (retval) {
     case LZMA_OK:
-      if (state->stream.avail_out == 0 || finish)
-        return TOR_COMPRESS_BUFFER_FULL;
+        if (state->stream.avail_out == 0 || finish)
+            return TOR_COMPRESS_BUFFER_FULL;
 
-      return TOR_COMPRESS_OK;
-
-    case LZMA_BUF_ERROR:
-      if (state->stream.avail_in == 0 && !finish)
         return TOR_COMPRESS_OK;
 
-      return TOR_COMPRESS_BUFFER_FULL;
+    case LZMA_BUF_ERROR:
+        if (state->stream.avail_in == 0 && !finish)
+            return TOR_COMPRESS_OK;
+
+        return TOR_COMPRESS_BUFFER_FULL;
 
     case LZMA_STREAM_END:
-      return TOR_COMPRESS_DONE;
+        return TOR_COMPRESS_DONE;
 
     // We list all the possible values of `lzma_ret` here to silence the
     // `switch-enum` warning and to detect if a new member was added.
@@ -307,19 +307,19 @@ tor_lzma_compress_process(tor_lzma_compress_state_t *state,
     case LZMA_DATA_ERROR:
     case LZMA_PROG_ERROR:
     default:
-      log_warn(LD_GENERAL, "LZMA %s didn't finish: %s.",
-               state->compress ? "compression" : "decompression",
-               lzma_error_str(retval));
-      return TOR_COMPRESS_ERROR;
-  }
+        log_warn(LD_GENERAL, "LZMA %s didn't finish: %s.",
+                 state->compress ? "compression" : "decompression",
+                 lzma_error_str(retval));
+        return TOR_COMPRESS_ERROR;
+    }
 #else /* !defined(HAVE_LZMA) */
-  (void)state;
-  (void)out;
-  (void)out_len;
-  (void)in;
-  (void)in_len;
-  (void)finish;
-  return TOR_COMPRESS_ERROR;
+    (void)state;
+    (void)out;
+    (void)out_len;
+    (void)in;
+    (void)in_len;
+    (void)finish;
+    return TOR_COMPRESS_ERROR;
 #endif /* defined(HAVE_LZMA) */
 }
 
@@ -327,36 +327,36 @@ tor_lzma_compress_process(tor_lzma_compress_state_t *state,
 void
 tor_lzma_compress_free_(tor_lzma_compress_state_t *state)
 {
-  if (state == NULL)
-    return;
+    if (state == NULL)
+        return;
 
-  atomic_counter_sub(&total_lzma_allocation, state->allocation);
+    atomic_counter_sub(&total_lzma_allocation, state->allocation);
 
 #ifdef HAVE_LZMA
-  lzma_end(&state->stream);
+    lzma_end(&state->stream);
 #endif
 
-  tor_free(state);
+    tor_free(state);
 }
 
 /** Return the approximate number of bytes allocated for <b>state</b>. */
 size_t
 tor_lzma_compress_state_size(const tor_lzma_compress_state_t *state)
 {
-  tor_assert(state != NULL);
-  return state->allocation;
+    tor_assert(state != NULL);
+    return state->allocation;
 }
 
 /** Return the approximate number of bytes allocated for all LZMA states. */
 size_t
 tor_lzma_get_total_allocation(void)
 {
-  return atomic_counter_get(&total_lzma_allocation);
+    return atomic_counter_get(&total_lzma_allocation);
 }
 
 /** Initialize the lzma module */
 void
 tor_lzma_init(void)
 {
-  atomic_counter_init(&total_lzma_allocation);
+    atomic_counter_init(&total_lzma_allocation);
 }

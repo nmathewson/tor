@@ -29,39 +29,34 @@ void router_reset_reachability(void);
 
 #else /* !defined(HAVE_MODULE_RELAY) */
 
-#define check_whether_orport_reachable(opts) \
-  ((void)(opts), 0)
-#define check_whether_dirport_reachable(opts) \
-  ((void)(opts), 0)
+#    define check_whether_orport_reachable(opts) ((void)(opts), 0)
+#    define check_whether_dirport_reachable(opts) ((void)(opts), 0)
 
 static inline void
 router_do_reachability_checks(int test_or, int test_dir)
 {
-  (void)test_or;
-  (void)test_dir;
-  tor_assert_nonfatal_unreached();
+    (void)test_or;
+    (void)test_dir;
+    tor_assert_nonfatal_unreached();
 }
 static inline void
 router_perform_bandwidth_test(int num_circs, time_t now)
 {
-  (void)num_circs;
-  (void)now;
-  tor_assert_nonfatal_unreached();
+    (void)num_circs;
+    (void)now;
+    tor_assert_nonfatal_unreached();
 }
 static inline int
 inform_testing_reachability(void)
 {
-  tor_assert_nonfatal_unreached();
-  return 0;
+    tor_assert_nonfatal_unreached();
+    return 0;
 }
 
-#define router_orport_found_reachable() \
-  STMT_NIL
-#define router_dirport_found_reachable() \
-  STMT_NIL
+#    define router_orport_found_reachable() STMT_NIL
+#    define router_dirport_found_reachable() STMT_NIL
 
-#define router_reset_reachability() \
-  STMT_NIL
+#    define router_reset_reachability() STMT_NIL
 
 #endif /* defined(HAVE_MODULE_RELAY) */
 

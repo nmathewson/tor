@@ -39,11 +39,11 @@
 #define N_SAMPLES (OPE_INPUT_MAX / SAMPLE_INTERVAL)
 
 struct crypto_ope_t {
-  /** An AES key for use with this object. */
-  uint8_t key[OPE_KEY_LEN];
-  /** Cached intermediate encryption values at SAMPLE_INTERVAL,
-   * SAMPLE_INTERVAL*2,...SAMPLE_INTERVAL*N_SAMPLES */
-  uint64_t samples[N_SAMPLES];
+    /** An AES key for use with this object. */
+    uint8_t key[OPE_KEY_LEN];
+    /** Cached intermediate encryption values at SAMPLE_INTERVAL,
+     * SAMPLE_INTERVAL*2,...SAMPLE_INTERVAL*N_SAMPLES */
+    uint64_t samples[N_SAMPLES];
 };
 
 /** The type to add up in order to produce our OPE ciphertexts */
@@ -54,12 +54,10 @@ typedef uint16_t ope_val_t;
 static inline ope_val_t
 ope_val_from_le(ope_val_t x)
 {
-  return
-    ((x) >> 8) |
-    (((x)&0xff) << 8);
+    return ((x) >> 8) | (((x)&0xff) << 8);
 }
 #else /* !defined(WORDS_BIGENDIAN) */
-#define ope_val_from_le(x) (x)
+#    define ope_val_from_le(x) (x)
 #endif /* defined(WORDS_BIGENDIAN) */
 
 /**
@@ -72,15 +70,13 @@ ope_val_from_le(ope_val_t x)
 STATIC crypto_cipher_t *
 ope_get_cipher(const crypto_ope_t *ope, uint32_t initial_idx)
 {
-  uint8_t iv[CIPHER_IV_LEN];
-  tor_assert((initial_idx & 0xf) == 0);
-  uint32_t n = tor_htonl(initial_idx >> 4);
-  memset(iv, 0, sizeof(iv));
-  memcpy(iv + CIPHER_IV_LEN - sizeof(n), &n, sizeof(n));
+    uint8_t iv[CIPHER_IV_LEN];
+    tor_assert((initial_idx & 0xf) == 0);
+    uint32_t n = tor_htonl(initial_idx >> 4);
+    memset(iv, 0, sizeof(iv));
+    memcpy(iv + CIPHER_IV_LEN - sizeof(n), &n, sizeof(n));
 
-  return crypto_cipher_new_with_iv_and_bits(ope->key,
-                                            iv,
-                                            OPE_KEY_LEN * 8);
+    return crypto_cipher_new_with_iv_and_bits(ope->key, iv, OPE_KEY_LEN * 8);
 }
 
 /**
@@ -97,29 +93,29 @@ STATIC uint64_t
 sum_values_from_cipher(crypto_cipher_t *c, size_t n)
 {
 #define BUFSZ 256
-  ope_val_t buf[BUFSZ];
-  uint64_t total = 0;
-  unsigned i;
-  while (n >= BUFSZ) {
-    memset(buf, 0, sizeof(buf));
-    crypto_cipher_crypt_inplace(c, (char*)buf, BUFSZ*sizeof(ope_val_t));
+    ope_val_t buf[BUFSZ];
+    uint64_t total = 0;
+    unsigned i;
+    while (n >= BUFSZ) {
+        memset(buf, 0, sizeof(buf));
+        crypto_cipher_crypt_inplace(c, (char *)buf, BUFSZ * sizeof(ope_val_t));
 
-    for (i = 0; i < BUFSZ; ++i) {
-      total += ope_val_from_le(buf[i]);
-      total += 1;
+        for (i = 0; i < BUFSZ; ++i) {
+            total += ope_val_from_le(buf[i]);
+            total += 1;
+        }
+        n -= BUFSZ;
     }
-    n -= BUFSZ;
-  }
 
-  memset(buf, 0, n*sizeof(ope_val_t));
-  crypto_cipher_crypt_inplace(c, (char*)buf, n*sizeof(ope_val_t));
-  for (i = 0; i < n; ++i) {
-    total += ope_val_from_le(buf[i]);
-    total += 1;
-  }
+    memset(buf, 0, n * sizeof(ope_val_t));
+    crypto_cipher_crypt_inplace(c, (char *)buf, n * sizeof(ope_val_t));
+    for (i = 0; i < n; ++i) {
+        total += ope_val_from_le(buf[i]);
+        total += 1;
+    }
 
-  memset(buf, 0, sizeof(buf));
-  return total;
+    memset(buf, 0, sizeof(buf));
+    return total;
 }
 
 /**
@@ -128,30 +124,30 @@ sum_values_from_cipher(crypto_cipher_t *c, size_t n)
 crypto_ope_t *
 crypto_ope_new(const uint8_t *key)
 {
-  crypto_ope_t *ope = tor_malloc_zero(sizeof(crypto_ope_t));
-  memcpy(ope->key, key, OPE_KEY_LEN);
+    crypto_ope_t *ope = tor_malloc_zero(sizeof(crypto_ope_t));
+    memcpy(ope->key, key, OPE_KEY_LEN);
 
-  crypto_cipher_t *cipher = ope_get_cipher(ope, 0);
+    crypto_cipher_t *cipher = ope_get_cipher(ope, 0);
 
-  uint64_t v = 0;
-  int i;
-  for (i = 0; i < N_SAMPLES; ++i) {
-    v += sum_values_from_cipher(cipher, SAMPLE_INTERVAL);
-    ope->samples[i] = v;
-  }
+    uint64_t v = 0;
+    int i;
+    for (i = 0; i < N_SAMPLES; ++i) {
+        v += sum_values_from_cipher(cipher, SAMPLE_INTERVAL);
+        ope->samples[i] = v;
+    }
 
-  crypto_cipher_free(cipher);
-  return ope;
+    crypto_cipher_free(cipher);
+    return ope;
 }
 
 /** Free all storage held in <b>ope</b>. */
 void
 crypto_ope_free_(crypto_ope_t *ope)
 {
-  if (!ope)
-    return;
-  memwipe(ope, 0, sizeof(*ope));
-  tor_free(ope);
+    if (!ope)
+        return;
+    memwipe(ope, 0, sizeof(*ope));
+    tor_free(ope);
 }
 
 /**
@@ -164,23 +160,24 @@ crypto_ope_free_(crypto_ope_t *ope)
 uint64_t
 crypto_ope_encrypt(const crypto_ope_t *ope, int plaintext)
 {
-  if (plaintext <= 0 || plaintext > OPE_INPUT_MAX)
-    return CRYPTO_OPE_ERROR;
+    if (plaintext <= 0 || plaintext > OPE_INPUT_MAX)
+        return CRYPTO_OPE_ERROR;
 
-  const int sample_idx = (plaintext / SAMPLE_INTERVAL);
-  const int starting_iv = sample_idx * SAMPLE_INTERVAL;
-  const int remaining_values =  plaintext - starting_iv;
-  uint64_t v;
-  if (sample_idx == 0) {
-    v = 0;
-  } else {
-    v = ope->samples[sample_idx - 1];
-  }
-  crypto_cipher_t *cipher = ope_get_cipher(ope, starting_iv*sizeof(ope_val_t));
+    const int sample_idx = (plaintext / SAMPLE_INTERVAL);
+    const int starting_iv = sample_idx * SAMPLE_INTERVAL;
+    const int remaining_values = plaintext - starting_iv;
+    uint64_t v;
+    if (sample_idx == 0) {
+        v = 0;
+    } else {
+        v = ope->samples[sample_idx - 1];
+    }
+    crypto_cipher_t *cipher =
+        ope_get_cipher(ope, starting_iv * sizeof(ope_val_t));
 
-  v += sum_values_from_cipher(cipher, remaining_values);
+    v += sum_values_from_cipher(cipher, remaining_values);
 
-  crypto_cipher_free(cipher);
+    crypto_cipher_free(cipher);
 
-  return v;
+    return v;
 }

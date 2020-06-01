@@ -15,10 +15,10 @@
 /** Parsed onion routing cell.  All communication between nodes
  * is via cells. */
 struct cell_t {
-  circid_t circ_id; /**< Circuit which received the cell. */
-  uint8_t command; /**< Type of the cell: one of CELL_PADDING, CELL_CREATE,
-                    * CELL_DESTROY, etc */
-  uint8_t payload[CELL_PAYLOAD_SIZE]; /**< Cell body. */
+    circid_t circ_id; /**< Circuit which received the cell. */
+    uint8_t command; /**< Type of the cell: one of CELL_PADDING, CELL_CREATE,
+                      * CELL_DESTROY, etc */
+    uint8_t payload[CELL_PAYLOAD_SIZE]; /**< Cell body. */
 };
 
 #endif /* !defined(CELL_ST_H) */

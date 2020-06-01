@@ -27,8 +27,7 @@ int protover_contains_long_protocol_names_(const char *s);
 bool
 protover_contains_long_protocol_names(const char *s)
 {
-  return protover_contains_long_protocol_names_(s) != 0;
+    return protover_contains_long_protocol_names_(s) != 0;
 }
 
 #endif /* defined(HAVE_RUST) */
-

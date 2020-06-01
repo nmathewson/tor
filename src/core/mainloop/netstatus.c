@@ -24,7 +24,7 @@
 int
 net_is_disabled(void)
 {
-  return get_options()->DisableNetwork || we_are_hibernating();
+    return get_options()->DisableNetwork || we_are_hibernating();
 }
 
 /** Return true iff our network is in some sense "completely disabled" either
@@ -33,7 +33,7 @@ net_is_disabled(void)
 int
 net_is_completely_disabled(void)
 {
-  return get_options()->DisableNetwork || we_are_fully_hibernating();
+    return get_options()->DisableNetwork || we_are_fully_hibernating();
 }
 
 /**
@@ -62,13 +62,13 @@ static bool participating_on_network = false;
 void
 note_user_activity(time_t now)
 {
-  last_user_activity_seen = MAX(now, last_user_activity_seen);
+    last_user_activity_seen = MAX(now, last_user_activity_seen);
 
-  if (! participating_on_network) {
-    log_notice(LD_GENERAL, "Tor is no longer dormant.");
-    set_network_participation(true);
-    schedule_rescan_periodic_events();
-  }
+    if (!participating_on_network) {
+        log_notice(LD_GENERAL, "Tor is no longer dormant.");
+        set_network_participation(true);
+        schedule_rescan_periodic_events();
+    }
 }
 
 /**
@@ -81,7 +81,7 @@ note_user_activity(time_t now)
 void
 reset_user_activity(time_t now)
 {
-  last_user_activity_seen = now;
+    last_user_activity_seen = now;
 }
 
 /**
@@ -90,7 +90,7 @@ reset_user_activity(time_t now)
 time_t
 get_last_user_activity_time(void)
 {
-  return last_user_activity_seen;
+    return last_user_activity_seen;
 }
 
 /**
@@ -100,7 +100,7 @@ get_last_user_activity_time(void)
 void
 set_network_participation(bool participation)
 {
-  participating_on_network = participation;
+    participating_on_network = participation;
 }
 
 /**
@@ -109,7 +109,7 @@ set_network_participation(bool participation)
 bool
 is_participating_on_network(void)
 {
-  return participating_on_network;
+    return participating_on_network;
 }
 
 /**
@@ -118,13 +118,13 @@ is_participating_on_network(void)
 void
 netstatus_flush_to_state(mainloop_state_t *state, time_t now)
 {
-  state->Dormant = ! participating_on_network;
-  if (participating_on_network) {
-    time_t sec_since_activity = MAX(0, now - last_user_activity_seen);
-    state->MinutesSinceUserActivity = (int)(sec_since_activity / 60);
-  } else {
-    state->MinutesSinceUserActivity = 0;
-  }
+    state->Dormant = !participating_on_network;
+    if (participating_on_network) {
+        time_t sec_since_activity = MAX(0, now - last_user_activity_seen);
+        state->MinutesSinceUserActivity = (int)(sec_since_activity / 60);
+    } else {
+        state->MinutesSinceUserActivity = 0;
+    }
 }
 
 /**
@@ -133,28 +133,28 @@ netstatus_flush_to_state(mainloop_state_t *state, time_t now)
 void
 netstatus_load_from_state(const mainloop_state_t *state, time_t now)
 {
-  time_t last_activity;
-  if (state->Dormant == -1) { // Initial setup.
-    if (get_options()->DormantOnFirstStartup) {
-      last_activity = 0;
-      participating_on_network = false;
+    time_t last_activity;
+    if (state->Dormant == -1) { // Initial setup.
+        if (get_options()->DormantOnFirstStartup) {
+            last_activity = 0;
+            participating_on_network = false;
+        } else {
+            // Start up as active, treat activity as happening now.
+            last_activity = now;
+            participating_on_network = true;
+        }
+    } else if (state->Dormant) {
+        last_activity = 0;
+        participating_on_network = false;
     } else {
-      // Start up as active, treat activity as happening now.
-      last_activity = now;
-      participating_on_network = true;
+        last_activity = now - 60 * state->MinutesSinceUserActivity;
+        participating_on_network = true;
     }
-  } else if (state->Dormant) {
-    last_activity = 0;
-    participating_on_network = false;
-  } else {
-    last_activity = now - 60 * state->MinutesSinceUserActivity;
-    participating_on_network = true;
-  }
-  if (get_options()->DormantCanceledByStartup) {
-    last_activity = now;
-    participating_on_network = true;
-  }
-  reset_user_activity(last_activity);
+    if (get_options()->DormantCanceledByStartup) {
+        last_activity = now;
+        participating_on_network = true;
+    }
+    reset_user_activity(last_activity);
 }
 
 /**
@@ -164,7 +164,7 @@ netstatus_load_from_state(const mainloop_state_t *state, time_t now)
 void
 netstatus_note_clock_jumped(time_t seconds_diff)
 {
-  time_t last_active = get_last_user_activity_time();
-  if (last_active)
-    reset_user_activity(last_active + seconds_diff);
+    time_t last_active = get_last_user_activity_time();
+    if (last_active)
+        reset_user_activity(last_active + seconds_diff);
 }

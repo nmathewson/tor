@@ -22,31 +22,31 @@ struct config_line_t;
  * branch goes on.
  **/
 struct control_cmd_args_t {
-  /**
-   * The command itself, as provided by the controller.  Not owned by this
-   * structure.
-   **/
-  const char *command;
-  /**
-   * Positional arguments to the command.
-   **/
-  struct smartlist_t *args;
-  /**
-   * Keyword arguments to the command.
-   **/
-  struct config_line_t *kwargs;
-  /**
-   * Number of bytes in <b>cmddata</b>; 0 if <b>cmddata</b> is not set.
-   **/
-  size_t cmddata_len;
-  /**
-   * A multiline object passed with this command.
-   **/
-  char *cmddata;
-  /**
-   * If set, a nul-terminated string containing the raw unparsed arguments.
-   **/
-  const char *raw_body;
+    /**
+     * The command itself, as provided by the controller.  Not owned by this
+     * structure.
+     **/
+    const char *command;
+    /**
+     * Positional arguments to the command.
+     **/
+    struct smartlist_t *args;
+    /**
+     * Keyword arguments to the command.
+     **/
+    struct config_line_t *kwargs;
+    /**
+     * Number of bytes in <b>cmddata</b>; 0 if <b>cmddata</b> is not set.
+     **/
+    size_t cmddata_len;
+    /**
+     * A multiline object passed with this command.
+     **/
+    char *cmddata;
+    /**
+     * If set, a nul-terminated string containing the raw unparsed arguments.
+     **/
+    const char *raw_body;
 };
 
 #endif /* !defined(TOR_CONTROL_CMD_ST_H) */

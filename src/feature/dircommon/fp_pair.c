@@ -23,13 +23,13 @@
 /* Define fp_pair_map_t structures */
 
 struct fp_pair_map_entry_t {
-  HT_ENTRY(fp_pair_map_entry_t) node;
-  void *val;
-  fp_pair_t key;
+    HT_ENTRY(fp_pair_map_entry_t) node;
+    void *val;
+    fp_pair_t key;
 };
 
 struct fp_pair_map_t {
-  HT_HEAD(fp_pair_map_impl, fp_pair_map_entry_t) head;
+    HT_HEAD(fp_pair_map_impl, fp_pair_map_entry_t) head;
 };
 
 /*
@@ -41,15 +41,15 @@ static inline int
 fp_pair_map_entries_eq(const fp_pair_map_entry_t *a,
                        const fp_pair_map_entry_t *b)
 {
-  return tor_memeq(&(a->key), &(b->key), sizeof(fp_pair_t));
+    return tor_memeq(&(a->key), &(b->key), sizeof(fp_pair_t));
 }
 
 /** Return a hash value for an fp_pair_entry_t. */
 static inline unsigned int
 fp_pair_map_entry_hash(const fp_pair_map_entry_t *a)
 {
-  tor_assert(sizeof(a->key) == DIGEST_LEN*2);
-  return (unsigned) siphash24g(&a->key, DIGEST_LEN*2);
+    tor_assert(sizeof(a->key) == DIGEST_LEN * 2);
+    return (unsigned)siphash24g(&a->key, DIGEST_LEN * 2);
 }
 
 /*
@@ -59,8 +59,8 @@ fp_pair_map_entry_hash(const fp_pair_map_entry_t *a)
 HT_PROTOTYPE(fp_pair_map_impl, fp_pair_map_entry_t, node,
              fp_pair_map_entry_hash, fp_pair_map_entries_eq);
 HT_GENERATE2(fp_pair_map_impl, fp_pair_map_entry_t, node,
-             fp_pair_map_entry_hash, fp_pair_map_entries_eq,
-             0.6, tor_reallocarray_, tor_free_);
+             fp_pair_map_entry_hash, fp_pair_map_entries_eq, 0.6,
+             tor_reallocarray_, tor_free_);
 
 /** Constructor to create a new empty map from fp_pair_t to void *
  */
@@ -68,11 +68,11 @@ HT_GENERATE2(fp_pair_map_impl, fp_pair_map_entry_t, node,
 fp_pair_map_t *
 fp_pair_map_new(void)
 {
-  fp_pair_map_t *result;
+    fp_pair_map_t *result;
 
-  result = tor_malloc(sizeof(fp_pair_map_t));
-  HT_INIT(fp_pair_map_impl, &result->head);
-  return result;
+    result = tor_malloc(sizeof(fp_pair_map_t));
+    HT_INIT(fp_pair_map_impl, &result->head);
+    return result;
 }
 
 /** Set the current value for key to val; returns the previous
@@ -82,28 +82,28 @@ fp_pair_map_new(void)
 void *
 fp_pair_map_set(fp_pair_map_t *map, const fp_pair_t *key, void *val)
 {
-  fp_pair_map_entry_t *resolve;
-  fp_pair_map_entry_t search;
-  void *oldval;
+    fp_pair_map_entry_t *resolve;
+    fp_pair_map_entry_t search;
+    void *oldval;
 
-  tor_assert(map);
-  tor_assert(key);
-  tor_assert(val);
+    tor_assert(map);
+    tor_assert(key);
+    tor_assert(val);
 
-  memcpy(&(search.key), key, sizeof(*key));
-  resolve = HT_FIND(fp_pair_map_impl, &(map->head), &search);
-  if (resolve) {
-    oldval = resolve->val;
-    resolve->val = val;
-  } else {
-    resolve = tor_malloc_zero(sizeof(fp_pair_map_entry_t));
-    memcpy(&(resolve->key), key, sizeof(*key));
-    resolve->val = val;
-    HT_INSERT(fp_pair_map_impl, &(map->head), resolve);
-    oldval = NULL;
-  }
+    memcpy(&(search.key), key, sizeof(*key));
+    resolve = HT_FIND(fp_pair_map_impl, &(map->head), &search);
+    if (resolve) {
+        oldval = resolve->val;
+        resolve->val = val;
+    } else {
+        resolve = tor_malloc_zero(sizeof(fp_pair_map_entry_t));
+        memcpy(&(resolve->key), key, sizeof(*key));
+        resolve->val = val;
+        HT_INSERT(fp_pair_map_impl, &(map->head), resolve);
+        oldval = NULL;
+    }
 
-  return oldval;
+    return oldval;
 }
 
 /** Set the current value for the key (first, second) to val; returns
@@ -111,19 +111,18 @@ fp_pair_map_set(fp_pair_map_t *map, const fp_pair_t *key, void *val)
  */
 
 void *
-fp_pair_map_set_by_digests(fp_pair_map_t *map,
-                           const char *first, const char *second,
-                           void *val)
+fp_pair_map_set_by_digests(fp_pair_map_t *map, const char *first,
+                           const char *second, void *val)
 {
-  fp_pair_t k;
+    fp_pair_t k;
 
-  tor_assert(first);
-  tor_assert(second);
+    tor_assert(first);
+    tor_assert(second);
 
-  memcpy(k.first, first, DIGEST_LEN);
-  memcpy(k.second, second, DIGEST_LEN);
+    memcpy(k.first, first, DIGEST_LEN);
+    memcpy(k.second, second, DIGEST_LEN);
 
-  return fp_pair_map_set(map, &k, val);
+    return fp_pair_map_set(map, &k, val);
 }
 
 /** Return the current value associated with key, or NULL if no value is set.
@@ -132,18 +131,19 @@ fp_pair_map_set_by_digests(fp_pair_map_t *map,
 void *
 fp_pair_map_get(const fp_pair_map_t *map, const fp_pair_t *key)
 {
-  fp_pair_map_entry_t *resolve;
-  fp_pair_map_entry_t search;
-  void *val = NULL;
+    fp_pair_map_entry_t *resolve;
+    fp_pair_map_entry_t search;
+    void *val = NULL;
 
-  tor_assert(map);
-  tor_assert(key);
+    tor_assert(map);
+    tor_assert(key);
 
-  memcpy(&(search.key), key, sizeof(*key));
-  resolve = HT_FIND(fp_pair_map_impl, &(map->head), &search);
-  if (resolve) val = resolve->val;
+    memcpy(&(search.key), key, sizeof(*key));
+    resolve = HT_FIND(fp_pair_map_impl, &(map->head), &search);
+    if (resolve)
+        val = resolve->val;
 
-  return val;
+    return val;
 }
 
 /** Return the current value associated the key (first, second), or
@@ -151,18 +151,18 @@ fp_pair_map_get(const fp_pair_map_t *map, const fp_pair_t *key)
  */
 
 void *
-fp_pair_map_get_by_digests(const fp_pair_map_t *map,
-                           const char *first, const char *second)
+fp_pair_map_get_by_digests(const fp_pair_map_t *map, const char *first,
+                           const char *second)
 {
-  fp_pair_t k;
+    fp_pair_t k;
 
-  tor_assert(first);
-  tor_assert(second);
+    tor_assert(first);
+    tor_assert(second);
 
-  memcpy(k.first, first, DIGEST_LEN);
-  memcpy(k.second, second, DIGEST_LEN);
+    memcpy(k.first, first, DIGEST_LEN);
+    memcpy(k.second, second, DIGEST_LEN);
 
-  return fp_pair_map_get(map, &k);
+    return fp_pair_map_get(map, &k);
 }
 
 /** Remove the value currently associated with key from the map.
@@ -174,21 +174,21 @@ fp_pair_map_get_by_digests(const fp_pair_map_t *map,
 void *
 fp_pair_map_remove(fp_pair_map_t *map, const fp_pair_t *key)
 {
-  fp_pair_map_entry_t *resolve;
-  fp_pair_map_entry_t search;
-  void *val = NULL;
+    fp_pair_map_entry_t *resolve;
+    fp_pair_map_entry_t search;
+    void *val = NULL;
 
-  tor_assert(map);
-  tor_assert(key);
+    tor_assert(map);
+    tor_assert(key);
 
-  memcpy(&(search.key), key, sizeof(*key));
-  resolve = HT_REMOVE(fp_pair_map_impl, &(map->head), &search);
-  if (resolve) {
-    val = resolve->val;
-    tor_free(resolve);
-  }
+    memcpy(&(search.key), key, sizeof(*key));
+    resolve = HT_REMOVE(fp_pair_map_impl, &(map->head), &search);
+    if (resolve) {
+        val = resolve->val;
+        tor_free(resolve);
+    }
 
-  return val;
+    return val;
 }
 
 /** Remove all entries from map, and deallocate storage for those entries.
@@ -196,22 +196,23 @@ fp_pair_map_remove(fp_pair_map_t *map, const fp_pair_t *key)
  */
 
 void
-fp_pair_map_free_(fp_pair_map_t *map, void (*free_val)(void*))
+fp_pair_map_free_(fp_pair_map_t *map, void (*free_val)(void *))
 {
-  fp_pair_map_entry_t **ent, **next, *this;
+    fp_pair_map_entry_t **ent, **next, *this;
 
-  if (map) {
-    for (ent = HT_START(fp_pair_map_impl, &(map->head));
-         ent != NULL; ent = next) {
-      this = *ent;
-      next = HT_NEXT_RMV(fp_pair_map_impl, &(map->head), ent);
-      if (free_val) free_val(this->val);
-      tor_free(this);
+    if (map) {
+        for (ent = HT_START(fp_pair_map_impl, &(map->head)); ent != NULL;
+             ent = next) {
+            this = *ent;
+            next = HT_NEXT_RMV(fp_pair_map_impl, &(map->head), ent);
+            if (free_val)
+                free_val(this->val);
+            tor_free(this);
+        }
+        tor_assert(HT_EMPTY(&(map->head)));
+        HT_CLEAR(fp_pair_map_impl, &(map->head));
+        tor_free(map);
     }
-    tor_assert(HT_EMPTY(&(map->head)));
-    HT_CLEAR(fp_pair_map_impl, &(map->head));
-    tor_free(map);
-  }
 }
 
 /** Return true iff map has no entries.
@@ -220,9 +221,9 @@ fp_pair_map_free_(fp_pair_map_t *map, void (*free_val)(void*))
 int
 fp_pair_map_isempty(const fp_pair_map_t *map)
 {
-  tor_assert(map);
+    tor_assert(map);
 
-  return HT_EMPTY(&(map->head));
+    return HT_EMPTY(&(map->head));
 }
 
 /** Return the number of items in map.
@@ -231,9 +232,9 @@ fp_pair_map_isempty(const fp_pair_map_t *map)
 int
 fp_pair_map_size(const fp_pair_map_t *map)
 {
-  tor_assert(map);
+    tor_assert(map);
 
-  return HT_SIZE(&(map->head));
+    return HT_SIZE(&(map->head));
 }
 
 /** return an iterator pointing to the start of map.
@@ -242,9 +243,9 @@ fp_pair_map_size(const fp_pair_map_t *map)
 fp_pair_map_iter_t *
 fp_pair_map_iter_init(fp_pair_map_t *map)
 {
-  tor_assert(map);
+    tor_assert(map);
 
-  return HT_START(fp_pair_map_impl, &(map->head));
+    return HT_START(fp_pair_map_impl, &(map->head));
 }
 
 /** Advance iter a single step to the next entry of map, and return
@@ -254,10 +255,10 @@ fp_pair_map_iter_init(fp_pair_map_t *map)
 fp_pair_map_iter_t *
 fp_pair_map_iter_next(fp_pair_map_t *map, fp_pair_map_iter_t *iter)
 {
-  tor_assert(map);
-  tor_assert(iter);
+    tor_assert(map);
+    tor_assert(iter);
 
-  return HT_NEXT(fp_pair_map_impl, &(map->head), iter);
+    return HT_NEXT(fp_pair_map_impl, &(map->head), iter);
 }
 
 /** Advance iter a single step to the next entry of map, removing the current
@@ -267,31 +268,33 @@ fp_pair_map_iter_next(fp_pair_map_t *map, fp_pair_map_iter_t *iter)
 fp_pair_map_iter_t *
 fp_pair_map_iter_next_rmv(fp_pair_map_t *map, fp_pair_map_iter_t *iter)
 {
-  fp_pair_map_entry_t *rmv;
+    fp_pair_map_entry_t *rmv;
 
-  tor_assert(map);
-  tor_assert(iter);
-  tor_assert(*iter);
+    tor_assert(map);
+    tor_assert(iter);
+    tor_assert(*iter);
 
-  rmv = *iter;
-  iter = HT_NEXT_RMV(fp_pair_map_impl, &(map->head), iter);
-  tor_free(rmv);
+    rmv = *iter;
+    iter = HT_NEXT_RMV(fp_pair_map_impl, &(map->head), iter);
+    tor_free(rmv);
 
-  return iter;
+    return iter;
 }
 
 /** Set *key_out and *val_out to the current entry pointed to by iter.
  */
 
 void
-fp_pair_map_iter_get(fp_pair_map_iter_t *iter,
-                     fp_pair_t *key_out, void **val_out)
+fp_pair_map_iter_get(fp_pair_map_iter_t *iter, fp_pair_t *key_out,
+                     void **val_out)
 {
-  tor_assert(iter);
-  tor_assert(*iter);
+    tor_assert(iter);
+    tor_assert(*iter);
 
-  if (key_out) memcpy(key_out, &((*iter)->key), sizeof(fp_pair_t));
-  if (val_out) *val_out = (*iter)->val;
+    if (key_out)
+        memcpy(key_out, &((*iter)->key), sizeof(fp_pair_t));
+    if (val_out)
+        *val_out = (*iter)->val;
 }
 
 /** Return true iff iter has advanced past the last entry of its map.
@@ -300,7 +303,7 @@ fp_pair_map_iter_get(fp_pair_map_iter_t *iter,
 int
 fp_pair_map_iter_done(fp_pair_map_iter_t *iter)
 {
-  return (iter == NULL);
+    return (iter == NULL);
 }
 
 /** Assert if anything has gone wrong with the internal
@@ -310,5 +313,5 @@ fp_pair_map_iter_done(fp_pair_map_iter_t *iter)
 void
 fp_pair_map_assert_ok(const fp_pair_map_t *map)
 {
-  tor_assert(!fp_pair_map_impl_HT_REP_IS_BAD_(&(map->head)));
+    tor_assert(!fp_pair_map_impl_HT_REP_IS_BAD_(&(map->head)));
 }

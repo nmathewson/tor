@@ -28,8 +28,8 @@ struct extend_cell_t;
 static inline void
 circuitbuild_warn_client_extend(void)
 {
-  log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-         "Got an extend cell, but running as a client. Closing.");
+    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+           "Got an extend cell, but running as a client. Closing.");
 }
 
 #ifdef HAVE_MODULE_RELAY
@@ -46,25 +46,24 @@ int onionskin_answer(struct or_circuit_t *circ,
 static inline int
 circuit_extend(struct cell_t *cell, struct circuit_t *circ)
 {
-  (void)cell;
-  (void)circ;
-  circuitbuild_warn_client_extend();
-  return -1;
+    (void)cell;
+    (void)circ;
+    circuitbuild_warn_client_extend();
+    return -1;
 }
 
 static inline int
 onionskin_answer(struct or_circuit_t *circ,
-                 const struct created_cell_t *created_cell,
-                 const char *keys, size_t keys_len,
-                 const uint8_t *rend_circ_nonce)
+                 const struct created_cell_t *created_cell, const char *keys,
+                 size_t keys_len, const uint8_t *rend_circ_nonce)
 {
-  (void)circ;
-  (void)created_cell;
-  (void)keys;
-  (void)keys_len;
-  (void)rend_circ_nonce;
-  tor_assert_nonfatal_unreached();
-  return -1;
+    (void)circ;
+    (void)created_cell;
+    (void)keys;
+    (void)keys_len;
+    (void)rend_circ_nonce;
+    tor_assert_nonfatal_unreached();
+    return -1;
 }
 
 #endif /* defined(HAVE_MODULE_RELAY) */
@@ -75,9 +74,9 @@ STATIC int circuit_extend_state_valid_helper(const struct circuit_t *circ);
 STATIC int circuit_extend_add_ed25519_helper(struct extend_cell_t *ec);
 STATIC int circuit_extend_lspec_valid_helper(const struct extend_cell_t *ec,
                                              const struct circuit_t *circ);
-STATIC const tor_addr_port_t * circuit_choose_ip_ap_for_extend(
-                                             const tor_addr_port_t *ipv4_ap,
-                                             const tor_addr_port_t *ipv6_ap);
+STATIC const tor_addr_port_t *
+circuit_choose_ip_ap_for_extend(const tor_addr_port_t *ipv4_ap,
+                                const tor_addr_port_t *ipv6_ap);
 STATIC void circuit_open_connection_for_extend(const struct extend_cell_t *ec,
                                                struct circuit_t *circ,
                                                int should_launch);

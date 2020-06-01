@@ -20,4 +20,3 @@ void router_new_address_suggestion(const char *suggestion,
 #endif /* RELAY_FIND_ADDR_PRIVATE */
 
 #endif /* TOR_RELAY_FIND_ADDR_H */
-

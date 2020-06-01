@@ -16,9 +16,9 @@ struct buf_t;
 
 /** A parsed Extended ORPort message. */
 struct ext_or_cmd_t {
-  uint16_t cmd; /** Command type */
-  uint16_t len; /** Body length */
-  char body[FLEXIBLE_ARRAY_MEMBER]; /** Message body */
+    uint16_t cmd; /** Command type */
+    uint16_t len; /** Body length */
+    char body[FLEXIBLE_ARRAY_MEMBER]; /** Message body */
 };
 
 int fetch_ext_or_command_from_buf(struct buf_t *buf,
@@ -26,8 +26,8 @@ int fetch_ext_or_command_from_buf(struct buf_t *buf,
 
 ext_or_cmd_t *ext_or_cmd_new(uint16_t len);
 
-#define ext_or_cmd_free(cmd)                            \
-  FREE_AND_NULL(ext_or_cmd_t, ext_or_cmd_free_, (cmd))
+#define ext_or_cmd_free(cmd) \
+    FREE_AND_NULL(ext_or_cmd_t, ext_or_cmd_free_, (cmd))
 
 void ext_or_cmd_free_(ext_or_cmd_t *cmd);
 

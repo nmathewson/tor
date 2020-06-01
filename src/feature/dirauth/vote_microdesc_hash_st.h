@@ -16,11 +16,11 @@
  * vote.
  */
 struct vote_microdesc_hash_t {
-  /** Next element in the list, or NULL. */
-  struct vote_microdesc_hash_t *next;
-  /** The raw contents of the microdesc hash line, from the "m" through the
-   * newline. */
-  char *microdesc_hash_line;
+    /** Next element in the list, or NULL. */
+    struct vote_microdesc_hash_t *next;
+    /** The raw contents of the microdesc hash line, from the "m" through the
+     * newline. */
+    char *microdesc_hash_line;
 };
 
 #endif /* !defined(VOTE_MICRODESC_HASH_ST_H) */

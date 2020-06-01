@@ -84,8 +84,8 @@
 dir_connection_t *
 TO_DIR_CONN(connection_t *c)
 {
-  tor_assert(c->magic == DIR_CONNECTION_MAGIC);
-  return DOWNCAST(dir_connection_t, c);
+    tor_assert(c->magic == DIR_CONNECTION_MAGIC);
+    return DOWNCAST(dir_connection_t, c);
 }
 
 /** Return false if the directory purpose <b>dir_purpose</b>
@@ -98,23 +98,22 @@ int
 purpose_needs_anonymity(uint8_t dir_purpose, uint8_t router_purpose,
                         const char *resource)
 {
-  if (get_options()->AllDirActionsPrivate)
-    return 1;
+    if (get_options()->AllDirActionsPrivate)
+        return 1;
 
-  if (router_purpose == ROUTER_PURPOSE_BRIDGE) {
-    if (dir_purpose == DIR_PURPOSE_FETCH_SERVERDESC
-        && resource && !strcmp(resource, "authority.z")) {
-      /* We are asking a bridge for its own descriptor. That doesn't need
-         anonymity. */
-      return 0;
+    if (router_purpose == ROUTER_PURPOSE_BRIDGE) {
+        if (dir_purpose == DIR_PURPOSE_FETCH_SERVERDESC && resource &&
+            !strcmp(resource, "authority.z")) {
+            /* We are asking a bridge for its own descriptor. That doesn't need
+               anonymity. */
+            return 0;
+        }
+        /* Assume all other bridge stuff needs anonymity. */
+        return 1; /* if no circuits yet, this might break bootstrapping, but
+                   * it's needed to be safe. */
     }
-    /* Assume all other bridge stuff needs anonymity. */
-    return 1; /* if no circuits yet, this might break bootstrapping, but it's
-               * needed to be safe. */
-  }
 
-  switch (dir_purpose)
-  {
+    switch (dir_purpose) {
     case DIR_PURPOSE_UPLOAD_DIR:
     case DIR_PURPOSE_UPLOAD_VOTE:
     case DIR_PURPOSE_UPLOAD_SIGNATURES:
@@ -125,21 +124,21 @@ purpose_needs_anonymity(uint8_t dir_purpose, uint8_t router_purpose,
     case DIR_PURPOSE_FETCH_SERVERDESC:
     case DIR_PURPOSE_FETCH_EXTRAINFO:
     case DIR_PURPOSE_FETCH_MICRODESC:
-      return 0;
+        return 0;
     case DIR_PURPOSE_HAS_FETCHED_HSDESC:
     case DIR_PURPOSE_HAS_FETCHED_RENDDESC_V2:
     case DIR_PURPOSE_UPLOAD_RENDDESC_V2:
     case DIR_PURPOSE_FETCH_RENDDESC_V2:
     case DIR_PURPOSE_FETCH_HSDESC:
     case DIR_PURPOSE_UPLOAD_HSDESC:
-      return 1;
+        return 1;
     case DIR_PURPOSE_SERVER:
     default:
-      log_warn(LD_BUG, "Called with dir_purpose=%d, router_purpose=%d",
-               dir_purpose, router_purpose);
-      tor_assert_nonfatal_unreached();
-      return 1; /* Assume it needs anonymity; better safe than sorry. */
-  }
+        log_warn(LD_BUG, "Called with dir_purpose=%d, router_purpose=%d",
+                 dir_purpose, router_purpose);
+        tor_assert_nonfatal_unreached();
+        return 1; /* Assume it needs anonymity; better safe than sorry. */
+    }
 }
 
 /** Return a newly allocated string describing <b>auth</b>. Only describes
@@ -147,19 +146,19 @@ purpose_needs_anonymity(uint8_t dir_purpose, uint8_t router_purpose,
 char *
 authdir_type_to_string(dirinfo_type_t auth)
 {
-  char *result;
-  smartlist_t *lst = smartlist_new();
-  if (auth & V3_DIRINFO)
-    smartlist_add(lst, (void*)"V3");
-  if (auth & BRIDGE_DIRINFO)
-    smartlist_add(lst, (void*)"Bridge");
-  if (smartlist_len(lst)) {
-    result = smartlist_join_strings(lst, ", ", 0, NULL);
-  } else {
-    result = tor_strdup("[Not an authority]");
-  }
-  smartlist_free(lst);
-  return result;
+    char *result;
+    smartlist_t *lst = smartlist_new();
+    if (auth & V3_DIRINFO)
+        smartlist_add(lst, (void *)"V3");
+    if (auth & BRIDGE_DIRINFO)
+        smartlist_add(lst, (void *)"Bridge");
+    if (smartlist_len(lst)) {
+        result = smartlist_join_strings(lst, ", ", 0, NULL);
+    } else {
+        result = tor_strdup("[Not an authority]");
+    }
+    smartlist_free(lst);
+    return result;
 }
 
 /** Return true iff anything we say on <b>conn</b> is being encrypted before
@@ -167,12 +166,12 @@ authdir_type_to_string(dirinfo_type_t auth)
 int
 connection_dir_is_encrypted(const dir_connection_t *conn)
 {
-  /* Right now it's sufficient to see if conn is or has been linked, since
-   * the only thing it could be linked to is an edge connection on a
-   * circuit, and the only way it could have been unlinked is at the edge
-   * connection getting closed.
-   */
-  return TO_CONN(conn)->linked;
+    /* Right now it's sufficient to see if conn is or has been linked, since
+     * the only thing it could be linked to is an edge connection on a
+     * circuit, and the only way it could have been unlinked is at the edge
+     * connection getting closed.
+     */
+    return TO_CONN(conn)->linked;
 }
 
 /** Return true iff the given directory connection <b>dir_conn</b> is
@@ -187,68 +186,68 @@ connection_dir_is_encrypted(const dir_connection_t *conn)
 bool
 connection_dir_is_anonymous(const dir_connection_t *dir_conn)
 {
-  const connection_t *conn, *linked_conn;
-  const edge_connection_t *edge_conn;
-  const circuit_t *circ;
+    const connection_t *conn, *linked_conn;
+    const edge_connection_t *edge_conn;
+    const circuit_t *circ;
 
-  tor_assert(dir_conn);
+    tor_assert(dir_conn);
 
-  if (!connection_dir_is_encrypted(dir_conn)) {
-    return false;
-  }
+    if (!connection_dir_is_encrypted(dir_conn)) {
+        return false;
+    }
 
-  /*
-   * Buckle up, we'll do a deep dive into the connection in order to get the
-   * final connection channel of that connection in order to figure out if
-   * this is a client or relay link.
-   *
-   * We go: dir_conn -> linked_conn -> edge_conn -> on_circuit -> p_chan.
-   */
+    /*
+     * Buckle up, we'll do a deep dive into the connection in order to get the
+     * final connection channel of that connection in order to figure out if
+     * this is a client or relay link.
+     *
+     * We go: dir_conn -> linked_conn -> edge_conn -> on_circuit -> p_chan.
+     */
 
-  conn = TO_CONN(dir_conn);
-  linked_conn = conn->linked_conn;
+    conn = TO_CONN(dir_conn);
+    linked_conn = conn->linked_conn;
 
-  /* The dir connection should be connected to an edge connection. It can not
-   * be closed or marked for close. */
-  if (linked_conn == NULL || linked_conn->magic != EDGE_CONNECTION_MAGIC ||
-      conn->linked_conn_is_closed || conn->linked_conn->marked_for_close) {
-    log_debug(LD_DIR, "Directory connection is not anonymous: "
-                      "not linked to edge");
-    return false;
-  }
+    /* The dir connection should be connected to an edge connection. It can not
+     * be closed or marked for close. */
+    if (linked_conn == NULL || linked_conn->magic != EDGE_CONNECTION_MAGIC ||
+        conn->linked_conn_is_closed || conn->linked_conn->marked_for_close) {
+        log_debug(LD_DIR, "Directory connection is not anonymous: "
+                          "not linked to edge");
+        return false;
+    }
 
-  edge_conn = TO_EDGE_CONN((connection_t *) linked_conn);
-  circ = edge_conn->on_circuit;
+    edge_conn = TO_EDGE_CONN((connection_t *)linked_conn);
+    circ = edge_conn->on_circuit;
 
-  /* Can't be a circuit we initiated and without a circuit, no channel. */
-  if (circ == NULL || CIRCUIT_IS_ORIGIN(circ)) {
-    log_debug(LD_DIR, "Directory connection is not anonymous: "
-                      "not on OR circuit");
-    return false;
-  }
+    /* Can't be a circuit we initiated and without a circuit, no channel. */
+    if (circ == NULL || CIRCUIT_IS_ORIGIN(circ)) {
+        log_debug(LD_DIR, "Directory connection is not anonymous: "
+                          "not on OR circuit");
+        return false;
+    }
 
-  /* It is possible that the circuit was closed because one of the channel was
-   * closed or a DESTROY cell was received. Either way, this connection can
-   * not continue so return that it is not anonymous since we can not know for
-   * sure if it is. */
-  if (circ->marked_for_close) {
-    log_debug(LD_DIR, "Directory connection is not anonymous: "
-                      "circuit marked for close");
-    return false;
-  }
+    /* It is possible that the circuit was closed because one of the channel
+     * was closed or a DESTROY cell was received. Either way, this connection
+     * can not continue so return that it is not anonymous since we can not
+     * know for sure if it is. */
+    if (circ->marked_for_close) {
+        log_debug(LD_DIR, "Directory connection is not anonymous: "
+                          "circuit marked for close");
+        return false;
+    }
 
-  /* Get the previous channel to learn if it is a client or relay link. We
-   * BUG() because if the circuit is not mark for close, we ought to have a
-   * p_chan else we have a code flow issue. */
-  if (BUG(CONST_TO_OR_CIRCUIT(circ)->p_chan == NULL)) {
-    log_debug(LD_DIR, "Directory connection is not anonymous: "
-                      "no p_chan on circuit");
-    return false;
-  }
+    /* Get the previous channel to learn if it is a client or relay link. We
+     * BUG() because if the circuit is not mark for close, we ought to have a
+     * p_chan else we have a code flow issue. */
+    if (BUG(CONST_TO_OR_CIRCUIT(circ)->p_chan == NULL)) {
+        log_debug(LD_DIR, "Directory connection is not anonymous: "
+                          "no p_chan on circuit");
+        return false;
+    }
 
-  /* Will be true if the channel is an unauthenticated peer which is only true
-   * for clients and bridges. */
-  return !channel_is_client(CONST_TO_OR_CIRCUIT(circ)->p_chan);
+    /* Will be true if the channel is an unauthenticated peer which is only
+     * true for clients and bridges. */
+    return !channel_is_client(CONST_TO_OR_CIRCUIT(circ)->p_chan);
 }
 
 /** Parse an HTTP request line at the start of a headers string.  On failure,
@@ -258,51 +257,56 @@ connection_dir_is_anonymous(const dir_connection_t *dir_conn)
 int
 parse_http_command(const char *headers, char **command_out, char **url_out)
 {
-  const char *command, *end_of_command;
-  char *s, *start, *tmp;
+    const char *command, *end_of_command;
+    char *s, *start, *tmp;
 
-  s = (char *)eat_whitespace_no_nl(headers);
-  if (!*s) return -1;
-  command = s;
-  s = (char *)find_whitespace(s); /* get past GET/POST */
-  if (!*s) return -1;
-  end_of_command = s;
-  s = (char *)eat_whitespace_no_nl(s);
-  if (!*s) return -1;
-  start = s; /* this is the URL, assuming it's valid */
-  s = (char *)find_whitespace(start);
-  if (!*s) return -1;
+    s = (char *)eat_whitespace_no_nl(headers);
+    if (!*s)
+        return -1;
+    command = s;
+    s = (char *)find_whitespace(s); /* get past GET/POST */
+    if (!*s)
+        return -1;
+    end_of_command = s;
+    s = (char *)eat_whitespace_no_nl(s);
+    if (!*s)
+        return -1;
+    start = s; /* this is the URL, assuming it's valid */
+    s = (char *)find_whitespace(start);
+    if (!*s)
+        return -1;
 
-  /* tolerate the http[s] proxy style of putting the hostname in the url */
-  if (s-start >= 4 && !strcmpstart(start,"http")) {
-    tmp = start + 4;
-    if (*tmp == 's')
-      tmp++;
-    if (s-tmp >= 3 && !strcmpstart(tmp,"://")) {
-      tmp = strchr(tmp+3, '/');
-      if (tmp && tmp < s) {
-        log_debug(LD_DIR,"Skipping over 'http[s]://hostname/' string");
-        start = tmp;
-      }
+    /* tolerate the http[s] proxy style of putting the hostname in the url */
+    if (s - start >= 4 && !strcmpstart(start, "http")) {
+        tmp = start + 4;
+        if (*tmp == 's')
+            tmp++;
+        if (s - tmp >= 3 && !strcmpstart(tmp, "://")) {
+            tmp = strchr(tmp + 3, '/');
+            if (tmp && tmp < s) {
+                log_debug(LD_DIR,
+                          "Skipping over 'http[s]://hostname/' string");
+                start = tmp;
+            }
+        }
     }
-  }
 
-  /* Check if the header is well formed (next sequence
-   * should be HTTP/1.X\r\n). Assumes we're supporting 1.0? */
-  {
-    unsigned minor_ver;
-    char ch;
-    char *e = (char *)eat_whitespace_no_nl(s);
-    if (2 != tor_sscanf(e, "HTTP/1.%u%c", &minor_ver, &ch)) {
-      return -1;
+    /* Check if the header is well formed (next sequence
+     * should be HTTP/1.X\r\n). Assumes we're supporting 1.0? */
+    {
+        unsigned minor_ver;
+        char ch;
+        char *e = (char *)eat_whitespace_no_nl(s);
+        if (2 != tor_sscanf(e, "HTTP/1.%u%c", &minor_ver, &ch)) {
+            return -1;
+        }
+        if (ch != '\r')
+            return -1;
     }
-    if (ch != '\r')
-      return -1;
-  }
 
-  *url_out = tor_memdup_nulterm(start, s-start);
-  *command_out = tor_memdup_nulterm(command, end_of_command - command);
-  return 0;
+    *url_out = tor_memdup_nulterm(start, s - start);
+    *command_out = tor_memdup_nulterm(command, end_of_command - command);
+    return 0;
 }
 
 /** Return a copy of the first HTTP header in <b>headers</b> whose key is
@@ -312,21 +316,21 @@ parse_http_command(const char *headers, char **command_out, char **url_out)
 char *
 http_get_header(const char *headers, const char *which)
 {
-  const char *cp = headers;
-  while (cp) {
-    if (!strcasecmpstart(cp, which)) {
-      char *eos;
-      cp += strlen(which);
-      if ((eos = strchr(cp,'\r')))
-        return tor_strndup(cp, eos-cp);
-      else
-        return tor_strdup(cp);
+    const char *cp = headers;
+    while (cp) {
+        if (!strcasecmpstart(cp, which)) {
+            char *eos;
+            cp += strlen(which);
+            if ((eos = strchr(cp, '\r')))
+                return tor_strndup(cp, eos - cp);
+            else
+                return tor_strdup(cp);
+        }
+        cp = strchr(cp, '\n');
+        if (cp)
+            ++cp;
     }
-    cp = strchr(cp, '\n');
-    if (cp)
-      ++cp;
-  }
-  return NULL;
+    return NULL;
 }
 /** Parse an HTTP response string <b>headers</b> of the form
  * \verbatim
@@ -348,79 +352,82 @@ int
 parse_http_response(const char *headers, int *code, time_t *date,
                     compress_method_t *compression, char **reason)
 {
-  unsigned n1, n2;
-  char datestr[RFC1123_TIME_LEN+1];
-  smartlist_t *parsed_headers;
-  tor_assert(headers);
-  tor_assert(code);
+    unsigned n1, n2;
+    char datestr[RFC1123_TIME_LEN + 1];
+    smartlist_t *parsed_headers;
+    tor_assert(headers);
+    tor_assert(code);
 
-  while (TOR_ISSPACE(*headers)) headers++; /* tolerate leading whitespace */
+    while (TOR_ISSPACE(*headers))
+        headers++; /* tolerate leading whitespace */
 
-  if (tor_sscanf(headers, "HTTP/1.%u %u", &n1, &n2) < 2 ||
-      (n1 != 0 && n1 != 1) ||
-      (n2 < 100 || n2 >= 600)) {
-    log_warn(LD_HTTP,"Failed to parse header %s",escaped(headers));
-    return -1;
-  }
-  *code = n2;
-
-  parsed_headers = smartlist_new();
-  smartlist_split_string(parsed_headers, headers, "\n",
-                         SPLIT_SKIP_SPACE|SPLIT_IGNORE_BLANK, -1);
-  if (reason) {
-    smartlist_t *status_line_elements = smartlist_new();
-    tor_assert(smartlist_len(parsed_headers));
-    smartlist_split_string(status_line_elements,
-                           smartlist_get(parsed_headers, 0),
-                           " ", SPLIT_SKIP_SPACE|SPLIT_IGNORE_BLANK, 3);
-    tor_assert(smartlist_len(status_line_elements) <= 3);
-    if (smartlist_len(status_line_elements) == 3) {
-      *reason = smartlist_get(status_line_elements, 2);
-      smartlist_set(status_line_elements, 2, NULL); /* Prevent free */
+    if (tor_sscanf(headers, "HTTP/1.%u %u", &n1, &n2) < 2 ||
+        (n1 != 0 && n1 != 1) || (n2 < 100 || n2 >= 600)) {
+        log_warn(LD_HTTP, "Failed to parse header %s", escaped(headers));
+        return -1;
     }
-    SMARTLIST_FOREACH(status_line_elements, char *, cp, tor_free(cp));
-    smartlist_free(status_line_elements);
-  }
-  if (date) {
-    *date = 0;
-    SMARTLIST_FOREACH(parsed_headers, const char *, s,
-      if (!strcmpstart(s, "Date: ")) {
-        strlcpy(datestr, s+6, sizeof(datestr));
-        /* This will do nothing on failure, so we don't need to check
-           the result.   We shouldn't warn, since there are many other valid
-           date formats besides the one we use. */
-        parse_rfc1123_time(datestr, date);
-        break;
-      });
-  }
-  if (compression) {
-    const char *enc = NULL;
-    SMARTLIST_FOREACH(parsed_headers, const char *, s,
-      if (!strcmpstart(s, "Content-Encoding: ")) {
-        enc = s+18; break;
-      });
+    *code = n2;
 
-    if (enc == NULL)
-      *compression = NO_METHOD;
-    else {
-      *compression = compression_method_get_by_name(enc);
-
-      if (*compression == UNKNOWN_METHOD)
-        log_info(LD_HTTP, "Unrecognized content encoding: %s. Trying to deal.",
-                 escaped(enc));
+    parsed_headers = smartlist_new();
+    smartlist_split_string(parsed_headers, headers, "\n",
+                           SPLIT_SKIP_SPACE | SPLIT_IGNORE_BLANK, -1);
+    if (reason) {
+        smartlist_t *status_line_elements = smartlist_new();
+        tor_assert(smartlist_len(parsed_headers));
+        smartlist_split_string(status_line_elements,
+                               smartlist_get(parsed_headers, 0), " ",
+                               SPLIT_SKIP_SPACE | SPLIT_IGNORE_BLANK, 3);
+        tor_assert(smartlist_len(status_line_elements) <= 3);
+        if (smartlist_len(status_line_elements) == 3) {
+            *reason = smartlist_get(status_line_elements, 2);
+            smartlist_set(status_line_elements, 2, NULL); /* Prevent free */
+        }
+        SMARTLIST_FOREACH(status_line_elements, char *, cp, tor_free(cp));
+        smartlist_free(status_line_elements);
     }
-  }
-  SMARTLIST_FOREACH(parsed_headers, char *, s, tor_free(s));
-  smartlist_free(parsed_headers);
+    if (date) {
+        *date = 0;
+        SMARTLIST_FOREACH(
+            parsed_headers, const char *, s, if (!strcmpstart(s, "Date: ")) {
+                strlcpy(datestr, s + 6, sizeof(datestr));
+                /* This will do nothing on failure, so we don't need to check
+                   the result.   We shouldn't warn, since there are many other
+                   valid date formats besides the one we use. */
+                parse_rfc1123_time(datestr, date);
+                break;
+            });
+    }
+    if (compression) {
+        const char *enc = NULL;
+        SMARTLIST_FOREACH(
+            parsed_headers, const char *, s,
+            if (!strcmpstart(s, "Content-Encoding: ")) {
+                enc = s + 18;
+                break;
+            });
 
-  return 0;
+        if (enc == NULL)
+            *compression = NO_METHOD;
+        else {
+            *compression = compression_method_get_by_name(enc);
+
+            if (*compression == UNKNOWN_METHOD)
+                log_info(LD_HTTP,
+                         "Unrecognized content encoding: %s. Trying to deal.",
+                         escaped(enc));
+        }
+    }
+    SMARTLIST_FOREACH(parsed_headers, char *, s, tor_free(s));
+    smartlist_free(parsed_headers);
+
+    return 0;
 }
 
 /** If any directory object is arriving, and it's over 10MB large, we're
  * getting DoS'd.  (As of 0.1.2.x, raw directories are about 1MB, and we never
  * ask for more than 96 router descriptors at a time.)
  */
-#define MAX_DIRECTORY_OBJECT_SIZE (10*(1<<20))
+#define MAX_DIRECTORY_OBJECT_SIZE (10 * (1 << 20))
 
 #define MAX_VOTE_DL_SIZE (MAX_DIRECTORY_OBJECT_SIZE * 5)
 
@@ -430,41 +437,41 @@ parse_http_response(const char *headers, int *code, time_t *date,
 int
 connection_dir_process_inbuf(dir_connection_t *conn)
 {
-  size_t max_size;
-  tor_assert(conn);
-  tor_assert(conn->base_.type == CONN_TYPE_DIR);
+    size_t max_size;
+    tor_assert(conn);
+    tor_assert(conn->base_.type == CONN_TYPE_DIR);
 
-  /* Directory clients write, then read data until they receive EOF;
-   * directory servers read data until they get an HTTP command, then
-   * write their response (when it's finished flushing, they mark for
-   * close).
-   */
+    /* Directory clients write, then read data until they receive EOF;
+     * directory servers read data until they get an HTTP command, then
+     * write their response (when it's finished flushing, they mark for
+     * close).
+     */
 
-  /* If we're on the dirserver side, look for a command. */
-  if (conn->base_.state == DIR_CONN_STATE_SERVER_COMMAND_WAIT) {
-    if (directory_handle_command(conn) < 0) {
-      connection_mark_for_close(TO_CONN(conn));
-      return -1;
+    /* If we're on the dirserver side, look for a command. */
+    if (conn->base_.state == DIR_CONN_STATE_SERVER_COMMAND_WAIT) {
+        if (directory_handle_command(conn) < 0) {
+            connection_mark_for_close(TO_CONN(conn));
+            return -1;
+        }
+        return 0;
     }
+
+    max_size = (TO_CONN(conn)->purpose == DIR_PURPOSE_FETCH_STATUS_VOTE)
+                   ? MAX_VOTE_DL_SIZE
+                   : MAX_DIRECTORY_OBJECT_SIZE;
+
+    if (connection_get_inbuf_len(TO_CONN(conn)) > max_size) {
+        log_warn(LD_HTTP,
+                 "Too much data received from directory connection (%s): "
+                 "denial of service attempt, or you need to upgrade?",
+                 conn->base_.address);
+        connection_mark_for_close(TO_CONN(conn));
+        return -1;
+    }
+
+    if (!conn->base_.inbuf_reached_eof)
+        log_debug(LD_HTTP, "Got data, not eof. Leaving on inbuf.");
     return 0;
-  }
-
-  max_size =
-    (TO_CONN(conn)->purpose == DIR_PURPOSE_FETCH_STATUS_VOTE) ?
-    MAX_VOTE_DL_SIZE : MAX_DIRECTORY_OBJECT_SIZE;
-
-  if (connection_get_inbuf_len(TO_CONN(conn)) > max_size) {
-    log_warn(LD_HTTP,
-             "Too much data received from directory connection (%s): "
-             "denial of service attempt, or you need to upgrade?",
-             conn->base_.address);
-    connection_mark_for_close(TO_CONN(conn));
-    return -1;
-  }
-
-  if (!conn->base_.inbuf_reached_eof)
-    log_debug(LD_HTTP,"Got data, not eof. Leaving on inbuf.");
-  return 0;
 }
 
 /** Called when we're about to finally unlink and free a directory connection:
@@ -472,15 +479,15 @@ connection_dir_process_inbuf(dir_connection_t *conn)
 void
 connection_dir_about_to_close(dir_connection_t *dir_conn)
 {
-  connection_t *conn = TO_CONN(dir_conn);
+    connection_t *conn = TO_CONN(dir_conn);
 
-  if (conn->state < DIR_CONN_STATE_CLIENT_FINISHED) {
-    /* It's a directory connection and connecting or fetching
-     * failed: forget about this router, and maybe try again. */
-    connection_dir_client_request_failed(dir_conn);
-  }
+    if (conn->state < DIR_CONN_STATE_CLIENT_FINISHED) {
+        /* It's a directory connection and connecting or fetching
+         * failed: forget about this router, and maybe try again. */
+        connection_dir_client_request_failed(dir_conn);
+    }
 
-  connection_dir_client_refetch_hsdesc_if_needed(dir_conn);
+    connection_dir_client_refetch_hsdesc_if_needed(dir_conn);
 }
 
 /** Write handler for directory connections; called when all data has
@@ -490,44 +497,45 @@ connection_dir_about_to_close(dir_connection_t *dir_conn)
 int
 connection_dir_finished_flushing(dir_connection_t *conn)
 {
-  tor_assert(conn);
-  tor_assert(conn->base_.type == CONN_TYPE_DIR);
+    tor_assert(conn);
+    tor_assert(conn->base_.type == CONN_TYPE_DIR);
 
-  if (conn->base_.marked_for_close)
-    return 0;
+    if (conn->base_.marked_for_close)
+        return 0;
 
-  /* Note that we have finished writing the directory response. For direct
-   * connections this means we're done; for tunneled connections it's only
-   * an intermediate step. */
-  if (conn->dirreq_id)
-    geoip_change_dirreq_state(conn->dirreq_id, DIRREQ_TUNNELED,
-                              DIRREQ_FLUSHING_DIR_CONN_FINISHED);
-  else
-    geoip_change_dirreq_state(TO_CONN(conn)->global_identifier,
-                              DIRREQ_DIRECT,
-                              DIRREQ_FLUSHING_DIR_CONN_FINISHED);
-  switch (conn->base_.state) {
+    /* Note that we have finished writing the directory response. For direct
+     * connections this means we're done; for tunneled connections it's only
+     * an intermediate step. */
+    if (conn->dirreq_id)
+        geoip_change_dirreq_state(conn->dirreq_id, DIRREQ_TUNNELED,
+                                  DIRREQ_FLUSHING_DIR_CONN_FINISHED);
+    else
+        geoip_change_dirreq_state(TO_CONN(conn)->global_identifier,
+                                  DIRREQ_DIRECT,
+                                  DIRREQ_FLUSHING_DIR_CONN_FINISHED);
+    switch (conn->base_.state) {
     case DIR_CONN_STATE_CONNECTING:
     case DIR_CONN_STATE_CLIENT_SENDING:
-      log_debug(LD_DIR,"client finished sending command.");
-      conn->base_.state = DIR_CONN_STATE_CLIENT_READING;
-      return 0;
+        log_debug(LD_DIR, "client finished sending command.");
+        conn->base_.state = DIR_CONN_STATE_CLIENT_READING;
+        return 0;
     case DIR_CONN_STATE_SERVER_WRITING:
-      if (conn->spool) {
-        log_warn(LD_BUG, "Emptied a dirserv buffer, but it's still spooling!");
-        connection_mark_for_close(TO_CONN(conn));
-      } else {
-        log_debug(LD_DIRSERV, "Finished writing server response. Closing.");
-        connection_mark_for_close(TO_CONN(conn));
-      }
-      return 0;
+        if (conn->spool) {
+            log_warn(LD_BUG,
+                     "Emptied a dirserv buffer, but it's still spooling!");
+            connection_mark_for_close(TO_CONN(conn));
+        } else {
+            log_debug(LD_DIRSERV,
+                      "Finished writing server response. Closing.");
+            connection_mark_for_close(TO_CONN(conn));
+        }
+        return 0;
     default:
-      log_warn(LD_BUG,"called in unexpected state %d.",
-               conn->base_.state);
-      tor_fragile_assert();
-      return -1;
-  }
-  return 0;
+        log_warn(LD_BUG, "called in unexpected state %d.", conn->base_.state);
+        tor_fragile_assert();
+        return -1;
+    }
+    return 0;
 }
 
 /** Connected handler for directory connections: begin sending data to the
@@ -536,16 +544,16 @@ connection_dir_finished_flushing(dir_connection_t *conn)
 int
 connection_dir_finished_connecting(dir_connection_t *conn)
 {
-  tor_assert(conn);
-  tor_assert(conn->base_.type == CONN_TYPE_DIR);
-  tor_assert(conn->base_.state == DIR_CONN_STATE_CONNECTING);
+    tor_assert(conn);
+    tor_assert(conn->base_.type == CONN_TYPE_DIR);
+    tor_assert(conn->base_.state == DIR_CONN_STATE_CONNECTING);
 
-  log_debug(LD_HTTP,"Dir connection to router %s:%u established.",
-            conn->base_.address,conn->base_.port);
+    log_debug(LD_HTTP, "Dir connection to router %s:%u established.",
+              conn->base_.address, conn->base_.port);
 
-  /* start flushing conn */
-  conn->base_.state = DIR_CONN_STATE_CLIENT_SENDING;
-  return 0;
+    /* start flushing conn */
+    conn->base_.state = DIR_CONN_STATE_CLIENT_SENDING;
+    return 0;
 }
 
 /** Helper.  Compare two fp_pair_t objects, and return negative, 0, or
@@ -553,12 +561,12 @@ connection_dir_finished_connecting(dir_connection_t *conn)
 static int
 compare_pairs_(const void **a, const void **b)
 {
-  const fp_pair_t *fp1 = *a, *fp2 = *b;
-  int r;
-  if ((r = fast_memcmp(fp1->first, fp2->first, DIGEST_LEN)))
-    return r;
-  else
-    return fast_memcmp(fp1->second, fp2->second, DIGEST_LEN);
+    const fp_pair_t *fp1 = *a, *fp2 = *b;
+    int r;
+    if ((r = fast_memcmp(fp1->first, fp2->first, DIGEST_LEN)))
+        return r;
+    else
+        return fast_memcmp(fp1->second, fp2->second, DIGEST_LEN);
 }
 
 /** Divide a string <b>res</b> of the form FP1-FP2+FP3-FP4...[.z], where each
@@ -569,46 +577,48 @@ int
 dir_split_resource_into_fingerprint_pairs(const char *res,
                                           smartlist_t *pairs_out)
 {
-  smartlist_t *pairs_tmp = smartlist_new();
-  smartlist_t *pairs_result = smartlist_new();
+    smartlist_t *pairs_tmp = smartlist_new();
+    smartlist_t *pairs_result = smartlist_new();
 
-  smartlist_split_string(pairs_tmp, res, "+", 0, 0);
-  if (smartlist_len(pairs_tmp)) {
-    char *last = smartlist_get(pairs_tmp,smartlist_len(pairs_tmp)-1);
-    size_t last_len = strlen(last);
-    if (last_len > 2 && !strcmp(last+last_len-2, ".z")) {
-      last[last_len-2] = '\0';
+    smartlist_split_string(pairs_tmp, res, "+", 0, 0);
+    if (smartlist_len(pairs_tmp)) {
+        char *last = smartlist_get(pairs_tmp, smartlist_len(pairs_tmp) - 1);
+        size_t last_len = strlen(last);
+        if (last_len > 2 && !strcmp(last + last_len - 2, ".z")) {
+            last[last_len - 2] = '\0';
+        }
     }
-  }
-  SMARTLIST_FOREACH_BEGIN(pairs_tmp, char *, cp) {
-    if (strlen(cp) != HEX_DIGEST_LEN*2+1) {
-      log_info(LD_DIR,
-             "Skipping digest pair %s with non-standard length.", escaped(cp));
-    } else if (cp[HEX_DIGEST_LEN] != '-') {
-      log_info(LD_DIR,
-             "Skipping digest pair %s with missing dash.", escaped(cp));
-    } else {
-      fp_pair_t pair;
-      if (base16_decode(pair.first, DIGEST_LEN,
-                        cp, HEX_DIGEST_LEN) != DIGEST_LEN ||
-          base16_decode(pair.second,DIGEST_LEN,
-                        cp+HEX_DIGEST_LEN+1, HEX_DIGEST_LEN) != DIGEST_LEN) {
-        log_info(LD_DIR, "Skipping non-decodable digest pair %s", escaped(cp));
-      } else {
-        smartlist_add(pairs_result, tor_memdup(&pair, sizeof(pair)));
-      }
-    }
-    tor_free(cp);
-  } SMARTLIST_FOREACH_END(cp);
-  smartlist_free(pairs_tmp);
+    SMARTLIST_FOREACH_BEGIN (pairs_tmp, char *, cp) {
+        if (strlen(cp) != HEX_DIGEST_LEN * 2 + 1) {
+            log_info(LD_DIR,
+                     "Skipping digest pair %s with non-standard length.",
+                     escaped(cp));
+        } else if (cp[HEX_DIGEST_LEN] != '-') {
+            log_info(LD_DIR, "Skipping digest pair %s with missing dash.",
+                     escaped(cp));
+        } else {
+            fp_pair_t pair;
+            if (base16_decode(pair.first, DIGEST_LEN, cp, HEX_DIGEST_LEN) !=
+                    DIGEST_LEN ||
+                base16_decode(pair.second, DIGEST_LEN, cp + HEX_DIGEST_LEN + 1,
+                              HEX_DIGEST_LEN) != DIGEST_LEN) {
+                log_info(LD_DIR, "Skipping non-decodable digest pair %s",
+                         escaped(cp));
+            } else {
+                smartlist_add(pairs_result, tor_memdup(&pair, sizeof(pair)));
+            }
+        }
+        tor_free(cp);
+    } SMARTLIST_FOREACH_END (cp);
+    smartlist_free(pairs_tmp);
 
-  /* Uniq-and-sort */
-  smartlist_sort(pairs_result, compare_pairs_);
-  smartlist_uniq(pairs_result, compare_pairs_, tor_free_);
+    /* Uniq-and-sort */
+    smartlist_sort(pairs_result, compare_pairs_);
+    smartlist_uniq(pairs_result, compare_pairs_, tor_free_);
 
-  smartlist_add_all(pairs_out, pairs_result);
-  smartlist_free(pairs_result);
-  return 0;
+    smartlist_add_all(pairs_out, pairs_result);
+    smartlist_free(pairs_result);
+    return 0;
 }
 
 /** Given a directory <b>resource</b> request, containing zero
@@ -625,80 +635,83 @@ dir_split_resource_into_fingerprint_pairs(const char *res,
  * If (flags & DSR_SORT_UNIQ), then sort the list and remove all duplicates.
  */
 int
-dir_split_resource_into_fingerprints(const char *resource,
-                                     smartlist_t *fp_out, int *compressed_out,
-                                     int flags)
+dir_split_resource_into_fingerprints(const char *resource, smartlist_t *fp_out,
+                                     int *compressed_out, int flags)
 {
-  const int decode_hex = flags & DSR_HEX;
-  const int decode_base64 = flags & DSR_BASE64;
-  const int digests_are_256 = flags & DSR_DIGEST256;
-  const int sort_uniq = flags & DSR_SORT_UNIQ;
+    const int decode_hex = flags & DSR_HEX;
+    const int decode_base64 = flags & DSR_BASE64;
+    const int digests_are_256 = flags & DSR_DIGEST256;
+    const int sort_uniq = flags & DSR_SORT_UNIQ;
 
-  const int digest_len = digests_are_256 ? DIGEST256_LEN : DIGEST_LEN;
-  const int hex_digest_len = digests_are_256 ?
-    HEX_DIGEST256_LEN : HEX_DIGEST_LEN;
-  const int base64_digest_len = digests_are_256 ?
-    BASE64_DIGEST256_LEN : BASE64_DIGEST_LEN;
-  smartlist_t *fp_tmp = smartlist_new();
+    const int digest_len = digests_are_256 ? DIGEST256_LEN : DIGEST_LEN;
+    const int hex_digest_len =
+        digests_are_256 ? HEX_DIGEST256_LEN : HEX_DIGEST_LEN;
+    const int base64_digest_len =
+        digests_are_256 ? BASE64_DIGEST256_LEN : BASE64_DIGEST_LEN;
+    smartlist_t *fp_tmp = smartlist_new();
 
-  tor_assert(!(decode_hex && decode_base64));
-  tor_assert(fp_out);
+    tor_assert(!(decode_hex && decode_base64));
+    tor_assert(fp_out);
 
-  smartlist_split_string(fp_tmp, resource, decode_base64?"-":"+", 0, 0);
-  if (compressed_out)
-    *compressed_out = 0;
-  if (smartlist_len(fp_tmp)) {
-    char *last = smartlist_get(fp_tmp,smartlist_len(fp_tmp)-1);
-    size_t last_len = strlen(last);
-    if (last_len > 2 && !strcmp(last+last_len-2, ".z")) {
-      last[last_len-2] = '\0';
-      if (compressed_out)
-        *compressed_out = 1;
+    smartlist_split_string(fp_tmp, resource, decode_base64 ? "-" : "+", 0, 0);
+    if (compressed_out)
+        *compressed_out = 0;
+    if (smartlist_len(fp_tmp)) {
+        char *last = smartlist_get(fp_tmp, smartlist_len(fp_tmp) - 1);
+        size_t last_len = strlen(last);
+        if (last_len > 2 && !strcmp(last + last_len - 2, ".z")) {
+            last[last_len - 2] = '\0';
+            if (compressed_out)
+                *compressed_out = 1;
+        }
     }
-  }
-  if (decode_hex || decode_base64) {
-    const size_t encoded_len = decode_hex ? hex_digest_len : base64_digest_len;
-    int i;
-    char *cp, *d = NULL;
-    for (i = 0; i < smartlist_len(fp_tmp); ++i) {
-      cp = smartlist_get(fp_tmp, i);
-      if (strlen(cp) != encoded_len) {
-        log_info(LD_DIR,
-                 "Skipping digest %s with non-standard length.", escaped(cp));
-        smartlist_del_keeporder(fp_tmp, i--);
-        goto again;
-      }
-      d = tor_malloc_zero(digest_len);
-      if (decode_hex ?
-          (base16_decode(d, digest_len, cp, hex_digest_len) != digest_len) :
-          (base64_decode(d, digest_len, cp, base64_digest_len)
-                         != digest_len)) {
-          log_info(LD_DIR, "Skipping non-decodable digest %s", escaped(cp));
-          smartlist_del_keeporder(fp_tmp, i--);
-          goto again;
-      }
-      smartlist_set(fp_tmp, i, d);
-      d = NULL;
-    again:
-      tor_free(cp);
-      tor_free(d);
-    }
-  }
-  if (sort_uniq) {
     if (decode_hex || decode_base64) {
-      if (digests_are_256) {
-        smartlist_sort_digests256(fp_tmp);
-        smartlist_uniq_digests256(fp_tmp);
-      } else {
-        smartlist_sort_digests(fp_tmp);
-        smartlist_uniq_digests(fp_tmp);
-      }
-    } else {
-      smartlist_sort_strings(fp_tmp);
-      smartlist_uniq_strings(fp_tmp);
+        const size_t encoded_len =
+            decode_hex ? hex_digest_len : base64_digest_len;
+        int i;
+        char *cp, *d = NULL;
+        for (i = 0; i < smartlist_len(fp_tmp); ++i) {
+            cp = smartlist_get(fp_tmp, i);
+            if (strlen(cp) != encoded_len) {
+                log_info(LD_DIR,
+                         "Skipping digest %s with non-standard length.",
+                         escaped(cp));
+                smartlist_del_keeporder(fp_tmp, i--);
+                goto again;
+            }
+            d = tor_malloc_zero(digest_len);
+            if (decode_hex
+                    ? (base16_decode(d, digest_len, cp, hex_digest_len) !=
+                       digest_len)
+                    : (base64_decode(d, digest_len, cp, base64_digest_len) !=
+                       digest_len)) {
+                log_info(LD_DIR, "Skipping non-decodable digest %s",
+                         escaped(cp));
+                smartlist_del_keeporder(fp_tmp, i--);
+                goto again;
+            }
+            smartlist_set(fp_tmp, i, d);
+            d = NULL;
+        again:
+            tor_free(cp);
+            tor_free(d);
+        }
     }
-  }
-  smartlist_add_all(fp_out, fp_tmp);
-  smartlist_free(fp_tmp);
-  return 0;
+    if (sort_uniq) {
+        if (decode_hex || decode_base64) {
+            if (digests_are_256) {
+                smartlist_sort_digests256(fp_tmp);
+                smartlist_uniq_digests256(fp_tmp);
+            } else {
+                smartlist_sort_digests(fp_tmp);
+                smartlist_uniq_digests(fp_tmp);
+            }
+        } else {
+            smartlist_sort_strings(fp_tmp);
+            smartlist_uniq_strings(fp_tmp);
+        }
+    }
+    smartlist_add_all(fp_out, fp_tmp);
+    smartlist_free(fp_tmp);
+    return 0;
 }

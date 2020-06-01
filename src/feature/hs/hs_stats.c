@@ -21,38 +21,37 @@ static uint32_t n_rendezvous_launches = 0;
 void
 hs_stats_note_introduce2_cell(int is_hsv3)
 {
-  if (is_hsv3) {
-    n_introduce2_v3++;
-  } else {
-    n_introduce2_v2++;
-  }
+    if (is_hsv3) {
+        n_introduce2_v3++;
+    } else {
+        n_introduce2_v2++;
+    }
 }
 
 /** Return the number of v3 INTRODUCE2 cells we have received. */
 uint32_t
 hs_stats_get_n_introduce2_v3_cells(void)
 {
-  return n_introduce2_v3;
+    return n_introduce2_v3;
 }
 
 /** Return the number of v2 INTRODUCE2 cells we have received. */
 uint32_t
 hs_stats_get_n_introduce2_v2_cells(void)
 {
-  return n_introduce2_v2;
+    return n_introduce2_v2;
 }
 
 /** Note that we attempted to launch another circuit to a rendezvous point. */
 void
 hs_stats_note_service_rendezvous_launch(void)
 {
-  n_rendezvous_launches++;
+    n_rendezvous_launches++;
 }
 
 /** Return the number of rendezvous circuits we have attempted to launch. */
 uint32_t
 hs_stats_get_n_rendezvous_launches(void)
 {
-  return n_rendezvous_launches;
+    return n_rendezvous_launches;
 }
-

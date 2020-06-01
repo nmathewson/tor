@@ -15,26 +15,24 @@
 /** An enum to describe what format we're generating a routerstatus line in.
  */
 typedef enum {
-  /** For use in a v2 opinion */
-  NS_V2,
-  /** For use in a consensus networkstatus document (ns flavor) */
-  NS_V3_CONSENSUS,
-  /** For use in a vote networkstatus document */
-  NS_V3_VOTE,
-  /** For passing to the controlport in response to a GETINFO request */
-  NS_CONTROL_PORT,
-  /** For use in a consensus networkstatus document (microdesc flavor) */
-  NS_V3_CONSENSUS_MICRODESC
+    /** For use in a v2 opinion */
+    NS_V2,
+    /** For use in a consensus networkstatus document (ns flavor) */
+    NS_V3_CONSENSUS,
+    /** For use in a vote networkstatus document */
+    NS_V3_VOTE,
+    /** For passing to the controlport in response to a GETINFO request */
+    NS_CONTROL_PORT,
+    /** For use in a consensus networkstatus document (microdesc flavor) */
+    NS_V3_CONSENSUS_MICRODESC
 } routerstatus_format_type_t;
 
 /** Maximum allowable length of a version line in a networkstatus. */
 #define MAX_V_LINE_LEN 128
 
-char *routerstatus_format_entry(
-                              const routerstatus_t *rs,
-                              const char *version,
-                              const char *protocols,
-                              routerstatus_format_type_t format,
-                              const vote_routerstatus_t *vrs);
+char *routerstatus_format_entry(const routerstatus_t *rs, const char *version,
+                                const char *protocols,
+                                routerstatus_format_type_t format,
+                                const vote_routerstatus_t *vrs);
 
 #endif /* !defined(TOR_FMT_ROUTERSTATUS_H) */

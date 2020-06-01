@@ -24,15 +24,15 @@
 struct dirauth_options_t *
 get_dirauth_options(struct or_options_t *opt)
 {
-  int idx = subsystems_get_options_idx(&sys_dirauth);
-  tor_assert(idx >= 0);
-  return config_mgr_get_obj_mutable(get_options_mgr(), opt, idx);
+    int idx = subsystems_get_options_idx(&sys_dirauth);
+    tor_assert(idx >= 0);
+    return config_mgr_get_obj_mutable(get_options_mgr(), opt, idx);
 }
 
 struct crypto_options_t *
 get_crypto_options(struct or_options_t *opt)
 {
-  int idx = subsystems_get_options_idx(&sys_crypto);
-  tor_assert(idx >= 0);
-  return config_mgr_get_obj_mutable(get_options_mgr(), opt, idx);
+    int idx = subsystems_get_options_idx(&sys_crypto);
+    tor_assert(idx >= 0);
+    return config_mgr_get_obj_mutable(get_options_mgr(), opt, idx);
 }

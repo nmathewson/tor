@@ -24,7 +24,7 @@
 int
 authdir_mode(const or_options_t *options)
 {
-  return options->AuthoritativeDir != 0;
+    return options->AuthoritativeDir != 0;
 }
 
 /* Return true iff we believe ourselves to be a v3 authoritative directory
@@ -32,7 +32,7 @@ authdir_mode(const or_options_t *options)
 int
 authdir_mode_v3(const or_options_t *options)
 {
-  return authdir_mode(options) && options->V3AuthoritativeDir != 0;
+    return authdir_mode(options) && options->V3AuthoritativeDir != 0;
 }
 
 /** Return true iff we are an authoritative directory server that is
@@ -42,14 +42,14 @@ authdir_mode_v3(const or_options_t *options)
 int
 authdir_mode_handles_descs(const or_options_t *options, int purpose)
 {
-  if (BUG(purpose < 0)) /* Deprecated. */
-    return authdir_mode(options);
-  else if (purpose == ROUTER_PURPOSE_GENERAL)
-    return authdir_mode_v3(options);
-  else if (purpose == ROUTER_PURPOSE_BRIDGE)
-    return authdir_mode_bridge(options);
-  else
-    return 0;
+    if (BUG(purpose < 0)) /* Deprecated. */
+        return authdir_mode(options);
+    else if (purpose == ROUTER_PURPOSE_GENERAL)
+        return authdir_mode_v3(options);
+    else if (purpose == ROUTER_PURPOSE_BRIDGE)
+        return authdir_mode_bridge(options);
+    else
+        return 0;
 }
 /** Return true iff we are an authoritative directory server that
  * publishes its own network statuses.
@@ -57,9 +57,9 @@ authdir_mode_handles_descs(const or_options_t *options, int purpose)
 int
 authdir_mode_publishes_statuses(const or_options_t *options)
 {
-  if (authdir_mode_bridge(options))
-    return 0;
-  return authdir_mode(options);
+    if (authdir_mode_bridge(options))
+        return 0;
+    return authdir_mode(options);
 }
 /** Return true iff we are an authoritative directory server that
  * tests reachability of the descriptors it learns about.
@@ -67,7 +67,7 @@ authdir_mode_publishes_statuses(const or_options_t *options)
 int
 authdir_mode_tests_reachability(const or_options_t *options)
 {
-  return authdir_mode(options);
+    return authdir_mode(options);
 }
 /** Return true iff we believe ourselves to be a bridge authoritative
  * directory server.
@@ -75,5 +75,5 @@ authdir_mode_tests_reachability(const or_options_t *options)
 int
 authdir_mode_bridge(const or_options_t *options)
 {
-  return authdir_mode(options) && options->BridgeAuthoritativeDir != 0;
+    return authdir_mode(options) && options->BridgeAuthoritativeDir != 0;
 }
