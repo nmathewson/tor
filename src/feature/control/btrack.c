@@ -30,36 +30,36 @@
 static int
 btrack_init(void)
 {
-  if (btrack_orconn_init())
-    return -1;
+    if (btrack_orconn_init())
+        return -1;
 
-  return 0;
+    return 0;
 }
 
 static void
 btrack_fini(void)
 {
-  btrack_orconn_fini();
-  btrack_circ_fini();
+    btrack_orconn_fini();
+    btrack_circ_fini();
 }
 
 static int
 btrack_add_pubsub(pubsub_connector_t *connector)
 {
-  if (btrack_orconn_add_pubsub(connector))
-    return -1;
-  if (btrack_circ_add_pubsub(connector))
-    return -1;
+    if (btrack_orconn_add_pubsub(connector))
+        return -1;
+    if (btrack_circ_add_pubsub(connector))
+        return -1;
 
-  return 0;
+    return 0;
 }
 
 const subsys_fns_t sys_btrack = {
-  .name = "btrack",
-  SUBSYS_DECLARE_LOCATION(),
-  .supported = true,
-  .level = 55,
-  .initialize = btrack_init,
-  .shutdown = btrack_fini,
-  .add_pubsub = btrack_add_pubsub,
+    .name = "btrack",
+    SUBSYS_DECLARE_LOCATION(),
+    .supported = true,
+    .level = 55,
+    .initialize = btrack_init,
+    .shutdown = btrack_fini,
+    .add_pubsub = btrack_add_pubsub,
 };

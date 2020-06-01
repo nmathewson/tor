@@ -20,8 +20,8 @@
 
 /** Linked list of connections waiting for a DNS answer. */
 typedef struct pending_connection_t {
-  edge_connection_t *conn;
-  struct pending_connection_t *next;
+    edge_connection_t *conn;
+    struct pending_connection_t *next;
 } pending_connection_t;
 
 /** Value of 'magic' field for cached_resolve_t.  Used to try to catch bad
@@ -60,44 +60,44 @@ typedef struct pending_connection_t {
  * list from oldest to newest.
  */
 typedef struct cached_resolve_t {
-  HT_ENTRY(cached_resolve_t) node;
-  uint32_t magic;  /**< Must be CACHED_RESOLVE_MAGIC */
-  char address[MAX_ADDRESSLEN]; /**< The hostname to be resolved. */
+    HT_ENTRY(cached_resolve_t) node;
+    uint32_t magic; /**< Must be CACHED_RESOLVE_MAGIC */
+    char address[MAX_ADDRESSLEN]; /**< The hostname to be resolved. */
 
-  union {
-    uint32_t addr_ipv4; /**< IPv4 addr for <b>address</b>, if successful.
-                         * (In host order.) */
-    int err_ipv4; /**< One of DNS_ERR_*, if IPv4 lookup failed. */
-  } result_ipv4; /**< Outcome of IPv4 lookup */
-  union {
-    struct in6_addr addr_ipv6; /**< IPv6 addr for <b>address</b>, if
-                                * successful */
-    int err_ipv6; /**< One of DNS_ERR_*, if IPv6 lookup failed. */
-  } result_ipv6; /**< Outcome of IPv6 lookup, if any */
-  union {
-    char *hostname; /** A hostname, if PTR lookup happened successfully*/
-    int err_hostname; /** One of DNS_ERR_*, if PTR lookup failed. */
-  } result_ptr;
-  /** @name Status fields
-   *
-   * These take one of the RES_STATUS_* values, depending on the state
-   * of the corresponding lookup.
-   *
-   * @{ */
-  unsigned int res_status_ipv4 : 2;
-  unsigned int res_status_ipv6 : 2;
-  unsigned int res_status_hostname : 2;
-  /**@}*/
-  uint8_t state; /**< Is this cached entry pending/done/informative? */
+    union {
+        uint32_t addr_ipv4; /**< IPv4 addr for <b>address</b>, if successful.
+                             * (In host order.) */
+        int err_ipv4; /**< One of DNS_ERR_*, if IPv4 lookup failed. */
+    } result_ipv4; /**< Outcome of IPv4 lookup */
+    union {
+        struct in6_addr addr_ipv6; /**< IPv6 addr for <b>address</b>, if
+                                    * successful */
+        int err_ipv6; /**< One of DNS_ERR_*, if IPv6 lookup failed. */
+    } result_ipv6; /**< Outcome of IPv6 lookup, if any */
+    union {
+        char *hostname; /** A hostname, if PTR lookup happened successfully*/
+        int err_hostname; /** One of DNS_ERR_*, if PTR lookup failed. */
+    } result_ptr;
+    /** @name Status fields
+     *
+     * These take one of the RES_STATUS_* values, depending on the state
+     * of the corresponding lookup.
+     *
+     * @{ */
+    unsigned int res_status_ipv4 : 2;
+    unsigned int res_status_ipv6 : 2;
+    unsigned int res_status_hostname : 2;
+    /**@}*/
+    uint8_t state; /**< Is this cached entry pending/done/informative? */
 
-  time_t expire; /**< Remove items from cache after this time. */
-  uint32_t ttl_ipv4; /**< What TTL did the nameserver tell us? */
-  uint32_t ttl_ipv6; /**< What TTL did the nameserver tell us? */
-  uint32_t ttl_hostname; /**< What TTL did the nameserver tell us? */
-  /** Connections that want to know when we get an answer for this resolve. */
-  pending_connection_t *pending_connections;
-  /** Position of this element in the heap*/
-  int minheap_idx;
+    time_t expire; /**< Remove items from cache after this time. */
+    uint32_t ttl_ipv4; /**< What TTL did the nameserver tell us? */
+    uint32_t ttl_ipv6; /**< What TTL did the nameserver tell us? */
+    uint32_t ttl_hostname; /**< What TTL did the nameserver tell us? */
+    /** Connections that want to know when we get an answer for this resolve. */
+    pending_connection_t *pending_connections;
+    /** Position of this element in the heap*/
+    int minheap_idx;
 } cached_resolve_t;
 
 #endif /* !defined(TOR_DNS_STRUCTS_H) */

@@ -44,10 +44,10 @@
  * If clock desynchronisation is an issue, use an interval of at least:
  *   18 * drift in seconds, to allow for a clock slop factor */
 #define MIN_VOTE_INTERVAL_TESTING \
-                (((MIN_VOTE_SECONDS_TESTING)+(MIN_DIST_SECONDS_TESTING)+1)*2)
+    (((MIN_VOTE_SECONDS_TESTING) + (MIN_DIST_SECONDS_TESTING) + 1) * 2)
 
 #define MIN_VOTE_INTERVAL_TESTING_INITIAL \
-                ((MIN_VOTE_SECONDS_TESTING)+(MIN_DIST_SECONDS_TESTING)+1)
+    ((MIN_VOTE_SECONDS_TESTING) + (MIN_DIST_SECONDS_TESTING) + 1)
 
 /** The lowest consensus method that we currently support. */
 #define MIN_SUPPORTED_CONSENSUS_METHOD 28
@@ -89,30 +89,25 @@ void dirvote_free_all(void);
 
 void dirvote_parse_sr_commits(networkstatus_t *ns, const smartlist_t *tokens);
 void dirvote_clear_commits(networkstatus_t *ns);
-void dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items,
-                                    smartlist_t *dir_items);
+void dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items, smartlist_t *dir_items);
 
 /* Storing signatures and votes functions */
-struct pending_vote_t * dirvote_add_vote(const char *vote_body,
-                                         time_t time_posted,
-                                         const char **msg_out,
-                                         int *status_out);
-int dirvote_add_signatures(const char *detached_signatures_body,
-                           const char *source,
+struct pending_vote_t *dirvote_add_vote(const char *vote_body, time_t time_posted,
+                                        const char **msg_out, int *status_out);
+int dirvote_add_signatures(const char *detached_signatures_body, const char *source,
                            const char **msg_out);
 
 struct config_line_t;
-char *format_recommended_version_list(const struct config_line_t *line,
-                                      int warn);
+char *format_recommended_version_list(const struct config_line_t *line, int warn);
 
 #else /* !defined(HAVE_MODULE_DIRAUTH) */
 
 static inline time_t
 dirvote_act(const or_options_t *options, time_t now)
 {
-  (void) options;
-  (void) now;
-  return TIME_MAX;
+    (void)options;
+    (void)now;
+    return TIME_MAX;
 }
 
 static inline void
@@ -123,77 +118,68 @@ dirvote_free_all(void)
 static inline void
 dirvote_parse_sr_commits(networkstatus_t *ns, const smartlist_t *tokens)
 {
-  (void) ns;
-  (void) tokens;
+    (void)ns;
+    (void)tokens;
 }
 
 static inline void
 dirvote_clear_commits(networkstatus_t *ns)
 {
-  (void) ns;
+    (void)ns;
 }
 
 static inline void
-dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items,
-                               smartlist_t *dir_items)
+dirvote_dirreq_get_status_vote(const char *url, smartlist_t *items, smartlist_t *dir_items)
 {
-  (void) url;
-  (void) items;
-  (void) dir_items;
+    (void)url;
+    (void)items;
+    (void)dir_items;
 }
 
 static inline struct pending_vote_t *
-dirvote_add_vote(const char *vote_body,
-                 time_t time_posted,
-                 const char **msg_out,
-                 int *status_out)
+dirvote_add_vote(const char *vote_body, time_t time_posted, const char **msg_out, int *status_out)
 {
-  (void) vote_body;
-  (void) time_posted;
-  /* If the dirauth module is disabled, this should NEVER be called else we
-   * failed to safeguard the dirauth module. */
-  tor_assert_nonfatal_unreached();
+    (void)vote_body;
+    (void)time_posted;
+    /* If the dirauth module is disabled, this should NEVER be called else we
+     * failed to safeguard the dirauth module. */
+    tor_assert_nonfatal_unreached();
 
-  /* We need to send out an error code. */
-  *status_out = 400;
-  *msg_out = "No directory authority support";
-  return NULL;
+    /* We need to send out an error code. */
+    *status_out = 400;
+    *msg_out = "No directory authority support";
+    return NULL;
 }
 
 static inline int
-dirvote_add_signatures(const char *detached_signatures_body,
-                       const char *source,
+dirvote_add_signatures(const char *detached_signatures_body, const char *source,
                        const char **msg_out)
 {
-  (void) detached_signatures_body;
-  (void) source;
-  *msg_out = "No directory authority support";
-  /* If the dirauth module is disabled, this should NEVER be called else we
-   * failed to safeguard the dirauth module. */
-  tor_assert_nonfatal_unreached();
-  return 0;
+    (void)detached_signatures_body;
+    (void)source;
+    *msg_out = "No directory authority support";
+    /* If the dirauth module is disabled, this should NEVER be called else we
+     * failed to safeguard the dirauth module. */
+    tor_assert_nonfatal_unreached();
+    return 0;
 }
 
 #endif /* defined(HAVE_MODULE_DIRAUTH) */
 
 /* Item access */
-MOCK_DECL(const char*, dirvote_get_pending_consensus,
-          (consensus_flavor_t flav));
-MOCK_DECL(const char*, dirvote_get_pending_detached_signatures, (void));
+MOCK_DECL(const char *, dirvote_get_pending_consensus, (consensus_flavor_t flav));
+MOCK_DECL(const char *, dirvote_get_pending_detached_signatures, (void));
 const cached_dir_t *dirvote_get_vote(const char *fp, int flags);
 
 /*
  * API used _only_ by the dirauth subsystem.
  */
 
-networkstatus_t *
-dirserv_generate_networkstatus_vote_obj(crypto_pk_t *private_key,
-                                        authority_cert_t *cert);
+networkstatus_t *dirserv_generate_networkstatus_vote_obj(crypto_pk_t *private_key,
+                                                         authority_cert_t *cert);
 
-vote_microdesc_hash_t *dirvote_format_all_microdesc_vote_lines(
-                                        const routerinfo_t *ri,
-                                        time_t now,
-                                        smartlist_t *microdescriptors_out);
+vote_microdesc_hash_t *dirvote_format_all_microdesc_vote_lines(const routerinfo_t *ri, time_t now,
+                                                               smartlist_t *microdescriptors_out);
 
 /*
  * Exposed functions for unit tests.
@@ -202,68 +188,56 @@ vote_microdesc_hash_t *dirvote_format_all_microdesc_vote_lines(
 
 /* Cert manipulation */
 STATIC authority_cert_t *authority_cert_dup(authority_cert_t *cert);
-STATIC int32_t dirvote_get_intermediate_param_value(
-                                   const smartlist_t *param_list,
-                                   const char *keyword,
-                                   int32_t default_val);
-STATIC char *format_networkstatus_vote(crypto_pk_t *private_key,
-                                 networkstatus_t *v3_ns);
-STATIC smartlist_t *dirvote_compute_params(smartlist_t *votes, int method,
-                             int total_authorities);
+STATIC int32_t dirvote_get_intermediate_param_value(const smartlist_t *param_list,
+                                                    const char *keyword, int32_t default_val);
+STATIC char *format_networkstatus_vote(crypto_pk_t *private_key, networkstatus_t *v3_ns);
+STATIC smartlist_t *dirvote_compute_params(smartlist_t *votes, int method, int total_authorities);
 STATIC char *compute_consensus_package_lines(smartlist_t *votes);
 STATIC char *make_consensus_method_list(int low, int high, const char *sep);
-STATIC int
-networkstatus_compute_bw_weights_v10(smartlist_t *chunks, int64_t G,
-                                     int64_t M, int64_t E, int64_t D,
-                                     int64_t T, int64_t weight_scale);
+STATIC int networkstatus_compute_bw_weights_v10(smartlist_t *chunks, int64_t G, int64_t M,
+                                                int64_t E, int64_t D, int64_t T,
+                                                int64_t weight_scale);
 STATIC
-char *networkstatus_compute_consensus(smartlist_t *votes,
-                                      int total_authorities,
-                                      crypto_pk_t *identity_key,
-                                      crypto_pk_t *signing_key,
+char *networkstatus_compute_consensus(smartlist_t *votes, int total_authorities,
+                                      crypto_pk_t *identity_key, crypto_pk_t *signing_key,
                                       const char *legacy_identity_key_digest,
-                                      crypto_pk_t *legacy_signing_key,
-                                      consensus_flavor_t flavor);
+                                      crypto_pk_t *legacy_signing_key, consensus_flavor_t flavor);
 STATIC
-int networkstatus_add_detached_signatures(networkstatus_t *target,
-                                          ns_detached_signatures_t *sigs,
-                                          const char *source,
-                                          int severity,
-                                          const char **msg_out);
+int networkstatus_add_detached_signatures(networkstatus_t *target, ns_detached_signatures_t *sigs,
+                                          const char *source, int severity, const char **msg_out);
 STATIC
 char *networkstatus_get_detached_signatures(smartlist_t *consensuses);
-STATIC microdesc_t *dirvote_create_microdescriptor(const routerinfo_t *ri,
-                                                   int consensus_method);
+STATIC microdesc_t *dirvote_create_microdescriptor(const routerinfo_t *ri, int consensus_method);
 
 /** The recommended relay protocols for this authority's votes.
  * Recommending a new protocol causes old tor versions to log a warning.
  */
-#define DIRVOTE_RECCOMEND_RELAY_PROTO \
-  "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
-  "Link=4 Microdesc=1-2 Relay=2"
+#    define DIRVOTE_RECCOMEND_RELAY_PROTO                          \
+        "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
+        "Link=4 Microdesc=1-2 Relay=2"
 /** The recommended client protocols for this authority's votes.
  * Recommending a new protocol causes old tor versions to log a warning.
  */
-#define DIRVOTE_RECCOMEND_CLIENT_PROTO \
-  "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
-  "Link=4 Microdesc=1-2 Relay=2"
+#    define DIRVOTE_RECCOMEND_CLIENT_PROTO                         \
+        "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
+        "Link=4 Microdesc=1-2 Relay=2"
 
 /** The required relay protocols for this authority's votes.
  * WARNING: Requiring a new protocol causes old tor versions to shut down.
  *          Requiring the wrong protocols can break the tor network.
  * See Proposal 303: When and how to remove support for protocol versions.
  */
-#define DIRVOTE_REQUIRE_RELAY_PROTO \
-  "Cons=1 Desc=1 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
-  "Link=3-4 Microdesc=1 Relay=1-2"
+#    define DIRVOTE_REQUIRE_RELAY_PROTO                        \
+        "Cons=1 Desc=1 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
+        "Link=3-4 Microdesc=1 Relay=1-2"
 /** The required relay protocols for this authority's votes.
  * WARNING: Requiring a new protocol causes old tor versions to shut down.
  *          Requiring the wrong protocols can break the tor network.
  * See Proposal 303: When and how to remove support for protocol versions.
  */
-#define DIRVOTE_REQUIRE_CLIENT_PROTO \
-  "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
-  "Link=4 Microdesc=1-2 Relay=2"
+#    define DIRVOTE_REQUIRE_CLIENT_PROTO                           \
+        "Cons=1-2 Desc=1-2 DirCache=1 HSDir=1 HSIntro=3 HSRend=1 " \
+        "Link=4 Microdesc=1-2 Relay=2"
 
 #endif /* defined(DIRVOTE_PRIVATE) */
 

@@ -16,7 +16,6 @@
 #include "lib/cc/torint.h"
 
 int64_t sample_laplace_distribution(double mu, double b, double p);
-int64_t add_laplace_noise(int64_t signal, double random, double delta_f,
-                          double epsilon);
+int64_t add_laplace_noise(int64_t signal, double random, double delta_f, double epsilon);
 
 #endif /* !defined(TOR_LAPLACE_H) */

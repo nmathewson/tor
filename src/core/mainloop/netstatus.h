@@ -25,8 +25,7 @@ bool is_participating_on_network(void);
 struct mainloop_state_t;
 
 void netstatus_flush_to_state(struct mainloop_state_t *state, time_t now);
-void netstatus_load_from_state(const struct mainloop_state_t *state,
-                               time_t now);
+void netstatus_load_from_state(const struct mainloop_state_t *state, time_t now);
 void netstatus_note_clock_jumped(time_t seconds_diff);
 
 #endif /* !defined(TOR_NETSTATUS_H) */

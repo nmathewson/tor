@@ -27,88 +27,75 @@ static char last_sent_bootstrap_message[BOOTSTRAP_MSG_LEN];
 
 /** Table to convert bootstrap statuses to strings.  */
 static const struct {
-  bootstrap_status_t status;
-  const char *tag;
-  const char *summary;
+    bootstrap_status_t status;
+    const char *tag;
+    const char *summary;
 } boot_to_str_tab[] = {
-  { BOOTSTRAP_STATUS_UNDEF, "undef", "Undefined" },
-  { BOOTSTRAP_STATUS_STARTING, "starting", "Starting" },
+    {BOOTSTRAP_STATUS_UNDEF, "undef", "Undefined"},
+    {BOOTSTRAP_STATUS_STARTING, "starting", "Starting"},
 
-  /* Initial connection to any relay */
+    /* Initial connection to any relay */
 
-  { BOOTSTRAP_STATUS_CONN_PT, "conn_pt", "Connecting to pluggable transport" },
-  { BOOTSTRAP_STATUS_CONN_DONE_PT, "conn_done_pt",
-    "Connected to pluggable transport" },
-  { BOOTSTRAP_STATUS_CONN_PROXY, "conn_proxy", "Connecting to proxy" },
-  { BOOTSTRAP_STATUS_CONN_DONE_PROXY, "conn_done_proxy",
-    "Connected to proxy" },
-  { BOOTSTRAP_STATUS_CONN, "conn", "Connecting to a relay" },
-  { BOOTSTRAP_STATUS_CONN_DONE, "conn_done", "Connected to a relay" },
-  { BOOTSTRAP_STATUS_HANDSHAKE, "handshake",
-    "Handshaking with a relay" },
-  { BOOTSTRAP_STATUS_HANDSHAKE_DONE, "handshake_done",
-    "Handshake with a relay done" },
+    {BOOTSTRAP_STATUS_CONN_PT, "conn_pt", "Connecting to pluggable transport"},
+    {BOOTSTRAP_STATUS_CONN_DONE_PT, "conn_done_pt", "Connected to pluggable transport"},
+    {BOOTSTRAP_STATUS_CONN_PROXY, "conn_proxy", "Connecting to proxy"},
+    {BOOTSTRAP_STATUS_CONN_DONE_PROXY, "conn_done_proxy", "Connected to proxy"},
+    {BOOTSTRAP_STATUS_CONN, "conn", "Connecting to a relay"},
+    {BOOTSTRAP_STATUS_CONN_DONE, "conn_done", "Connected to a relay"},
+    {BOOTSTRAP_STATUS_HANDSHAKE, "handshake", "Handshaking with a relay"},
+    {BOOTSTRAP_STATUS_HANDSHAKE_DONE, "handshake_done", "Handshake with a relay done"},
 
-  /* Loading directory info */
+    /* Loading directory info */
 
-  { BOOTSTRAP_STATUS_ONEHOP_CREATE, "onehop_create",
-    "Establishing an encrypted directory connection" },
-  { BOOTSTRAP_STATUS_REQUESTING_STATUS, "requesting_status",
-    "Asking for networkstatus consensus" },
-  { BOOTSTRAP_STATUS_LOADING_STATUS, "loading_status",
-    "Loading networkstatus consensus" },
-  { BOOTSTRAP_STATUS_LOADING_KEYS, "loading_keys",
-    "Loading authority key certs" },
-  { BOOTSTRAP_STATUS_REQUESTING_DESCRIPTORS, "requesting_descriptors",
-    "Asking for relay descriptors" },
-  { BOOTSTRAP_STATUS_LOADING_DESCRIPTORS, "loading_descriptors",
-    "Loading relay descriptors" },
-  { BOOTSTRAP_STATUS_ENOUGH_DIRINFO, "enough_dirinfo",
-    "Loaded enough directory info to build circuits" },
+    {BOOTSTRAP_STATUS_ONEHOP_CREATE, "onehop_create",
+     "Establishing an encrypted directory connection"},
+    {BOOTSTRAP_STATUS_REQUESTING_STATUS, "requesting_status", "Asking for networkstatus consensus"},
+    {BOOTSTRAP_STATUS_LOADING_STATUS, "loading_status", "Loading networkstatus consensus"},
+    {BOOTSTRAP_STATUS_LOADING_KEYS, "loading_keys", "Loading authority key certs"},
+    {BOOTSTRAP_STATUS_REQUESTING_DESCRIPTORS, "requesting_descriptors",
+     "Asking for relay descriptors"},
+    {BOOTSTRAP_STATUS_LOADING_DESCRIPTORS, "loading_descriptors", "Loading relay descriptors"},
+    {BOOTSTRAP_STATUS_ENOUGH_DIRINFO, "enough_dirinfo",
+     "Loaded enough directory info to build circuits"},
 
-  /* Connecting to a relay for AP circuits */
+    /* Connecting to a relay for AP circuits */
 
-  { BOOTSTRAP_STATUS_AP_CONN_PT, "ap_conn_pt",
-    "Connecting to pluggable transport to build circuits" },
-  { BOOTSTRAP_STATUS_AP_CONN_DONE_PT, "ap_conn_done_pt",
-    "Connected to pluggable transport to build circuits" },
-  { BOOTSTRAP_STATUS_AP_CONN_PROXY, "ap_conn_proxy",
-    "Connecting to proxy to build circuits" },
-  { BOOTSTRAP_STATUS_AP_CONN_DONE_PROXY, "ap_conn_done_proxy",
-    "Connected to proxy to build circuits" },
-  { BOOTSTRAP_STATUS_AP_CONN, "ap_conn",
-    "Connecting to a relay to build circuits" },
-  { BOOTSTRAP_STATUS_AP_CONN_DONE, "ap_conn_done",
-    "Connected to a relay to build circuits" },
-  { BOOTSTRAP_STATUS_AP_HANDSHAKE, "ap_handshake",
-    "Finishing handshake with a relay to build circuits" },
-  { BOOTSTRAP_STATUS_AP_HANDSHAKE_DONE, "ap_handshake_done",
-    "Handshake finished with a relay to build circuits" },
+    {BOOTSTRAP_STATUS_AP_CONN_PT, "ap_conn_pt",
+     "Connecting to pluggable transport to build circuits"},
+    {BOOTSTRAP_STATUS_AP_CONN_DONE_PT, "ap_conn_done_pt",
+     "Connected to pluggable transport to build circuits"},
+    {BOOTSTRAP_STATUS_AP_CONN_PROXY, "ap_conn_proxy", "Connecting to proxy to build circuits"},
+    {BOOTSTRAP_STATUS_AP_CONN_DONE_PROXY, "ap_conn_done_proxy",
+     "Connected to proxy to build circuits"},
+    {BOOTSTRAP_STATUS_AP_CONN, "ap_conn", "Connecting to a relay to build circuits"},
+    {BOOTSTRAP_STATUS_AP_CONN_DONE, "ap_conn_done", "Connected to a relay to build circuits"},
+    {BOOTSTRAP_STATUS_AP_HANDSHAKE, "ap_handshake",
+     "Finishing handshake with a relay to build circuits"},
+    {BOOTSTRAP_STATUS_AP_HANDSHAKE_DONE, "ap_handshake_done",
+     "Handshake finished with a relay to build circuits"},
 
-  /* Creating AP circuits */
+    /* Creating AP circuits */
 
-  { BOOTSTRAP_STATUS_CIRCUIT_CREATE, "circuit_create",
-    "Establishing a Tor circuit" },
-  { BOOTSTRAP_STATUS_DONE, "done", "Done" },
+    {BOOTSTRAP_STATUS_CIRCUIT_CREATE, "circuit_create", "Establishing a Tor circuit"},
+    {BOOTSTRAP_STATUS_DONE, "done", "Done"},
 };
-#define N_BOOT_TO_STR (sizeof(boot_to_str_tab)/sizeof(boot_to_str_tab[0]))
+#define N_BOOT_TO_STR (sizeof(boot_to_str_tab) / sizeof(boot_to_str_tab[0]))
 
 /** Convert the name of a bootstrapping phase <b>s</b> into strings
  * <b>tag</b> and <b>summary</b> suitable for display by the controller. */
 static int
-bootstrap_status_to_string(bootstrap_status_t s, const char **tag,
-                           const char **summary)
+bootstrap_status_to_string(bootstrap_status_t s, const char **tag, const char **summary)
 {
-  for (size_t i = 0; i < N_BOOT_TO_STR; i++) {
-    if (s == boot_to_str_tab[i].status) {
-      *tag = boot_to_str_tab[i].tag;
-      *summary = boot_to_str_tab[i].summary;
-      return 0;
+    for (size_t i = 0; i < N_BOOT_TO_STR; i++) {
+        if (s == boot_to_str_tab[i].status) {
+            *tag = boot_to_str_tab[i].tag;
+            *summary = boot_to_str_tab[i].summary;
+            return 0;
+        }
     }
-  }
 
-  *tag = *summary = "unknown";
-  return -1;
+    *tag = *summary = "unknown";
+    return -1;
 }
 
 /** What percentage through the bootstrap process are we? We remember
@@ -149,32 +136,28 @@ static int bootstrap_problems = 0;
  * control_event_bootstrap().  Doesn't change any state beyond that.
  */
 static void
-control_event_bootstrap_core(int loglevel, bootstrap_status_t status,
-                             int progress)
+control_event_bootstrap_core(int loglevel, bootstrap_status_t status, int progress)
 {
-  char buf[BOOTSTRAP_MSG_LEN];
-  const char *tag, *summary;
+    char buf[BOOTSTRAP_MSG_LEN];
+    const char *tag, *summary;
 
-  bootstrap_status_to_string(status, &tag, &summary);
-  /* Locally reset status if there's incremental progress */
-  if (progress)
-    status = progress;
+    bootstrap_status_to_string(status, &tag, &summary);
+    /* Locally reset status if there's incremental progress */
+    if (progress)
+        status = progress;
 
-  tor_log(loglevel, LD_CONTROL,
-          "Bootstrapped %d%% (%s): %s", status, tag, summary);
-  tor_snprintf(buf, sizeof(buf),
-               "BOOTSTRAP PROGRESS=%d TAG=%s SUMMARY=\"%s\"",
-               status, tag, summary);
-  tor_snprintf(last_sent_bootstrap_message,
-               sizeof(last_sent_bootstrap_message),
-               "NOTICE %s", buf);
-  control_event_client_status(LOG_NOTICE, "%s", buf);
+    tor_log(loglevel, LD_CONTROL, "Bootstrapped %d%% (%s): %s", status, tag, summary);
+    tor_snprintf(buf, sizeof(buf), "BOOTSTRAP PROGRESS=%d TAG=%s SUMMARY=\"%s\"", status, tag,
+                 summary);
+    tor_snprintf(last_sent_bootstrap_message, sizeof(last_sent_bootstrap_message), "NOTICE %s",
+                 buf);
+    control_event_client_status(LOG_NOTICE, "%s", buf);
 }
 
 int
 control_get_bootstrap_percent(void)
 {
-  return bootstrap_percent;
+    return bootstrap_percent;
 }
 
 /** Called when Tor has made progress at bootstrapping its directory
@@ -187,36 +170,35 @@ control_get_bootstrap_percent(void)
 void
 control_event_bootstrap(bootstrap_status_t status, int progress)
 {
-  int loglevel = LOG_NOTICE;
+    int loglevel = LOG_NOTICE;
 
-  if (bootstrap_percent == BOOTSTRAP_STATUS_DONE)
-    return; /* already bootstrapped; nothing to be done here. */
+    if (bootstrap_percent == BOOTSTRAP_STATUS_DONE)
+        return; /* already bootstrapped; nothing to be done here. */
 
-  if (status <= bootstrap_percent) {
-    /* If there's no new progress, return early. */
-    if (!progress || progress <= bootstrap_percent)
-      return;
-    /* Log at INFO if not enough progress happened. */
-    if (progress < notice_bootstrap_percent + BOOTSTRAP_PCT_INCREMENT)
-      loglevel = LOG_INFO;
-  }
+    if (status <= bootstrap_percent) {
+        /* If there's no new progress, return early. */
+        if (!progress || progress <= bootstrap_percent)
+            return;
+        /* Log at INFO if not enough progress happened. */
+        if (progress < notice_bootstrap_percent + BOOTSTRAP_PCT_INCREMENT)
+            loglevel = LOG_INFO;
+    }
 
-  control_event_bootstrap_core(loglevel, status, progress);
+    control_event_bootstrap_core(loglevel, status, progress);
 
-  if (status > bootstrap_percent) {
-    bootstrap_phase = status; /* new milestone reached */
-    bootstrap_percent = status;
-  }
-  if (progress > bootstrap_percent) {
-    /* incremental progress within a milestone */
-    bootstrap_percent = progress;
-    bootstrap_problems = 0; /* Progress! Reset our problem counter. */
-  }
-  if (loglevel == LOG_NOTICE &&
-      bootstrap_percent > notice_bootstrap_percent) {
-    /* Remember that we gave a notice at this level. */
-    notice_bootstrap_percent = bootstrap_percent;
-  }
+    if (status > bootstrap_percent) {
+        bootstrap_phase = status; /* new milestone reached */
+        bootstrap_percent = status;
+    }
+    if (progress > bootstrap_percent) {
+        /* incremental progress within a milestone */
+        bootstrap_percent = progress;
+        bootstrap_problems = 0; /* Progress! Reset our problem counter. */
+    }
+    if (loglevel == LOG_NOTICE && bootstrap_percent > notice_bootstrap_percent) {
+        /* Remember that we gave a notice at this level. */
+        notice_bootstrap_percent = bootstrap_percent;
+    }
 }
 
 /** Flag whether we've opened an OR_CONN yet  */
@@ -233,19 +215,19 @@ static int bootstrap_dir_progress = BOOTSTRAP_STATUS_UNDEF;
 void
 control_event_boot_dir(bootstrap_status_t status, int progress)
 {
-  if (status > bootstrap_dir_progress) {
-    bootstrap_dir_progress = status;
-    bootstrap_dir_phase = status;
-  }
-  if (progress && progress >= bootstrap_dir_progress) {
-    bootstrap_dir_progress = progress;
-  }
+    if (status > bootstrap_dir_progress) {
+        bootstrap_dir_progress = status;
+        bootstrap_dir_phase = status;
+    }
+    if (progress && progress >= bootstrap_dir_progress) {
+        bootstrap_dir_progress = progress;
+    }
 
-  /* Don't report unless we have successfully opened at least one OR_CONN */
-  if (!bootstrap_first_orconn)
-    return;
+    /* Don't report unless we have successfully opened at least one OR_CONN */
+    if (!bootstrap_first_orconn)
+        return;
 
-  control_event_bootstrap(status, progress);
+    control_event_bootstrap(status, progress);
 }
 
 /** Set a flag to allow reporting of directory bootstrap progress.
@@ -254,8 +236,8 @@ control_event_boot_dir(bootstrap_status_t status, int progress)
 void
 control_event_boot_first_orconn(void)
 {
-  bootstrap_first_orconn = 1;
-  control_event_bootstrap(bootstrap_dir_phase, bootstrap_dir_progress);
+    bootstrap_first_orconn = 1;
+    control_event_bootstrap(bootstrap_dir_phase, bootstrap_dir_progress);
 }
 
 /** Called when Tor has failed to make bootstrapping progress in a way
@@ -265,76 +247,71 @@ control_event_boot_first_orconn(void)
  * can be NULL if a connection cannot be easily identified.
  */
 void
-control_event_bootstrap_problem(const char *warn, const char *reason,
-                                const connection_t *conn, int dowarn)
+control_event_bootstrap_problem(const char *warn, const char *reason, const connection_t *conn,
+                                int dowarn)
 {
-  int status = bootstrap_percent;
-  const char *tag = "", *summary = "";
-  char buf[BOOTSTRAP_MSG_LEN];
-  const char *recommendation = "ignore";
-  int severity;
-  char *or_id = NULL, *hostaddr = NULL;
-  or_connection_t *or_conn = NULL;
+    int status = bootstrap_percent;
+    const char *tag = "", *summary = "";
+    char buf[BOOTSTRAP_MSG_LEN];
+    const char *recommendation = "ignore";
+    int severity;
+    char *or_id = NULL, *hostaddr = NULL;
+    or_connection_t *or_conn = NULL;
 
-  /* bootstrap_percent must not be in "undefined" state here. */
-  tor_assert(status >= 0);
+    /* bootstrap_percent must not be in "undefined" state here. */
+    tor_assert(status >= 0);
 
-  if (bootstrap_percent == 100)
-    return; /* already bootstrapped; nothing to be done here. */
+    if (bootstrap_percent == 100)
+        return; /* already bootstrapped; nothing to be done here. */
 
-  bootstrap_problems++;
+    bootstrap_problems++;
 
-  if (bootstrap_problems >= BOOTSTRAP_PROBLEM_THRESHOLD)
-    dowarn = 1;
+    if (bootstrap_problems >= BOOTSTRAP_PROBLEM_THRESHOLD)
+        dowarn = 1;
 
-  /* Don't warn about our bootstrapping status if we are hibernating or
-   * shutting down. */
-  if (we_are_hibernating())
-    dowarn = 0;
+    /* Don't warn about our bootstrapping status if we are hibernating or
+     * shutting down. */
+    if (we_are_hibernating())
+        dowarn = 0;
 
-  tor_assert(bootstrap_status_to_string(bootstrap_phase, &tag, &summary) == 0);
+    tor_assert(bootstrap_status_to_string(bootstrap_phase, &tag, &summary) == 0);
 
-  severity = dowarn ? LOG_WARN : LOG_INFO;
+    severity = dowarn ? LOG_WARN : LOG_INFO;
 
-  if (dowarn)
-    recommendation = "warn";
+    if (dowarn)
+        recommendation = "warn";
 
-  if (conn && conn->type == CONN_TYPE_OR) {
-    /* XXX TO_OR_CONN can't deal with const */
-    or_conn = TO_OR_CONN((connection_t *)conn);
-    or_id = tor_strdup(hex_str(or_conn->identity_digest, DIGEST_LEN));
-  } else {
-    or_id = tor_strdup("?");
-  }
+    if (conn && conn->type == CONN_TYPE_OR) {
+        /* XXX TO_OR_CONN can't deal with const */
+        or_conn = TO_OR_CONN((connection_t *)conn);
+        or_id = tor_strdup(hex_str(or_conn->identity_digest, DIGEST_LEN));
+    } else {
+        or_id = tor_strdup("?");
+    }
 
-  if (conn)
-    tor_asprintf(&hostaddr, "%s:%d", conn->address, (int)conn->port);
-  else
-    hostaddr = tor_strdup("?");
+    if (conn)
+        tor_asprintf(&hostaddr, "%s:%d", conn->address, (int)conn->port);
+    else
+        hostaddr = tor_strdup("?");
 
-  log_fn(severity,
-         LD_CONTROL, "Problem bootstrapping. Stuck at %d%% (%s): %s. (%s; %s; "
-         "count %d; recommendation %s; host %s at %s)",
-         status, tag, summary, warn, reason,
-         bootstrap_problems, recommendation,
-         or_id, hostaddr);
+    log_fn(severity, LD_CONTROL,
+           "Problem bootstrapping. Stuck at %d%% (%s): %s. (%s; %s; "
+           "count %d; recommendation %s; host %s at %s)",
+           status, tag, summary, warn, reason, bootstrap_problems, recommendation, or_id, hostaddr);
 
-  connection_or_report_broken_states(severity, LD_HANDSHAKE);
+    connection_or_report_broken_states(severity, LD_HANDSHAKE);
 
-  tor_snprintf(buf, sizeof(buf),
-      "BOOTSTRAP PROGRESS=%d TAG=%s SUMMARY=\"%s\" WARNING=\"%s\" REASON=%s "
-      "COUNT=%d RECOMMENDATION=%s HOSTID=\"%s\" HOSTADDR=\"%s\"",
-      bootstrap_percent, tag, summary, warn, reason, bootstrap_problems,
-      recommendation,
-      or_id, hostaddr);
+    tor_snprintf(buf, sizeof(buf),
+                 "BOOTSTRAP PROGRESS=%d TAG=%s SUMMARY=\"%s\" WARNING=\"%s\" REASON=%s "
+                 "COUNT=%d RECOMMENDATION=%s HOSTID=\"%s\" HOSTADDR=\"%s\"",
+                 bootstrap_percent, tag, summary, warn, reason, bootstrap_problems, recommendation,
+                 or_id, hostaddr);
 
-  tor_snprintf(last_sent_bootstrap_message,
-               sizeof(last_sent_bootstrap_message),
-               "WARN %s", buf);
-  control_event_client_status(LOG_WARN, "%s", buf);
+    tor_snprintf(last_sent_bootstrap_message, sizeof(last_sent_bootstrap_message), "WARN %s", buf);
+    control_event_client_status(LOG_WARN, "%s", buf);
 
-  tor_free(hostaddr);
-  tor_free(or_id);
+    tor_free(hostaddr);
+    tor_free(or_id);
 }
 
 /** Called when Tor has failed to make bootstrapping progress in a way
@@ -343,47 +320,46 @@ control_event_bootstrap_problem(const char *warn, const char *reason,
  * is the connection that caused this problem.
  */
 MOCK_IMPL(void,
-control_event_bootstrap_prob_or, (const char *warn, int reason,
-                                  or_connection_t *or_conn))
+control_event_bootstrap_prob_or,
+          (const char *warn, int reason, or_connection_t *or_conn))
 {
-  int dowarn = 0;
+    int dowarn = 0;
 
-  if (or_conn->have_noted_bootstrap_problem)
-    return;
+    if (or_conn->have_noted_bootstrap_problem)
+        return;
 
-  or_conn->have_noted_bootstrap_problem = 1;
+    or_conn->have_noted_bootstrap_problem = 1;
 
-  if (reason == END_OR_CONN_REASON_NO_ROUTE)
-    dowarn = 1;
+    if (reason == END_OR_CONN_REASON_NO_ROUTE)
+        dowarn = 1;
 
-  /* If we are using bridges and all our OR connections are now
-     closed, it means that we totally failed to connect to our
-     bridges. Throw a warning. */
-  if (get_options()->UseBridges && !any_other_active_or_conns(or_conn))
-    dowarn = 1;
+    /* If we are using bridges and all our OR connections are now
+       closed, it means that we totally failed to connect to our
+       bridges. Throw a warning. */
+    if (get_options()->UseBridges && !any_other_active_or_conns(or_conn))
+        dowarn = 1;
 
-  control_event_bootstrap_problem(warn,
-                                  orconn_end_reason_to_control_string(reason),
-                                  TO_CONN(or_conn), dowarn);
+    control_event_bootstrap_problem(warn, orconn_end_reason_to_control_string(reason),
+                                    TO_CONN(or_conn), dowarn);
 }
 
 /** Return a copy of the last sent bootstrap message. */
 char *
 control_event_boot_last_msg(void)
 {
-  return tor_strdup(last_sent_bootstrap_message);
+    return tor_strdup(last_sent_bootstrap_message);
 }
 
 /** Reset bootstrap tracking state. */
 void
 control_event_bootstrap_reset(void)
 {
-  bootstrap_percent = BOOTSTRAP_STATUS_UNDEF;
-  bootstrap_phase = BOOTSTRAP_STATUS_UNDEF;
-  notice_bootstrap_percent = 0;
-  bootstrap_problems = 0;
-  bootstrap_first_orconn = 0;
-  bootstrap_dir_progress = BOOTSTRAP_STATUS_UNDEF;
-  bootstrap_dir_phase = BOOTSTRAP_STATUS_UNDEF;
-  memset(last_sent_bootstrap_message, 0, sizeof(last_sent_bootstrap_message));
+    bootstrap_percent = BOOTSTRAP_STATUS_UNDEF;
+    bootstrap_phase = BOOTSTRAP_STATUS_UNDEF;
+    notice_bootstrap_percent = 0;
+    bootstrap_problems = 0;
+    bootstrap_first_orconn = 0;
+    bootstrap_dir_progress = BOOTSTRAP_STATUS_UNDEF;
+    bootstrap_dir_phase = BOOTSTRAP_STATUS_UNDEF;
+    memset(last_sent_bootstrap_message, 0, sizeof(last_sent_bootstrap_message));
 }

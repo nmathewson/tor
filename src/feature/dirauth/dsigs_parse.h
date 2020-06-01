@@ -12,11 +12,10 @@
 #ifndef TOR_DSIGS_PARSE_H
 #define TOR_DSIGS_PARSE_H
 
-ns_detached_signatures_t *networkstatus_parse_detached_signatures(
-                                      const char *s, const char *eos);
+ns_detached_signatures_t *networkstatus_parse_detached_signatures(const char *s, const char *eos);
 
 void ns_detached_signatures_free_(ns_detached_signatures_t *s);
 #define ns_detached_signatures_free(s) \
-  FREE_AND_NULL(ns_detached_signatures_t, ns_detached_signatures_free_, (s))
+    FREE_AND_NULL(ns_detached_signatures_t, ns_detached_signatures_free_, (s))
 
 #endif /* !defined(TOR_DSIGS_PARSE_H) */

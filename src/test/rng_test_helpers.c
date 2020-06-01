@@ -22,7 +22,7 @@
 #include "test/rng_test_helpers.h"
 
 #ifndef TOR_UNIT_TESTS
-#error "No. Never link this code into Tor proper."
+#    error "No. Never link this code into Tor proper."
 #endif
 
 /**
@@ -47,7 +47,7 @@ static crypto_fast_rng_t *stored_fast_rng = NULL;
 static void
 mock_crypto_strongest_rand(uint8_t *out, size_t len)
 {
-  crypto_rand((char *)out, len);
+    crypto_rand((char *)out, len);
 }
 
 /* This is the seed of the deterministic randomness. */
@@ -61,9 +61,9 @@ static crypto_xof_t *rng_xof = NULL;
 void
 testing_dump_reproducible_rng_seed(void)
 {
-  printf("\n"
-         "Seed: %s\n",
-         hex_str((const char*)rng_seed, sizeof(rng_seed)));
+    printf("\n"
+           "Seed: %s\n",
+           hex_str((const char *)rng_seed, sizeof(rng_seed)));
 }
 
 /** Produce deterministic randomness for the stochastic tests using the global
@@ -75,10 +75,10 @@ testing_dump_reproducible_rng_seed(void)
 static void
 crypto_rand_deterministic(char *out, size_t n)
 {
-  tor_assert(rng_xof);
-  tor_mutex_acquire(rng_mutex);
-  crypto_xof_squeeze_bytes(rng_xof, (uint8_t*)out, n);
-  tor_mutex_release(rng_mutex);
+    tor_assert(rng_xof);
+    tor_mutex_acquire(rng_mutex);
+    crypto_xof_squeeze_bytes(rng_xof, (uint8_t *)out, n);
+    tor_mutex_release(rng_mutex);
 }
 
 /**
@@ -89,29 +89,28 @@ crypto_rand_deterministic(char *out, size_t n)
 static void
 enable_deterministic_rng_impl(const uint8_t *seed, size_t seed_len)
 {
-  tor_assert(!rng_is_replaced);
-  tor_assert(crypto_rand == crypto_rand__real);
+    tor_assert(!rng_is_replaced);
+    tor_assert(crypto_rand == crypto_rand__real);
 
-  memset(rng_seed, 0, sizeof(rng_seed));
-  memcpy(rng_seed, seed, MIN(seed_len, sizeof(rng_seed)));
+    memset(rng_seed, 0, sizeof(rng_seed));
+    memcpy(rng_seed, seed, MIN(seed_len, sizeof(rng_seed)));
 
-  rng_mutex = tor_mutex_new();
+    rng_mutex = tor_mutex_new();
 
-  crypto_xof_free(rng_xof);
-  rng_xof = crypto_xof_new();
-  crypto_xof_add_bytes(rng_xof, rng_seed, sizeof(rng_seed));
-  MOCK(crypto_rand, crypto_rand_deterministic);
-  MOCK(crypto_strongest_rand_, mock_crypto_strongest_rand);
+    crypto_xof_free(rng_xof);
+    rng_xof = crypto_xof_new();
+    crypto_xof_add_bytes(rng_xof, rng_seed, sizeof(rng_seed));
+    MOCK(crypto_rand, crypto_rand_deterministic);
+    MOCK(crypto_strongest_rand_, mock_crypto_strongest_rand);
 
-  uint8_t fast_rng_seed[CRYPTO_FAST_RNG_SEED_LEN];
-  memset(fast_rng_seed, 0xff, sizeof(fast_rng_seed));
-  memcpy(fast_rng_seed, rng_seed, MIN(sizeof(rng_seed),
-                                      sizeof(fast_rng_seed)));
-  crypto_fast_rng_t *fast_rng = crypto_fast_rng_new_from_seed(fast_rng_seed);
-  crypto_fast_rng_disable_reseed(fast_rng);
-  stored_fast_rng = crypto_replace_thread_fast_rng(fast_rng);
+    uint8_t fast_rng_seed[CRYPTO_FAST_RNG_SEED_LEN];
+    memset(fast_rng_seed, 0xff, sizeof(fast_rng_seed));
+    memcpy(fast_rng_seed, rng_seed, MIN(sizeof(rng_seed), sizeof(fast_rng_seed)));
+    crypto_fast_rng_t *fast_rng = crypto_fast_rng_new_from_seed(fast_rng_seed);
+    crypto_fast_rng_disable_reseed(fast_rng);
+    stored_fast_rng = crypto_replace_thread_fast_rng(fast_rng);
 
-  rng_is_replaced = true;
+    rng_is_replaced = true;
 }
 
 /**
@@ -124,22 +123,22 @@ enable_deterministic_rng_impl(const uint8_t *seed, size_t seed_len)
 void
 testing_enable_reproducible_rng(void)
 {
-  const char *provided_seed = getenv("TOR_TEST_RNG_SEED");
-  if (provided_seed) {
-    size_t hexlen = strlen(provided_seed);
-    size_t seedlen = hexlen / 2;
-    uint8_t *seed = tor_malloc(hexlen / 2);
-    if (base16_decode((char*)seed, seedlen, provided_seed, hexlen) < 0) {
-      puts("Cannot decode value in TOR_TEST_RNG_SEED");
-      exit(1);
+    const char *provided_seed = getenv("TOR_TEST_RNG_SEED");
+    if (provided_seed) {
+        size_t hexlen = strlen(provided_seed);
+        size_t seedlen = hexlen / 2;
+        uint8_t *seed = tor_malloc(hexlen / 2);
+        if (base16_decode((char *)seed, seedlen, provided_seed, hexlen) < 0) {
+            puts("Cannot decode value in TOR_TEST_RNG_SEED");
+            exit(1);
+        }
+        enable_deterministic_rng_impl(seed, seedlen);
+        tor_free(seed);
+    } else {
+        uint8_t seed[16];
+        crypto_rand((char *)seed, sizeof(seed));
+        enable_deterministic_rng_impl(seed, sizeof(seed));
     }
-    enable_deterministic_rng_impl(seed, seedlen);
-    tor_free(seed);
-  } else {
-    uint8_t seed[16];
-    crypto_rand((char*)seed, sizeof(seed));
-    enable_deterministic_rng_impl(seed, sizeof(seed));
-  }
 }
 
 /**
@@ -155,10 +154,9 @@ testing_enable_reproducible_rng(void)
 void
 testing_enable_deterministic_rng(void)
 {
-  static const uint8_t quotation[] =
-    "What will it be? A tree? A weed? "
-    "Each one is started from a seed."; // -- Mary Ann Hoberman
-  enable_deterministic_rng_impl(quotation, sizeof(quotation));
+    static const uint8_t quotation[] = "What will it be? A tree? A weed? "
+                                       "Each one is started from a seed."; // -- Mary Ann Hoberman
+    enable_deterministic_rng_impl(quotation, sizeof(quotation));
 }
 
 static uint8_t *prefilled_rng_buffer = NULL;
@@ -171,19 +169,19 @@ static size_t prefilled_rng_idx;
 static void
 crypto_rand_prefilled(char *out, size_t n)
 {
-  tor_mutex_acquire(rng_mutex);
-  while (n) {
-    size_t n_to_copy = MIN(prefilled_rng_buflen - prefilled_rng_idx, n);
-    memcpy(out, prefilled_rng_buffer + prefilled_rng_idx, n_to_copy);
-    out += n_to_copy;
-    n -= n_to_copy;
-    prefilled_rng_idx += n_to_copy;
+    tor_mutex_acquire(rng_mutex);
+    while (n) {
+        size_t n_to_copy = MIN(prefilled_rng_buflen - prefilled_rng_idx, n);
+        memcpy(out, prefilled_rng_buffer + prefilled_rng_idx, n_to_copy);
+        out += n_to_copy;
+        n -= n_to_copy;
+        prefilled_rng_idx += n_to_copy;
 
-    if (prefilled_rng_idx == prefilled_rng_buflen) {
-      prefilled_rng_idx = 0;
+        if (prefilled_rng_idx == prefilled_rng_buflen) {
+            prefilled_rng_idx = 0;
+        }
     }
-  }
-  tor_mutex_release(rng_mutex);
+    tor_mutex_release(rng_mutex);
 }
 
 /**
@@ -197,20 +195,20 @@ crypto_rand_prefilled(char *out, size_t n)
 void
 testing_enable_prefilled_rng(const void *buffer, size_t buflen)
 {
-  tor_assert(buflen > 0);
-  tor_assert(!rng_mutex);
-  rng_mutex = tor_mutex_new();
+    tor_assert(buflen > 0);
+    tor_assert(!rng_mutex);
+    rng_mutex = tor_mutex_new();
 
-  tor_mutex_acquire(rng_mutex);
+    tor_mutex_acquire(rng_mutex);
 
-  prefilled_rng_buffer = tor_memdup(buffer, buflen);
-  prefilled_rng_buflen = buflen;
-  prefilled_rng_idx = 0;
+    prefilled_rng_buffer = tor_memdup(buffer, buflen);
+    prefilled_rng_buflen = buflen;
+    prefilled_rng_idx = 0;
 
-  tor_mutex_release(rng_mutex);
+    tor_mutex_release(rng_mutex);
 
-  MOCK(crypto_rand, crypto_rand_prefilled);
-  MOCK(crypto_strongest_rand_, mock_crypto_strongest_rand);
+    MOCK(crypto_rand, crypto_rand_prefilled);
+    MOCK(crypto_strongest_rand_, mock_crypto_strongest_rand);
 }
 
 /**
@@ -219,9 +217,9 @@ testing_enable_prefilled_rng(const void *buffer, size_t buflen)
 void
 testing_prefilled_rng_reset(void)
 {
-  tor_mutex_acquire(rng_mutex);
-  prefilled_rng_idx = 0;
-  tor_mutex_release(rng_mutex);
+    tor_mutex_acquire(rng_mutex);
+    prefilled_rng_idx = 0;
+    tor_mutex_release(rng_mutex);
 }
 
 /**
@@ -233,16 +231,16 @@ testing_prefilled_rng_reset(void)
 void
 testing_disable_rng_override(void)
 {
-  crypto_xof_free(rng_xof);
-  tor_free(prefilled_rng_buffer);
-  UNMOCK(crypto_rand);
-  UNMOCK(crypto_strongest_rand_);
-  tor_mutex_free(rng_mutex);
+    crypto_xof_free(rng_xof);
+    tor_free(prefilled_rng_buffer);
+    UNMOCK(crypto_rand);
+    UNMOCK(crypto_strongest_rand_);
+    tor_mutex_free(rng_mutex);
 
-  crypto_fast_rng_t *rng = crypto_replace_thread_fast_rng(stored_fast_rng);
-  crypto_fast_rng_free(rng);
+    crypto_fast_rng_t *rng = crypto_replace_thread_fast_rng(stored_fast_rng);
+    crypto_fast_rng_free(rng);
 
-  rng_is_replaced = false;
+    rng_is_replaced = false;
 }
 
 /**
@@ -252,8 +250,8 @@ testing_disable_rng_override(void)
 void
 testing_disable_reproducible_rng(void)
 {
-  if (tinytest_cur_test_has_failed()) {
-    testing_dump_reproducible_rng_seed();
-  }
-  testing_disable_rng_override();
+    if (tinytest_cur_test_has_failed()) {
+        testing_dump_reproducible_rng_seed();
+    }
+    testing_disable_rng_override();
 }

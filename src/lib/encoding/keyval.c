@@ -24,29 +24,27 @@
 int
 string_is_key_value(int severity, const char *string)
 {
-  /* position of equal sign in string */
-  const char *equal_sign_pos = NULL;
+    /* position of equal sign in string */
+    const char *equal_sign_pos = NULL;
 
-  tor_assert(string);
+    tor_assert(string);
 
-  if (strlen(string) < 2) { /* "x=" is shortest args string */
-    tor_log(severity, LD_GENERAL, "'%s' is too short to be a k=v value.",
-            escaped(string));
-    return 0;
-  }
+    if (strlen(string) < 2) { /* "x=" is shortest args string */
+        tor_log(severity, LD_GENERAL, "'%s' is too short to be a k=v value.", escaped(string));
+        return 0;
+    }
 
-  equal_sign_pos = strchr(string, '=');
-  if (!equal_sign_pos) {
-    tor_log(severity, LD_GENERAL, "'%s' is not a k=v value.", escaped(string));
-    return 0;
-  }
+    equal_sign_pos = strchr(string, '=');
+    if (!equal_sign_pos) {
+        tor_log(severity, LD_GENERAL, "'%s' is not a k=v value.", escaped(string));
+        return 0;
+    }
 
-  /* validate that the '=' is not in the beginning of the string. */
-  if (equal_sign_pos == string) {
-    tor_log(severity, LD_GENERAL, "'%s' is not a valid k=v value.",
-            escaped(string));
-    return 0;
-  }
+    /* validate that the '=' is not in the beginning of the string. */
+    if (equal_sign_pos == string) {
+        tor_log(severity, LD_GENERAL, "'%s' is not a valid k=v value.", escaped(string));
+        return 0;
+    }
 
-  return 1;
+    return 1;
 }

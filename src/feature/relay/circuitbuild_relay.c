@@ -53,28 +53,28 @@
 STATIC int
 circuit_extend_state_valid_helper(const struct circuit_t *circ)
 {
-  if (!server_mode(get_options())) {
-    circuitbuild_warn_client_extend();
-    return -1;
-  }
+    if (!server_mode(get_options())) {
+        circuitbuild_warn_client_extend();
+        return -1;
+    }
 
-  IF_BUG_ONCE(!circ) {
-    return -1;
-  }
+    IF_BUG_ONCE(!circ)
+    {
+        return -1;
+    }
 
-  if (circ->n_chan) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "n_chan already set. Bug/attack. Closing.");
-    return -1;
-  }
+    if (circ->n_chan) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL, "n_chan already set. Bug/attack. Closing.");
+        return -1;
+    }
 
-  if (circ->n_hop) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "conn to next hop already launched. Bug/attack. Closing.");
-    return -1;
-  }
+    if (circ->n_hop) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+               "conn to next hop already launched. Bug/attack. Closing.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 /* Make sure the extend cell <b>ec</b> has an ed25519 link specifier.
@@ -91,35 +91,35 @@ circuit_extend_state_valid_helper(const struct circuit_t *circ)
 STATIC int
 circuit_extend_add_ed25519_helper(struct extend_cell_t *ec)
 {
-  IF_BUG_ONCE(!ec) {
-    return -1;
-  }
-
-  /* Check if they asked us for 0000..0000. We support using
-   * an empty fingerprint for the first hop (e.g. for a bridge relay),
-   * but we don't want to let clients send us extend cells for empty
-   * fingerprints -- a) because it opens the user up to a mitm attack,
-   * and b) because it lets an attacker force the relay to hold open a
-   * new TLS connection for each extend request. */
-  if (tor_digest_is_zero((const char*)ec->node_id)) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "Client asked me to extend without specifying an id_digest.");
-    return -1;
-  }
-
-  /* Fill in ed_pubkey if it was not provided and we can infer it from
-   * our networkstatus */
-  if (ed25519_public_key_is_zero(&ec->ed_pubkey)) {
-    const node_t *node = node_get_by_id((const char*)ec->node_id);
-    const ed25519_public_key_t *node_ed_id = NULL;
-    if (node &&
-        node_supports_ed25519_link_authentication(node, 1) &&
-        (node_ed_id = node_get_ed25519_id(node))) {
-      ed25519_pubkey_copy(&ec->ed_pubkey, node_ed_id);
+    IF_BUG_ONCE(!ec)
+    {
+        return -1;
     }
-  }
 
-  return 0;
+    /* Check if they asked us for 0000..0000. We support using
+     * an empty fingerprint for the first hop (e.g. for a bridge relay),
+     * but we don't want to let clients send us extend cells for empty
+     * fingerprints -- a) because it opens the user up to a mitm attack,
+     * and b) because it lets an attacker force the relay to hold open a
+     * new TLS connection for each extend request. */
+    if (tor_digest_is_zero((const char *)ec->node_id)) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+               "Client asked me to extend without specifying an id_digest.");
+        return -1;
+    }
+
+    /* Fill in ed_pubkey if it was not provided and we can infer it from
+     * our networkstatus */
+    if (ed25519_public_key_is_zero(&ec->ed_pubkey)) {
+        const node_t *node = node_get_by_id((const char *)ec->node_id);
+        const ed25519_public_key_t *node_ed_id = NULL;
+        if (node && node_supports_ed25519_link_authentication(node, 1) &&
+            (node_ed_id = node_get_ed25519_id(node))) {
+            ed25519_pubkey_copy(&ec->ed_pubkey, node_ed_id);
+        }
+    }
+
+    return 0;
 }
 
 /* Check if the address and port in the tor_addr_port_t <b>ap</b> are valid,
@@ -133,36 +133,33 @@ circuit_extend_add_ed25519_helper(struct extend_cell_t *ec)
  * internal addresses at <b>log_level</b>.
  */
 static bool
-circuit_extend_addr_port_is_valid(const struct tor_addr_port_t *ap,
-                                  bool log_zero_addrs, bool log_internal_addrs,
-                                  int log_level)
+circuit_extend_addr_port_is_valid(const struct tor_addr_port_t *ap, bool log_zero_addrs,
+                                  bool log_internal_addrs, int log_level)
 {
-  /* It's safe to print the family. But we don't want to print the address,
-   * unless specifically configured to do so. (Zero addresses aren't sensitive,
-   * But some internal addresses might be.)*/
+    /* It's safe to print the family. But we don't want to print the address,
+     * unless specifically configured to do so. (Zero addresses aren't sensitive,
+     * But some internal addresses might be.)*/
 
-  if (!tor_addr_port_is_valid_ap(ap, 0)) {
-    if (log_zero_addrs) {
-      log_fn(log_level, LD_PROTOCOL,
-             "Client asked me to extend to a zero destination port or "
-             "%s address '%s'.",
-             fmt_addr_family(&ap->addr), safe_str(fmt_addrport_ap(ap)));
+    if (!tor_addr_port_is_valid_ap(ap, 0)) {
+        if (log_zero_addrs) {
+            log_fn(log_level, LD_PROTOCOL,
+                   "Client asked me to extend to a zero destination port or "
+                   "%s address '%s'.",
+                   fmt_addr_family(&ap->addr), safe_str(fmt_addrport_ap(ap)));
+        }
+        return false;
     }
-    return false;
-  }
 
-  if (tor_addr_is_internal(&ap->addr, 0) &&
-      !get_options()->ExtendAllowPrivateAddresses) {
-    if (log_internal_addrs) {
-      log_fn(log_level, LD_PROTOCOL,
-             "Client asked me to extend to a private %s address '%s'.",
-             fmt_addr_family(&ap->addr),
-             safe_str(fmt_and_decorate_addr(&ap->addr)));
+    if (tor_addr_is_internal(&ap->addr, 0) && !get_options()->ExtendAllowPrivateAddresses) {
+        if (log_internal_addrs) {
+            log_fn(log_level, LD_PROTOCOL,
+                   "Client asked me to extend to a private %s address '%s'.",
+                   fmt_addr_family(&ap->addr), safe_str(fmt_and_decorate_addr(&ap->addr)));
+        }
+        return false;
     }
-    return false;
-  }
 
-  return true;
+    return true;
 }
 
 /* Before replying to an extend cell, check the link specifiers in the extend
@@ -174,70 +171,67 @@ circuit_extend_addr_port_is_valid(const struct tor_addr_port_t *ap,
  * Must be called after circuit_extend_add_ed25519_helper().
  */
 STATIC int
-circuit_extend_lspec_valid_helper(const struct extend_cell_t *ec,
-                                  const struct circuit_t *circ)
+circuit_extend_lspec_valid_helper(const struct extend_cell_t *ec, const struct circuit_t *circ)
 {
-  IF_BUG_ONCE(!ec) {
-    return -1;
-  }
+    IF_BUG_ONCE(!ec)
+    {
+        return -1;
+    }
 
-  IF_BUG_ONCE(!circ) {
-    return -1;
-  }
+    IF_BUG_ONCE(!circ)
+    {
+        return -1;
+    }
 
-  /* Check the addresses, without logging */
-  const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv4,
-                                                           false, false, 0);
-  const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv6,
-                                                           false, false, 0);
-  /* We need at least one valid address */
-  if (!ipv4_valid && !ipv6_valid) {
-    /* Now, log the invalid addresses at protocol warning level */
-    circuit_extend_addr_port_is_valid(&ec->orport_ipv4,
-                                      true, true, LOG_PROTOCOL_WARN);
-    circuit_extend_addr_port_is_valid(&ec->orport_ipv6,
-                                      true, true, LOG_PROTOCOL_WARN);
-    /* And fail */
-    return -1;
-  } else if (!ipv4_valid) {
-    /* Always log unexpected internal addresses, but go on to use the other
-     * valid address */
-    circuit_extend_addr_port_is_valid(&ec->orport_ipv4,
-                                      false, true, LOG_PROTOCOL_WARN);
-  } else if (!ipv6_valid) {
-    circuit_extend_addr_port_is_valid(&ec->orport_ipv6,
-                                      false, true, LOG_PROTOCOL_WARN);
-  }
+    /* Check the addresses, without logging */
+    const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv4, false, false, 0);
+    const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv6, false, false, 0);
+    /* We need at least one valid address */
+    if (!ipv4_valid && !ipv6_valid) {
+        /* Now, log the invalid addresses at protocol warning level */
+        circuit_extend_addr_port_is_valid(&ec->orport_ipv4, true, true, LOG_PROTOCOL_WARN);
+        circuit_extend_addr_port_is_valid(&ec->orport_ipv6, true, true, LOG_PROTOCOL_WARN);
+        /* And fail */
+        return -1;
+    } else if (!ipv4_valid) {
+        /* Always log unexpected internal addresses, but go on to use the other
+         * valid address */
+        circuit_extend_addr_port_is_valid(&ec->orport_ipv4, false, true, LOG_PROTOCOL_WARN);
+    } else if (!ipv6_valid) {
+        circuit_extend_addr_port_is_valid(&ec->orport_ipv6, false, true, LOG_PROTOCOL_WARN);
+    }
 
-  IF_BUG_ONCE(circ->magic != OR_CIRCUIT_MAGIC) {
-    return -1;
-  }
+    IF_BUG_ONCE(circ->magic != OR_CIRCUIT_MAGIC)
+    {
+        return -1;
+    }
 
-  const channel_t *p_chan = CONST_TO_OR_CIRCUIT(circ)->p_chan;
+    const channel_t *p_chan = CONST_TO_OR_CIRCUIT(circ)->p_chan;
 
-  IF_BUG_ONCE(!p_chan) {
-    return -1;
-  }
+    IF_BUG_ONCE(!p_chan)
+    {
+        return -1;
+    }
 
-  /* Next, check if we're being asked to connect to the hop that the
-   * extend cell came from. There isn't any reason for that, and it can
-   * assist circular-path attacks. */
-  if (tor_memeq(ec->node_id, p_chan->identity_digest, DIGEST_LEN)) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "Client asked me to extend back to the previous hop.");
-    return -1;
-  }
+    /* Next, check if we're being asked to connect to the hop that the
+     * extend cell came from. There isn't any reason for that, and it can
+     * assist circular-path attacks. */
+    if (tor_memeq(ec->node_id, p_chan->identity_digest, DIGEST_LEN)) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+               "Client asked me to extend back to the previous hop.");
+        return -1;
+    }
 
-  /* Check the previous hop Ed25519 ID too */
-  if (! ed25519_public_key_is_zero(&ec->ed_pubkey) &&
-      ed25519_pubkey_eq(&ec->ed_pubkey, &p_chan->ed25519_identity)) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "Client asked me to extend back to the previous hop "
-           "(by Ed25519 ID).");
-    return -1;
-  }
+    /* Check the previous hop Ed25519 ID too */
+    if (!ed25519_public_key_is_zero(&ec->ed_pubkey) &&
+        ed25519_pubkey_eq(&ec->ed_pubkey, &p_chan->ed25519_identity)) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+               "Client asked me to extend back to the previous hop "
+               "(by Ed25519 ID).");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 /* If possible, return a supported, non-NULL IP address.
@@ -248,45 +242,43 @@ circuit_extend_lspec_valid_helper(const struct extend_cell_t *ec,
  * If we have an IPv6-only extend, but IPv6 is not supported, returns NULL.
  * If both addresses are NULL, also returns NULL. */
 STATIC const tor_addr_port_t *
-circuit_choose_ip_ap_for_extend(const tor_addr_port_t *ipv4_ap,
-                                const tor_addr_port_t *ipv6_ap)
+circuit_choose_ip_ap_for_extend(const tor_addr_port_t *ipv4_ap, const tor_addr_port_t *ipv6_ap)
 {
-  const bool ipv6_supported = router_can_extend_over_ipv6(get_options());
+    const bool ipv6_supported = router_can_extend_over_ipv6(get_options());
 
-  /* If IPv6 is not supported, we can't use the IPv6 address. */
-  if (!ipv6_supported) {
-    ipv6_ap = NULL;
-  }
+    /* If IPv6 is not supported, we can't use the IPv6 address. */
+    if (!ipv6_supported) {
+        ipv6_ap = NULL;
+    }
 
-  /* If there is no IPv6 address, IPv4 is always supported.
-   * Until clients include IPv6 ORPorts, and most relays support IPv6,
-   * this is the most common case. */
-  if (!ipv6_ap) {
-    return ipv4_ap;
-  }
+    /* If there is no IPv6 address, IPv4 is always supported.
+     * Until clients include IPv6 ORPorts, and most relays support IPv6,
+     * this is the most common case. */
+    if (!ipv6_ap) {
+        return ipv4_ap;
+    }
 
-  /* If there is no IPv4 address, return the (possibly NULL) IPv6 address. */
-  if (!ipv4_ap) {
-    return ipv6_ap;
-  }
+    /* If there is no IPv4 address, return the (possibly NULL) IPv6 address. */
+    if (!ipv4_ap) {
+        return ipv6_ap;
+    }
 
-  /* Now we have an IPv4 and an IPv6 address, and IPv6 is supported.
-   * So make an IPv6 connection at random, with probability 1 in N.
-   *   1 means "always IPv6 (and no IPv4)"
-   *   2 means "equal probability of IPv4 or IPv6"
-   *   ... (and so on) ...
-   *   (UINT_MAX - 1) means "almost always IPv4 (and almost never IPv6)"
-   * To disable IPv6, set ipv6_supported to 0.
-   */
+    /* Now we have an IPv4 and an IPv6 address, and IPv6 is supported.
+     * So make an IPv6 connection at random, with probability 1 in N.
+     *   1 means "always IPv6 (and no IPv4)"
+     *   2 means "equal probability of IPv4 or IPv6"
+     *   ... (and so on) ...
+     *   (UINT_MAX - 1) means "almost always IPv4 (and almost never IPv6)"
+     * To disable IPv6, set ipv6_supported to 0.
+     */
 #define IPV6_CONNECTION_ONE_IN_N 2
 
-  bool choose_ipv6 = crypto_fast_rng_one_in_n(get_thread_fast_rng(),
-                                              IPV6_CONNECTION_ONE_IN_N);
-  if (choose_ipv6) {
-    return ipv6_ap;
-  } else {
-    return ipv4_ap;
-  }
+    bool choose_ipv6 = crypto_fast_rng_one_in_n(get_thread_fast_rng(), IPV6_CONNECTION_ONE_IN_N);
+    if (choose_ipv6) {
+        return ipv6_ap;
+    } else {
+        return ipv4_ap;
+    }
 }
 
 /* When there is no open channel for an extend cell <b>ec</b>, set up the
@@ -300,72 +292,65 @@ circuit_choose_ip_ap_for_extend(const tor_addr_port_t *ipv4_ap,
  * always supported.)
  */
 STATIC void
-circuit_open_connection_for_extend(const struct extend_cell_t *ec,
-                                   struct circuit_t *circ,
+circuit_open_connection_for_extend(const struct extend_cell_t *ec, struct circuit_t *circ,
                                    int should_launch)
 {
-  /* We have to check circ first, so we can close it on all other failures */
-  IF_BUG_ONCE(!circ) {
-    /* We can't mark a NULL circuit for close. */
-    return;
-  }
-
-  /* Now we know that circ is not NULL */
-  IF_BUG_ONCE(!ec) {
-    circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
-    return;
-  }
-
-  /* Check the addresses, without logging */
-  const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv4,
-                                                           false, false, 0);
-  const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv6,
-                                                           false, false, 0);
-
-  IF_BUG_ONCE(!ipv4_valid && !ipv6_valid) {
-    /* circuit_extend_lspec_valid_helper() should have caught this */
-    circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
-    return;
-  }
-
-  const tor_addr_port_t *chosen_ap = circuit_choose_ip_ap_for_extend(
-                                        ipv4_valid ? &ec->orport_ipv4 : NULL,
-                                        ipv6_valid ? &ec->orport_ipv6 : NULL);
-  if (!chosen_ap) {
-    /* An IPv6-only extend, but IPv6 is not supported */
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "Received IPv6-only extend, but we don't have an IPv6 ORPort.");
-    circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
-    return;
-  }
-
-  circ->n_hop = extend_info_new(NULL /*nickname*/,
-                                (const char*)ec->node_id,
-                                &ec->ed_pubkey,
-                                NULL, /*onion_key*/
-                                NULL, /*curve25519_key*/
-                                &chosen_ap->addr,
-                                chosen_ap->port);
-
-  circ->n_chan_create_cell = tor_memdup(&ec->create_cell,
-                                        sizeof(ec->create_cell));
-
-  circuit_set_state(circ, CIRCUIT_STATE_CHAN_WAIT);
-
-  if (should_launch) {
-    /* we should try to open a connection */
-    channel_t *n_chan = channel_connect_for_circuit(
-                                                &circ->n_hop->addr,
-                                                circ->n_hop->port,
-                                                circ->n_hop->identity_digest,
-                                                &circ->n_hop->ed_identity);
-    if (!n_chan) {
-      log_info(LD_CIRC,"Launching n_chan failed. Closing circuit.");
-      circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
-      return;
+    /* We have to check circ first, so we can close it on all other failures */
+    IF_BUG_ONCE(!circ)
+    {
+        /* We can't mark a NULL circuit for close. */
+        return;
     }
-    log_debug(LD_CIRC,"connecting in progress (or finished). Good.");
-  }
+
+    /* Now we know that circ is not NULL */
+    IF_BUG_ONCE(!ec)
+    {
+        circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
+        return;
+    }
+
+    /* Check the addresses, without logging */
+    const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv4, false, false, 0);
+    const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec->orport_ipv6, false, false, 0);
+
+    IF_BUG_ONCE(!ipv4_valid && !ipv6_valid)
+    {
+        /* circuit_extend_lspec_valid_helper() should have caught this */
+        circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
+        return;
+    }
+
+    const tor_addr_port_t *chosen_ap = circuit_choose_ip_ap_for_extend(
+        ipv4_valid ? &ec->orport_ipv4 : NULL, ipv6_valid ? &ec->orport_ipv6 : NULL);
+    if (!chosen_ap) {
+        /* An IPv6-only extend, but IPv6 is not supported */
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
+               "Received IPv6-only extend, but we don't have an IPv6 ORPort.");
+        circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
+        return;
+    }
+
+    circ->n_hop = extend_info_new(NULL /*nickname*/, (const char *)ec->node_id, &ec->ed_pubkey,
+                                  NULL, /*onion_key*/
+                                  NULL, /*curve25519_key*/
+                                  &chosen_ap->addr, chosen_ap->port);
+
+    circ->n_chan_create_cell = tor_memdup(&ec->create_cell, sizeof(ec->create_cell));
+
+    circuit_set_state(circ, CIRCUIT_STATE_CHAN_WAIT);
+
+    if (should_launch) {
+        /* we should try to open a connection */
+        channel_t *n_chan =
+            channel_connect_for_circuit(&circ->n_hop->addr, circ->n_hop->port,
+                                        circ->n_hop->identity_digest, &circ->n_hop->ed_identity);
+        if (!n_chan) {
+            log_info(LD_CIRC, "Launching n_chan failed. Closing circuit.");
+            circuit_mark_for_close(circ, END_CIRC_REASON_CONNECTFAILED);
+            return;
+        }
+        log_debug(LD_CIRC, "connecting in progress (or finished). Good.");
+    }
 }
 
 /** Take the 'extend' <b>cell</b>, pull out addr/port plus the onion
@@ -379,86 +364,77 @@ circuit_open_connection_for_extend(const struct extend_cell_t *ec,
 int
 circuit_extend(struct cell_t *cell, struct circuit_t *circ)
 {
-  channel_t *n_chan;
-  relay_header_t rh;
-  extend_cell_t ec;
-  const char *msg = NULL;
-  int should_launch = 0;
+    channel_t *n_chan;
+    relay_header_t rh;
+    extend_cell_t ec;
+    const char *msg = NULL;
+    int should_launch = 0;
 
-  IF_BUG_ONCE(!cell) {
-    return -1;
-  }
+    IF_BUG_ONCE(!cell)
+    {
+        return -1;
+    }
 
-  IF_BUG_ONCE(!circ) {
-    return -1;
-  }
+    IF_BUG_ONCE(!circ)
+    {
+        return -1;
+    }
 
-  if (circuit_extend_state_valid_helper(circ) < 0)
-    return -1;
+    if (circuit_extend_state_valid_helper(circ) < 0)
+        return -1;
 
-  relay_header_unpack(&rh, cell->payload);
+    relay_header_unpack(&rh, cell->payload);
 
-  if (extend_cell_parse(&ec, rh.command,
-                        cell->payload+RELAY_HEADER_SIZE,
-                        rh.length) < 0) {
-    log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL,
-           "Can't parse extend cell. Closing circuit.");
-    return -1;
-  }
+    if (extend_cell_parse(&ec, rh.command, cell->payload + RELAY_HEADER_SIZE, rh.length) < 0) {
+        log_fn(LOG_PROTOCOL_WARN, LD_PROTOCOL, "Can't parse extend cell. Closing circuit.");
+        return -1;
+    }
 
-  if (circuit_extend_add_ed25519_helper(&ec) < 0)
-    return -1;
+    if (circuit_extend_add_ed25519_helper(&ec) < 0)
+        return -1;
 
-  if (circuit_extend_lspec_valid_helper(&ec, circ) < 0)
-    return -1;
+    if (circuit_extend_lspec_valid_helper(&ec, circ) < 0)
+        return -1;
 
-  /* Check the addresses, without logging */
-  const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec.orport_ipv4,
-                                                           false, false, 0);
-  const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec.orport_ipv6,
-                                                           false, false, 0);
-  IF_BUG_ONCE(!ipv4_valid && !ipv6_valid) {
-    /* circuit_extend_lspec_valid_helper() should have caught this */
-    return -1;
-  }
+    /* Check the addresses, without logging */
+    const int ipv4_valid = circuit_extend_addr_port_is_valid(&ec.orport_ipv4, false, false, 0);
+    const int ipv6_valid = circuit_extend_addr_port_is_valid(&ec.orport_ipv6, false, false, 0);
+    IF_BUG_ONCE(!ipv4_valid && !ipv6_valid)
+    {
+        /* circuit_extend_lspec_valid_helper() should have caught this */
+        return -1;
+    }
 
-  n_chan = channel_get_for_extend((const char*)ec.node_id,
-                                  &ec.ed_pubkey,
-                                  ipv4_valid ? &ec.orport_ipv4.addr : NULL,
-                                  ipv6_valid ? &ec.orport_ipv6.addr : NULL,
-                                  &msg,
-                                  &should_launch);
+    n_chan = channel_get_for_extend((const char *)ec.node_id, &ec.ed_pubkey,
+                                    ipv4_valid ? &ec.orport_ipv4.addr : NULL,
+                                    ipv6_valid ? &ec.orport_ipv6.addr : NULL, &msg, &should_launch);
 
-  if (!n_chan) {
-    /* We can't use fmt_addr*() twice in the same function call,
-     * because it uses a static buffer. */
-    log_debug(LD_CIRC|LD_OR, "Next router IPv4 (%s): %s.",
-              fmt_addrport_ap(&ec.orport_ipv4),
-              msg ? msg : "????");
-    log_debug(LD_CIRC|LD_OR, "Next router IPv6 (%s).",
-              fmt_addrport_ap(&ec.orport_ipv6));
+    if (!n_chan) {
+        /* We can't use fmt_addr*() twice in the same function call,
+         * because it uses a static buffer. */
+        log_debug(LD_CIRC | LD_OR, "Next router IPv4 (%s): %s.", fmt_addrport_ap(&ec.orport_ipv4),
+                  msg ? msg : "????");
+        log_debug(LD_CIRC | LD_OR, "Next router IPv6 (%s).", fmt_addrport_ap(&ec.orport_ipv6));
 
-    circuit_open_connection_for_extend(&ec, circ, should_launch);
+        circuit_open_connection_for_extend(&ec, circ, should_launch);
 
-    /* return success. The onion/circuit/etc will be taken care of
-     * automatically (may already have been) whenever n_chan reaches
-     * OR_CONN_STATE_OPEN.
-     */
-    return 0;
-  } else {
-    /* Connection is already established.
-     * So we need to extend the circuit to the next hop. */
-    tor_assert(!circ->n_hop);
-    circ->n_chan = n_chan;
-    log_debug(LD_CIRC,
-              "n_chan is %s.",
-              channel_get_canonical_remote_descr(n_chan));
+        /* return success. The onion/circuit/etc will be taken care of
+         * automatically (may already have been) whenever n_chan reaches
+         * OR_CONN_STATE_OPEN.
+         */
+        return 0;
+    } else {
+        /* Connection is already established.
+         * So we need to extend the circuit to the next hop. */
+        tor_assert(!circ->n_hop);
+        circ->n_chan = n_chan;
+        log_debug(LD_CIRC, "n_chan is %s.", channel_get_canonical_remote_descr(n_chan));
 
-    if (circuit_deliver_create_cell(circ, &ec.create_cell, 1) < 0)
-      return -1;
+        if (circuit_deliver_create_cell(circ, &ec.create_cell, 1) < 0)
+            return -1;
 
-    return 0;
-  }
+        return 0;
+    }
 }
 
 /** On a relay, accept a create cell, initialise a circuit, and send a
@@ -481,69 +457,68 @@ circuit_extend(struct cell_t *cell, struct circuit_t *circ)
  * Returns -1 if cell or circuit initialisation fails.
  */
 int
-onionskin_answer(struct or_circuit_t *circ,
-                 const created_cell_t *created_cell,
-                 const char *keys, size_t keys_len,
-                 const uint8_t *rend_circ_nonce)
+onionskin_answer(struct or_circuit_t *circ, const created_cell_t *created_cell, const char *keys,
+                 size_t keys_len, const uint8_t *rend_circ_nonce)
 {
-  cell_t cell;
+    cell_t cell;
 
-  IF_BUG_ONCE(!circ) {
-    return -1;
-  }
+    IF_BUG_ONCE(!circ)
+    {
+        return -1;
+    }
 
-  IF_BUG_ONCE(!created_cell) {
-    return -1;
-  }
+    IF_BUG_ONCE(!created_cell)
+    {
+        return -1;
+    }
 
-  IF_BUG_ONCE(!keys) {
-    return -1;
-  }
+    IF_BUG_ONCE(!keys)
+    {
+        return -1;
+    }
 
-  IF_BUG_ONCE(!rend_circ_nonce) {
-    return -1;
-  }
+    IF_BUG_ONCE(!rend_circ_nonce)
+    {
+        return -1;
+    }
 
-  tor_assert(keys_len == CPATH_KEY_MATERIAL_LEN);
+    tor_assert(keys_len == CPATH_KEY_MATERIAL_LEN);
 
-  if (created_cell_format(&cell, created_cell) < 0) {
-    log_warn(LD_BUG,"couldn't format created cell (type=%d, len=%d).",
-             (int)created_cell->cell_type, (int)created_cell->handshake_len);
-    return -1;
-  }
-  cell.circ_id = circ->p_circ_id;
+    if (created_cell_format(&cell, created_cell) < 0) {
+        log_warn(LD_BUG, "couldn't format created cell (type=%d, len=%d).",
+                 (int)created_cell->cell_type, (int)created_cell->handshake_len);
+        return -1;
+    }
+    cell.circ_id = circ->p_circ_id;
 
-  circuit_set_state(TO_CIRCUIT(circ), CIRCUIT_STATE_OPEN);
+    circuit_set_state(TO_CIRCUIT(circ), CIRCUIT_STATE_OPEN);
 
-  log_debug(LD_CIRC,"init digest forward 0x%.8x, backward 0x%.8x.",
-            (unsigned int)get_uint32(keys),
-            (unsigned int)get_uint32(keys+20));
-  if (relay_crypto_init(&circ->crypto, keys, keys_len, 0, 0)<0) {
-    log_warn(LD_BUG,"Circuit initialization failed.");
-    return -1;
-  }
+    log_debug(LD_CIRC, "init digest forward 0x%.8x, backward 0x%.8x.",
+              (unsigned int)get_uint32(keys), (unsigned int)get_uint32(keys + 20));
+    if (relay_crypto_init(&circ->crypto, keys, keys_len, 0, 0) < 0) {
+        log_warn(LD_BUG, "Circuit initialization failed.");
+        return -1;
+    }
 
-  memcpy(circ->rend_circ_nonce, rend_circ_nonce, DIGEST_LEN);
+    memcpy(circ->rend_circ_nonce, rend_circ_nonce, DIGEST_LEN);
 
-  int used_create_fast = (created_cell->cell_type == CELL_CREATED_FAST);
+    int used_create_fast = (created_cell->cell_type == CELL_CREATED_FAST);
 
-  append_cell_to_circuit_queue(TO_CIRCUIT(circ),
-                               circ->p_chan, &cell, CELL_DIRECTION_IN, 0);
-  log_debug(LD_CIRC,"Finished sending '%s' cell.",
-            used_create_fast ? "created_fast" : "created");
+    append_cell_to_circuit_queue(TO_CIRCUIT(circ), circ->p_chan, &cell, CELL_DIRECTION_IN, 0);
+    log_debug(LD_CIRC, "Finished sending '%s' cell.",
+              used_create_fast ? "created_fast" : "created");
 
-  /* Ignore the local bit when ExtendAllowPrivateAddresses is set:
-   * it violates the assumption that private addresses are local.
-   * Also, many test networks run on local addresses, and
-   * TestingTorNetwork sets ExtendAllowPrivateAddresses. */
-  if ((!channel_is_local(circ->p_chan)
-       || get_options()->ExtendAllowPrivateAddresses)
-      && !channel_is_outgoing(circ->p_chan)) {
-    /* record that we could process create cells from a non-local conn
-     * that we didn't initiate; presumably this means that create cells
-     * can reach us too. */
-    router_orport_found_reachable();
-  }
+    /* Ignore the local bit when ExtendAllowPrivateAddresses is set:
+     * it violates the assumption that private addresses are local.
+     * Also, many test networks run on local addresses, and
+     * TestingTorNetwork sets ExtendAllowPrivateAddresses. */
+    if ((!channel_is_local(circ->p_chan) || get_options()->ExtendAllowPrivateAddresses) &&
+        !channel_is_outgoing(circ->p_chan)) {
+        /* record that we could process create cells from a non-local conn
+         * that we didn't initiate; presumably this means that create cells
+         * can reach us too. */
+        router_orport_found_reachable();
+    }
 
-  return 0;
+    return 0;
 }

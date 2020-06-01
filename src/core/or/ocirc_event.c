@@ -33,89 +33,88 @@ DECLARE_PUBLISH(ocirc_cevent);
 static void
 ocirc_event_free(msg_aux_data_t u)
 {
-  tor_free_(u.ptr);
+    tor_free_(u.ptr);
 }
 
 static char *
 ocirc_state_fmt(msg_aux_data_t u)
 {
-  ocirc_state_msg_t *msg = (ocirc_state_msg_t *)u.ptr;
-  char *s = NULL;
+    ocirc_state_msg_t *msg = (ocirc_state_msg_t *)u.ptr;
+    char *s = NULL;
 
-  tor_asprintf(&s, "<gid=%"PRIu32" state=%d onehop=%d>",
-               msg->gid, msg->state, msg->onehop);
-  return s;
+    tor_asprintf(&s, "<gid=%" PRIu32 " state=%d onehop=%d>", msg->gid, msg->state, msg->onehop);
+    return s;
 }
 
 static char *
 ocirc_chan_fmt(msg_aux_data_t u)
 {
-  ocirc_chan_msg_t *msg = (ocirc_chan_msg_t *)u.ptr;
-  char *s = NULL;
+    ocirc_chan_msg_t *msg = (ocirc_chan_msg_t *)u.ptr;
+    char *s = NULL;
 
-  tor_asprintf(&s, "<gid=%"PRIu32" chan=%"PRIu64" onehop=%d>",
-               msg->gid, msg->chan, msg->onehop);
-  return s;
+    tor_asprintf(&s, "<gid=%" PRIu32 " chan=%" PRIu64 " onehop=%d>", msg->gid, msg->chan,
+                 msg->onehop);
+    return s;
 }
 
 static char *
 ocirc_cevent_fmt(msg_aux_data_t u)
 {
-  ocirc_cevent_msg_t *msg = (ocirc_cevent_msg_t *)u.ptr;
-  char *s = NULL;
+    ocirc_cevent_msg_t *msg = (ocirc_cevent_msg_t *)u.ptr;
+    char *s = NULL;
 
-  tor_asprintf(&s, "<gid=%"PRIu32" evtype=%d reason=%d onehop=%d>",
-               msg->gid, msg->evtype, msg->reason, msg->onehop);
-  return s;
+    tor_asprintf(&s, "<gid=%" PRIu32 " evtype=%d reason=%d onehop=%d>", msg->gid, msg->evtype,
+                 msg->reason, msg->onehop);
+    return s;
 }
 
 static dispatch_typefns_t ocirc_state_fns = {
-  .free_fn = ocirc_event_free,
-  .fmt_fn = ocirc_state_fmt,
+    .free_fn = ocirc_event_free,
+    .fmt_fn = ocirc_state_fmt,
 };
 
 static dispatch_typefns_t ocirc_chan_fns = {
-  .free_fn = ocirc_event_free,
-  .fmt_fn = ocirc_chan_fmt,
+    .free_fn = ocirc_event_free,
+    .fmt_fn = ocirc_chan_fmt,
 };
 
 static dispatch_typefns_t ocirc_cevent_fns = {
-  .free_fn = ocirc_event_free,
-  .fmt_fn = ocirc_cevent_fmt,
+    .free_fn = ocirc_event_free,
+    .fmt_fn = ocirc_cevent_fmt,
 };
 
 int
 ocirc_add_pubsub(struct pubsub_connector_t *connector)
 {
-  if (DISPATCH_REGISTER_TYPE(connector, ocirc_state, &ocirc_state_fns))
-    return -1;
-  if (DISPATCH_REGISTER_TYPE(connector, ocirc_chan, &ocirc_chan_fns))
-    return -1;
-  if (DISPATCH_REGISTER_TYPE(connector, ocirc_cevent, &ocirc_cevent_fns))
-    return -1;
-  if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_state))
-    return -1;
-  if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_chan))
-    return -1;
-  if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_cevent))
-    return -1;
-  return 0;
+    if (DISPATCH_REGISTER_TYPE(connector, ocirc_state, &ocirc_state_fns))
+        return -1;
+    if (DISPATCH_REGISTER_TYPE(connector, ocirc_chan, &ocirc_chan_fns))
+        return -1;
+    if (DISPATCH_REGISTER_TYPE(connector, ocirc_cevent, &ocirc_cevent_fns))
+        return -1;
+    if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_state))
+        return -1;
+    if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_chan))
+        return -1;
+    if (DISPATCH_ADD_PUB(connector, ocirc, ocirc_cevent))
+        return -1;
+    return 0;
 }
 
 void
 ocirc_state_publish(ocirc_state_msg_t *msg)
 {
-  PUBLISH(ocirc_state, msg);
+    PUBLISH(ocirc_state, msg);
 }
 
 void
 ocirc_chan_publish(ocirc_chan_msg_t *msg)
 {
-  PUBLISH(ocirc_chan, msg);
+    PUBLISH(ocirc_chan, msg);
 }
 
 void
 ocirc_cevent_publish(ocirc_cevent_msg_t *msg)
 {
-  PUBLISH(ocirc_cevent, msg);
+    PUBLISH(ocirc_cevent, msg);
 }

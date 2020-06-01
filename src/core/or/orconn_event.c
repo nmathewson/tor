@@ -30,63 +30,62 @@ DECLARE_PUBLISH(orconn_status);
 static void
 orconn_event_free(msg_aux_data_t u)
 {
-  tor_free_(u.ptr);
+    tor_free_(u.ptr);
 }
 
 static char *
 orconn_state_fmt(msg_aux_data_t u)
 {
-  orconn_state_msg_t *msg = (orconn_state_msg_t *)u.ptr;
-  char *s = NULL;
+    orconn_state_msg_t *msg = (orconn_state_msg_t *)u.ptr;
+    char *s = NULL;
 
-  tor_asprintf(&s, "<gid=%"PRIu64" chan=%"PRIu64" proxy_type=%d state=%d>",
-               msg->gid, msg->chan, msg->proxy_type, msg->state);
-  return s;
+    tor_asprintf(&s, "<gid=%" PRIu64 " chan=%" PRIu64 " proxy_type=%d state=%d>", msg->gid,
+                 msg->chan, msg->proxy_type, msg->state);
+    return s;
 }
 
 static char *
 orconn_status_fmt(msg_aux_data_t u)
 {
-  orconn_status_msg_t *msg = (orconn_status_msg_t *)u.ptr;
-  char *s = NULL;
+    orconn_status_msg_t *msg = (orconn_status_msg_t *)u.ptr;
+    char *s = NULL;
 
-  tor_asprintf(&s, "<gid=%"PRIu64" status=%d reason=%d>",
-               msg->gid, msg->status, msg->reason);
-  return s;
+    tor_asprintf(&s, "<gid=%" PRIu64 " status=%d reason=%d>", msg->gid, msg->status, msg->reason);
+    return s;
 }
 
 static dispatch_typefns_t orconn_state_fns = {
-  .free_fn = orconn_event_free,
-  .fmt_fn = orconn_state_fmt,
+    .free_fn = orconn_event_free,
+    .fmt_fn = orconn_state_fmt,
 };
 
 static dispatch_typefns_t orconn_status_fns = {
-  .free_fn = orconn_event_free,
-  .fmt_fn = orconn_status_fmt,
+    .free_fn = orconn_event_free,
+    .fmt_fn = orconn_status_fmt,
 };
 
 int
 orconn_add_pubsub(struct pubsub_connector_t *connector)
 {
-  if (DISPATCH_REGISTER_TYPE(connector, orconn_state, &orconn_state_fns))
-    return -1;
-  if (DISPATCH_REGISTER_TYPE(connector, orconn_status, &orconn_status_fns))
-    return -1;
-  if (DISPATCH_ADD_PUB(connector, orconn, orconn_state) != 0)
-    return -1;
-  if (DISPATCH_ADD_PUB(connector, orconn, orconn_status) != 0)
-    return -1;
-  return 0;
+    if (DISPATCH_REGISTER_TYPE(connector, orconn_state, &orconn_state_fns))
+        return -1;
+    if (DISPATCH_REGISTER_TYPE(connector, orconn_status, &orconn_status_fns))
+        return -1;
+    if (DISPATCH_ADD_PUB(connector, orconn, orconn_state) != 0)
+        return -1;
+    if (DISPATCH_ADD_PUB(connector, orconn, orconn_status) != 0)
+        return -1;
+    return 0;
 }
 
 void
 orconn_state_publish(orconn_state_msg_t *msg)
 {
-  PUBLISH(orconn_state, msg);
+    PUBLISH(orconn_state, msg);
 }
 
 void
 orconn_status_publish(orconn_status_msg_t *msg)
 {
-  PUBLISH(orconn_status, msg);
+    PUBLISH(orconn_status, msg);
 }

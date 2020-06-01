@@ -13,22 +13,22 @@
 
 #ifndef _WIN32
 
-#include "lib/fs/files.h"
-#include "lib/log/log.h"
-#include "lib/thread/threads.h"
+#    include "lib/fs/files.h"
+#    include "lib/log/log.h"
+#    include "lib/thread/threads.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
+#    ifdef HAVE_SYS_TYPES_H
+#        include <sys/types.h>
+#    endif
+#    ifdef HAVE_UNISTD_H
+#        include <unistd.h>
+#    endif
+#    ifdef HAVE_FCNTL_H
+#        include <fcntl.h>
+#    endif
+#    include <errno.h>
+#    include <stdlib.h>
+#    include <string.h>
 
 /* Based on code contributed by christian grothoff */
 /** True iff we've called start_daemon(). */
@@ -45,7 +45,7 @@ static int daemon_filedes[2];
 bool
 start_daemon_has_been_called(void)
 {
-  return start_daemon_called != 0;
+    return start_daemon_called != 0;
 }
 
 /** Start putting the process into daemon mode: fork and drop all resources
@@ -57,58 +57,58 @@ start_daemon_has_been_called(void)
 int
 start_daemon(void)
 {
-  pid_t pid;
+    pid_t pid;
 
-  if (start_daemon_called)
-    return 0;
-  start_daemon_called = 1;
+    if (start_daemon_called)
+        return 0;
+    start_daemon_called = 1;
 
-  if (pipe(daemon_filedes)) {
-    /* LCOV_EXCL_START */
-    log_err(LD_GENERAL,"pipe failed; exiting. Error was %s", strerror(errno));
-    exit(1); // exit ok: during daemonize, pipe failed.
-    /* LCOV_EXCL_STOP */
-  }
-  pid = fork();
-  if (pid < 0) {
-    /* LCOV_EXCL_START */
-    log_err(LD_GENERAL,"fork failed. Exiting.");
-    exit(1); // exit ok: during daemonize, fork failed
-    /* LCOV_EXCL_STOP */
-  }
-  if (pid) {  /* Parent */
-    int ok;
-    char c;
-
-    close(daemon_filedes[1]); /* we only read */
-    ok = -1;
-    while (0 < read(daemon_filedes[0], &c, sizeof(char))) {
-      if (c == '.')
-        ok = 1;
+    if (pipe(daemon_filedes)) {
+        /* LCOV_EXCL_START */
+        log_err(LD_GENERAL, "pipe failed; exiting. Error was %s", strerror(errno));
+        exit(1); // exit ok: during daemonize, pipe failed.
+        /* LCOV_EXCL_STOP */
     }
-    fflush(stdout);
-    if (ok == 1)
-      exit(0); // exit ok: during daemonize, daemonizing.
-    else
-      exit(1); /* child reported error. exit ok: daemonize failed. */
-    return 0; // LCOV_EXCL_LINE unreachable
-  } else { /* Child */
-    close(daemon_filedes[0]); /* we only write */
-
-    (void) setsid(); /* Detach from controlling terminal */
-    /*
-     * Fork one more time, so the parent (the session group leader) can exit.
-     * This means that we, as a non-session group leader, can never regain a
-     * controlling terminal.   This part is recommended by Stevens's
-     * _Advanced Programming in the Unix Environment_.
-     */
-    if (fork() != 0) {
-      exit(0); // exit ok: during daemonize, fork failed (2)
+    pid = fork();
+    if (pid < 0) {
+        /* LCOV_EXCL_START */
+        log_err(LD_GENERAL, "fork failed. Exiting.");
+        exit(1); // exit ok: during daemonize, fork failed
+        /* LCOV_EXCL_STOP */
     }
-    set_main_thread(); /* We are now the main thread. */
+    if (pid) { /* Parent */
+        int ok;
+        char c;
 
-    return 1;
-  }
+        close(daemon_filedes[1]); /* we only read */
+        ok = -1;
+        while (0 < read(daemon_filedes[0], &c, sizeof(char))) {
+            if (c == '.')
+                ok = 1;
+        }
+        fflush(stdout);
+        if (ok == 1)
+            exit(0); // exit ok: during daemonize, daemonizing.
+        else
+            exit(1); /* child reported error. exit ok: daemonize failed. */
+        return 0; // LCOV_EXCL_LINE unreachable
+    } else { /* Child */
+        close(daemon_filedes[0]); /* we only write */
+
+        (void)setsid(); /* Detach from controlling terminal */
+        /*
+         * Fork one more time, so the parent (the session group leader) can exit.
+         * This means that we, as a non-session group leader, can never regain a
+         * controlling terminal.   This part is recommended by Stevens's
+         * _Advanced Programming in the Unix Environment_.
+         */
+        if (fork() != 0) {
+            exit(0); // exit ok: during daemonize, fork failed (2)
+        }
+        set_main_thread(); /* We are now the main thread. */
+
+        return 1;
+    }
 }
 
 /** Finish putting the process into daemon mode: drop standard fds, and tell
@@ -120,68 +120,66 @@ start_daemon(void)
 int
 finish_daemon(const char *desired_cwd)
 {
-  int nullfd;
-  char c = '.';
-  if (finish_daemon_called)
+    int nullfd;
+    char c = '.';
+    if (finish_daemon_called)
+        return 0;
+    if (!start_daemon_called)
+        start_daemon();
+    finish_daemon_called = 1;
+
+    if (!desired_cwd)
+        desired_cwd = "/";
+    /* Don't hold the wrong FS mounted */
+    if (chdir(desired_cwd) < 0) {
+        log_err(LD_GENERAL, "chdir to \"%s\" failed. Exiting.", desired_cwd);
+        exit(1); // exit ok: during daemonize, chdir failed.
+    }
+
+    nullfd = tor_open_cloexec("/dev/null", O_RDWR, 0);
+    if (nullfd < 0) {
+        /* LCOV_EXCL_START */
+        log_err(LD_GENERAL, "/dev/null can't be opened. Exiting.");
+        exit(1); // exit ok: during daemonize, couldn't open /dev/null
+        /* LCOV_EXCL_STOP */
+    }
+    /* close fds linking to invoking terminal, but
+     * close usual incoming fds, but redirect them somewhere
+     * useful so the fds don't get reallocated elsewhere.
+     */
+    if (dup2(nullfd, 0) < 0 || dup2(nullfd, 1) < 0 || dup2(nullfd, 2) < 0) {
+        /* LCOV_EXCL_START */
+        log_err(LD_GENERAL, "dup2 failed. Exiting.");
+        exit(1); // exit ok: during daemonize, dup2 failed.
+        /* LCOV_EXCL_STOP */
+    }
+    if (nullfd > 2)
+        close(nullfd);
+    /* signal success */
+    if (write(daemon_filedes[1], &c, sizeof(char)) != sizeof(char)) {
+        log_err(LD_GENERAL, "write failed. Exiting.");
+    }
+    close(daemon_filedes[1]);
+
     return 0;
-  if (!start_daemon_called)
-    start_daemon();
-  finish_daemon_called = 1;
-
-  if (!desired_cwd)
-    desired_cwd = "/";
-   /* Don't hold the wrong FS mounted */
-  if (chdir(desired_cwd) < 0) {
-    log_err(LD_GENERAL,"chdir to \"%s\" failed. Exiting.",desired_cwd);
-    exit(1); // exit ok: during daemonize, chdir failed.
-  }
-
-  nullfd = tor_open_cloexec("/dev/null", O_RDWR, 0);
-  if (nullfd < 0) {
-    /* LCOV_EXCL_START */
-    log_err(LD_GENERAL,"/dev/null can't be opened. Exiting.");
-    exit(1); // exit ok: during daemonize, couldn't open /dev/null
-    /* LCOV_EXCL_STOP */
-  }
-  /* close fds linking to invoking terminal, but
-   * close usual incoming fds, but redirect them somewhere
-   * useful so the fds don't get reallocated elsewhere.
-   */
-  if (dup2(nullfd,0) < 0 ||
-      dup2(nullfd,1) < 0 ||
-      dup2(nullfd,2) < 0) {
-    /* LCOV_EXCL_START */
-    log_err(LD_GENERAL,"dup2 failed. Exiting.");
-    exit(1); // exit ok: during daemonize, dup2 failed.
-    /* LCOV_EXCL_STOP */
-  }
-  if (nullfd > 2)
-    close(nullfd);
-  /* signal success */
-  if (write(daemon_filedes[1], &c, sizeof(char)) != sizeof(char)) {
-    log_err(LD_GENERAL,"write failed. Exiting.");
-  }
-  close(daemon_filedes[1]);
-
-  return 0;
 }
 #else /* defined(_WIN32) */
 /* defined(_WIN32) */
 int
 start_daemon(void)
 {
-  return 0;
+    return 0;
 }
 int
 finish_daemon(const char *cp)
 {
-  (void)cp;
-  return 0;
+    (void)cp;
+    return 0;
 }
 bool
 start_daemon_has_been_called(void)
 {
-  return false;
+    return false;
 }
 
 #endif /* !defined(_WIN32) */

@@ -16,14 +16,14 @@ BasedOnStyle:    LLVM
 
 # We prefer an indentation width of 4 columns; LLVM likes 2.
 ## OVERRIDE FOR COMPARISON
-IndentWidth:     2
+IndentWidth:     4
 
 ## OVERRIDE FOR COMPARISON
 ## for now i'm not sorting includes, since that makes every file get touched.
 SortIncludes: false
 
 # We prefer 79; llvm likes 80.
-ColumnLimit: 79
+ColumnLimit: 100
 
 # Where do we want to put backslashes on multiline macros?  Our choices are
 # "as far left as possible", "as far right as possible", and "make no changes."

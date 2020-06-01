@@ -15,12 +15,12 @@
 /** A set of signatures for a networkstatus consensus.  Unless otherwise
  * noted, all fields are as for networkstatus_t. */
 struct ns_detached_signatures_t {
-  time_t valid_after;
-  time_t fresh_until;
-  time_t valid_until;
-  strmap_t *digests; /**< Map from flavor name to digestset_t */
-  strmap_t *signatures; /**< Map from flavor name to list of
-                         * document_signature_t */
+    time_t valid_after;
+    time_t fresh_until;
+    time_t valid_until;
+    strmap_t *digests; /**< Map from flavor name to digestset_t */
+    strmap_t *signatures; /**< Map from flavor name to list of
+                           * document_signature_t */
 };
 
 #endif /* !defined(NS_DETACHED_SIGNATURES_ST_H) */

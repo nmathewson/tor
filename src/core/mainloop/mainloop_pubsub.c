@@ -45,12 +45,12 @@ static smartlist_t *alert_events = NULL;
 static void
 flush_channel_event(mainloop_event_t *ev, void *arg)
 {
-  (void)ev;
-  if (!the_dispatcher)
-    return;
+    (void)ev;
+    if (!the_dispatcher)
+        return;
 
-  channel_id_t chan = (channel_id_t)(uintptr_t)(arg);
-  dispatch_flush(the_dispatcher, chan, INT_MAX);
+    channel_id_t chan = (channel_id_t)(uintptr_t)(arg);
+    dispatch_flush(the_dispatcher, chan, INT_MAX);
 }
 
 /**
@@ -59,19 +59,19 @@ flush_channel_event(mainloop_event_t *ev, void *arg)
 int
 tor_mainloop_connect_pubsub(struct pubsub_builder_t *builder)
 {
-  int rv = -1;
-  tor_mainloop_disconnect_pubsub();
+    int rv = -1;
+    tor_mainloop_disconnect_pubsub();
 
-  the_dispatcher = pubsub_builder_finalize(builder, &the_pubsub_items);
-  if (! the_dispatcher)
-    goto err;
+    the_dispatcher = pubsub_builder_finalize(builder, &the_pubsub_items);
+    if (!the_dispatcher)
+        goto err;
 
-  rv = 0;
-  goto done;
- err:
-  tor_mainloop_disconnect_pubsub();
- done:
-  return rv;
+    rv = 0;
+    goto done;
+err:
+    tor_mainloop_disconnect_pubsub();
+done:
+    return rv;
 }
 
 /**
@@ -83,16 +83,15 @@ tor_mainloop_connect_pubsub(struct pubsub_builder_t *builder)
 void
 tor_mainloop_connect_pubsub_events(void)
 {
-  tor_assert(the_dispatcher);
-  tor_assert(! alert_events);
+    tor_assert(the_dispatcher);
+    tor_assert(!alert_events);
 
-  const size_t num_channels = get_num_channel_ids();
-  alert_events = smartlist_new();
-  for (size_t i = 0; i < num_channels; ++i) {
-    smartlist_add(alert_events,
-                  mainloop_event_postloop_new(flush_channel_event,
-                                              (void*)(uintptr_t)(i)));
-  }
+    const size_t num_channels = get_num_channel_ids();
+    alert_events = smartlist_new();
+    for (size_t i = 0; i < num_channels; ++i) {
+        smartlist_add(alert_events,
+                      mainloop_event_postloop_new(flush_channel_event, (void *)(uintptr_t)(i)));
+    }
 }
 
 /**
@@ -101,9 +100,9 @@ tor_mainloop_connect_pubsub_events(void)
 static void
 alertfn_never(dispatch_t *d, channel_id_t chan, void *arg)
 {
-  (void)d;
-  (void)chan;
-  (void)arg;
+    (void)d;
+    (void)chan;
+    (void)arg;
 }
 
 /**
@@ -113,10 +112,10 @@ alertfn_never(dispatch_t *d, channel_id_t chan, void *arg)
 static void
 alertfn_prompt(dispatch_t *d, channel_id_t chan, void *arg)
 {
-  (void)d;
-  (void)chan;
-  mainloop_event_t *event = arg;
-  mainloop_event_activate(event);
+    (void)d;
+    (void)chan;
+    mainloop_event_t *event = arg;
+    mainloop_event_activate(event);
 }
 
 /**
@@ -126,8 +125,8 @@ alertfn_prompt(dispatch_t *d, channel_id_t chan, void *arg)
 static void
 alertfn_immediate(dispatch_t *d, channel_id_t chan, void *arg)
 {
-  (void) arg;
-  dispatch_flush(d, chan, INT_MAX);
+    (void)arg;
+    dispatch_flush(d, chan, INT_MAX);
 }
 
 /**
@@ -137,27 +136,25 @@ alertfn_immediate(dispatch_t *d, channel_id_t chan, void *arg)
  * set up how messages are delivered.
  **/
 int
-tor_mainloop_set_delivery_strategy(const char *msg_channel_name,
-                                   deliv_strategy_t strategy)
+tor_mainloop_set_delivery_strategy(const char *msg_channel_name, deliv_strategy_t strategy)
 {
-  channel_id_t chan = get_channel_id(msg_channel_name);
-  if (BUG(chan == ERROR_ID) ||
-      BUG(chan >= smartlist_len(alert_events)))
-    return -1;
+    channel_id_t chan = get_channel_id(msg_channel_name);
+    if (BUG(chan == ERROR_ID) || BUG(chan >= smartlist_len(alert_events)))
+        return -1;
 
-  switch (strategy) {
+    switch (strategy) {
     case DELIV_NEVER:
-      dispatch_set_alert_fn(the_dispatcher, chan, alertfn_never, NULL);
-      break;
+        dispatch_set_alert_fn(the_dispatcher, chan, alertfn_never, NULL);
+        break;
     case DELIV_PROMPT:
-      dispatch_set_alert_fn(the_dispatcher, chan, alertfn_prompt,
-                            smartlist_get(alert_events, chan));
-      break;
+        dispatch_set_alert_fn(the_dispatcher, chan, alertfn_prompt,
+                              smartlist_get(alert_events, chan));
+        break;
     case DELIV_IMMEDIATE:
-      dispatch_set_alert_fn(the_dispatcher, chan, alertfn_immediate, NULL);
-      break;
-  }
-  return 0;
+        dispatch_set_alert_fn(the_dispatcher, chan, alertfn_immediate, NULL);
+        break;
+    }
+    return 0;
 }
 
 /**
@@ -166,14 +163,13 @@ tor_mainloop_set_delivery_strategy(const char *msg_channel_name,
 void
 tor_mainloop_disconnect_pubsub(void)
 {
-  if (the_pubsub_items) {
-    pubsub_items_clear_bindings(the_pubsub_items);
-    pubsub_items_free(the_pubsub_items);
-  }
-  if (alert_events) {
-    SMARTLIST_FOREACH(alert_events, mainloop_event_t *, ev,
-                      mainloop_event_free(ev));
-    smartlist_free(alert_events);
-  }
-  dispatch_free(the_dispatcher);
+    if (the_pubsub_items) {
+        pubsub_items_clear_bindings(the_pubsub_items);
+        pubsub_items_free(the_pubsub_items);
+    }
+    if (alert_events) {
+        SMARTLIST_FOREACH(alert_events, mainloop_event_t *, ev, mainloop_event_free(ev));
+        smartlist_free(alert_events);
+    }
+    dispatch_free(the_dispatcher);
 }

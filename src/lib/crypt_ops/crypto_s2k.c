@@ -23,15 +23,15 @@
 #include "lib/intmath/cmp.h"
 
 #ifdef ENABLE_OPENSSL
-#include <openssl/evp.h>
+#    include <openssl/evp.h>
 #endif
 #ifdef ENABLE_NSS
-#include <pk11pub.h>
+#    include <pk11pub.h>
 #endif
 
 #if defined(HAVE_LIBSCRYPT_H) && defined(HAVE_LIBSCRYPT_SCRYPT)
-#define HAVE_SCRYPT
-#include <libscrypt.h>
+#    define HAVE_SCRYPT
+#    include <libscrypt.h>
 #endif
 
 #include <string.h>
@@ -59,8 +59,8 @@
 */
 
 #define S2K_TYPE_RFC2440 0
-#define S2K_TYPE_PBKDF2  1
-#define S2K_TYPE_SCRYPT  2
+#define S2K_TYPE_PBKDF2 1
+#define S2K_TYPE_SCRYPT 2
 
 #define PBKDF2_SPEC_LEN 17
 #define PBKDF2_KEY_LEN 20
@@ -74,16 +74,16 @@
 static int
 secret_to_key_spec_len(uint8_t type)
 {
-  switch (type) {
+    switch (type) {
     case S2K_TYPE_RFC2440:
-      return S2K_RFC2440_SPECIFIER_LEN;
+        return S2K_RFC2440_SPECIFIER_LEN;
     case S2K_TYPE_PBKDF2:
-      return PBKDF2_SPEC_LEN;
+        return PBKDF2_SPEC_LEN;
     case S2K_TYPE_SCRYPT:
-      return SCRYPT_SPEC_LEN;
+        return SCRYPT_SPEC_LEN;
     default:
-      return -1;
-  }
+        return -1;
+    }
 }
 
 /** Given an algorithm ID (one of S2K_TYPE_*), return the length of the
@@ -91,19 +91,19 @@ secret_to_key_spec_len(uint8_t type)
 static int
 secret_to_key_key_len(uint8_t type)
 {
-  switch (type) {
+    switch (type) {
     case S2K_TYPE_RFC2440:
-      return DIGEST_LEN;
+        return DIGEST_LEN;
     case S2K_TYPE_PBKDF2:
-      return DIGEST_LEN;
+        return DIGEST_LEN;
     case S2K_TYPE_SCRYPT:
-      return DIGEST256_LEN;
+        return DIGEST256_LEN;
     // LCOV_EXCL_START
     default:
-      tor_fragile_assert();
-      return -1;
-    // LCOV_EXCL_STOP
-  }
+        tor_fragile_assert();
+        return -1;
+        // LCOV_EXCL_STOP
+    }
 }
 
 /** Given a specifier in <b>spec_and_key</b> of length
@@ -114,40 +114,40 @@ secret_to_key_key_len(uint8_t type)
  * legacy specifier.  Return an error code on failure.
  */
 static int
-secret_to_key_get_type(const uint8_t *spec_and_key, size_t spec_and_key_len,
-                       int key_included, int *legacy_out)
+secret_to_key_get_type(const uint8_t *spec_and_key, size_t spec_and_key_len, int key_included,
+                       int *legacy_out)
 {
-  size_t legacy_len = S2K_RFC2440_SPECIFIER_LEN;
-  uint8_t type;
-  int total_len;
+    size_t legacy_len = S2K_RFC2440_SPECIFIER_LEN;
+    uint8_t type;
+    int total_len;
 
-  if (key_included)
-    legacy_len += DIGEST_LEN;
+    if (key_included)
+        legacy_len += DIGEST_LEN;
 
-  if (spec_and_key_len == legacy_len) {
-    *legacy_out = 1;
-    return S2K_TYPE_RFC2440;
-  }
+    if (spec_and_key_len == legacy_len) {
+        *legacy_out = 1;
+        return S2K_TYPE_RFC2440;
+    }
 
-  *legacy_out = 0;
-  if (spec_and_key_len == 0)
-    return S2K_BAD_LEN;
+    *legacy_out = 0;
+    if (spec_and_key_len == 0)
+        return S2K_BAD_LEN;
 
-  type = spec_and_key[0];
-  total_len = secret_to_key_spec_len(type);
-  if (total_len < 0)
-    return S2K_BAD_ALGORITHM;
-  if (key_included) {
-    int keylen = secret_to_key_key_len(type);
-    if (keylen < 0)
-      return S2K_BAD_ALGORITHM;
-    total_len += keylen;
-  }
+    type = spec_and_key[0];
+    total_len = secret_to_key_spec_len(type);
+    if (total_len < 0)
+        return S2K_BAD_ALGORITHM;
+    if (key_included) {
+        int keylen = secret_to_key_key_len(type);
+        if (keylen < 0)
+            return S2K_BAD_ALGORITHM;
+        total_len += keylen;
+    }
 
-  if ((size_t)total_len + 1 == spec_and_key_len)
-    return type;
-  else
-    return S2K_BAD_LEN;
+    if ((size_t)total_len + 1 == spec_and_key_len)
+        return type;
+    else
+        return S2K_BAD_LEN;
 }
 
 /**
@@ -158,39 +158,39 @@ secret_to_key_get_type(const uint8_t *spec_and_key, size_t spec_and_key_len,
 static int
 make_specifier(uint8_t *spec_out, uint8_t type, unsigned flags)
 {
-  int speclen = secret_to_key_spec_len(type);
-  if (speclen < 0)
-      return S2K_BAD_ALGORITHM;
+    int speclen = secret_to_key_spec_len(type);
+    if (speclen < 0)
+        return S2K_BAD_ALGORITHM;
 
-  crypto_rand((char*)spec_out, speclen);
-  switch (type) {
+    crypto_rand((char *)spec_out, speclen);
+    switch (type) {
     case S2K_TYPE_RFC2440:
-      /* Hash 64 k of data. */
-      spec_out[S2K_RFC2440_SPECIFIER_LEN-1] = 96;
-      break;
+        /* Hash 64 k of data. */
+        spec_out[S2K_RFC2440_SPECIFIER_LEN - 1] = 96;
+        break;
     case S2K_TYPE_PBKDF2:
-      /* 131 K iterations */
-      spec_out[PBKDF2_SPEC_LEN-1] = 17;
-      break;
+        /* 131 K iterations */
+        spec_out[PBKDF2_SPEC_LEN - 1] = 17;
+        break;
     case S2K_TYPE_SCRYPT:
-      if (flags & S2K_FLAG_LOW_MEM) {
-        /* N = 1<<12 */
-        spec_out[SCRYPT_SPEC_LEN-2] = 12;
-      } else {
-        /* N = 1<<15 */
-        spec_out[SCRYPT_SPEC_LEN-2] = 15;
-      }
-      /* r = 8; p = 2. */
-      spec_out[SCRYPT_SPEC_LEN-1] = (3u << 4) | (1u << 0);
-      break;
+        if (flags & S2K_FLAG_LOW_MEM) {
+            /* N = 1<<12 */
+            spec_out[SCRYPT_SPEC_LEN - 2] = 12;
+        } else {
+            /* N = 1<<15 */
+            spec_out[SCRYPT_SPEC_LEN - 2] = 15;
+        }
+        /* r = 8; p = 2. */
+        spec_out[SCRYPT_SPEC_LEN - 1] = (3u << 4) | (1u << 0);
+        break;
     // LCOV_EXCL_START - we should have returned above.
     default:
-      tor_fragile_assert();
-      return S2K_BAD_ALGORITHM;
-    // LCOV_EXCL_STOP
-  }
+        tor_fragile_assert();
+        return S2K_BAD_ALGORITHM;
+        // LCOV_EXCL_STOP
+    }
 
-  return speclen;
+    return speclen;
 }
 
 /** Implement RFC2440-style iterated-salted S2K conversion: convert the
@@ -200,50 +200,49 @@ make_specifier(uint8_t *spec_out, uint8_t type, unsigned flags)
  * If <b>key_out_len</b> &gt; DIGEST_LEN, use HDKF to expand the result.
  */
 void
-secret_to_key_rfc2440(char *key_out, size_t key_out_len, const char *secret,
-              size_t secret_len, const char *s2k_specifier)
+secret_to_key_rfc2440(char *key_out, size_t key_out_len, const char *secret, size_t secret_len,
+                      const char *s2k_specifier)
 {
-  crypto_digest_t *d;
-  uint8_t c;
-  size_t count, tmplen;
-  char *tmp;
-  uint8_t buf[DIGEST_LEN];
-  tor_assert(key_out_len < SIZE_T_CEILING);
+    crypto_digest_t *d;
+    uint8_t c;
+    size_t count, tmplen;
+    char *tmp;
+    uint8_t buf[DIGEST_LEN];
+    tor_assert(key_out_len < SIZE_T_CEILING);
 
 #define EXPBIAS 6
-  c = s2k_specifier[8];
-  count = ((uint32_t)16 + (c & 15)) << ((c >> 4) + EXPBIAS);
+    c = s2k_specifier[8];
+    count = ((uint32_t)16 + (c & 15)) << ((c >> 4) + EXPBIAS);
 #undef EXPBIAS
 
-  d = crypto_digest_new();
-  tmplen = 8+secret_len;
-  tmp = tor_malloc(tmplen);
-  memcpy(tmp,s2k_specifier,8);
-  memcpy(tmp+8,secret,secret_len);
-  secret_len += 8;
-  while (count) {
-    if (count >= secret_len) {
-      crypto_digest_add_bytes(d, tmp, secret_len);
-      count -= secret_len;
-    } else {
-      crypto_digest_add_bytes(d, tmp, count);
-      count = 0;
+    d = crypto_digest_new();
+    tmplen = 8 + secret_len;
+    tmp = tor_malloc(tmplen);
+    memcpy(tmp, s2k_specifier, 8);
+    memcpy(tmp + 8, secret, secret_len);
+    secret_len += 8;
+    while (count) {
+        if (count >= secret_len) {
+            crypto_digest_add_bytes(d, tmp, secret_len);
+            count -= secret_len;
+        } else {
+            crypto_digest_add_bytes(d, tmp, count);
+            count = 0;
+        }
     }
-  }
-  crypto_digest_get_digest(d, (char*)buf, sizeof(buf));
+    crypto_digest_get_digest(d, (char *)buf, sizeof(buf));
 
-  if (key_out_len <= sizeof(buf)) {
-    memcpy(key_out, buf, key_out_len);
-  } else {
-    crypto_expand_key_material_rfc5869_sha256(buf, DIGEST_LEN,
-                                           (const uint8_t*)s2k_specifier, 8,
-                                           (const uint8_t*)"EXPAND", 6,
-                                           (uint8_t*)key_out, key_out_len);
-  }
-  memwipe(tmp, 0, tmplen);
-  memwipe(buf, 0, sizeof(buf));
-  tor_free(tmp);
-  crypto_digest_free(d);
+    if (key_out_len <= sizeof(buf)) {
+        memcpy(key_out, buf, key_out_len);
+    } else {
+        crypto_expand_key_material_rfc5869_sha256(buf, DIGEST_LEN, (const uint8_t *)s2k_specifier,
+                                                  8, (const uint8_t *)"EXPAND", 6,
+                                                  (uint8_t *)key_out, key_out_len);
+    }
+    memwipe(tmp, 0, tmplen);
+    memwipe(buf, 0, sizeof(buf));
+    tor_free(tmp);
+    crypto_digest_free(d);
 }
 
 /**
@@ -255,106 +254,95 @@ secret_to_key_rfc2440(char *key_out, size_t key_out_len, const char *secret,
  * on failure.
  */
 STATIC int
-secret_to_key_compute_key(uint8_t *key_out, size_t key_out_len,
-                          const uint8_t *spec, size_t spec_len,
-                          const char *secret, size_t secret_len,
-                          int type)
+secret_to_key_compute_key(uint8_t *key_out, size_t key_out_len, const uint8_t *spec,
+                          size_t spec_len, const char *secret, size_t secret_len, int type)
 {
-  int rv;
-  if (key_out_len > INT_MAX)
-    return S2K_BAD_LEN;
+    int rv;
+    if (key_out_len > INT_MAX)
+        return S2K_BAD_LEN;
 
-  switch (type) {
+    switch (type) {
     case S2K_TYPE_RFC2440:
-      secret_to_key_rfc2440((char*)key_out, key_out_len, secret, secret_len,
-                            (const char*)spec);
-      return (int)key_out_len;
+        secret_to_key_rfc2440((char *)key_out, key_out_len, secret, secret_len, (const char *)spec);
+        return (int)key_out_len;
 
     case S2K_TYPE_PBKDF2: {
-      uint8_t log_iters;
-      if (spec_len < 1 || secret_len > INT_MAX || spec_len > INT_MAX)
-        return S2K_BAD_LEN;
-      log_iters = spec[spec_len-1];
-      if (log_iters > 31)
-        return S2K_BAD_PARAMS;
+        uint8_t log_iters;
+        if (spec_len < 1 || secret_len > INT_MAX || spec_len > INT_MAX)
+            return S2K_BAD_LEN;
+        log_iters = spec[spec_len - 1];
+        if (log_iters > 31)
+            return S2K_BAD_PARAMS;
 #ifdef ENABLE_OPENSSL
-      rv = PKCS5_PBKDF2_HMAC_SHA1(secret, (int)secret_len,
-                                  spec, (int)spec_len-1,
-                                  (1<<log_iters),
-                                  (int)key_out_len, key_out);
-      if (rv < 0)
-        return S2K_FAILED;
-      return (int)key_out_len;
+        rv = PKCS5_PBKDF2_HMAC_SHA1(secret, (int)secret_len, spec, (int)spec_len - 1,
+                                    (1 << log_iters), (int)key_out_len, key_out);
+        if (rv < 0)
+            return S2K_FAILED;
+        return (int)key_out_len;
 #else /* !defined(ENABLE_OPENSSL) */
-      SECItem passItem = { .type = siBuffer,
-                           .data = (unsigned char *) secret,
-                           .len = (int)secret_len };
-      SECItem saltItem = { .type = siBuffer,
-                           .data = (unsigned char *) spec,
-                           .len = (int)spec_len - 1 };
-      SECAlgorithmID *alg = NULL;
-      PK11SymKey *key = NULL;
+        SECItem passItem = {
+            .type = siBuffer, .data = (unsigned char *)secret, .len = (int)secret_len};
+        SECItem saltItem = {
+            .type = siBuffer, .data = (unsigned char *)spec, .len = (int)spec_len - 1};
+        SECAlgorithmID *alg = NULL;
+        PK11SymKey *key = NULL;
 
-      rv = S2K_FAILED;
-      alg = PK11_CreatePBEV2AlgorithmID(
-                  SEC_OID_PKCS5_PBKDF2, SEC_OID_HMAC_SHA1, SEC_OID_HMAC_SHA1,
-                  (int)key_out_len, (1<<log_iters), &saltItem);
-      if (alg == NULL)
-        return S2K_FAILED;
+        rv = S2K_FAILED;
+        alg =
+            PK11_CreatePBEV2AlgorithmID(SEC_OID_PKCS5_PBKDF2, SEC_OID_HMAC_SHA1, SEC_OID_HMAC_SHA1,
+                                        (int)key_out_len, (1 << log_iters), &saltItem);
+        if (alg == NULL)
+            return S2K_FAILED;
 
-      key = PK11_PBEKeyGen(NULL /* slot */,
-                           alg,
-                           &passItem,
-                           false,
-                           NULL);
+        key = PK11_PBEKeyGen(NULL /* slot */, alg, &passItem, false, NULL);
 
-      SECStatus st = PK11_ExtractKeyValue(key);
-      if (st != SECSuccess)
-        goto nss_pbkdf_err;
+        SECStatus st = PK11_ExtractKeyValue(key);
+        if (st != SECSuccess)
+            goto nss_pbkdf_err;
 
-      const SECItem *iptr = PK11_GetKeyData(key);
-      if (iptr == NULL)
-        goto nss_pbkdf_err;
+        const SECItem *iptr = PK11_GetKeyData(key);
+        if (iptr == NULL)
+            goto nss_pbkdf_err;
 
-      rv = MIN((int)iptr->len, (int)key_out_len);
-      memcpy(key_out, iptr->data, rv);
+        rv = MIN((int)iptr->len, (int)key_out_len);
+        memcpy(key_out, iptr->data, rv);
 
     nss_pbkdf_err:
-      if (key)
-        PK11_FreeSymKey(key);
-      if (alg)
-        SECOID_DestroyAlgorithmID(alg, PR_TRUE);
-      return rv;
+        if (key)
+            PK11_FreeSymKey(key);
+        if (alg)
+            SECOID_DestroyAlgorithmID(alg, PR_TRUE);
+        return rv;
 #endif /* defined(ENABLE_OPENSSL) */
     }
 
     case S2K_TYPE_SCRYPT: {
 #ifdef HAVE_SCRYPT
-      uint8_t log_N, log_r, log_p;
-      uint64_t N;
-      uint32_t r, p;
-      if (spec_len < 2)
-        return S2K_BAD_LEN;
-      log_N = spec[spec_len-2];
-      log_r = (spec[spec_len-1]) >> 4;
-      log_p = (spec[spec_len-1]) & 15;
-      if (log_N > 63)
-        return S2K_BAD_PARAMS;
-      N = ((uint64_t)1) << log_N;
-      r = 1u << log_r;
-      p = 1u << log_p;
-      rv = libscrypt_scrypt((const uint8_t*)secret, secret_len,
-                            spec, spec_len-2, N, r, p, key_out, key_out_len);
-      if (rv != 0)
-        return S2K_FAILED;
-      return (int)key_out_len;
+        uint8_t log_N, log_r, log_p;
+        uint64_t N;
+        uint32_t r, p;
+        if (spec_len < 2)
+            return S2K_BAD_LEN;
+        log_N = spec[spec_len - 2];
+        log_r = (spec[spec_len - 1]) >> 4;
+        log_p = (spec[spec_len - 1]) & 15;
+        if (log_N > 63)
+            return S2K_BAD_PARAMS;
+        N = ((uint64_t)1) << log_N;
+        r = 1u << log_r;
+        p = 1u << log_p;
+        rv = libscrypt_scrypt((const uint8_t *)secret, secret_len, spec, spec_len - 2, N, r, p,
+                              key_out, key_out_len);
+        if (rv != 0)
+            return S2K_FAILED;
+        return (int)key_out_len;
 #else /* !defined(HAVE_SCRYPT) */
-      return S2K_NO_SCRYPT_SUPPORT;
+        return S2K_NO_SCRYPT_SUPPORT;
 #endif /* defined(HAVE_SCRYPT) */
     }
     default:
-      return S2K_BAD_ALGORITHM;
-  }
+        return S2K_BAD_ALGORITHM;
+    }
 }
 
 /**
@@ -367,32 +355,30 @@ secret_to_key_compute_key(uint8_t *key_out, size_t key_out_len,
  * and an error code on failure.
  */
 int
-secret_to_key_derivekey(uint8_t *key_out, size_t key_out_len,
-                        const uint8_t *spec, size_t spec_len,
+secret_to_key_derivekey(uint8_t *key_out, size_t key_out_len, const uint8_t *spec, size_t spec_len,
                         const char *secret, size_t secret_len)
 {
-  int legacy_format = 0;
-  int type = secret_to_key_get_type(spec, spec_len, 0, &legacy_format);
-  int r;
+    int legacy_format = 0;
+    int type = secret_to_key_get_type(spec, spec_len, 0, &legacy_format);
+    int r;
 
-  if (type < 0)
-    return type;
+    if (type < 0)
+        return type;
 #ifndef HAVE_SCRYPT
-  if (type == S2K_TYPE_SCRYPT)
-    return S2K_NO_SCRYPT_SUPPORT;
+    if (type == S2K_TYPE_SCRYPT)
+        return S2K_NO_SCRYPT_SUPPORT;
 #endif
 
-  if (! legacy_format) {
-    ++spec;
-    --spec_len;
-  }
+    if (!legacy_format) {
+        ++spec;
+        --spec_len;
+    }
 
-  r = secret_to_key_compute_key(key_out, key_out_len, spec, spec_len,
-                                secret, secret_len, type);
-  if (r < 0)
-    return r;
-  else
-    return S2K_OKAY;
+    r = secret_to_key_compute_key(key_out, key_out_len, spec, spec_len, secret, secret_len, type);
+    if (r < 0)
+        return r;
+    else
+        return S2K_OKAY;
 }
 
 /**
@@ -404,30 +390,30 @@ secret_to_key_derivekey(uint8_t *key_out, size_t key_out_len,
 int
 secret_to_key_make_specifier(uint8_t *buf, size_t buf_len, unsigned flags)
 {
-  int rv;
-  int spec_len;
+    int rv;
+    int spec_len;
 #ifdef HAVE_SCRYPT
-  uint8_t type = S2K_TYPE_SCRYPT;
+    uint8_t type = S2K_TYPE_SCRYPT;
 #else
-  uint8_t type = S2K_TYPE_RFC2440;
+    uint8_t type = S2K_TYPE_RFC2440;
 #endif
 
-  if (flags & S2K_FLAG_NO_SCRYPT)
-    type = S2K_TYPE_RFC2440;
-  if (flags & S2K_FLAG_USE_PBKDF2)
-    type = S2K_TYPE_PBKDF2;
+    if (flags & S2K_FLAG_NO_SCRYPT)
+        type = S2K_TYPE_RFC2440;
+    if (flags & S2K_FLAG_USE_PBKDF2)
+        type = S2K_TYPE_PBKDF2;
 
-  spec_len = secret_to_key_spec_len(type);
+    spec_len = secret_to_key_spec_len(type);
 
-  if ((int)buf_len < spec_len + 1)
-    return S2K_TRUNCATED;
+    if ((int)buf_len < spec_len + 1)
+        return S2K_TRUNCATED;
 
-  buf[0] = type;
-  rv = make_specifier(buf+1, type, flags);
-  if (rv < 0)
-    return rv;
-  else
-    return rv + 1;
+    buf[0] = type;
+    rv = make_specifier(buf + 1, type, flags);
+    if (rv < 0)
+        return rv;
+    else
+        return rv + 1;
 }
 
 /**
@@ -439,40 +425,36 @@ secret_to_key_make_specifier(uint8_t *buf, size_t buf_len, unsigned flags)
  * and return an error code on failure.
  */
 int
-secret_to_key_new(uint8_t *buf,
-                  size_t buf_len,
-                  size_t *len_out,
-                  const char *secret, size_t secret_len,
-                  unsigned flags)
+secret_to_key_new(uint8_t *buf, size_t buf_len, size_t *len_out, const char *secret,
+                  size_t secret_len, unsigned flags)
 {
-  int key_len;
-  int spec_len;
-  int type;
-  int rv;
+    int key_len;
+    int spec_len;
+    int type;
+    int rv;
 
-  spec_len = secret_to_key_make_specifier(buf, buf_len, flags);
+    spec_len = secret_to_key_make_specifier(buf, buf_len, flags);
 
-  if (spec_len < 0)
-    return spec_len;
+    if (spec_len < 0)
+        return spec_len;
 
-  type = buf[0];
-  key_len = secret_to_key_key_len(type);
+    type = buf[0];
+    key_len = secret_to_key_key_len(type);
 
-  if (key_len < 0)
-    return key_len;
+    if (key_len < 0)
+        return key_len;
 
-  if ((int)buf_len < key_len + spec_len)
-    return S2K_TRUNCATED;
+    if ((int)buf_len < key_len + spec_len)
+        return S2K_TRUNCATED;
 
-  rv = secret_to_key_compute_key(buf + spec_len, key_len,
-                                 buf + 1, spec_len-1,
-                                 secret, secret_len, type);
-  if (rv < 0)
-    return rv;
+    rv = secret_to_key_compute_key(buf + spec_len, key_len, buf + 1, spec_len - 1, secret,
+                                   secret_len, type);
+    if (rv < 0)
+        return rv;
 
-  *len_out = spec_len + key_len;
+    *len_out = spec_len + key_len;
 
-  return S2K_OKAY;
+    return S2K_OKAY;
 }
 
 /**
@@ -483,43 +465,40 @@ secret_to_key_new(uint8_t *buf,
  * doesn't match this secret, and another error code on other errors.
  */
 int
-secret_to_key_check(const uint8_t *spec_and_key, size_t spec_and_key_len,
-                    const char *secret, size_t secret_len)
+secret_to_key_check(const uint8_t *spec_and_key, size_t spec_and_key_len, const char *secret,
+                    size_t secret_len)
 {
-  int is_legacy = 0;
-  int type = secret_to_key_get_type(spec_and_key, spec_and_key_len,
-                                    1, &is_legacy);
-  uint8_t buf[32];
-  int spec_len;
-  int key_len;
-  int rv;
+    int is_legacy = 0;
+    int type = secret_to_key_get_type(spec_and_key, spec_and_key_len, 1, &is_legacy);
+    uint8_t buf[32];
+    int spec_len;
+    int key_len;
+    int rv;
 
-  if (type < 0)
-    return type;
+    if (type < 0)
+        return type;
 
-  if (! is_legacy) {
-    spec_and_key++;
-    spec_and_key_len--;
-  }
+    if (!is_legacy) {
+        spec_and_key++;
+        spec_and_key_len--;
+    }
 
-  spec_len = secret_to_key_spec_len(type);
-  key_len = secret_to_key_key_len(type);
-  tor_assert(spec_len > 0);
-  tor_assert(key_len > 0);
-  tor_assert(key_len <= (int) sizeof(buf));
-  tor_assert((int)spec_and_key_len == spec_len + key_len);
-  rv = secret_to_key_compute_key(buf, key_len,
-                                 spec_and_key, spec_len,
-                                 secret, secret_len, type);
-  if (rv < 0)
-    goto done;
+    spec_len = secret_to_key_spec_len(type);
+    key_len = secret_to_key_key_len(type);
+    tor_assert(spec_len > 0);
+    tor_assert(key_len > 0);
+    tor_assert(key_len <= (int)sizeof(buf));
+    tor_assert((int)spec_and_key_len == spec_len + key_len);
+    rv = secret_to_key_compute_key(buf, key_len, spec_and_key, spec_len, secret, secret_len, type);
+    if (rv < 0)
+        goto done;
 
-  if (tor_memeq(buf, spec_and_key + spec_len, key_len))
-    rv = S2K_OKAY;
-  else
-    rv = S2K_BAD_SECRET;
+    if (tor_memeq(buf, spec_and_key + spec_len, key_len))
+        rv = S2K_OKAY;
+    else
+        rv = S2K_BAD_SECRET;
 
- done:
-  memwipe(buf, 0, sizeof(buf));
-  return rv;
+done:
+    memwipe(buf, 0, sizeof(buf));
+    return rv;
 }

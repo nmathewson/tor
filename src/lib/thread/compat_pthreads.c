@@ -27,8 +27,8 @@
  * invoke them in a way pthreads would expect.
  */
 typedef struct tor_pthread_data_t {
-  void (*func)(void *);
-  void *data;
+    void (*func)(void *);
+    void *data;
 } tor_pthread_data_t;
 /** Given a tor_pthread_data_t <b>_data</b>, call _data-&gt;func(d-&gt;data)
  * and free _data.  Used to make sure we can call functions the way pthread
@@ -36,20 +36,20 @@ typedef struct tor_pthread_data_t {
 static void *
 tor_pthread_helper_fn(void *_data)
 {
-  tor_pthread_data_t *data = _data;
-  void (*func)(void*);
-  void *arg;
-  /* mask signals to worker threads to avoid SIGPIPE, etc */
-  sigset_t sigs;
-  /* We're in a subthread; don't handle any signals here. */
-  sigfillset(&sigs);
-  pthread_sigmask(SIG_SETMASK, &sigs, NULL);
+    tor_pthread_data_t *data = _data;
+    void (*func)(void *);
+    void *arg;
+    /* mask signals to worker threads to avoid SIGPIPE, etc */
+    sigset_t sigs;
+    /* We're in a subthread; don't handle any signals here. */
+    sigfillset(&sigs);
+    pthread_sigmask(SIG_SETMASK, &sigs, NULL);
 
-  func = data->func;
-  arg = data->data;
-  tor_free(_data);
-  func(arg);
-  return NULL;
+    func = data->func;
+    arg = data->data;
+    tor_free(_data);
+    func(arg);
+    return NULL;
 }
 /**
  * A pthread attribute to make threads start detached.
@@ -71,20 +71,20 @@ static int threads_initialized = 0;
 int
 spawn_func(void (*func)(void *), void *data)
 {
-  pthread_t thread;
-  tor_pthread_data_t *d;
-  if (PREDICT_UNLIKELY(!threads_initialized)) {
-    tor_threads_init();
-  }
-  d = tor_malloc(sizeof(tor_pthread_data_t));
-  d->data = data;
-  d->func = func;
-  if (pthread_create(&thread, &attr_detached, tor_pthread_helper_fn, d)) {
-    tor_free(d);
-    return -1;
-  }
+    pthread_t thread;
+    tor_pthread_data_t *d;
+    if (PREDICT_UNLIKELY(!threads_initialized)) {
+        tor_threads_init();
+    }
+    d = tor_malloc(sizeof(tor_pthread_data_t));
+    d->data = data;
+    d->func = func;
+    if (pthread_create(&thread, &attr_detached, tor_pthread_helper_fn, d)) {
+        tor_free(d);
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 /** End the current thread/process.
@@ -92,19 +92,19 @@ spawn_func(void (*func)(void *), void *data)
 void
 spawn_exit(void)
 {
-  pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 /** Return an integer representing this thread. */
 unsigned long
 tor_get_thread_id(void)
 {
-  union {
-    pthread_t thr;
-    unsigned long id;
-  } r;
-  r.thr = pthread_self();
-  return r.id;
+    union {
+        pthread_t thr;
+        unsigned long id;
+    } r;
+    r.thr = pthread_self();
+    return r.id;
 }
 
 /* Conditions. */
@@ -113,35 +113,34 @@ tor_get_thread_id(void)
 int
 tor_cond_init(tor_cond_t *cond)
 {
-  pthread_condattr_t condattr;
+    pthread_condattr_t condattr;
 
-  memset(cond, 0, sizeof(tor_cond_t));
-  /* Default condition attribute. Might be used if clock monotonic is
-   * available else this won't affect anything. */
-  if (pthread_condattr_init(&condattr)) {
-    return -1;
-  }
+    memset(cond, 0, sizeof(tor_cond_t));
+    /* Default condition attribute. Might be used if clock monotonic is
+     * available else this won't affect anything. */
+    if (pthread_condattr_init(&condattr)) {
+        return -1;
+    }
 
 #if defined(HAVE_CLOCK_GETTIME)
-#if defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && \
-  defined(CLOCK_MONOTONIC)
-  /* Use monotonic time so when we timedwait() on it, any clock adjustment
-   * won't affect the timeout value. */
-  if (pthread_condattr_setclock(&condattr, CLOCK_MONOTONIC)) {
-    return -1;
-  }
-#define USE_COND_CLOCK CLOCK_MONOTONIC
-#else /* !(defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && ...) */
-  /* On OSX Sierra, there is no pthread_condattr_setclock, so we are stuck
-   * with the realtime clock.
-   */
-#define USE_COND_CLOCK CLOCK_REALTIME
-#endif /* defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && ... */
+#    if defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && defined(CLOCK_MONOTONIC)
+    /* Use monotonic time so when we timedwait() on it, any clock adjustment
+     * won't affect the timeout value. */
+    if (pthread_condattr_setclock(&condattr, CLOCK_MONOTONIC)) {
+        return -1;
+    }
+#        define USE_COND_CLOCK CLOCK_MONOTONIC
+#    else /* !(defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && ...) */
+    /* On OSX Sierra, there is no pthread_condattr_setclock, so we are stuck
+     * with the realtime clock.
+     */
+#        define USE_COND_CLOCK CLOCK_REALTIME
+#    endif /* defined(HAVE_PTHREAD_CONDATTR_SETCLOCK) && ... */
 #endif /* defined(HAVE_CLOCK_GETTIME) */
-  if (pthread_cond_init(&cond->cond, &condattr)) {
-    return -1;
-  }
-  return 0;
+    if (pthread_cond_init(&cond->cond, &condattr)) {
+        return -1;
+    }
+    return 0;
 }
 
 /** Release all resources held by <b>cond</b>, but do not free <b>cond</b>
@@ -149,12 +148,12 @@ tor_cond_init(tor_cond_t *cond)
 void
 tor_cond_uninit(tor_cond_t *cond)
 {
-  if (pthread_cond_destroy(&cond->cond)) {
-    // LCOV_EXCL_START
-    log_warn(LD_GENERAL,"Error freeing condition: %s", strerror(errno));
-    return;
-    // LCOV_EXCL_STOP
-  }
+    if (pthread_cond_destroy(&cond->cond)) {
+        // LCOV_EXCL_START
+        log_warn(LD_GENERAL, "Error freeing condition: %s", strerror(errno));
+        return;
+        // LCOV_EXCL_STOP
+    }
 }
 /** Wait until one of the tor_cond_signal functions is called on <b>cond</b>.
  * (If <b>tv</b> is set, and that amount of time passes with no signal to
@@ -166,105 +165,104 @@ tor_cond_uninit(tor_cond_t *cond)
 int
 tor_cond_wait(tor_cond_t *cond, tor_mutex_t *mutex, const struct timeval *tv)
 {
-  int r;
-  if (tv == NULL) {
-    while (1) {
-      r = pthread_cond_wait(&cond->cond, &mutex->mutex);
-      if (r == EINTR) {
-        /* EINTR should be impossible according to POSIX, but POSIX, like the
-         * Pirate's Code, is apparently treated "more like what you'd call
-         * guidelines than actual rules." */
-        continue; // LCOV_EXCL_LINE
-      }
-      return r ? -1 : 0;
-    }
-  } else {
-    struct timeval tvnow, tvsum;
-    struct timespec ts;
-    while (1) {
+    int r;
+    if (tv == NULL) {
+        while (1) {
+            r = pthread_cond_wait(&cond->cond, &mutex->mutex);
+            if (r == EINTR) {
+                /* EINTR should be impossible according to POSIX, but POSIX, like the
+                 * Pirate's Code, is apparently treated "more like what you'd call
+                 * guidelines than actual rules." */
+                continue; // LCOV_EXCL_LINE
+            }
+            return r ? -1 : 0;
+        }
+    } else {
+        struct timeval tvnow, tvsum;
+        struct timespec ts;
+        while (1) {
 #if defined(HAVE_CLOCK_GETTIME) && defined(USE_COND_CLOCK)
-      if (clock_gettime(USE_COND_CLOCK, &ts) < 0) {
-        return -1;
-      }
-      tvnow.tv_sec = ts.tv_sec;
-      tvnow.tv_usec = (int)(ts.tv_nsec / 1000);
-      timeradd(tv, &tvnow, &tvsum);
+            if (clock_gettime(USE_COND_CLOCK, &ts) < 0) {
+                return -1;
+            }
+            tvnow.tv_sec = ts.tv_sec;
+            tvnow.tv_usec = (int)(ts.tv_nsec / 1000);
+            timeradd(tv, &tvnow, &tvsum);
 #else /* !(defined(HAVE_CLOCK_GETTIME) && defined(USE_COND_CLOCK)) */
-      if (gettimeofday(&tvnow, NULL) < 0)
-        return -1;
-      timeradd(tv, &tvnow, &tvsum);
+            if (gettimeofday(&tvnow, NULL) < 0)
+                return -1;
+            timeradd(tv, &tvnow, &tvsum);
 #endif /* defined(HAVE_CLOCK_GETTIME) && defined(USE_COND_CLOCK) */
 
-      ts.tv_sec = tvsum.tv_sec;
-      ts.tv_nsec = tvsum.tv_usec * 1000;
+            ts.tv_sec = tvsum.tv_sec;
+            ts.tv_nsec = tvsum.tv_usec * 1000;
 
-      r = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &ts);
-      if (r == 0)
-        return 0;
-      else if (r == ETIMEDOUT)
-        return 1;
-      else if (r == EINTR)
-        continue;
-      else
-        return -1;
+            r = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &ts);
+            if (r == 0)
+                return 0;
+            else if (r == ETIMEDOUT)
+                return 1;
+            else if (r == EINTR)
+                continue;
+            else
+                return -1;
+        }
     }
-  }
 }
 /** Wake up one of the waiters on <b>cond</b>. */
 void
 tor_cond_signal_one(tor_cond_t *cond)
 {
-  pthread_cond_signal(&cond->cond);
+    pthread_cond_signal(&cond->cond);
 }
 /** Wake up all of the waiters on <b>cond</b>. */
 void
 tor_cond_signal_all(tor_cond_t *cond)
 {
-  pthread_cond_broadcast(&cond->cond);
+    pthread_cond_broadcast(&cond->cond);
 }
 
 int
 tor_threadlocal_init(tor_threadlocal_t *threadlocal)
 {
-  int err = pthread_key_create(&threadlocal->key, NULL);
-  return err ? -1 : 0;
+    int err = pthread_key_create(&threadlocal->key, NULL);
+    return err ? -1 : 0;
 }
 
 void
 tor_threadlocal_destroy(tor_threadlocal_t *threadlocal)
 {
-  pthread_key_delete(threadlocal->key);
-  memset(threadlocal, 0, sizeof(tor_threadlocal_t));
+    pthread_key_delete(threadlocal->key);
+    memset(threadlocal, 0, sizeof(tor_threadlocal_t));
 }
 
 void *
 tor_threadlocal_get(tor_threadlocal_t *threadlocal)
 {
-  return pthread_getspecific(threadlocal->key);
+    return pthread_getspecific(threadlocal->key);
 }
 
 void
 tor_threadlocal_set(tor_threadlocal_t *threadlocal, void *value)
 {
-  int err = pthread_setspecific(threadlocal->key, value);
-  tor_assert(err == 0);
+    int err = pthread_setspecific(threadlocal->key, value);
+    tor_assert(err == 0);
 }
 
 /** Set up common structures for use by threading. */
 void
 tor_threads_init(void)
 {
-  if (!threads_initialized) {
-    tor_locking_init();
-    const int ret1 = pthread_attr_init(&attr_detached);
-    tor_assert(ret1 == 0);
+    if (!threads_initialized) {
+        tor_locking_init();
+        const int ret1 = pthread_attr_init(&attr_detached);
+        tor_assert(ret1 == 0);
 #ifndef PTHREAD_CREATE_DETACHED
-#define PTHREAD_CREATE_DETACHED 1
+#    define PTHREAD_CREATE_DETACHED 1
 #endif
-    const int ret2 =
-      pthread_attr_setdetachstate(&attr_detached, PTHREAD_CREATE_DETACHED);
-    tor_assert(ret2 == 0);
-    threads_initialized = 1;
-  }
-  set_main_thread();
+        const int ret2 = pthread_attr_setdetachstate(&attr_detached, PTHREAD_CREATE_DETACHED);
+        tor_assert(ret2 == 0);
+        threads_initialized = 1;
+    }
+    set_main_thread();
 }

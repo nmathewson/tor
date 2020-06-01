@@ -15,8 +15,8 @@
 
 #ifdef PUBSUB_PRIVATE
 
-#include <stdbool.h>
-#include <stddef.h>
+#    include <stdbool.h>
+#    include <stddef.h>
 
 struct dispatch_cfg_t;
 struct smartlist_t;
@@ -32,35 +32,35 @@ struct pub_binding_t;
  * them must match other descriptions of the message, or a bug has occurred.
  **/
 typedef struct pubsub_cfg_t {
-  /** True if this is a publishing request; false for a subscribing request. */
-  bool is_publish;
-  /** The system making this request. */
-  subsys_id_t subsys;
-  /** The channel on which the message is to be sent. */
-  channel_id_t channel;
-  /** The message ID to be sent or received. */
-  message_id_t msg;
-  /** The C type associated with the message. */
-  msg_type_id_t type;
-  /** One or more DISP_FLAGS_* items, combined with bitwise OR. */
-  unsigned flags;
+    /** True if this is a publishing request; false for a subscribing request. */
+    bool is_publish;
+    /** The system making this request. */
+    subsys_id_t subsys;
+    /** The channel on which the message is to be sent. */
+    channel_id_t channel;
+    /** The message ID to be sent or received. */
+    message_id_t msg;
+    /** The C type associated with the message. */
+    msg_type_id_t type;
+    /** One or more DISP_FLAGS_* items, combined with bitwise OR. */
+    unsigned flags;
 
-  /**
-   * Publishing only: a pub_binding object that will receive the binding for
-   * this request.  We will finish filling this in when the dispatcher is
-   * constructed, so that the subsystem can publish then and not before.
-   */
-  struct pub_binding_t *pub_binding;
+    /**
+     * Publishing only: a pub_binding object that will receive the binding for
+     * this request.  We will finish filling this in when the dispatcher is
+     * constructed, so that the subsystem can publish then and not before.
+     */
+    struct pub_binding_t *pub_binding;
 
-  /**
-   * Subscribing only: a function to receive message objects for this request.
-   */
-  recv_fn_t recv_fn;
+    /**
+     * Subscribing only: a function to receive message objects for this request.
+     */
+    recv_fn_t recv_fn;
 
-  /** The file from which this message was configured */
-  const char *added_by_file;
-  /** The line at which this message was configured */
-  unsigned added_by_line;
+    /** The file from which this message was configured */
+    const char *added_by_file;
+    /** The line at which this message was configured */
+    unsigned added_by_line;
 } pubsub_cfg_t;
 
 /**
@@ -70,21 +70,21 @@ typedef struct pubsub_cfg_t {
  * setup, teardown, and debugging.
  **/
 typedef struct pubsub_type_cfg_t {
-  /**
-   * The identifier for this type.
-   */
-  msg_type_id_t type;
-  /**
-   * Functions to use when manipulating the type.
-   */
-  dispatch_typefns_t fns;
+    /**
+     * The identifier for this type.
+     */
+    msg_type_id_t type;
+    /**
+     * Functions to use when manipulating the type.
+     */
+    dispatch_typefns_t fns;
 
-  /** The subsystem that configured this type. */
-  subsys_id_t subsys;
-  /** The file from which this type was configured */
-  const char *added_by_file;
-  /** The line at which this type was configured */
-  unsigned added_by_line;
+    /** The subsystem that configured this type. */
+    subsys_id_t subsys;
+    /** The file from which this type was configured */
+    const char *added_by_file;
+    /** The line at which this type was configured */
+    unsigned added_by_line;
 } pubsub_type_cfg_t;
 
 /**
@@ -92,10 +92,10 @@ typedef struct pubsub_type_cfg_t {
  * subsystems.
  **/
 struct pubsub_items_t {
-  /** List of pubsub_cfg_t. */
-  struct smartlist_t *items;
-  /** List of pubsub_type_cfg_t. */
-  struct smartlist_t *type_items;
+    /** List of pubsub_cfg_t. */
+    struct smartlist_t *items;
+    /** List of pubsub_type_cfg_t. */
+    struct smartlist_t *type_items;
 };
 
 /**
@@ -104,17 +104,17 @@ struct pubsub_items_t {
  * configuration to the newly constructed dispatcher.
  **/
 struct pubsub_builder_t {
-  /** Number of outstanding pubsub_connector_t objects pointing to this
-   * pubsub_builder_t. */
-  int n_connectors;
-  /** Number of errors encountered while constructing this object so far. */
-  int n_errors;
-  /** In-progress configuration that we're constructing, as a list of the
-   * requests that have been made. */
-  struct pubsub_items_t *items;
-  /** In-progress configuration that we're constructing, in a form that can
-   * be converted to a dispatch_t. */
-  struct dispatch_cfg_t *cfg;
+    /** Number of outstanding pubsub_connector_t objects pointing to this
+     * pubsub_builder_t. */
+    int n_connectors;
+    /** Number of errors encountered while constructing this object so far. */
+    int n_errors;
+    /** In-progress configuration that we're constructing, as a list of the
+     * requests that have been made. */
+    struct pubsub_items_t *items;
+    /** In-progress configuration that we're constructing, in a form that can
+     * be converted to a dispatch_t. */
+    struct dispatch_cfg_t *cfg;
 };
 
 /**
@@ -123,10 +123,10 @@ struct pubsub_builder_t {
  * publications, subscriptions, and types that it adds.
  **/
 struct pubsub_connector_t {
-  /** The pubsub_builder that this connector refers to. */
-  struct pubsub_builder_t *builder;
-  /** The subsystem that has been given this connector. */
-  subsys_id_t subsys_id;
+    /** The pubsub_builder that this connector refers to. */
+    struct pubsub_builder_t *builder;
+    /** The subsystem that has been given this connector. */
+    subsys_id_t subsys_id;
 };
 
 /**
@@ -134,26 +134,26 @@ struct pubsub_connector_t {
  * pubsub_cfg_t objects in various ways.
  **/
 typedef struct pubsub_adjmap_t {
-  /* XXXX The next three fields are currently constructed but not yet
-   * XXXX used. I believe we'll want them in the future, though. -nickm
-   */
-  /** Number of subsystems; length of the *_by_subsys arrays. */
-  size_t n_subsystems;
-  /** Array of lists of publisher pubsub_cfg_t objects, indexed by
-   * subsystem. */
-  struct smartlist_t **pub_by_subsys;
-  /** Array of lists of subscriber pubsub_cfg_t objects, indexed by
-   * subsystem. */
-  struct smartlist_t **sub_by_subsys;
+    /* XXXX The next three fields are currently constructed but not yet
+     * XXXX used. I believe we'll want them in the future, though. -nickm
+     */
+    /** Number of subsystems; length of the *_by_subsys arrays. */
+    size_t n_subsystems;
+    /** Array of lists of publisher pubsub_cfg_t objects, indexed by
+     * subsystem. */
+    struct smartlist_t **pub_by_subsys;
+    /** Array of lists of subscriber pubsub_cfg_t objects, indexed by
+     * subsystem. */
+    struct smartlist_t **sub_by_subsys;
 
-  /** Number of message IDs; length of the *_by_msg arrays. */
-  size_t n_msgs;
-  /** Array of lists of publisher pubsub_cfg_t objects, indexed by
-   * message ID. */
-  struct smartlist_t **pub_by_msg;
-  /** Array of lists of subscriber pubsub_cfg_t objects, indexed by
-   * message ID. */
-  struct smartlist_t **sub_by_msg;
+    /** Number of message IDs; length of the *_by_msg arrays. */
+    size_t n_msgs;
+    /** Array of lists of publisher pubsub_cfg_t objects, indexed by
+     * message ID. */
+    struct smartlist_t **pub_by_msg;
+    /** Array of lists of subscriber pubsub_cfg_t objects, indexed by
+     * message ID. */
+    struct smartlist_t **sub_by_msg;
 } pubsub_adjmap_t;
 
 #endif /* defined(PUBSUB_PRIVATE) */

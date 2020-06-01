@@ -43,14 +43,14 @@ static int have_seeded_siphash = 0;
 int
 crypto_init_siphash_key(void)
 {
-  struct sipkey key;
-  if (have_seeded_siphash)
-    return 0;
+    struct sipkey key;
+    if (have_seeded_siphash)
+        return 0;
 
-  crypto_rand((char*) &key, sizeof(key));
-  siphash_set_global_key(&key);
-  have_seeded_siphash = 1;
-  return 0;
+    crypto_rand((char *)&key, sizeof(key));
+    siphash_set_global_key(&key);
+    have_seeded_siphash = 1;
+    return 0;
 }
 
 /** Initialize the crypto library.  Return 0 on success, -1 on failure.
@@ -58,28 +58,27 @@ crypto_init_siphash_key(void)
 int
 crypto_early_init(void)
 {
-  if (!crypto_early_initialized_) {
-
-    crypto_early_initialized_ = 1;
+    if (!crypto_early_initialized_) {
+        crypto_early_initialized_ = 1;
 
 #ifdef ENABLE_OPENSSL
-    crypto_openssl_early_init();
+        crypto_openssl_early_init();
 #endif
 #ifdef ENABLE_NSS
-    crypto_nss_early_init(0);
+        crypto_nss_early_init(0);
 #endif
 
-    if (crypto_seed_rng() < 0)
-      return -1;
-    if (crypto_init_siphash_key() < 0)
-      return -1;
+        if (crypto_seed_rng() < 0)
+            return -1;
+        if (crypto_init_siphash_key() < 0)
+            return -1;
 
-    crypto_rand_fast_init();
+        crypto_rand_fast_init();
 
-    curve25519_init();
-    ed25519_init();
-  }
-  return 0;
+        curve25519_init();
+        ed25519_init();
+    }
+    return 0;
 }
 
 /** Initialize the crypto library.  Return 0 on success, -1 on failure.
@@ -87,28 +86,28 @@ crypto_early_init(void)
 int
 crypto_global_init(int useAccel, const char *accelName, const char *accelDir)
 {
-  if (!crypto_global_initialized_) {
-    if (crypto_early_init() < 0)
-      return -1;
+    if (!crypto_global_initialized_) {
+        if (crypto_early_init() < 0)
+            return -1;
 
-    crypto_global_initialized_ = 1;
+        crypto_global_initialized_ = 1;
 
-    crypto_dh_init();
+        crypto_dh_init();
 
 #ifdef ENABLE_OPENSSL
-    if (crypto_openssl_late_init(useAccel, accelName, accelDir) < 0)
-      return -1;
+        if (crypto_openssl_late_init(useAccel, accelName, accelDir) < 0)
+            return -1;
 #else
-    (void)useAccel;
-    (void)accelName;
-    (void)accelDir;
+        (void)useAccel;
+        (void)accelName;
+        (void)accelDir;
 #endif /* defined(ENABLE_OPENSSL) */
 #ifdef ENABLE_NSS
-    if (crypto_nss_late_init() < 0)
-      return -1;
+        if (crypto_nss_late_init() < 0)
+            return -1;
 #endif
-  }
-  return 0;
+    }
+    return 0;
 }
 
 /** Free crypto resources held by this thread. */
@@ -116,9 +115,9 @@ void
 crypto_thread_cleanup(void)
 {
 #ifdef ENABLE_OPENSSL
-  crypto_openssl_thread_cleanup();
+    crypto_openssl_thread_cleanup();
 #endif
-  destroy_thread_fast_rng();
+    destroy_thread_fast_rng();
 }
 
 /**
@@ -128,23 +127,23 @@ crypto_thread_cleanup(void)
 int
 crypto_global_cleanup(void)
 {
-  crypto_dh_free_all();
+    crypto_dh_free_all();
 
 #ifdef ENABLE_OPENSSL
-  crypto_openssl_global_cleanup();
+    crypto_openssl_global_cleanup();
 #endif
 #ifdef ENABLE_NSS
-  crypto_nss_global_cleanup();
+    crypto_nss_global_cleanup();
 #endif
 
-  crypto_rand_fast_shutdown();
+    crypto_rand_fast_shutdown();
 
-  crypto_early_initialized_ = 0;
-  crypto_global_initialized_ = 0;
-  have_seeded_siphash = 0;
-  siphash_unset_global_key();
+    crypto_early_initialized_ = 0;
+    crypto_global_initialized_ = 0;
+    have_seeded_siphash = 0;
+    siphash_unset_global_key();
 
-  return 0;
+    return 0;
 }
 
 /** Run operations that the crypto library requires to be happy again
@@ -153,14 +152,14 @@ void
 crypto_prefork(void)
 {
 #ifdef ENABLE_NSS
-  crypto_nss_prefork();
+    crypto_nss_prefork();
 #endif
-  /* It is not safe to share a fast_rng object across a fork boundary unless
-   * we actually have zero-on-fork support in map_anon.c.  If we have
-   * drop-on-fork support, we will crash; if we have neither, we will yield
-   * a copy of the parent process's rng, which is scary and insecure.
-   */
-  destroy_thread_fast_rng();
+    /* It is not safe to share a fast_rng object across a fork boundary unless
+     * we actually have zero-on-fork support in map_anon.c.  If we have
+     * drop-on-fork support, we will crash; if we have neither, we will yield
+     * a copy of the parent process's rng, which is scary and insecure.
+     */
+    destroy_thread_fast_rng();
 }
 
 /** Run operations that the crypto library requires to be happy again
@@ -169,7 +168,7 @@ void
 crypto_postfork(void)
 {
 #ifdef ENABLE_NSS
-  crypto_nss_postfork();
+    crypto_nss_postfork();
 #endif
 }
 
@@ -178,10 +177,10 @@ const char *
 crypto_get_library_name(void)
 {
 #ifdef ENABLE_OPENSSL
-  return "OpenSSL";
+    return "OpenSSL";
 #endif
 #ifdef ENABLE_NSS
-  return "NSS";
+    return "NSS";
 #endif
 }
 
@@ -191,10 +190,10 @@ const char *
 crypto_get_library_version_string(void)
 {
 #ifdef ENABLE_OPENSSL
-  return crypto_openssl_get_version_str();
+    return crypto_openssl_get_version_str();
 #endif
 #ifdef ENABLE_NSS
-  return crypto_nss_get_version_str();
+    return crypto_nss_get_version_str();
 #endif
 }
 
@@ -204,10 +203,10 @@ const char *
 crypto_get_header_version_string(void)
 {
 #ifdef ENABLE_OPENSSL
-  return crypto_openssl_get_header_version_str();
+    return crypto_openssl_get_header_version_str();
 #endif
 #ifdef ENABLE_NSS
-  return crypto_nss_get_header_version_str();
+    return crypto_nss_get_header_version_str();
 #endif
 }
 
@@ -216,43 +215,43 @@ int
 tor_is_using_nss(void)
 {
 #ifdef ENABLE_NSS
-  return 1;
+    return 1;
 #else
-  return 0;
+    return 0;
 #endif
 }
 
 static int
 subsys_crypto_initialize(void)
 {
-  if (crypto_early_init() < 0)
-    return -1;
-  crypto_dh_init();
-  return 0;
+    if (crypto_early_init() < 0)
+        return -1;
+    crypto_dh_init();
+    return 0;
 }
 
 static void
 subsys_crypto_shutdown(void)
 {
-  crypto_global_cleanup();
+    crypto_global_cleanup();
 }
 
 static void
 subsys_crypto_prefork(void)
 {
-  crypto_prefork();
+    crypto_prefork();
 }
 
 static void
 subsys_crypto_postfork(void)
 {
-  crypto_postfork();
+    crypto_postfork();
 }
 
 static void
 subsys_crypto_thread_cleanup(void)
 {
-  crypto_thread_cleanup();
+    crypto_thread_cleanup();
 }
 
 /** Magic number for crypto_options_t. */
@@ -265,17 +264,17 @@ subsys_crypto_thread_cleanup(void)
 static int
 crypto_options_validate(const void *arg, char **msg_out)
 {
-  const crypto_options_t *opt = arg;
-  tor_assert(opt->magic == CRYPTO_OPTIONS_MAGIC);
-  tor_assert(msg_out);
+    const crypto_options_t *opt = arg;
+    tor_assert(opt->magic == CRYPTO_OPTIONS_MAGIC);
+    tor_assert(msg_out);
 
-  if (opt->AccelDir && !opt->AccelName) {
-    *msg_out = tor_strdup("Can't use hardware crypto accelerator dir "
-                          "without engine name.");
-    return -1;
-  }
+    if (opt->AccelDir && !opt->AccelName) {
+        *msg_out = tor_strdup("Can't use hardware crypto accelerator dir "
+                              "without engine name.");
+        return -1;
+    }
 
-  return 0;
+    return 0;
 }
 
 /* Declare the options field table for crypto_options */
@@ -287,12 +286,10 @@ crypto_options_validate(const void *arg, char **msg_out)
  * Declares the configuration options for this module.
  **/
 static const config_format_t crypto_options_fmt = {
-  .size = sizeof(crypto_options_t),
-  .magic = { "crypto_options_t",
-             CRYPTO_OPTIONS_MAGIC,
-             offsetof(crypto_options_t, magic) },
-  .vars = crypto_options_t_vars,
-  .validate_fn = crypto_options_validate,
+    .size = sizeof(crypto_options_t),
+    .magic = {"crypto_options_t", CRYPTO_OPTIONS_MAGIC, offsetof(crypto_options_t, magic)},
+    .vars = crypto_options_t_vars,
+    .validate_fn = crypto_options_validate,
 };
 
 /**
@@ -301,31 +298,29 @@ static const config_format_t crypto_options_fmt = {
 static int
 crypto_set_options(void *arg)
 {
-  const crypto_options_t *options = arg;
-  const bool hardware_accel = options->HardwareAccel || options->AccelName;
+    const crypto_options_t *options = arg;
+    const bool hardware_accel = options->HardwareAccel || options->AccelName;
 
-  // This call already checks for crypto_global_initialized_, so it
-  // will only initialize the subsystem the first time it's called.
-  if (crypto_global_init(hardware_accel,
-                         options->AccelName,
-                         options->AccelDir)) {
-    log_err(LD_BUG, "Unable to initialize the crypto subsystem. Exiting.");
-    return -1;
-  }
-  return 0;
+    // This call already checks for crypto_global_initialized_, so it
+    // will only initialize the subsystem the first time it's called.
+    if (crypto_global_init(hardware_accel, options->AccelName, options->AccelDir)) {
+        log_err(LD_BUG, "Unable to initialize the crypto subsystem. Exiting.");
+        return -1;
+    }
+    return 0;
 }
 
 const struct subsys_fns_t sys_crypto = {
-  .name = "crypto",
-  SUBSYS_DECLARE_LOCATION(),
-  .supported = true,
-  .level = -60,
-  .initialize = subsys_crypto_initialize,
-  .shutdown = subsys_crypto_shutdown,
-  .prefork = subsys_crypto_prefork,
-  .postfork = subsys_crypto_postfork,
-  .thread_cleanup = subsys_crypto_thread_cleanup,
+    .name = "crypto",
+    SUBSYS_DECLARE_LOCATION(),
+    .supported = true,
+    .level = -60,
+    .initialize = subsys_crypto_initialize,
+    .shutdown = subsys_crypto_shutdown,
+    .prefork = subsys_crypto_prefork,
+    .postfork = subsys_crypto_postfork,
+    .thread_cleanup = subsys_crypto_thread_cleanup,
 
-  .options_format = &crypto_options_fmt,
-  .set_options = crypto_set_options,
+    .options_format = &crypto_options_fmt,
+    .set_options = crypto_set_options,
 };

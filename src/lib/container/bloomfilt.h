@@ -26,16 +26,13 @@ typedef struct bloomfilt_t bloomfilt_t;
 #define BLOOMFILT_KEY_LEN (BLOOMFILT_N_HASHES * 16)
 
 struct sipkey;
-typedef uint64_t (*bloomfilt_hash_fn)(const struct sipkey *key,
-                                      const void *item);
+typedef uint64_t (*bloomfilt_hash_fn)(const struct sipkey *key, const void *item);
 
 void bloomfilt_add(bloomfilt_t *set, const void *item);
 int bloomfilt_probably_contains(const bloomfilt_t *set, const void *item);
 
-bloomfilt_t *bloomfilt_new(int max_elements,
-                           bloomfilt_hash_fn hashfn,
-                           const uint8_t *random_key);
-void bloomfilt_free_(bloomfilt_t* set);
+bloomfilt_t *bloomfilt_new(int max_elements, bloomfilt_hash_fn hashfn, const uint8_t *random_key);
+void bloomfilt_free_(bloomfilt_t *set);
 #define bloomfilt_free(set) FREE_AND_NULL(bloomfilt_t, bloomfilt_free_, (set))
 
 #endif /* !defined(TOR_BLOOMFILT_H) */

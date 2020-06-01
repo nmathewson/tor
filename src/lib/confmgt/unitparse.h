@@ -17,16 +17,15 @@
 /** Mapping from a unit name to a multiplier for converting that unit into a
  * base unit.  Used by config_parse_unit. */
 typedef struct unit_table_t {
-  const char *unit; /**< The name of the unit */
-  uint64_t multiplier; /**< How many of the base unit appear in this unit */
+    const char *unit; /**< The name of the unit */
+    uint64_t multiplier; /**< How many of the base unit appear in this unit */
 } unit_table_t;
 
 extern const unit_table_t memory_units[];
 extern const unit_table_t time_units[];
 extern const struct unit_table_t time_msec_units[];
 
-uint64_t config_parse_units(const char *val, const unit_table_t *u, int *ok,
-                            char **errmsg_out);
+uint64_t config_parse_units(const char *val, const unit_table_t *u, int *ok, char **errmsg_out);
 
 uint64_t config_parse_memunit(const char *s, int *ok);
 int config_parse_msec_interval(const char *s, int *ok);

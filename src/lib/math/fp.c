@@ -21,7 +21,7 @@
 double
 tor_mathlog(double d)
 {
-  return log(d);
+    return log(d);
 }
 
 /** Return the long integer closest to <b>d</b>. We define this wrapper
@@ -31,11 +31,11 @@ long
 tor_lround(double d)
 {
 #if defined(HAVE_LROUND)
-  return lround(d);
+    return lround(d);
 #elif defined(HAVE_RINT)
-  return (long)rint(d);
+    return (long)rint(d);
 #else
-  return (long)(d > 0 ? d + 0.5 : ceil(d - 0.5));
+    return (long)(d > 0 ? d + 0.5 : ceil(d - 0.5));
 #endif /* defined(HAVE_LROUND) || ... */
 }
 
@@ -46,11 +46,11 @@ int64_t
 tor_llround(double d)
 {
 #if defined(HAVE_LLROUND)
-  return (int64_t)llround(d);
+    return (int64_t)llround(d);
 #elif defined(HAVE_RINT)
-  return (int64_t)rint(d);
+    return (int64_t)rint(d);
 #else
-  return (int64_t)(d > 0 ? d + 0.5 : ceil(d - 0.5));
+    return (int64_t)(d > 0 ? d + 0.5 : ceil(d - 0.5));
 #endif /* defined(HAVE_LLROUND) || ... */
 }
 
@@ -60,9 +60,9 @@ tor_llround(double d)
 int64_t
 clamp_double_to_int64(double number)
 {
-  int exponent;
+    int exponent;
 
-#if (defined(MINGW_ANY)||defined(__FreeBSD__)) && GCC_VERSION >= 409
+#if (defined(MINGW_ANY) || defined(__FreeBSD__)) && GCC_VERSION >= 409
 /*
   Mingw's math.h uses gcc's __builtin_choose_expr() facility to declare
   isnan, isfinite, and signbit.  But as implemented in at least some
@@ -73,8 +73,8 @@ clamp_double_to_int64(double number)
   based on sizeof -- again, this can generate type warnings from
   branches that are not taken.
 */
-#define PROBLEMATIC_FLOAT_CONVERSION_WARNING
-DISABLE_GCC_WARNING("-Wfloat-conversion")
+#    define PROBLEMATIC_FLOAT_CONVERSION_WARNING
+    DISABLE_GCC_WARNING("-Wfloat-conversion")
 #endif /* (defined(MINGW_ANY)||defined(__FreeBSD__)) && GCC_VERSION >= 409 */
 
 /*
@@ -82,43 +82,43 @@ DISABLE_GCC_WARNING("-Wfloat-conversion")
   since clang thinks we're promoting a double to a long double.
  */
 #if defined(__clang__)
-#if __has_warning("-Wdouble-promotion")
-#define PROBLEMATIC_DOUBLE_PROMOTION_WARNING
-DISABLE_GCC_WARNING("-Wdouble-promotion")
-#endif
+#    if __has_warning("-Wdouble-promotion")
+#        define PROBLEMATIC_DOUBLE_PROMOTION_WARNING
+    DISABLE_GCC_WARNING("-Wdouble-promotion")
+#    endif
 #endif /* defined(__clang__) */
 
-  /* NaN is a special case that can't be used with the logic below. */
-  if (isnan(number)) {
-    return 0;
-  }
+    /* NaN is a special case that can't be used with the logic below. */
+    if (isnan(number)) {
+        return 0;
+    }
 
-  /* Time to validate if result can overflows a int64_t value. Fun with
-   * float! Find that exponent exp such that
-   *    number == x * 2^exp
-   * for some x with abs(x) in [0.5, 1.0). Note that this implies that the
-   * magnitude of number is strictly less than 2^exp.
-   *
-   * If number is infinite, the call to frexp is legal but the contents of
-   * are exponent unspecified. */
-  frexp(number, &exponent);
+    /* Time to validate if result can overflows a int64_t value. Fun with
+     * float! Find that exponent exp such that
+     *    number == x * 2^exp
+     * for some x with abs(x) in [0.5, 1.0). Note that this implies that the
+     * magnitude of number is strictly less than 2^exp.
+     *
+     * If number is infinite, the call to frexp is legal but the contents of
+     * are exponent unspecified. */
+    frexp(number, &exponent);
 
-  /* If the magnitude of number is strictly less than 2^63, the truncated
-   * version of number is guaranteed to be representable. The only
-   * representable integer for which this is not the case is INT64_MIN, but
-   * it is covered by the logic below. */
-  if (isfinite(number) && exponent <= 63) {
-    return (int64_t)number;
-  }
+    /* If the magnitude of number is strictly less than 2^63, the truncated
+     * version of number is guaranteed to be representable. The only
+     * representable integer for which this is not the case is INT64_MIN, but
+     * it is covered by the logic below. */
+    if (isfinite(number) && exponent <= 63) {
+        return (int64_t)number;
+    }
 
-  /* Handle infinities and finite numbers with magnitude >= 2^63. */
-  return signbit(number) ? INT64_MIN : INT64_MAX;
+    /* Handle infinities and finite numbers with magnitude >= 2^63. */
+    return signbit(number) ? INT64_MIN : INT64_MAX;
 
 #ifdef PROBLEMATIC_DOUBLE_PROMOTION_WARNING
-ENABLE_GCC_WARNING("-Wdouble-promotion")
+    ENABLE_GCC_WARNING("-Wdouble-promotion")
 #endif
 #ifdef PROBLEMATIC_FLOAT_CONVERSION_WARNING
-ENABLE_GCC_WARNING("-Wfloat-conversion")
+    ENABLE_GCC_WARNING("-Wfloat-conversion")
 #endif
 }
 
@@ -126,18 +126,18 @@ ENABLE_GCC_WARNING("-Wfloat-conversion")
 int
 tor_isinf(double x)
 {
-  /* Same as above, work around the "double promotion" warnings */
+    /* Same as above, work around the "double promotion" warnings */
 #ifdef PROBLEMATIC_FLOAT_CONVERSION_WARNING
-DISABLE_GCC_WARNING("-Wfloat-conversion")
+    DISABLE_GCC_WARNING("-Wfloat-conversion")
 #endif
 #ifdef PROBLEMATIC_DOUBLE_PROMOTION_WARNING
-DISABLE_GCC_WARNING("-Wdouble-promotion")
+    DISABLE_GCC_WARNING("-Wdouble-promotion")
 #endif
-  return isinf(x);
+    return isinf(x);
 #ifdef PROBLEMATIC_DOUBLE_PROMOTION_WARNING
-ENABLE_GCC_WARNING("-Wdouble-promotion")
+    ENABLE_GCC_WARNING("-Wdouble-promotion")
 #endif
 #ifdef PROBLEMATIC_FLOAT_CONVERSION_WARNING
-ENABLE_GCC_WARNING("-Wfloat-conversion")
+    ENABLE_GCC_WARNING("-Wfloat-conversion")
 #endif
 }

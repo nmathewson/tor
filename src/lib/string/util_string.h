@@ -16,10 +16,8 @@
 
 #include <stddef.h>
 
-const void *tor_memmem(const void *haystack, size_t hlen, const void *needle,
-                       size_t nlen);
-const void *tor_memstr(const void *haystack, size_t hlen,
-                       const char *needle);
+const void *tor_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
+const void *tor_memstr(const void *haystack, size_t hlen, const char *needle);
 int fast_mem_is_zero(const char *mem, size_t len);
 #define fast_digest_is_zero(d) fast_mem_is_zero((d), DIGEST_LEN)
 #define fast_digetst256_is_zero(d) fast_mem_is_zero((d), DIGEST256_LEN)
@@ -49,8 +47,7 @@ const char *eat_whitespace_no_nl(const char *s);
 const char *eat_whitespace_eos_no_nl(const char *s, const char *eos);
 const char *find_whitespace(const char *s);
 const char *find_whitespace_eos(const char *s, const char *eos);
-const char *find_str_at_start_of_line(const char *haystack,
-                                      const char *needle);
+const char *find_str_at_start_of_line(const char *haystack, const char *needle);
 
 int string_is_C_identifier(const char *string);
 

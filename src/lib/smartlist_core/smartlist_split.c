@@ -34,59 +34,59 @@
  * <b>sep</b> is NULL, split on any sequence of horizontal space.
  */
 int
-smartlist_split_string(smartlist_t *sl, const char *str, const char *sep,
-                       int flags, int max)
+smartlist_split_string(smartlist_t *sl, const char *str, const char *sep, int flags, int max)
 {
-  const char *cp, *end, *next;
-  int n = 0;
+    const char *cp, *end, *next;
+    int n = 0;
 
-  raw_assert(sl);
-  raw_assert(str);
+    raw_assert(sl);
+    raw_assert(str);
 
-  cp = str;
-  while (1) {
-    if (flags&SPLIT_SKIP_SPACE) {
-      while (TOR_ISSPACE(*cp)) ++cp;
+    cp = str;
+    while (1) {
+        if (flags & SPLIT_SKIP_SPACE) {
+            while (TOR_ISSPACE(*cp))
+                ++cp;
+        }
+
+        if (max > 0 && n == max - 1) {
+            end = strchr(cp, '\0');
+        } else if (sep) {
+            end = strstr(cp, sep);
+            if (!end)
+                end = strchr(cp, '\0');
+        } else {
+            for (end = cp; *end && *end != '\t' && *end != ' '; ++end)
+                ;
+        }
+
+        raw_assert(end);
+
+        if (!*end) {
+            next = NULL;
+        } else if (sep) {
+            next = end + strlen(sep);
+        } else {
+            next = end + 1;
+            while (*next == '\t' || *next == ' ')
+                ++next;
+        }
+
+        if (flags & SPLIT_SKIP_SPACE) {
+            while (end > cp && TOR_ISSPACE(*(end - 1)))
+                --end;
+        }
+        if (end != cp || !(flags & SPLIT_IGNORE_BLANK)) {
+            char *string = tor_strndup(cp, end - cp);
+            if (flags & SPLIT_STRIP_SPACE)
+                tor_strstrip(string, " ");
+            smartlist_add(sl, string);
+            ++n;
+        }
+        if (!next)
+            break;
+        cp = next;
     }
 
-    if (max>0 && n == max-1) {
-      end = strchr(cp,'\0');
-    } else if (sep) {
-      end = strstr(cp,sep);
-      if (!end)
-        end = strchr(cp,'\0');
-    } else {
-      for (end = cp; *end && *end != '\t' && *end != ' '; ++end)
-        ;
-    }
-
-    raw_assert(end);
-
-    if (!*end) {
-      next = NULL;
-    } else if (sep) {
-      next = end+strlen(sep);
-    } else {
-      next = end+1;
-      while (*next == '\t' || *next == ' ')
-        ++next;
-    }
-
-    if (flags&SPLIT_SKIP_SPACE) {
-      while (end > cp && TOR_ISSPACE(*(end-1)))
-        --end;
-    }
-    if (end != cp || !(flags&SPLIT_IGNORE_BLANK)) {
-      char *string = tor_strndup(cp, end-cp);
-      if (flags&SPLIT_STRIP_SPACE)
-        tor_strstrip(string, " ");
-      smartlist_add(sl, string);
-      ++n;
-    }
-    if (!next)
-      break;
-    cp = next;
-  }
-
-  return n;
+    return n;
 }

@@ -20,8 +20,7 @@ int subsystems_init(void);
 int subsystems_init_upto(int level);
 
 struct pubsub_builder_t;
-int subsystems_add_pubsub_upto(struct pubsub_builder_t *builder,
-                               int target_level);
+int subsystems_add_pubsub_upto(struct pubsub_builder_t *builder, int target_level);
 int subsystems_add_pubsub(struct pubsub_builder_t *builder);
 
 void subsystems_shutdown(void);
@@ -38,12 +37,9 @@ int subsystems_register_options_formats(struct config_mgr_t *mgr);
 int subsystems_register_state_formats(struct config_mgr_t *mgr);
 struct or_options_t;
 struct or_state_t;
-int subsystems_set_options(const struct config_mgr_t *mgr,
-                           struct or_options_t *options);
-int subsystems_set_state(const struct config_mgr_t *mgr,
-                         struct or_state_t *state);
-int subsystems_flush_state(const struct config_mgr_t *mgr,
-                           struct or_state_t *state);
+int subsystems_set_options(const struct config_mgr_t *mgr, struct or_options_t *options);
+int subsystems_set_state(const struct config_mgr_t *mgr, struct or_state_t *state);
+int subsystems_flush_state(const struct config_mgr_t *mgr, struct or_state_t *state);
 
 #ifdef TOR_UNIT_TESTS
 int subsystems_get_options_idx(const subsys_fns_t *sys);

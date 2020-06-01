@@ -9,8 +9,8 @@
  **/
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
+#    include <winsock2.h>
+#    include <windows.h>
 #endif
 
 #include "feature/api/tor_api.h"
@@ -36,17 +36,17 @@
 #define raw_strdup strdup
 
 #ifdef _WIN32
-#include "lib/net/socketpair.h"
-#define raw_socketpair tor_ersatz_socketpair
-#define raw_closesocket closesocket
-#define snprintf _snprintf
+#    include "lib/net/socketpair.h"
+#    define raw_socketpair tor_ersatz_socketpair
+#    define raw_closesocket closesocket
+#    define snprintf _snprintf
 #else /* !defined(_WIN32) */
-#define raw_socketpair socketpair
-#define raw_closesocket close
+#    define raw_socketpair socketpair
+#    define raw_closesocket close
 #endif /* defined(_WIN32) */
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 
 /**
@@ -56,89 +56,87 @@
 static int
 cfg_add_owned_arg(tor_main_configuration_t *cfg, const char *arg)
 {
-  /* We aren't using amortized realloc here, because libc should do it for us,
-   * and because this function is not critical-path. */
-  char **new_argv = raw_realloc(cfg->argv_owned,
-                                sizeof(char*) * (cfg->argc_owned+1));
-  if (new_argv == NULL)
-    return -1;
-  cfg->argv_owned = new_argv;
-  if (NULL == (cfg->argv_owned[cfg->argc_owned] = raw_strdup(arg)))
-    return -1;
-  ++cfg->argc_owned;
-  return 0;
+    /* We aren't using amortized realloc here, because libc should do it for us,
+     * and because this function is not critical-path. */
+    char **new_argv = raw_realloc(cfg->argv_owned, sizeof(char *) * (cfg->argc_owned + 1));
+    if (new_argv == NULL)
+        return -1;
+    cfg->argv_owned = new_argv;
+    if (NULL == (cfg->argv_owned[cfg->argc_owned] = raw_strdup(arg)))
+        return -1;
+    ++cfg->argc_owned;
+    return 0;
 }
 
 tor_main_configuration_t *
 tor_main_configuration_new(void)
 {
-  static const char *fake_argv[] = { "tor" };
-  tor_main_configuration_t *cfg = raw_malloc(sizeof(*cfg));
-  if (cfg == NULL)
-    return NULL;
+    static const char *fake_argv[] = {"tor"};
+    tor_main_configuration_t *cfg = raw_malloc(sizeof(*cfg));
+    if (cfg == NULL)
+        return NULL;
 
-  memset(cfg, 0, sizeof(*cfg));
+    memset(cfg, 0, sizeof(*cfg));
 
-  cfg->argc = 1;
-  cfg->argv = (char **) fake_argv;
+    cfg->argc = 1;
+    cfg->argv = (char **)fake_argv;
 
-  cfg->owning_controller_socket = TOR_INVALID_SOCKET;
+    cfg->owning_controller_socket = TOR_INVALID_SOCKET;
 
-  return cfg;
+    return cfg;
 }
 
 int
-tor_main_configuration_set_command_line(tor_main_configuration_t *cfg,
-                                        int argc, char *argv[])
+tor_main_configuration_set_command_line(tor_main_configuration_t *cfg, int argc, char *argv[])
 {
-  if (cfg == NULL)
-    return -1;
-  cfg->argc = argc;
-  cfg->argv = argv;
-  return 0;
+    if (cfg == NULL)
+        return -1;
+    cfg->argc = argc;
+    cfg->argv = argv;
+    return 0;
 }
 
 tor_control_socket_t
 tor_main_configuration_setup_control_socket(tor_main_configuration_t *cfg)
 {
-  if (SOCKET_OK(cfg->owning_controller_socket))
-    return INVALID_TOR_CONTROL_SOCKET;
+    if (SOCKET_OK(cfg->owning_controller_socket))
+        return INVALID_TOR_CONTROL_SOCKET;
 
-  tor_socket_t fds[2];
-  if (raw_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
-    return INVALID_TOR_CONTROL_SOCKET;
-  }
-  char buf[32];
-  snprintf(buf, sizeof(buf), "%"PRIu64, (uint64_t)fds[1]);
+    tor_socket_t fds[2];
+    if (raw_socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
+        return INVALID_TOR_CONTROL_SOCKET;
+    }
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%" PRIu64, (uint64_t)fds[1]);
 
-  cfg_add_owned_arg(cfg, "__OwningControllerFD");
-  cfg_add_owned_arg(cfg, buf);
+    cfg_add_owned_arg(cfg, "__OwningControllerFD");
+    cfg_add_owned_arg(cfg, buf);
 
-  cfg->owning_controller_socket = fds[1];
-  return fds[0];
+    cfg->owning_controller_socket = fds[1];
+    return fds[0];
 }
 
 void
 tor_main_configuration_free(tor_main_configuration_t *cfg)
 {
-  if (cfg == NULL)
-    return;
-  if (cfg->argv_owned) {
-    for (int i = 0; i < cfg->argc_owned; ++i) {
-      raw_free(cfg->argv_owned[i]);
+    if (cfg == NULL)
+        return;
+    if (cfg->argv_owned) {
+        for (int i = 0; i < cfg->argc_owned; ++i) {
+            raw_free(cfg->argv_owned[i]);
+        }
+        raw_free(cfg->argv_owned);
     }
-    raw_free(cfg->argv_owned);
-  }
-  if (SOCKET_OK(cfg->owning_controller_socket)) {
-    raw_closesocket(cfg->owning_controller_socket);
-  }
-  raw_free(cfg);
+    if (SOCKET_OK(cfg->owning_controller_socket)) {
+        raw_closesocket(cfg->owning_controller_socket);
+    }
+    raw_free(cfg);
 }
 
 const char *
 tor_api_get_provider_version(void)
 {
-  return "tor " VERSION;
+    return "tor " VERSION;
 }
 
 /* Main entry point for the Tor process.  Called from main().
@@ -152,16 +150,16 @@ tor_api_get_provider_version(void)
 int
 tor_main(int argc, char *argv[])
 {
-  tor_main_configuration_t *cfg = tor_main_configuration_new();
-  if (!cfg) {
-    puts("INTERNAL ERROR: Allocation failure. Cannot proceed");
-    return 1;
-  }
-  if (tor_main_configuration_set_command_line(cfg, argc, argv) < 0) {
-    puts("INTERNAL ERROR: Can't set command line. Cannot proceed.");
-    return 1;
-  }
-  int rv = tor_run_main(cfg);
-  tor_main_configuration_free(cfg);
-  return rv;
+    tor_main_configuration_t *cfg = tor_main_configuration_new();
+    if (!cfg) {
+        puts("INTERNAL ERROR: Allocation failure. Cannot proceed");
+        return 1;
+    }
+    if (tor_main_configuration_set_command_line(cfg, argc, argv) < 0) {
+        puts("INTERNAL ERROR: Can't set command line. Cannot proceed.");
+        return 1;
+    }
+    int rv = tor_run_main(cfg);
+    tor_main_configuration_free(cfg);
+    return rv;
 }

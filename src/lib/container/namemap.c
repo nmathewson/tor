@@ -24,28 +24,27 @@
 static inline int
 mapped_name_eq(const mapped_name_t *a, const mapped_name_t *b)
 {
-  return !strcmp(a->name, b->name);
+    return !strcmp(a->name, b->name);
 }
 
 /** Helper for namemap hashtable implementation: hash an entry. */
 static inline unsigned
 mapped_name_hash(const mapped_name_t *a)
 {
-  return (unsigned) siphash24g(a->name, strlen(a->name));
+    return (unsigned)siphash24g(a->name, strlen(a->name));
 }
 
-HT_PROTOTYPE(namemap_ht, mapped_name_t, node, mapped_name_hash,
-             mapped_name_eq);
-HT_GENERATE2(namemap_ht, mapped_name_t, node, mapped_name_hash,
-             mapped_name_eq, 0.6, tor_reallocarray_, tor_free_);
+HT_PROTOTYPE(namemap_ht, mapped_name_t, node, mapped_name_hash, mapped_name_eq);
+HT_GENERATE2(namemap_ht, mapped_name_t, node, mapped_name_hash, mapped_name_eq, 0.6,
+             tor_reallocarray_, tor_free_);
 
 /** Set up an uninitialized <b>map</b>. */
 void
 namemap_init(namemap_t *map)
 {
-  memset(map, 0, sizeof(*map));
-  HT_INIT(namemap_ht, &map->ht);
-  map->names = smartlist_new();
+    memset(map, 0, sizeof(*map));
+    HT_INIT(namemap_ht, &map->ht);
+    map->names = smartlist_new();
 }
 
 /** Return the name that <b>map</b> associates with a given <b>id</b>, or
@@ -53,12 +52,12 @@ namemap_init(namemap_t *map)
 const char *
 namemap_get_name(const namemap_t *map, unsigned id)
 {
-  if (map->names && id < (unsigned)smartlist_len(map->names)) {
-    mapped_name_t *name = smartlist_get(map->names, (int)id);
-    return name->name;
-  } else {
-    return NULL;
-  }
+    if (map->names && id < (unsigned)smartlist_len(map->names)) {
+        mapped_name_t *name = smartlist_get(map->names, (int)id);
+        return name->name;
+    } else {
+        return NULL;
+    }
 }
 
 /**
@@ -69,15 +68,15 @@ namemap_get_name(const namemap_t *map, unsigned id)
 const char *
 namemap_fmt_name(const namemap_t *map, unsigned id)
 {
-  static char buf[32];
+    static char buf[32];
 
-  const char *name = namemap_get_name(map, id);
-  if (name)
-    return name;
+    const char *name = namemap_get_name(map, id);
+    if (name)
+        return name;
 
-  tor_snprintf(buf, sizeof(buf), "{%u}", id);
+    tor_snprintf(buf, sizeof(buf), "{%u}", id);
 
-  return buf;
+    return buf;
 }
 
 /**
@@ -86,24 +85,22 @@ namemap_fmt_name(const namemap_t *map, unsigned id)
  * MAX_NAMEMAP_NAME_LEN.
  */
 static unsigned
-namemap_get_id_unchecked(const namemap_t *map,
-                         const char *name,
-                         size_t namelen)
+namemap_get_id_unchecked(const namemap_t *map, const char *name, size_t namelen)
 {
-  union {
-    mapped_name_t n;
-    char storage[MAX_NAMEMAP_NAME_LEN + sizeof(mapped_name_t) + 1];
-  } u;
-  memcpy(u.n.name, name, namelen);
-  u.n.name[namelen] = 0;
-  const mapped_name_t *found = HT_FIND(namemap_ht, &map->ht, &u.n);
-  if (found) {
-    tor_assert(map->names);
-    tor_assert(smartlist_get(map->names, found->intval) == found);
-    return found->intval;
-  }
+    union {
+        mapped_name_t n;
+        char storage[MAX_NAMEMAP_NAME_LEN + sizeof(mapped_name_t) + 1];
+    } u;
+    memcpy(u.n.name, name, namelen);
+    u.n.name[namelen] = 0;
+    const mapped_name_t *found = HT_FIND(namemap_ht, &map->ht, &u.n);
+    if (found) {
+        tor_assert(map->names);
+        tor_assert(smartlist_get(map->names, found->intval) == found);
+        return found->intval;
+    }
 
-  return NAMEMAP_ERR;
+    return NAMEMAP_ERR;
 }
 
 /**
@@ -111,15 +108,14 @@ namemap_get_id_unchecked(const namemap_t *map,
  * <b>name</b>, or NAMEMAP_ERR if no such identifier exists.
  **/
 unsigned
-namemap_get_id(const namemap_t *map,
-               const char *name)
+namemap_get_id(const namemap_t *map, const char *name)
 {
-  size_t namelen = strlen(name);
-  if (namelen > MAX_NAMEMAP_NAME_LEN) {
-    return NAMEMAP_ERR;
-  }
+    size_t namelen = strlen(name);
+    if (namelen > MAX_NAMEMAP_NAME_LEN) {
+        return NAMEMAP_ERR;
+    }
 
-  return namemap_get_id_unchecked(map, name, namelen);
+    return namemap_get_id_unchecked(map, name, namelen);
 }
 
 /**
@@ -130,44 +126,42 @@ namemap_get_id(const namemap_t *map,
  * identifiers we can allocate.
  **/
 unsigned
-namemap_get_or_create_id(namemap_t *map,
-                         const char *name)
+namemap_get_or_create_id(namemap_t *map, const char *name)
 {
-  size_t namelen = strlen(name);
-  if (namelen > MAX_NAMEMAP_NAME_LEN) {
-    return NAMEMAP_ERR;
-  }
+    size_t namelen = strlen(name);
+    if (namelen > MAX_NAMEMAP_NAME_LEN) {
+        return NAMEMAP_ERR;
+    }
 
-  if (PREDICT_UNLIKELY(map->names == NULL))
-    map->names = smartlist_new();
+    if (PREDICT_UNLIKELY(map->names == NULL))
+        map->names = smartlist_new();
 
-  unsigned found = namemap_get_id_unchecked(map, name, namelen);
-  if (found != NAMEMAP_ERR)
-    return found;
+    unsigned found = namemap_get_id_unchecked(map, name, namelen);
+    if (found != NAMEMAP_ERR)
+        return found;
 
-  unsigned new_id = (unsigned)smartlist_len(map->names);
-  if (new_id == NAMEMAP_ERR)
-    return NAMEMAP_ERR; /* Can't allocate any more. */
+    unsigned new_id = (unsigned)smartlist_len(map->names);
+    if (new_id == NAMEMAP_ERR)
+        return NAMEMAP_ERR; /* Can't allocate any more. */
 
-  mapped_name_t *insert = tor_malloc_zero(
-                       offsetof(mapped_name_t, name) + namelen + 1);
-  memcpy(insert->name, name, namelen+1);
-  insert->intval = new_id;
+    mapped_name_t *insert = tor_malloc_zero(offsetof(mapped_name_t, name) + namelen + 1);
+    memcpy(insert->name, name, namelen + 1);
+    insert->intval = new_id;
 
-  HT_INSERT(namemap_ht, &map->ht, insert);
-  smartlist_add(map->names, insert);
+    HT_INSERT(namemap_ht, &map->ht, insert);
+    smartlist_add(map->names, insert);
 
-  return new_id;
+    return new_id;
 }
 
 /** Return the number of entries in 'names' */
 size_t
 namemap_get_size(const namemap_t *map)
 {
-  if (PREDICT_UNLIKELY(map->names == NULL))
-    return 0;
+    if (PREDICT_UNLIKELY(map->names == NULL))
+        return 0;
 
-  return smartlist_len(map->names);
+    return smartlist_len(map->names);
 }
 
 /**
@@ -176,14 +170,13 @@ namemap_get_size(const namemap_t *map)
 void
 namemap_clear(namemap_t *map)
 {
-  if (!map)
-    return;
+    if (!map)
+        return;
 
-  HT_CLEAR(namemap_ht, &map->ht);
-  if (map->names) {
-    SMARTLIST_FOREACH(map->names, mapped_name_t *, n,
-                      tor_free(n));
-    smartlist_free(map->names);
-  }
-  memset(map, 0, sizeof(*map));
+    HT_CLEAR(namemap_ht, &map->ht);
+    if (map->names) {
+        SMARTLIST_FOREACH(map->names, mapped_name_t *, n, tor_free(n));
+        smartlist_free(map->names);
+    }
+    memset(map, 0, sizeof(*map));
 }

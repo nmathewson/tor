@@ -1,5 +1,5 @@
- /* Copyright (c) 2012-2020, The Tor Project, Inc. */
- /* See LICENSE for licensing information */
+/* Copyright (c) 2012-2020, The Tor Project, Inc. */
+/* See LICENSE for licensing information */
 
 /**
  * \file replaycache.c
@@ -29,14 +29,15 @@
 void
 replaycache_free_(replaycache_t *r)
 {
-  if (!r) {
-    log_info(LD_BUG, "replaycache_free() called on NULL");
-    return;
-  }
+    if (!r) {
+        log_info(LD_BUG, "replaycache_free() called on NULL");
+        return;
+    }
 
-  if (r->digests_seen) digest256map_free(r->digests_seen, tor_free_);
+    if (r->digests_seen)
+        digest256map_free(r->digests_seen, tor_free_);
 
-  tor_free(r);
+    tor_free(r);
 }
 
 /** Allocate a new, empty replay detection cache, where horizon is the time
@@ -46,91 +47,90 @@ replaycache_free_(replaycache_t *r)
 replaycache_t *
 replaycache_new(time_t horizon, time_t interval)
 {
-  replaycache_t *r = NULL;
+    replaycache_t *r = NULL;
 
-  if (horizon < 0) {
-    log_info(LD_BUG, "replaycache_new() called with negative"
-        " horizon parameter");
-    goto err;
-  }
+    if (horizon < 0) {
+        log_info(LD_BUG, "replaycache_new() called with negative"
+                         " horizon parameter");
+        goto err;
+    }
 
-  if (interval < 0) {
-    log_info(LD_BUG, "replaycache_new() called with negative interval"
-        " parameter");
-    interval = 0;
-  }
+    if (interval < 0) {
+        log_info(LD_BUG, "replaycache_new() called with negative interval"
+                         " parameter");
+        interval = 0;
+    }
 
-  r = tor_malloc(sizeof(*r));
-  r->scrub_interval = interval;
-  r->scrubbed = 0;
-  r->horizon = horizon;
-  r->digests_seen = digest256map_new();
+    r = tor_malloc(sizeof(*r));
+    r->scrub_interval = interval;
+    r->scrubbed = 0;
+    r->horizon = horizon;
+    r->digests_seen = digest256map_new();
 
- err:
-  return r;
+err:
+    return r;
 }
 
 /** See documentation for replaycache_add_and_test().
  */
 STATIC int
-replaycache_add_and_test_internal(
-    time_t present, replaycache_t *r, const void *data, size_t len,
-    time_t *elapsed)
+replaycache_add_and_test_internal(time_t present, replaycache_t *r, const void *data, size_t len,
+                                  time_t *elapsed)
 {
-  int rv = 0;
-  uint8_t digest[DIGEST256_LEN];
-  time_t *access_time;
+    int rv = 0;
+    uint8_t digest[DIGEST256_LEN];
+    time_t *access_time;
 
-  /* sanity check */
-  if (present <= 0 || !r || !data || len == 0) {
-    log_info(LD_BUG, "replaycache_add_and_test_internal() called with stupid"
-        " parameters; please fix this.");
-    goto done;
-  }
+    /* sanity check */
+    if (present <= 0 || !r || !data || len == 0) {
+        log_info(LD_BUG, "replaycache_add_and_test_internal() called with stupid"
+                         " parameters; please fix this.");
+        goto done;
+    }
 
-  /* compute digest */
-  crypto_digest256((char *)digest, (const char *)data, len, DIGEST_SHA256);
+    /* compute digest */
+    crypto_digest256((char *)digest, (const char *)data, len, DIGEST_SHA256);
 
-  /* check map */
-  access_time = digest256map_get(r->digests_seen, digest);
+    /* check map */
+    access_time = digest256map_get(r->digests_seen, digest);
 
-  /* seen before? */
-  if (access_time != NULL) {
-    /*
-     * If it's far enough in the past, no hit.  If the horizon is zero, we
-     * never expire.
-     */
-    if (*access_time >= present - r->horizon || r->horizon == 0) {
-      /* replay cache hit, return 1 */
-      rv = 1;
-      /* If we want to output an elapsed time, do so */
-      if (elapsed) {
-        if (present >= *access_time) {
-          *elapsed = present - *access_time;
-        } else {
-          /* We shouldn't really be seeing hits from the future, but... */
-          *elapsed = 0;
+    /* seen before? */
+    if (access_time != NULL) {
+        /*
+         * If it's far enough in the past, no hit.  If the horizon is zero, we
+         * never expire.
+         */
+        if (*access_time >= present - r->horizon || r->horizon == 0) {
+            /* replay cache hit, return 1 */
+            rv = 1;
+            /* If we want to output an elapsed time, do so */
+            if (elapsed) {
+                if (present >= *access_time) {
+                    *elapsed = present - *access_time;
+                } else {
+                    /* We shouldn't really be seeing hits from the future, but... */
+                    *elapsed = 0;
+                }
+            }
         }
-      }
+        /*
+         * If it's ahead of the cached time, update
+         */
+        if (*access_time < present) {
+            *access_time = present;
+        }
+    } else {
+        /* No, so no hit and update the digest map with the current time */
+        access_time = tor_malloc(sizeof(*access_time));
+        *access_time = present;
+        digest256map_set(r->digests_seen, digest, access_time);
     }
-    /*
-     * If it's ahead of the cached time, update
-     */
-    if (*access_time < present) {
-      *access_time = present;
-    }
-  } else {
-    /* No, so no hit and update the digest map with the current time */
-    access_time = tor_malloc(sizeof(*access_time));
-    *access_time = present;
-    digest256map_set(r->digests_seen, digest, access_time);
-  }
 
-  /* now scrub the cache if it's time */
-  replaycache_scrub_if_needed_internal(present, r);
+    /* now scrub the cache if it's time */
+    replaycache_scrub_if_needed_internal(present, r);
 
- done:
-  return rv;
+done:
+    return rv;
 }
 
 /** See documentation for replaycache_scrub_if_needed().
@@ -138,43 +138,46 @@ replaycache_add_and_test_internal(
 STATIC void
 replaycache_scrub_if_needed_internal(time_t present, replaycache_t *r)
 {
-  digest256map_iter_t *itr = NULL;
-  const uint8_t *digest;
-  void *valp;
-  time_t *access_time;
+    digest256map_iter_t *itr = NULL;
+    const uint8_t *digest;
+    void *valp;
+    time_t *access_time;
 
-  /* sanity check */
-  if (!r || !(r->digests_seen)) {
-    log_info(LD_BUG, "replaycache_scrub_if_needed_internal() called with"
-        " stupid parameters; please fix this.");
-    return;
-  }
-
-  /* scrub time yet? (scrubbed == 0 indicates never scrubbed before) */
-  if (present - r->scrubbed < r->scrub_interval && r->scrubbed > 0) return;
-
-  /* if we're never expiring, don't bother scrubbing */
-  if (r->horizon == 0) return;
-
-  /* okay, scrub time */
-  itr = digest256map_iter_init(r->digests_seen);
-  while (!digest256map_iter_done(itr)) {
-    digest256map_iter_get(itr, &digest, &valp);
-    access_time = (time_t *)valp;
-    /* aged out yet? */
-    if (*access_time < present - r->horizon) {
-      /* Advance the iterator and remove this one */
-      itr = digest256map_iter_next_rmv(r->digests_seen, itr);
-      /* Free the value removed */
-      tor_free(access_time);
-    } else {
-      /* Just advance the iterator */
-      itr = digest256map_iter_next(r->digests_seen, itr);
+    /* sanity check */
+    if (!r || !(r->digests_seen)) {
+        log_info(LD_BUG, "replaycache_scrub_if_needed_internal() called with"
+                         " stupid parameters; please fix this.");
+        return;
     }
-  }
 
-  /* update scrubbed timestamp */
-  if (present > r->scrubbed) r->scrubbed = present;
+    /* scrub time yet? (scrubbed == 0 indicates never scrubbed before) */
+    if (present - r->scrubbed < r->scrub_interval && r->scrubbed > 0)
+        return;
+
+    /* if we're never expiring, don't bother scrubbing */
+    if (r->horizon == 0)
+        return;
+
+    /* okay, scrub time */
+    itr = digest256map_iter_init(r->digests_seen);
+    while (!digest256map_iter_done(itr)) {
+        digest256map_iter_get(itr, &digest, &valp);
+        access_time = (time_t *)valp;
+        /* aged out yet? */
+        if (*access_time < present - r->horizon) {
+            /* Advance the iterator and remove this one */
+            itr = digest256map_iter_next_rmv(r->digests_seen, itr);
+            /* Free the value removed */
+            tor_free(access_time);
+        } else {
+            /* Just advance the iterator */
+            itr = digest256map_iter_next(r->digests_seen, itr);
+        }
+    }
+
+    /* update scrubbed timestamp */
+    if (present > r->scrubbed)
+        r->scrubbed = present;
 }
 
 /** Test the buffer of length len point to by data against the replay cache r;
@@ -185,17 +188,16 @@ replaycache_scrub_if_needed_internal(time_t present, replaycache_t *r)
 int
 replaycache_add_and_test(replaycache_t *r, const void *data, size_t len)
 {
-  return replaycache_add_and_test_internal(time(NULL), r, data, len, NULL);
+    return replaycache_add_and_test_internal(time(NULL), r, data, len, NULL);
 }
 
 /** Like replaycache_add_and_test(), but if it's a hit also return the time
  * elapsed since this digest was last seen.
  */
 int
-replaycache_add_test_and_elapsed(
-    replaycache_t *r, const void *data, size_t len, time_t *elapsed)
+replaycache_add_test_and_elapsed(replaycache_t *r, const void *data, size_t len, time_t *elapsed)
 {
-  return replaycache_add_and_test_internal(time(NULL), r, data, len, elapsed);
+    return replaycache_add_and_test_internal(time(NULL), r, data, len, elapsed);
 }
 
 /** Scrub aged entries out of r if sufficiently long has elapsed since r was
@@ -204,6 +206,5 @@ replaycache_add_test_and_elapsed(
 void
 replaycache_scrub_if_needed(replaycache_t *r)
 {
-  replaycache_scrub_if_needed_internal(time(NULL), r);
+    replaycache_scrub_if_needed_internal(time(NULL), r);
 }
-

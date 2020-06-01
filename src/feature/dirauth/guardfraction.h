@@ -13,12 +13,10 @@
 #define TOR_GUARDFRACTION_H
 
 #ifdef GUARDFRACTION_PRIVATE
-STATIC int
-dirserv_read_guardfraction_file_from_str(const char *guardfraction_file_str,
-                                      smartlist_t *vote_routerstatuses);
+STATIC int dirserv_read_guardfraction_file_from_str(const char *guardfraction_file_str,
+                                                    smartlist_t *vote_routerstatuses);
 #endif
 
-int dirserv_read_guardfraction_file(const char *fname,
-                                 smartlist_t *vote_routerstatuses);
+int dirserv_read_guardfraction_file(const char *fname, smartlist_t *vote_routerstatuses);
 
 #endif /* !defined(TOR_GUARDFRACTION_H) */

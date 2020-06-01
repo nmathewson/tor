@@ -18,9 +18,7 @@
 
 int crypto_init_siphash_key(void);
 int crypto_early_init(void) ATTR_WUR;
-int crypto_global_init(int hardwareAccel,
-                       const char *accelName,
-                       const char *accelPath) ATTR_WUR;
+int crypto_global_init(int hardwareAccel, const char *accelName, const char *accelPath) ATTR_WUR;
 
 void crypto_thread_cleanup(void);
 int crypto_global_cleanup(void);

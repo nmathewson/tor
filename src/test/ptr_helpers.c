@@ -11,9 +11,9 @@
 void *
 cast_intptr_to_voidstar(intptr_t x)
 {
-  void *r = (void *)x;
+    void *r = (void *)x;
 
-  return r;
+    return r;
 }
 
 /**
@@ -22,9 +22,9 @@ cast_intptr_to_voidstar(intptr_t x)
 intptr_t
 cast_voidstar_to_intptr(void *x)
 {
-  intptr_t r = (intptr_t)x;
+    intptr_t r = (intptr_t)x;
 
-  return r;
+    return r;
 }
 
 /**
@@ -33,9 +33,9 @@ cast_voidstar_to_intptr(void *x)
 void *
 cast_uintptr_to_voidstar(uintptr_t x)
 {
-  void *r = (void *)x;
+    void *r = (void *)x;
 
-  return r;
+    return r;
 }
 
 /**
@@ -44,7 +44,7 @@ cast_uintptr_to_voidstar(uintptr_t x)
 uintptr_t
 cast_voidstar_to_uintptr(void *x)
 {
-  uintptr_t r = (uintptr_t)x;
+    uintptr_t r = (uintptr_t)x;
 
-  return r;
+    return r;
 }

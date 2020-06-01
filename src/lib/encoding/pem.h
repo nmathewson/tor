@@ -18,9 +18,7 @@
 #include "lib/cc/torint.h"
 
 size_t pem_encoded_size(size_t src_len, const char *objtype);
-int pem_encode(char *dest, size_t destlen, const uint8_t *src, size_t srclen,
-               const char *objtype);
-int pem_decode(uint8_t *dest, size_t destlen, const char *src, size_t srclen,
-               const char *objtype);
+int pem_encode(char *dest, size_t destlen, const uint8_t *src, size_t srclen, const char *objtype);
+int pem_decode(uint8_t *dest, size_t destlen, const char *src, size_t srclen, const char *objtype);
 
 #endif /* !defined(TOR_PEM_H) */

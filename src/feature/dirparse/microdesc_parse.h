@@ -12,9 +12,7 @@
 #ifndef TOR_MICRODESC_PARSE_H
 #define TOR_MICRODESC_PARSE_H
 
-smartlist_t *microdescs_parse_from_string(const char *s, const char *eos,
-                                          int allow_annotations,
-                                          saved_location_t where,
-                                          smartlist_t *invalid_digests_out);
+smartlist_t *microdescs_parse_from_string(const char *s, const char *eos, int allow_annotations,
+                                          saved_location_t where, smartlist_t *invalid_digests_out);
 
 #endif /* !defined(TOR_MICRODESC_PARSE_H) */

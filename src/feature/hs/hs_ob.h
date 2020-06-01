@@ -24,15 +24,15 @@ void hs_ob_refresh_keys(hs_service_t *service);
 #ifdef HS_OB_PRIVATE
 
 STATIC size_t compute_subcredentials(const hs_service_t *service,
-                                   struct hs_subcredential_t **subcredentials);
+                                     struct hs_subcredential_t **subcredentials);
 
 typedef struct ob_options_t {
-  /** Magic number to identify the structure in memory. */
-  uint32_t magic_;
-  /** Master Onion Address(es). */
-  struct config_line_t *MasterOnionAddress;
-  /** Extra Lines for configuration we might not know. */
-  struct config_line_t *ExtraLines;
+    /** Magic number to identify the structure in memory. */
+    uint32_t magic_;
+    /** Master Onion Address(es). */
+    struct config_line_t *MasterOnionAddress;
+    /** Extra Lines for configuration we might not know. */
+    struct config_line_t *ExtraLines;
 } ob_options_t;
 
 #endif /* defined(HS_OB_PRIVATE) */

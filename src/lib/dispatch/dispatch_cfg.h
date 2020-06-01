@@ -24,21 +24,16 @@ typedef struct dispatch_cfg_t dispatch_cfg_t;
 
 dispatch_cfg_t *dcfg_new(void);
 
-int dcfg_msg_set_type(dispatch_cfg_t *cfg, message_id_t msg,
-                      msg_type_id_t type);
+int dcfg_msg_set_type(dispatch_cfg_t *cfg, message_id_t msg, msg_type_id_t type);
 
-int dcfg_msg_set_chan(dispatch_cfg_t *cfg, message_id_t msg,
-                      channel_id_t chan);
+int dcfg_msg_set_chan(dispatch_cfg_t *cfg, message_id_t msg, channel_id_t chan);
 
-int dcfg_type_set_fns(dispatch_cfg_t *cfg, msg_type_id_t type,
-                      const dispatch_typefns_t *fns);
+int dcfg_type_set_fns(dispatch_cfg_t *cfg, msg_type_id_t type, const dispatch_typefns_t *fns);
 
-int dcfg_add_recv(dispatch_cfg_t *cfg, message_id_t msg,
-                  subsys_id_t sys, recv_fn_t fn);
+int dcfg_add_recv(dispatch_cfg_t *cfg, message_id_t msg, subsys_id_t sys, recv_fn_t fn);
 
 /** Free a dispatch_cfg_t. */
-#define dcfg_free(cfg) \
-  FREE_AND_NULL(dispatch_cfg_t, dcfg_free_, (cfg))
+#define dcfg_free(cfg) FREE_AND_NULL(dispatch_cfg_t, dcfg_free_, (cfg))
 
 void dcfg_free_(dispatch_cfg_t *cfg);
 

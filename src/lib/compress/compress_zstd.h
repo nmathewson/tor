@@ -22,21 +22,16 @@ int tor_zstd_can_use_static_apis(void);
 /** Internal state for an incremental Zstandard compression/decompression. */
 typedef struct tor_zstd_compress_state_t tor_zstd_compress_state_t;
 
-tor_zstd_compress_state_t *
-tor_zstd_compress_new(int compress,
-                      compress_method_t method,
-                      compression_level_t compression_level);
+tor_zstd_compress_state_t *tor_zstd_compress_new(int compress, compress_method_t method,
+                                                 compression_level_t compression_level);
 
-tor_compress_output_t
-tor_zstd_compress_process(tor_zstd_compress_state_t *state,
-                          char **out, size_t *out_len,
-                          const char **in, size_t *in_len,
-                          int finish);
+tor_compress_output_t tor_zstd_compress_process(tor_zstd_compress_state_t *state, char **out,
+                                                size_t *out_len, const char **in, size_t *in_len,
+                                                int finish);
 
 void tor_zstd_compress_free_(tor_zstd_compress_state_t *state);
-#define tor_zstd_compress_free(st)                      \
-  FREE_AND_NULL(tor_zstd_compress_state_t,   \
-                           tor_zstd_compress_free_, (st))
+#define tor_zstd_compress_free(st) \
+    FREE_AND_NULL(tor_zstd_compress_state_t, tor_zstd_compress_free_, (st))
 
 size_t tor_zstd_compress_state_size(const tor_zstd_compress_state_t *state);
 
@@ -50,4 +45,3 @@ void tor_zstd_set_static_apis_disabled_for_testing(int disabled);
 #endif
 
 #endif /* !defined(TOR_COMPRESS_ZSTD_H) */
-

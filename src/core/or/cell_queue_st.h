@@ -16,19 +16,19 @@
 
 /** A cell as packed for writing to the network. */
 struct packed_cell_t {
-  /** Next cell queued on this circuit. */
-  TOR_SIMPLEQ_ENTRY(packed_cell_t) next;
-  char body[CELL_MAX_NETWORK_SIZE]; /**< Cell as packed for network. */
-  uint32_t inserted_timestamp; /**< Time (in timestamp units) when this cell
-                                * was inserted */
+    /** Next cell queued on this circuit. */
+    TOR_SIMPLEQ_ENTRY(packed_cell_t) next;
+    char body[CELL_MAX_NETWORK_SIZE]; /**< Cell as packed for network. */
+    uint32_t inserted_timestamp; /**< Time (in timestamp units) when this cell
+                                  * was inserted */
 };
 
 /** A queue of cells on a circuit, waiting to be added to the
  * or_connection_t's outbuf. */
 struct cell_queue_t {
-  /** Linked list of packed_cell_t*/
-  TOR_SIMPLEQ_HEAD(cell_simpleq_t, packed_cell_t) head;
-  int n; /**< The number of cells in the queue. */
+    /** Linked list of packed_cell_t*/
+    TOR_SIMPLEQ_HEAD(cell_simpleq_t, packed_cell_t) head;
+    int n; /**< The number of cells in the queue. */
 };
 
 #endif /* !defined(PACKED_CELL_ST_H) */

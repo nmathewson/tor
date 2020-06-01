@@ -25,7 +25,6 @@ address_set_t *address_set_new(int max_addresses_guess);
 #define address_set_free(set) bloomfilt_free(set)
 void address_set_add(address_set_t *set, const struct tor_addr_t *addr);
 void address_set_add_ipv4h(address_set_t *set, uint32_t addr);
-int address_set_probably_contains(const address_set_t *set,
-                                  const struct tor_addr_t *addr);
+int address_set_probably_contains(const address_set_t *set, const struct tor_addr_t *addr);
 
 #endif /* !defined(TOR_ADDRESS_SET_H) */

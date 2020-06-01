@@ -19,71 +19,64 @@ int connection_or_send_certs_cell(or_connection_t *conn);
 int connection_or_send_auth_challenge_cell(or_connection_t *conn);
 
 var_cell_t *connection_or_compute_authenticate_cell_body(
-                              or_connection_t *conn,
-                              const int authtype,
-                              crypto_pk_t *signing_key,
-                              const struct ed25519_keypair_t *ed_signing_key,
-                              int server);
+    or_connection_t *conn, const int authtype, crypto_pk_t *signing_key,
+    const struct ed25519_keypair_t *ed_signing_key, int server);
 
 int authchallenge_type_is_supported(uint16_t challenge_type);
-int authchallenge_type_is_better(uint16_t challenge_type_a,
-                                 uint16_t challenge_type_b);
+int authchallenge_type_is_better(uint16_t challenge_type_a, uint16_t challenge_type_b);
 
-MOCK_DECL(int,connection_or_send_authenticate_cell,
-          (or_connection_t *conn, int type));
+MOCK_DECL(int, connection_or_send_authenticate_cell, (or_connection_t * conn, int type));
 
-#ifdef TOR_UNIT_TESTS
+#    ifdef TOR_UNIT_TESTS
 extern int certs_cell_ed25519_disabled_for_testing;
-#endif
+#    endif
 #else /* !defined(HAVE_MODULE_RELAY) */
 
 static inline int
 connection_or_send_certs_cell(or_connection_t *conn)
 {
-  (void)conn;
-  tor_assert_nonfatal_unreached();
-  return -1;
+    (void)conn;
+    tor_assert_nonfatal_unreached();
+    return -1;
 }
 static inline int
 connection_or_send_auth_challenge_cell(or_connection_t *conn)
 {
-  (void)conn;
-  tor_assert_nonfatal_unreached();
-  return -1;
+    (void)conn;
+    tor_assert_nonfatal_unreached();
+    return -1;
 }
 
 static inline var_cell_t *
-connection_or_compute_authenticate_cell_body(
-                              or_connection_t *conn,
-                              const int authtype,
-                              crypto_pk_t *signing_key,
-                              const struct ed25519_keypair_t *ed_signing_key,
-                              int server)
+connection_or_compute_authenticate_cell_body(or_connection_t *conn, const int authtype,
+                                             crypto_pk_t *signing_key,
+                                             const struct ed25519_keypair_t *ed_signing_key,
+                                             int server)
 {
-  (void)conn;
-  (void)authtype;
-  (void)signing_key;
-  (void)ed_signing_key;
-  (void)server;
-  tor_assert_nonfatal_unreached();
-  return NULL;
+    (void)conn;
+    (void)authtype;
+    (void)signing_key;
+    (void)ed_signing_key;
+    (void)server;
+    tor_assert_nonfatal_unreached();
+    return NULL;
 }
 
-#define authchallenge_type_is_supported(t) (0)
-#define authchallenge_type_is_better(a, b) (0)
+#    define authchallenge_type_is_supported(t) (0)
+#    define authchallenge_type_is_better(a, b) (0)
 
 static inline int
 connection_or_send_authenticate_cell(or_connection_t *conn, int type)
 {
-  (void)conn;
-  (void)type;
-  tor_assert_nonfatal_unreached();
-  return -1;
+    (void)conn;
+    (void)type;
+    tor_assert_nonfatal_unreached();
+    return -1;
 }
 
-#ifdef TOR_UNIT_TESTS
+#    ifdef TOR_UNIT_TESTS
 extern int certs_cell_ed25519_disabled_for_testing;
-#endif
+#    endif
 
 #endif /* defined(HAVE_MODULE_RELAY) */
 

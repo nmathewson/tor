@@ -29,11 +29,11 @@
 void
 dispatch_free_msg_(const dispatch_t *d, msg_t *msg)
 {
-  if (!msg)
-    return;
+    if (!msg)
+        return;
 
-  d->typefns[msg->type].free_fn(msg->aux_data__);
-  tor_free(msg);
+    d->typefns[msg->type].free_fn(msg->aux_data__);
+    tor_free(msg);
 }
 
 /**
@@ -42,10 +42,10 @@ dispatch_free_msg_(const dispatch_t *d, msg_t *msg)
 char *
 dispatch_fmt_msg_data(const dispatch_t *d, const msg_t *msg)
 {
-  if (!msg)
-    return NULL;
+    if (!msg)
+        return NULL;
 
-  return d->typefns[msg->type].fmt_fn(msg->aux_data__);
+    return d->typefns[msg->type].fmt_fn(msg->aux_data__);
 }
 
 /**
@@ -54,30 +54,30 @@ dispatch_fmt_msg_data(const dispatch_t *d, const msg_t *msg)
 void
 dispatch_free_(dispatch_t *d)
 {
-  if (d == NULL)
-    return;
+    if (d == NULL)
+        return;
 
-  size_t n_queues = d->n_queues;
-  for (size_t i = 0; i < n_queues; ++i) {
-    msg_t *m, *mtmp;
-    TOR_SIMPLEQ_FOREACH_SAFE(m, &d->queues[i].queue, next, mtmp) {
-      dispatch_free_msg(d, m);
+    size_t n_queues = d->n_queues;
+    for (size_t i = 0; i < n_queues; ++i) {
+        msg_t *m, *mtmp;
+        TOR_SIMPLEQ_FOREACH_SAFE (m, &d->queues[i].queue, next, mtmp) {
+            dispatch_free_msg(d, m);
+        }
     }
-  }
 
-  size_t n_msgs = d->n_msgs;
+    size_t n_msgs = d->n_msgs;
 
-  for (size_t i = 0; i < n_msgs; ++i) {
-    tor_free(d->table[i]);
-  }
-  tor_free(d->table);
-  tor_free(d->typefns);
-  tor_free(d->queues);
+    for (size_t i = 0; i < n_msgs; ++i) {
+        tor_free(d->table[i]);
+    }
+    tor_free(d->table);
+    tor_free(d->typefns);
+    tor_free(d->queues);
 
-  // This is the only time we will treat d->cfg as non-const.
-  //dispatch_cfg_free_((dispatch_items_t *) d->cfg);
+    // This is the only time we will treat d->cfg as non-const.
+    // dispatch_cfg_free_((dispatch_items_t *) d->cfg);
 
-  tor_free(d);
+    tor_free(d);
 }
 
 /**
@@ -85,16 +85,15 @@ dispatch_free_(dispatch_t *d)
  * <b>chan</b> becomes nonempty.  Return 0 on success, -1 on error.
  **/
 int
-dispatch_set_alert_fn(dispatch_t *d, channel_id_t chan,
-                      dispatch_alertfn_t fn, void *userdata)
+dispatch_set_alert_fn(dispatch_t *d, channel_id_t chan, dispatch_alertfn_t fn, void *userdata)
 {
-  if (BUG(chan >= d->n_queues))
-    return -1;
+    if (BUG(chan >= d->n_queues))
+        return -1;
 
-  dqueue_t *q = &d->queues[chan];
-  q->alert_fn = fn;
-  q->alert_fn_arg = userdata;
-  return 0;
+    dqueue_t *q = &d->queues[chan];
+    q->alert_fn = fn;
+    q->alert_fn_arg = userdata;
+    return 0;
 }
 
 /**
@@ -108,55 +107,51 @@ dispatch_set_alert_fn(dispatch_t *d, channel_id_t chan,
  * consistency.
  **/
 int
-dispatch_send(dispatch_t *d,
-              subsys_id_t sender,
-              channel_id_t channel,
-              message_id_t msg,
-              msg_type_id_t type,
-              msg_aux_data_t auxdata)
+dispatch_send(dispatch_t *d, subsys_id_t sender, channel_id_t channel, message_id_t msg,
+              msg_type_id_t type, msg_aux_data_t auxdata)
 {
-  if (!d->table[msg]) {
-    /* Fast path: nobody wants this data. */
+    if (!d->table[msg]) {
+        /* Fast path: nobody wants this data. */
 
-    d->typefns[type].free_fn(auxdata);
-    return 0;
-  }
+        d->typefns[type].free_fn(auxdata);
+        return 0;
+    }
 
-  msg_t *m = tor_malloc(sizeof(msg_t));
+    msg_t *m = tor_malloc(sizeof(msg_t));
 
-  m->sender = sender;
-  m->channel = channel;
-  m->msg = msg;
-  m->type = type;
-  memcpy(&m->aux_data__, &auxdata, sizeof(msg_aux_data_t));
+    m->sender = sender;
+    m->channel = channel;
+    m->msg = msg;
+    m->type = type;
+    memcpy(&m->aux_data__, &auxdata, sizeof(msg_aux_data_t));
 
-  return dispatch_send_msg(d, m);
+    return dispatch_send_msg(d, m);
 }
 
 int
 dispatch_send_msg(dispatch_t *d, msg_t *m)
 {
-  if (BUG(!d))
-    goto err;
-  if (BUG(!m))
-    goto err;
-  if (BUG(m->channel >= d->n_queues))
-    goto err;
-  if (BUG(m->msg >= d->n_msgs))
-    goto err;
+    if (BUG(!d))
+        goto err;
+    if (BUG(!m))
+        goto err;
+    if (BUG(m->channel >= d->n_queues))
+        goto err;
+    if (BUG(m->msg >= d->n_msgs))
+        goto err;
 
-  dtbl_entry_t *ent = d->table[m->msg];
-  if (ent) {
-    if (BUG(m->type != ent->type))
-      goto err;
-    if (BUG(m->channel != ent->channel))
-      goto err;
-  }
+    dtbl_entry_t *ent = d->table[m->msg];
+    if (ent) {
+        if (BUG(m->type != ent->type))
+            goto err;
+        if (BUG(m->channel != ent->channel))
+            goto err;
+    }
 
-  return dispatch_send_msg_unchecked(d, m);
- err:
-  /* Probably it isn't safe to free m, since type could be wrong. */
-  return -1;
+    return dispatch_send_msg_unchecked(d, m);
+err:
+    /* Probably it isn't safe to free m, since type could be wrong. */
+    return -1;
 }
 
 /**
@@ -174,31 +169,27 @@ dispatch_send_msg(dispatch_t *d, msg_t *m)
 int
 dispatch_send_msg_unchecked(dispatch_t *d, msg_t *m)
 {
-  /* Find the right queue. */
-  dqueue_t *q = &d->queues[m->channel];
-  bool was_empty = TOR_SIMPLEQ_EMPTY(&q->queue);
+    /* Find the right queue. */
+    dqueue_t *q = &d->queues[m->channel];
+    bool was_empty = TOR_SIMPLEQ_EMPTY(&q->queue);
 
-  /* Append the message. */
-  TOR_SIMPLEQ_INSERT_TAIL(&q->queue, m, next);
+    /* Append the message. */
+    TOR_SIMPLEQ_INSERT_TAIL(&q->queue, m, next);
 
-  if (debug_logging_enabled()) {
-    char *arg = dispatch_fmt_msg_data(d, m);
-    log_debug(LD_MESG,
-              "Queued: %s (%s) from %s, on %s.",
-              get_message_id_name(m->msg),
-              arg,
-              get_subsys_id_name(m->sender),
-              get_channel_id_name(m->channel));
-    tor_free(arg);
-  }
+    if (debug_logging_enabled()) {
+        char *arg = dispatch_fmt_msg_data(d, m);
+        log_debug(LD_MESG, "Queued: %s (%s) from %s, on %s.", get_message_id_name(m->msg), arg,
+                  get_subsys_id_name(m->sender), get_channel_id_name(m->channel));
+        tor_free(arg);
+    }
 
-  /* If we just made the queue nonempty for the first time, call the alert
-   * function. */
-  if (was_empty) {
-    q->alert_fn(d, m->channel, q->alert_fn_arg);
-  }
+    /* If we just made the queue nonempty for the first time, call the alert
+     * function. */
+    if (was_empty) {
+        q->alert_fn(d, m->channel, q->alert_fn_arg);
+    }
 
-  return 0;
+    return 0;
 }
 
 /**
@@ -207,29 +198,24 @@ dispatch_send_msg_unchecked(dispatch_t *d, msg_t *m)
 static void
 dispatcher_run_msg_cbs(const dispatch_t *d, msg_t *m)
 {
-  tor_assert(m->msg <= d->n_msgs);
-  dtbl_entry_t *ent = d->table[m->msg];
-  int n_fns = ent->n_fns;
+    tor_assert(m->msg <= d->n_msgs);
+    dtbl_entry_t *ent = d->table[m->msg];
+    int n_fns = ent->n_fns;
 
-  if (debug_logging_enabled()) {
-    char *arg = dispatch_fmt_msg_data(d, m);
-    log_debug(LD_MESG,
-              "Delivering: %s (%s) from %s, on %s:",
-              get_message_id_name(m->msg),
-              arg,
-              get_subsys_id_name(m->sender),
-              get_channel_id_name(m->channel));
-    tor_free(arg);
-  }
-
-  int i;
-  for (i=0; i < n_fns; ++i) {
-    if (ent->rcv[i].enabled) {
-      log_debug(LD_MESG, "  Delivering to %s.",
-                get_subsys_id_name(ent->rcv[i].sys));
-      ent->rcv[i].fn(m);
+    if (debug_logging_enabled()) {
+        char *arg = dispatch_fmt_msg_data(d, m);
+        log_debug(LD_MESG, "Delivering: %s (%s) from %s, on %s:", get_message_id_name(m->msg), arg,
+                  get_subsys_id_name(m->sender), get_channel_id_name(m->channel));
+        tor_free(arg);
     }
-  }
+
+    int i;
+    for (i = 0; i < n_fns; ++i) {
+        if (ent->rcv[i].enabled) {
+            log_debug(LD_MESG, "  Delivering to %s.", get_subsys_id_name(ent->rcv[i].sys));
+            ent->rcv[i].fn(m);
+        }
+    }
 }
 
 /**
@@ -240,21 +226,21 @@ dispatcher_run_msg_cbs(const dispatch_t *d, msg_t *m)
 int
 dispatch_flush(dispatch_t *d, channel_id_t ch, int max_msgs)
 {
-  if (BUG(ch >= d->n_queues))
+    if (BUG(ch >= d->n_queues))
+        return 0;
+
+    int n_flushed = 0;
+    dqueue_t *q = &d->queues[ch];
+
+    while (n_flushed < max_msgs) {
+        msg_t *m = TOR_SIMPLEQ_FIRST(&q->queue);
+        if (!m)
+            break;
+        TOR_SIMPLEQ_REMOVE_HEAD(&q->queue, next);
+        dispatcher_run_msg_cbs(d, m);
+        dispatch_free_msg(d, m);
+        ++n_flushed;
+    }
+
     return 0;
-
-  int n_flushed = 0;
-  dqueue_t *q = &d->queues[ch];
-
-  while (n_flushed < max_msgs) {
-    msg_t *m = TOR_SIMPLEQ_FIRST(&q->queue);
-    if (!m)
-      break;
-    TOR_SIMPLEQ_REMOVE_HEAD(&q->queue, next);
-    dispatcher_run_msg_cbs(d, m);
-    dispatch_free_msg(d, m);
-    ++n_flushed;
-  }
-
-  return 0;
 }

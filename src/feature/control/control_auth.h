@@ -20,10 +20,8 @@ char *get_controller_cookie_file_name(void);
 struct config_line_t;
 smartlist_t *decode_hashed_passwords(struct config_line_t *passwords);
 
-int handle_control_authchallenge(control_connection_t *conn,
-                                 const struct control_cmd_args_t *args);
-int handle_control_authenticate(control_connection_t *conn,
-                                const struct control_cmd_args_t *args);
+int handle_control_authchallenge(control_connection_t *conn, const struct control_cmd_args_t *args);
+int handle_control_authenticate(control_connection_t *conn, const struct control_cmd_args_t *args);
 void control_auth_free_all(void);
 
 extern const struct control_cmd_syntax_t authchallenge_syntax;

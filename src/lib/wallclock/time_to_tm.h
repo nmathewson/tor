@@ -14,9 +14,7 @@
 #include <sys/types.h>
 
 struct tm;
-struct tm *tor_localtime_r_msg(const time_t *timep, struct tm *result,
-                               char **err_out);
-struct tm *tor_gmtime_r_msg(const time_t *timep, struct tm *result,
-                            char **err_out);
+struct tm *tor_localtime_r_msg(const time_t *timep, struct tm *result, char **err_out);
+struct tm *tor_gmtime_r_msg(const time_t *timep, struct tm *result, char **err_out);
 
 #endif /* !defined(TOR_WALLCLOCK_TIME_TO_TM_H) */

@@ -28,7 +28,7 @@
  *  services that might be using an old consensus and we arrive to 60
  *  hours. The max value should be beyond that.
  */
-#define OPE_INPUT_MAX (1<<18)
+#define OPE_INPUT_MAX (1 << 18)
 
 #define CRYPTO_OPE_ERROR UINT64_MAX
 
@@ -36,15 +36,13 @@ typedef struct crypto_ope_t crypto_ope_t;
 
 crypto_ope_t *crypto_ope_new(const uint8_t *key);
 void crypto_ope_free_(crypto_ope_t *ope);
-#define crypto_ope_free(ope) \
-  FREE_AND_NULL(crypto_ope_t, crypto_ope_free_, (ope))
+#define crypto_ope_free(ope) FREE_AND_NULL(crypto_ope_t, crypto_ope_free_, (ope))
 
 uint64_t crypto_ope_encrypt(const crypto_ope_t *ope, int plaintext);
 
 #ifdef CRYPTO_OPE_PRIVATE
 struct aes_cnt_cipher_t;
-STATIC struct aes_cnt_cipher_t *ope_get_cipher(const crypto_ope_t *ope,
-                                              uint32_t initial_idx);
+STATIC struct aes_cnt_cipher_t *ope_get_cipher(const crypto_ope_t *ope, uint32_t initial_idx);
 STATIC uint64_t sum_values_from_cipher(struct aes_cnt_cipher_t *c, size_t n);
 #endif /* defined(CRYPTO_OPE_PRIVATE) */
 

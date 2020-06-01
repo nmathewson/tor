@@ -14,10 +14,10 @@
 #include "lib/log/log.h"
 
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+#    include <sys/types.h>
 #endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 
 #include <errno.h>
@@ -30,23 +30,22 @@
 int
 write_pidfile(const char *filename)
 {
-  FILE *pidfile;
+    FILE *pidfile;
 
-  if ((pidfile = fopen(filename, "w")) == NULL) {
-    log_warn(LD_FS, "Unable to open \"%s\" for writing: %s", filename,
-             strerror(errno));
-    return -1;
-  } else {
+    if ((pidfile = fopen(filename, "w")) == NULL) {
+        log_warn(LD_FS, "Unable to open \"%s\" for writing: %s", filename, strerror(errno));
+        return -1;
+    } else {
 #ifdef _WIN32
-    int pid = (int)_getpid();
+        int pid = (int)_getpid();
 #else
-    int pid = (int)getpid();
+        int pid = (int)getpid();
 #endif
-    int rv = 0;
-    if (fprintf(pidfile, "%d\n", pid) < 0)
-      rv = -1;
-    if (fclose(pidfile) < 0)
-      rv = -1;
-    return rv;
-  }
+        int rv = 0;
+        if (fprintf(pidfile, "%d\n", pid) < 0)
+            rv = -1;
+        if (fclose(pidfile) < 0)
+            rv = -1;
+        return rv;
+    }
 }

@@ -16,17 +16,17 @@
 #include <string.h>
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <wincrypt.h>
+#    include <winsock2.h>
+#    include <windows.h>
+#    include <wincrypt.h>
 #endif /* defined(_WIN32) */
 
 #include <stdlib.h>
 
 #ifdef ENABLE_OPENSSL
 DISABLE_GCC_WARNING("-Wredundant-decls")
-#include <openssl/err.h>
-#include <openssl/crypto.h>
+#    include <openssl/err.h>
+#    include <openssl/crypto.h>
 ENABLE_GCC_WARNING("-Wredundant-decls")
 #endif /* defined(ENABLE_OPENSSL) */
 
@@ -54,56 +54,56 @@ ENABLE_GCC_WARNING("-Wredundant-decls")
 void
 memwipe(void *mem, uint8_t byte, size_t sz)
 {
-  if (sz == 0) {
-    return;
-  }
-  /* If sz is nonzero, then mem must not be NULL. */
-  tor_assert(mem != NULL);
+    if (sz == 0) {
+        return;
+    }
+    /* If sz is nonzero, then mem must not be NULL. */
+    tor_assert(mem != NULL);
 
-  /* Data this large is likely to be an underflow. */
-  tor_assert(sz < SIZE_T_CEILING);
+    /* Data this large is likely to be an underflow. */
+    tor_assert(sz < SIZE_T_CEILING);
 
-  /* Because whole-program-optimization exists, we may not be able to just
-   * have this function call "memset".  A smart compiler could inline it, then
-   * eliminate dead memsets, and declare itself to be clever. */
+    /* Because whole-program-optimization exists, we may not be able to just
+     * have this function call "memset".  A smart compiler could inline it, then
+     * eliminate dead memsets, and declare itself to be clever. */
 
 #if defined(SecureZeroMemory) || defined(HAVE_SECUREZEROMEMORY)
-  /* Here's what you do on windows. */
-  SecureZeroMemory(mem,sz);
+    /* Here's what you do on windows. */
+    SecureZeroMemory(mem, sz);
 #elif defined(HAVE_RTLSECUREZEROMEMORY)
-  RtlSecureZeroMemory(mem,sz);
+    RtlSecureZeroMemory(mem, sz);
 #elif defined(HAVE_EXPLICIT_BZERO)
-  /* The BSDs provide this. */
-  explicit_bzero(mem, sz);
+    /* The BSDs provide this. */
+    explicit_bzero(mem, sz);
 #elif defined(HAVE_MEMSET_S)
-  /* This is in the C99 standard. */
-  memset_s(mem, sz, 0, sz);
+    /* This is in the C99 standard. */
+    memset_s(mem, sz, 0, sz);
 #elif defined(ENABLE_OPENSSL)
-  /* This is a slow and ugly function from OpenSSL that fills 'mem' with junk
-   * based on the pointer value, then uses that junk to update a global
-   * variable.  It's an elaborate ruse to trick the compiler into not
-   * optimizing out the "wipe this memory" code.  Read it if you like zany
-   * programming tricks! In later versions of Tor, we should look for better
-   * not-optimized-out memory wiping stuff...
-   *
-   * ...or maybe not.  In practice, there are pure-asm implementations of
-   * OPENSSL_cleanse() on most platforms, which ought to do the job.
-   **/
+    /* This is a slow and ugly function from OpenSSL that fills 'mem' with junk
+     * based on the pointer value, then uses that junk to update a global
+     * variable.  It's an elaborate ruse to trick the compiler into not
+     * optimizing out the "wipe this memory" code.  Read it if you like zany
+     * programming tricks! In later versions of Tor, we should look for better
+     * not-optimized-out memory wiping stuff...
+     *
+     * ...or maybe not.  In practice, there are pure-asm implementations of
+     * OPENSSL_cleanse() on most platforms, which ought to do the job.
+     **/
 
-  OPENSSL_cleanse(mem, sz);
+    OPENSSL_cleanse(mem, sz);
 #else
-  memset(mem, 0, sz);
-  asm volatile("" ::: "memory");
+    memset(mem, 0, sz);
+    asm volatile("" ::: "memory");
 #endif /* defined(SecureZeroMemory) || defined(HAVE_SECUREZEROMEMORY) || ... */
 
-  /* Just in case some caller of memwipe() is relying on getting a buffer
-   * filled with a particular value, fill the buffer.
-   *
-   * If this function gets inlined, this memset might get eliminated, but
-   * that's okay: We only care about this particular memset in the case where
-   * the caller should have been using memset(), and the memset() wouldn't get
-   * eliminated.  In other words, this is here so that we won't break anything
-   * if somebody accidentally calls memwipe() instead of memset().
-   **/
-  memset(mem, byte, sz);
+    /* Just in case some caller of memwipe() is relying on getting a buffer
+     * filled with a particular value, fill the buffer.
+     *
+     * If this function gets inlined, this memset might get eliminated, but
+     * that's okay: We only care about this particular memset in the case where
+     * the caller should have been using memset(), and the memset() wouldn't get
+     * eliminated.  In other words, this is here so that we won't break anything
+     * if somebody accidentally calls memwipe() instead of memset().
+     **/
+    memset(mem, byte, sz);
 }

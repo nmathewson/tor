@@ -12,7 +12,6 @@
 #ifndef TOR_FMT_SERVERSTATUS_H
 #define TOR_FMT_SERVERSTATUS_H
 
-int list_server_status_v1(smartlist_t *routers, char **router_status_out,
-                          int for_controller);
+int list_server_status_v1(smartlist_t *routers, char **router_status_out, int for_controller);
 
 #endif /* !defined(TOR_FMT_SERVERSTATUS_H) */

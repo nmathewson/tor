@@ -27,175 +27,160 @@ static void test_relay_append_cell_to_circuit_queue(void *arg);
 static void
 assert_circuit_ok_mock(const circuit_t *c)
 {
-  (void) c;
-  return;
+    (void)c;
+    return;
 }
 
 static void
 test_relay_close_circuit(void *arg)
 {
-  channel_t *nchan = NULL, *pchan = NULL;
-  or_circuit_t *orcirc = NULL;
-  cell_t *cell = NULL;
-  int old_count, new_count;
+    channel_t *nchan = NULL, *pchan = NULL;
+    or_circuit_t *orcirc = NULL;
+    cell_t *cell = NULL;
+    int old_count, new_count;
 
-  (void)arg;
+    (void)arg;
 
-  /* Make fake channels to be nchan and pchan for the circuit */
-  nchan = new_fake_channel();
-  tt_assert(nchan);
+    /* Make fake channels to be nchan and pchan for the circuit */
+    nchan = new_fake_channel();
+    tt_assert(nchan);
 
-  pchan = new_fake_channel();
-  tt_assert(pchan);
+    pchan = new_fake_channel();
+    tt_assert(pchan);
 
-  /* Make a fake orcirc */
-  orcirc = new_fake_orcirc(nchan, pchan);
-  tt_assert(orcirc);
-  circuitmux_attach_circuit(nchan->cmux, TO_CIRCUIT(orcirc),
-                            CELL_DIRECTION_OUT);
-  circuitmux_attach_circuit(pchan->cmux, TO_CIRCUIT(orcirc),
-                            CELL_DIRECTION_IN);
+    /* Make a fake orcirc */
+    orcirc = new_fake_orcirc(nchan, pchan);
+    tt_assert(orcirc);
+    circuitmux_attach_circuit(nchan->cmux, TO_CIRCUIT(orcirc), CELL_DIRECTION_OUT);
+    circuitmux_attach_circuit(pchan->cmux, TO_CIRCUIT(orcirc), CELL_DIRECTION_IN);
 
-  /* Make a cell */
-  cell = tor_malloc_zero(sizeof(cell_t));
-  make_fake_cell(cell);
+    /* Make a cell */
+    cell = tor_malloc_zero(sizeof(cell_t));
+    make_fake_cell(cell);
 
-  MOCK(scheduler_channel_has_waiting_cells,
-       scheduler_channel_has_waiting_cells_mock);
-  MOCK(assert_circuit_ok,
-       assert_circuit_ok_mock);
+    MOCK(scheduler_channel_has_waiting_cells, scheduler_channel_has_waiting_cells_mock);
+    MOCK(assert_circuit_ok, assert_circuit_ok_mock);
 
-  /* Append it */
-  old_count = get_mock_scheduler_has_waiting_cells_count();
-  append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), nchan, cell,
-                               CELL_DIRECTION_OUT, 0);
-  new_count = get_mock_scheduler_has_waiting_cells_count();
-  tt_int_op(new_count, OP_EQ, old_count + 1);
+    /* Append it */
+    old_count = get_mock_scheduler_has_waiting_cells_count();
+    append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), nchan, cell, CELL_DIRECTION_OUT, 0);
+    new_count = get_mock_scheduler_has_waiting_cells_count();
+    tt_int_op(new_count, OP_EQ, old_count + 1);
 
-  /* Now try the reverse direction */
-  old_count = get_mock_scheduler_has_waiting_cells_count();
-  append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), pchan, cell,
-                               CELL_DIRECTION_IN, 0);
-  new_count = get_mock_scheduler_has_waiting_cells_count();
-  tt_int_op(new_count, OP_EQ, old_count + 1);
+    /* Now try the reverse direction */
+    old_count = get_mock_scheduler_has_waiting_cells_count();
+    append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), pchan, cell, CELL_DIRECTION_IN, 0);
+    new_count = get_mock_scheduler_has_waiting_cells_count();
+    tt_int_op(new_count, OP_EQ, old_count + 1);
 
-  /* Ensure our write totals are 0 */
-  tt_u64_op(find_largest_max(write_array), OP_EQ, 0);
+    /* Ensure our write totals are 0 */
+    tt_u64_op(find_largest_max(write_array), OP_EQ, 0);
 
-  /* Mark the circuit for close */
-  circuit_mark_for_close(TO_CIRCUIT(orcirc), 0);
+    /* Mark the circuit for close */
+    circuit_mark_for_close(TO_CIRCUIT(orcirc), 0);
 
-  /* Check our write totals. */
-  advance_obs(write_array);
-  commit_max(write_array);
-  /* Check for two cells plus overhead */
-  tt_u64_op(find_largest_max(write_array), OP_EQ,
-                             2*(get_cell_network_size(nchan->wide_circ_ids)
-                                +TLS_PER_CELL_OVERHEAD));
+    /* Check our write totals. */
+    advance_obs(write_array);
+    commit_max(write_array);
+    /* Check for two cells plus overhead */
+    tt_u64_op(find_largest_max(write_array), OP_EQ,
+              2 * (get_cell_network_size(nchan->wide_circ_ids) + TLS_PER_CELL_OVERHEAD));
 
-  UNMOCK(scheduler_channel_has_waiting_cells);
+    UNMOCK(scheduler_channel_has_waiting_cells);
 
-  /* Get rid of the fake channels */
-  MOCK(scheduler_release_channel, scheduler_release_channel_mock);
-  channel_mark_for_close(nchan);
-  channel_mark_for_close(pchan);
-  UNMOCK(scheduler_release_channel);
+    /* Get rid of the fake channels */
+    MOCK(scheduler_release_channel, scheduler_release_channel_mock);
+    channel_mark_for_close(nchan);
+    channel_mark_for_close(pchan);
+    UNMOCK(scheduler_release_channel);
 
-  /* Shut down channels */
-  channel_free_all();
+    /* Shut down channels */
+    channel_free_all();
 
- done:
-  tor_free(cell);
-  if (orcirc) {
-    circuitmux_detach_circuit(nchan->cmux, TO_CIRCUIT(orcirc));
-    circuitmux_detach_circuit(pchan->cmux, TO_CIRCUIT(orcirc));
-    cell_queue_clear(&orcirc->base_.n_chan_cells);
-    cell_queue_clear(&orcirc->p_chan_cells);
-  }
-  free_fake_orcirc(orcirc);
-  free_fake_channel(nchan);
-  free_fake_channel(pchan);
-  UNMOCK(assert_circuit_ok);
+done:
+    tor_free(cell);
+    if (orcirc) {
+        circuitmux_detach_circuit(nchan->cmux, TO_CIRCUIT(orcirc));
+        circuitmux_detach_circuit(pchan->cmux, TO_CIRCUIT(orcirc));
+        cell_queue_clear(&orcirc->base_.n_chan_cells);
+        cell_queue_clear(&orcirc->p_chan_cells);
+    }
+    free_fake_orcirc(orcirc);
+    free_fake_channel(nchan);
+    free_fake_channel(pchan);
+    UNMOCK(assert_circuit_ok);
 
-  return;
+    return;
 }
 
 static void
 test_relay_append_cell_to_circuit_queue(void *arg)
 {
-  channel_t *nchan = NULL, *pchan = NULL;
-  or_circuit_t *orcirc = NULL;
-  cell_t *cell = NULL;
-  int old_count, new_count;
+    channel_t *nchan = NULL, *pchan = NULL;
+    or_circuit_t *orcirc = NULL;
+    cell_t *cell = NULL;
+    int old_count, new_count;
 
-  (void)arg;
+    (void)arg;
 
-  /* Make fake channels to be nchan and pchan for the circuit */
-  nchan = new_fake_channel();
-  tt_assert(nchan);
+    /* Make fake channels to be nchan and pchan for the circuit */
+    nchan = new_fake_channel();
+    tt_assert(nchan);
 
-  pchan = new_fake_channel();
-  tt_assert(pchan);
+    pchan = new_fake_channel();
+    tt_assert(pchan);
 
-  /* Make a fake orcirc */
-  orcirc = new_fake_orcirc(nchan, pchan);
-  tt_assert(orcirc);
-  circuitmux_attach_circuit(nchan->cmux, TO_CIRCUIT(orcirc),
-                            CELL_DIRECTION_OUT);
-  circuitmux_attach_circuit(pchan->cmux, TO_CIRCUIT(orcirc),
-                            CELL_DIRECTION_IN);
+    /* Make a fake orcirc */
+    orcirc = new_fake_orcirc(nchan, pchan);
+    tt_assert(orcirc);
+    circuitmux_attach_circuit(nchan->cmux, TO_CIRCUIT(orcirc), CELL_DIRECTION_OUT);
+    circuitmux_attach_circuit(pchan->cmux, TO_CIRCUIT(orcirc), CELL_DIRECTION_IN);
 
-  /* Make a cell */
-  cell = tor_malloc_zero(sizeof(cell_t));
-  make_fake_cell(cell);
+    /* Make a cell */
+    cell = tor_malloc_zero(sizeof(cell_t));
+    make_fake_cell(cell);
 
-  MOCK(scheduler_channel_has_waiting_cells,
-       scheduler_channel_has_waiting_cells_mock);
+    MOCK(scheduler_channel_has_waiting_cells, scheduler_channel_has_waiting_cells_mock);
 
-  /* Append it */
-  old_count = get_mock_scheduler_has_waiting_cells_count();
-  append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), nchan, cell,
-                               CELL_DIRECTION_OUT, 0);
-  new_count = get_mock_scheduler_has_waiting_cells_count();
-  tt_int_op(new_count, OP_EQ, old_count + 1);
+    /* Append it */
+    old_count = get_mock_scheduler_has_waiting_cells_count();
+    append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), nchan, cell, CELL_DIRECTION_OUT, 0);
+    new_count = get_mock_scheduler_has_waiting_cells_count();
+    tt_int_op(new_count, OP_EQ, old_count + 1);
 
-  /* Now try the reverse direction */
-  old_count = get_mock_scheduler_has_waiting_cells_count();
-  append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), pchan, cell,
-                               CELL_DIRECTION_IN, 0);
-  new_count = get_mock_scheduler_has_waiting_cells_count();
-  tt_int_op(new_count, OP_EQ, old_count + 1);
+    /* Now try the reverse direction */
+    old_count = get_mock_scheduler_has_waiting_cells_count();
+    append_cell_to_circuit_queue(TO_CIRCUIT(orcirc), pchan, cell, CELL_DIRECTION_IN, 0);
+    new_count = get_mock_scheduler_has_waiting_cells_count();
+    tt_int_op(new_count, OP_EQ, old_count + 1);
 
-  UNMOCK(scheduler_channel_has_waiting_cells);
+    UNMOCK(scheduler_channel_has_waiting_cells);
 
-  /* Get rid of the fake channels */
-  MOCK(scheduler_release_channel, scheduler_release_channel_mock);
-  channel_mark_for_close(nchan);
-  channel_mark_for_close(pchan);
-  UNMOCK(scheduler_release_channel);
+    /* Get rid of the fake channels */
+    MOCK(scheduler_release_channel, scheduler_release_channel_mock);
+    channel_mark_for_close(nchan);
+    channel_mark_for_close(pchan);
+    UNMOCK(scheduler_release_channel);
 
-  /* Shut down channels */
-  channel_free_all();
+    /* Shut down channels */
+    channel_free_all();
 
- done:
-  tor_free(cell);
-  if (orcirc) {
-    circuitmux_detach_circuit(nchan->cmux, TO_CIRCUIT(orcirc));
-    circuitmux_detach_circuit(pchan->cmux, TO_CIRCUIT(orcirc));
-    cell_queue_clear(&orcirc->base_.n_chan_cells);
-    cell_queue_clear(&orcirc->p_chan_cells);
-  }
-  free_fake_orcirc(orcirc);
-  free_fake_channel(nchan);
-  free_fake_channel(pchan);
+done:
+    tor_free(cell);
+    if (orcirc) {
+        circuitmux_detach_circuit(nchan->cmux, TO_CIRCUIT(orcirc));
+        circuitmux_detach_circuit(pchan->cmux, TO_CIRCUIT(orcirc));
+        cell_queue_clear(&orcirc->base_.n_chan_cells);
+        cell_queue_clear(&orcirc->p_chan_cells);
+    }
+    free_fake_orcirc(orcirc);
+    free_fake_channel(nchan);
+    free_fake_channel(pchan);
 
-  return;
+    return;
 }
 
 struct testcase_t relay_tests[] = {
-  { "append_cell_to_circuit_queue", test_relay_append_cell_to_circuit_queue,
-    TT_FORK, NULL, NULL },
-  { "close_circ_rephist", test_relay_close_circuit,
-    TT_FORK, NULL, NULL },
-  END_OF_TESTCASES
-};
+    {"append_cell_to_circuit_queue", test_relay_append_cell_to_circuit_queue, TT_FORK, NULL, NULL},
+    {"close_circ_rephist", test_relay_close_circuit, TT_FORK, NULL, NULL},
+    END_OF_TESTCASES};

@@ -45,14 +45,13 @@ static smartlist_t *the_periodic_events = NULL;
 /** Set the event <b>event</b> to run in <b>next_interval</b> seconds from
  * now. */
 static void
-periodic_event_set_interval(periodic_event_item_t *event,
-                            time_t next_interval)
+periodic_event_set_interval(periodic_event_item_t *event, time_t next_interval)
 {
-  tor_assert(next_interval < MAX_INTERVAL);
-  struct timeval tv;
-  tv.tv_sec = next_interval;
-  tv.tv_usec = 0;
-  mainloop_event_schedule(event->ev, &tv);
+    tor_assert(next_interval < MAX_INTERVAL);
+    struct timeval tv;
+    tv.tv_sec = next_interval;
+    tv.tv_usec = 0;
+    mainloop_event_schedule(event->ev, &tv);
 }
 
 /** Wraps dispatches for periodic events, <b>data</b> will be a pointer to the
@@ -60,55 +59,54 @@ periodic_event_set_interval(periodic_event_item_t *event,
 static void
 periodic_event_dispatch(mainloop_event_t *ev, void *data)
 {
-  periodic_event_item_t *event = data;
-  tor_assert(ev == event->ev);
+    periodic_event_item_t *event = data;
+    tor_assert(ev == event->ev);
 
-  time_t now = time(NULL);
-  update_current_time(now);
-  const or_options_t *options = get_options();
-//  log_debug(LD_GENERAL, "Dispatching %s", event->name);
-  int r = event->fn(now, options);
-  int next_interval = 0;
+    time_t now = time(NULL);
+    update_current_time(now);
+    const or_options_t *options = get_options();
+    //  log_debug(LD_GENERAL, "Dispatching %s", event->name);
+    int r = event->fn(now, options);
+    int next_interval = 0;
 
-  if (!periodic_event_is_enabled(event)) {
-    /* The event got disabled from inside its callback, or before: no need to
-     * reschedule. */
-    return;
-  }
+    if (!periodic_event_is_enabled(event)) {
+        /* The event got disabled from inside its callback, or before: no need to
+         * reschedule. */
+        return;
+    }
 
-  /* update the last run time if action was taken */
-  if (r==0) {
-    log_err(LD_BUG, "Invalid return value for periodic event from %s.",
-                      event->name);
-    tor_assert(r != 0);
-  } else if (r > 0) {
-    event->last_action_time = now;
-    /* If the event is meant to happen after ten years, that's likely
-     * a bug, and somebody gave an absolute time rather than an interval.
-     */
-    tor_assert(r < MAX_INTERVAL);
-    next_interval = r;
-  } else {
-    /* no action was taken, it is likely a precondition failed,
-     * we should reschedule for next second incase the precondition
-     * passes then */
-    next_interval = 1;
-  }
+    /* update the last run time if action was taken */
+    if (r == 0) {
+        log_err(LD_BUG, "Invalid return value for periodic event from %s.", event->name);
+        tor_assert(r != 0);
+    } else if (r > 0) {
+        event->last_action_time = now;
+        /* If the event is meant to happen after ten years, that's likely
+         * a bug, and somebody gave an absolute time rather than an interval.
+         */
+        tor_assert(r < MAX_INTERVAL);
+        next_interval = r;
+    } else {
+        /* no action was taken, it is likely a precondition failed,
+         * we should reschedule for next second incase the precondition
+         * passes then */
+        next_interval = 1;
+    }
 
-//  log_debug(LD_GENERAL, "Scheduling %s for %d seconds", event->name,
-//           next_interval);
-  struct timeval tv = { next_interval , 0 };
-  mainloop_event_schedule(ev, &tv);
+    //  log_debug(LD_GENERAL, "Scheduling %s for %d seconds", event->name,
+    //           next_interval);
+    struct timeval tv = {next_interval, 0};
+    mainloop_event_schedule(ev, &tv);
 }
 
 /** Schedules <b>event</b> to run as soon as possible from now. */
 void
 periodic_event_reschedule(periodic_event_item_t *event)
 {
-  /* Don't reschedule a disabled or uninitialized event. */
-  if (event->ev && periodic_event_is_enabled(event)) {
-    periodic_event_set_interval(event, 1);
-  }
+    /* Don't reschedule a disabled or uninitialized event. */
+    if (event->ev && periodic_event_is_enabled(event)) {
+        periodic_event_set_interval(event, 1);
+    }
 }
 
 /** Connects a periodic event to the Libevent backend.  Does not launch the
@@ -116,14 +114,13 @@ periodic_event_reschedule(periodic_event_item_t *event)
 void
 periodic_event_connect(periodic_event_item_t *event)
 {
-  if (event->ev) { /* Already setup? This is a bug */
-    log_err(LD_BUG, "Initial dispatch should only be done once.");
-    tor_assert(0);
-  }
+    if (event->ev) { /* Already setup? This is a bug */
+        log_err(LD_BUG, "Initial dispatch should only be done once.");
+        tor_assert(0);
+    }
 
-  event->ev = mainloop_event_new(periodic_event_dispatch,
-                                 event);
-  tor_assert(event->ev);
+    event->ev = mainloop_event_new(periodic_event_dispatch, event);
+    tor_assert(event->ev);
 }
 
 /** Handles initial dispatch for periodic events. It should happen 1 second
@@ -131,34 +128,34 @@ periodic_event_connect(periodic_event_item_t *event)
 void
 periodic_event_launch(periodic_event_item_t *event)
 {
-  if (! event->ev) { /* Not setup? This is a bug */
-    log_err(LD_BUG, "periodic_event_launch without periodic_event_connect");
-    tor_assert(0);
-  }
-  /* Event already enabled? This is a bug */
-  if (periodic_event_is_enabled(event)) {
-    log_err(LD_BUG, "periodic_event_launch on an already enabled event");
-    tor_assert(0);
-  }
+    if (!event->ev) { /* Not setup? This is a bug */
+        log_err(LD_BUG, "periodic_event_launch without periodic_event_connect");
+        tor_assert(0);
+    }
+    /* Event already enabled? This is a bug */
+    if (periodic_event_is_enabled(event)) {
+        log_err(LD_BUG, "periodic_event_launch on an already enabled event");
+        tor_assert(0);
+    }
 
-  // Initial dispatch
-  event->enabled = 1;
-  periodic_event_dispatch(event->ev, event);
+    // Initial dispatch
+    event->enabled = 1;
+    periodic_event_dispatch(event->ev, event);
 }
 
 /** Disconnect and unregister the periodic event in <b>event</b> */
 static void
 periodic_event_disconnect(periodic_event_item_t *event)
 {
-  if (!event)
-    return;
+    if (!event)
+        return;
 
-  /* First disable the event so we first cancel the event and set its enabled
-   * flag properly. */
-  periodic_event_disable(event);
+    /* First disable the event so we first cancel the event and set its enabled
+     * flag properly. */
+    periodic_event_disable(event);
 
-  mainloop_event_free(event->ev);
-  event->last_action_time = 0;
+    mainloop_event_free(event->ev);
+    event->last_action_time = 0;
 }
 
 /** Enable the given event by setting its "enabled" flag and scheduling it to
@@ -167,15 +164,15 @@ periodic_event_disconnect(periodic_event_item_t *event)
 void
 periodic_event_enable(periodic_event_item_t *event)
 {
-  tor_assert(event);
-  /* Safely and silently ignore if this event is already enabled. */
-  if (periodic_event_is_enabled(event)) {
-    return;
-  }
+    tor_assert(event);
+    /* Safely and silently ignore if this event is already enabled. */
+    if (periodic_event_is_enabled(event)) {
+        return;
+    }
 
-  tor_assert(event->ev);
-  event->enabled = 1;
-  mainloop_event_activate(event->ev);
+    tor_assert(event->ev);
+    event->enabled = 1;
+    mainloop_event_activate(event->ev);
 }
 
 /** Disable the given event which means the event is destroyed and then the
@@ -184,13 +181,13 @@ periodic_event_enable(periodic_event_item_t *event)
 void
 periodic_event_disable(periodic_event_item_t *event)
 {
-  tor_assert(event);
-  /* Safely and silently ignore if this event is already disabled. */
-  if (!periodic_event_is_enabled(event)) {
-    return;
-  }
-  mainloop_event_cancel(event->ev);
-  event->enabled = 0;
+    tor_assert(event);
+    /* Safely and silently ignore if this event is already disabled. */
+    if (!periodic_event_is_enabled(event)) {
+        return;
+    }
+    mainloop_event_cancel(event->ev);
+    event->enabled = 0;
 }
 
 /**
@@ -200,13 +197,13 @@ periodic_event_disable(periodic_event_item_t *event)
 void
 periodic_event_schedule_and_disable(periodic_event_item_t *event)
 {
-  tor_assert(event);
-  if (!periodic_event_is_enabled(event))
-    return;
+    tor_assert(event);
+    if (!periodic_event_is_enabled(event))
+        return;
 
-  periodic_event_disable(event);
+    periodic_event_disable(event);
 
-  mainloop_event_activate(event->ev);
+    mainloop_event_activate(event->ev);
 }
 
 /**
@@ -218,13 +215,13 @@ periodic_event_schedule_and_disable(periodic_event_item_t *event)
 void
 periodic_events_register(periodic_event_item_t *item)
 {
-  if (!the_periodic_events)
-    the_periodic_events = smartlist_new();
+    if (!the_periodic_events)
+        the_periodic_events = smartlist_new();
 
-  if (BUG(smartlist_contains(the_periodic_events, item)))
-    return;
+    if (BUG(smartlist_contains(the_periodic_events, item)))
+        return;
 
-  smartlist_add(the_periodic_events, item);
+    smartlist_add(the_periodic_events, item);
 }
 
 /**
@@ -233,14 +230,14 @@ periodic_events_register(periodic_event_item_t *item)
 void
 periodic_events_connect_all(void)
 {
-  if (! the_periodic_events)
-    return;
+    if (!the_periodic_events)
+        return;
 
-  SMARTLIST_FOREACH_BEGIN(the_periodic_events, periodic_event_item_t *, item) {
-    if (item->ev)
-      continue;
-    periodic_event_connect(item);
-  } SMARTLIST_FOREACH_END(item);
+    SMARTLIST_FOREACH_BEGIN (the_periodic_events, periodic_event_item_t *, item) {
+        if (item->ev)
+            continue;
+        periodic_event_connect(item);
+    } SMARTLIST_FOREACH_END (item);
 }
 
 /**
@@ -253,15 +250,15 @@ periodic_events_connect_all(void)
 void
 periodic_events_reset_all(void)
 {
-  if (! the_periodic_events)
-    return;
+    if (!the_periodic_events)
+        return;
 
-  SMARTLIST_FOREACH_BEGIN(the_periodic_events, periodic_event_item_t *, item) {
-    if (!item->ev)
-      continue;
+    SMARTLIST_FOREACH_BEGIN (the_periodic_events, periodic_event_item_t *, item) {
+        if (!item->ev)
+            continue;
 
-    periodic_event_reschedule(item);
-  } SMARTLIST_FOREACH_END(item);
+        periodic_event_reschedule(item);
+    } SMARTLIST_FOREACH_END (item);
 }
 
 /**
@@ -271,14 +268,14 @@ periodic_events_reset_all(void)
 periodic_event_item_t *
 periodic_events_find(const char *name)
 {
-  if (! the_periodic_events)
-    return NULL;
+    if (!the_periodic_events)
+        return NULL;
 
-  SMARTLIST_FOREACH_BEGIN(the_periodic_events, periodic_event_item_t *, item) {
-    if (strcmp(name, item->name) == 0)
-      return item;
-  } SMARTLIST_FOREACH_END(item);
-  return NULL;
+    SMARTLIST_FOREACH_BEGIN (the_periodic_events, periodic_event_item_t *, item) {
+        if (strcmp(name, item->name) == 0)
+            return item;
+    } SMARTLIST_FOREACH_END (item);
+    return NULL;
 }
 
 /**
@@ -290,35 +287,34 @@ periodic_events_find(const char *name)
 void
 periodic_events_rescan_by_roles(int roles, bool net_disabled)
 {
-  if (! the_periodic_events)
-    return;
+    if (!the_periodic_events)
+        return;
 
-  SMARTLIST_FOREACH_BEGIN(the_periodic_events, periodic_event_item_t *, item) {
-    if (!item->ev)
-      continue;
+    SMARTLIST_FOREACH_BEGIN (the_periodic_events, periodic_event_item_t *, item) {
+        if (!item->ev)
+            continue;
 
-    int enable = !!(item->roles & roles);
+        int enable = !!(item->roles & roles);
 
-    /* Handle the event flags. */
-    if (net_disabled &&
-        (item->flags & PERIODIC_EVENT_FLAG_NEED_NET)) {
-      enable = 0;
-    }
+        /* Handle the event flags. */
+        if (net_disabled && (item->flags & PERIODIC_EVENT_FLAG_NEED_NET)) {
+            enable = 0;
+        }
 
-    /* Enable the event if needed. It is safe to enable an event that was
-     * already enabled. Same goes for disabling it. */
-    if (enable) {
-      log_debug(LD_GENERAL, "Launching periodic event %s", item->name);
-      periodic_event_enable(item);
-    } else {
-      log_debug(LD_GENERAL, "Disabling periodic event %s", item->name);
-      if (item->flags & PERIODIC_EVENT_FLAG_RUN_ON_DISABLE) {
-        periodic_event_schedule_and_disable(item);
-      } else {
-        periodic_event_disable(item);
-      }
-    }
-  } SMARTLIST_FOREACH_END(item);
+        /* Enable the event if needed. It is safe to enable an event that was
+         * already enabled. Same goes for disabling it. */
+        if (enable) {
+            log_debug(LD_GENERAL, "Launching periodic event %s", item->name);
+            periodic_event_enable(item);
+        } else {
+            log_debug(LD_GENERAL, "Disabling periodic event %s", item->name);
+            if (item->flags & PERIODIC_EVENT_FLAG_RUN_ON_DISABLE) {
+                periodic_event_schedule_and_disable(item);
+            } else {
+                periodic_event_disable(item);
+            }
+        }
+    } SMARTLIST_FOREACH_END (item);
 }
 
 /**
@@ -330,14 +326,14 @@ periodic_events_rescan_by_roles(int roles, bool net_disabled)
 void
 periodic_events_disconnect_all(void)
 {
-  if (! the_periodic_events)
-    return;
+    if (!the_periodic_events)
+        return;
 
-  SMARTLIST_FOREACH_BEGIN(the_periodic_events, periodic_event_item_t *, item) {
-    periodic_event_disconnect(item);
-  } SMARTLIST_FOREACH_END(item);
+    SMARTLIST_FOREACH_BEGIN (the_periodic_events, periodic_event_item_t *, item) {
+        periodic_event_disconnect(item);
+    } SMARTLIST_FOREACH_END (item);
 
-  smartlist_free(the_periodic_events);
+    smartlist_free(the_periodic_events);
 }
 
 #define LONGEST_TIMER_PERIOD (30 * 86400)
@@ -350,19 +346,19 @@ periodic_events_disconnect_all(void)
 int
 safe_timer_diff(time_t now, time_t next)
 {
-  if (next > now) {
-    /* There were no computers at signed TIME_MIN (1902 on 32-bit systems),
-     * and nothing that could run Tor. It's a bug if 'next' is around then.
-     * On 64-bit systems with signed TIME_MIN, TIME_MIN is before the Big
-     * Bang. We cannot extrapolate past a singularity, but there was probably
-     * nothing that could run Tor then, either.
-     **/
-    tor_assert(next > TIME_MIN + LONGEST_TIMER_PERIOD);
+    if (next > now) {
+        /* There were no computers at signed TIME_MIN (1902 on 32-bit systems),
+         * and nothing that could run Tor. It's a bug if 'next' is around then.
+         * On 64-bit systems with signed TIME_MIN, TIME_MIN is before the Big
+         * Bang. We cannot extrapolate past a singularity, but there was probably
+         * nothing that could run Tor then, either.
+         **/
+        tor_assert(next > TIME_MIN + LONGEST_TIMER_PERIOD);
 
-    if (next - LONGEST_TIMER_PERIOD > now)
-      return LONGEST_TIMER_PERIOD;
-    return (int)(next - now);
-  } else {
-    return 1;
-  }
+        if (next - LONGEST_TIMER_PERIOD > now)
+            return LONGEST_TIMER_PERIOD;
+        return (int)(next - now);
+    } else {
+        return 1;
+    }
 }

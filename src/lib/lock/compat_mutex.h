@@ -17,19 +17,19 @@
 #include "lib/malloc/malloc.h"
 
 #if defined(HAVE_PTHREAD_H) && !defined(_WIN32)
-#include <pthread.h>
+#    include <pthread.h>
 #endif
 
 #if defined(_WIN32)
-#include <windows.h>
+#    include <windows.h>
 #endif
 
 #if defined(_WIN32)
-#define USE_WIN32_THREADS
+#    define USE_WIN32_THREADS
 #elif defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_CREATE)
-#define USE_PTHREADS
+#    define USE_PTHREADS
 #else
-#error "No threading system was found"
+#    error "No threading system was found"
 #endif /* defined(_WIN32) || ... */
 
 /* Because we use threads instead of processes on most platforms (Windows,
@@ -39,15 +39,15 @@
 /** A generic lock structure for multithreaded builds. */
 typedef struct tor_mutex_t {
 #if defined(USE_WIN32_THREADS)
-  /** Windows-only: on windows, we implement locks with CRITICAL_SECTIONS. */
-  CRITICAL_SECTION mutex;
+    /** Windows-only: on windows, we implement locks with CRITICAL_SECTIONS. */
+    CRITICAL_SECTION mutex;
 #elif defined(USE_PTHREADS)
-  /** Pthreads-only: with pthreads, we implement locks with
-   * pthread_mutex_t. */
-  pthread_mutex_t mutex;
+    /** Pthreads-only: with pthreads, we implement locks with
+     * pthread_mutex_t. */
+    pthread_mutex_t mutex;
 #else
-  /** No-threads only: Dummy variable so that tor_mutex_t takes up space. */
-  int _unused;
+    /** No-threads only: Dummy variable so that tor_mutex_t takes up space. */
+    int _unused;
 #endif /* defined(USE_WIN32_THREADS) || ... */
 } tor_mutex_t;
 

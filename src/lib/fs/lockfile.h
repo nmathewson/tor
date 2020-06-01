@@ -13,8 +13,7 @@
 #define TOR_LOCKFILE_H
 
 typedef struct tor_lockfile_t tor_lockfile_t;
-tor_lockfile_t *tor_lockfile_lock(const char *filename, int blocking,
-                                  int *locked_out);
+tor_lockfile_t *tor_lockfile_lock(const char *filename, int blocking, int *locked_out);
 void tor_lockfile_unlock(tor_lockfile_t *lockfile);
 
 #endif /* !defined(TOR_LOCKFILE_H) */

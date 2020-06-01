@@ -16,8 +16,7 @@
 struct smartlist_t;
 struct config_line_t;
 
-int config_get_lines_include(const char *string, struct config_line_t **result,
-                             int extended, int *has_include,
-                             struct smartlist_t *opened_lst);
+int config_get_lines_include(const char *string, struct config_line_t **result, int extended,
+                             int *has_include, struct smartlist_t *opened_lst);
 
 #endif /* !defined(TOR_CONFFILE_H) */

@@ -20,10 +20,9 @@
 /** Wrap our hash function to have the signature that the bloom filter
  * needs. */
 static uint64_t
-bloomfilt_addr_hash(const struct sipkey *key,
-                    const void *item)
+bloomfilt_addr_hash(const struct sipkey *key, const void *item)
 {
-  return tor_addr_keyed_hash(key, item);
+    return tor_addr_keyed_hash(key, item);
 }
 
 /**
@@ -33,9 +32,9 @@ bloomfilt_addr_hash(const struct sipkey *key,
 address_set_t *
 address_set_new(int max_addresses_guess)
 {
-  uint8_t k[BLOOMFILT_KEY_LEN];
-  crypto_rand((void*)k, sizeof(k));
-  return bloomfilt_new(max_addresses_guess, bloomfilt_addr_hash, k);
+    uint8_t k[BLOOMFILT_KEY_LEN];
+    crypto_rand((void *)k, sizeof(k));
+    return bloomfilt_new(max_addresses_guess, bloomfilt_addr_hash, k);
 }
 
 /**
@@ -47,16 +46,16 @@ address_set_new(int max_addresses_guess)
 void
 address_set_add(address_set_t *set, const struct tor_addr_t *addr)
 {
-  bloomfilt_add(set, addr);
+    bloomfilt_add(set, addr);
 }
 
 /** As address_set_add(), but take an ipv4 address in host order. */
 void
 address_set_add_ipv4h(address_set_t *set, uint32_t addr)
 {
-  tor_addr_t a;
-  tor_addr_from_ipv4h(&a, addr);
-  address_set_add(set, &a);
+    tor_addr_t a;
+    tor_addr_from_ipv4h(&a, addr);
+    address_set_add(set, &a);
 }
 
 /**
@@ -64,8 +63,7 @@ address_set_add_ipv4h(address_set_t *set, uint32_t addr)
  * return false if <b>addr</b> is not a member of set.)
  */
 int
-address_set_probably_contains(const address_set_t *set,
-                              const struct tor_addr_t *addr)
+address_set_probably_contains(const address_set_t *set, const struct tor_addr_t *addr)
 {
-  return bloomfilt_probably_contains(set, addr);
+    return bloomfilt_probably_contains(set, addr);
 }
